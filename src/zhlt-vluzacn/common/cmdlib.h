@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_BILINEARINTERPOLATION //--vluzacn
 #define HLRAD_TEXLIGHTGAP //--vluzacn
 #define HLRAD_FARPATCH_FIX //--vluzacn
 #define HLRAD_TRANSPARENCY_FAST //--vluzacn

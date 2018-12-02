@@ -26,10 +26,8 @@ struct localtriangulation_t
 			eTriangular,
 			eConvex,
 			eConcave,
-#ifdef HLRAD_BILINEARINTERPOLATION
 			eSquareLeft,
 			eSquareRight,
-#endif
 		};
 		
 		eShape shape;
@@ -275,7 +273,6 @@ static bool CalcWeight (const localtriangulation_t *lt, const vec3_t spot, vec_t
 	return !istoofar;
 }
 
-#ifdef HLRAD_BILINEARINTERPOLATION
 static void CalcInterpolation_Square (const localtriangulation_t *lt, int i, const vec3_t spot, interpolation_t *interp)
 {
 	const localtriangulation_t::Wedge *w1;
@@ -492,7 +489,6 @@ static void CalcInterpolation_Square (const localtriangulation_t *lt, int i, con
 	interp->points[3].weight = weights[3];
 }
 
-#endif
 static void CalcInterpolation (const localtriangulation_t *lt, const vec3_t spot, interpolation_t *interp)
 	// The interpolation function is defined over the entire plane, so CalcInterpolation never fails.
 {
@@ -547,10 +543,8 @@ static void CalcInterpolation (const localtriangulation_t *lt, const vec3_t spot
 	// Different wedge types have different interpolation methods
 	switch (w->shape)
 	{
-#ifdef HLRAD_BILINEARINTERPOLATION
 	case localtriangulation_t::Wedge::eSquareLeft:
 	case localtriangulation_t::Wedge::eSquareRight:
-#endif
 	case localtriangulation_t::Wedge::eTriangular:
 		// w->wedgenormal is undefined
 		{
@@ -591,7 +585,6 @@ static void CalcInterpolation (const localtriangulation_t *lt, const vec3_t spot
 				interp->points[1].patchnum = wnext->leftpatchnum;
 				interp->points[1].weight = frac;
 			}
-#ifdef HLRAD_BILINEARINTERPOLATION
 			else if (w->shape == localtriangulation_t::Wedge::eSquareLeft)
 			{
 				i = w - &lt->sortedwedges[0];
@@ -603,7 +596,6 @@ static void CalcInterpolation (const localtriangulation_t *lt, const vec3_t spot
 				i = (i - 1 + (int)lt->sortedwedges.size ()) % (int)lt->sortedwedges.size ();
 				CalcInterpolation_Square (lt, i, spot, interp);
 			}
-#endif
 			else
 			{
 				interp->isbiased = false;
@@ -872,11 +864,7 @@ void InterpolateSampleLight (const vec3_t position, int surface, int numstyles, 
 					continue;
 				}
 				interp = new interpolation_t;
-#ifdef HLRAD_BILINEARINTERPOLATION
 				interp->points.reserve (4);
-#else
-				interp->points.reserve (3);
-#endif
 				CalcInterpolation (lt, spot, interp);
 
 				localweights.push_back (weight);
@@ -1468,7 +1456,6 @@ static void PlaceHullPoints (localtriangulation_t *lt)
 	}
 }
 
-#ifdef HLRAD_BILINEARINTERPOLATION
 static bool TryMakeSquare (localtriangulation_t *lt, int i)
 {
 	localtriangulation_t::Wedge *w1;
@@ -1549,7 +1536,6 @@ static void FindSquares (localtriangulation_t *lt)
 	}
 }
 
-#endif
 static localtriangulation_t *CreateLocalTriangulation (const facetriangulation_t *facetrian, int patchnum)
 {
 	localtriangulation_t *lt;
@@ -1640,9 +1626,7 @@ static localtriangulation_t *CreateLocalTriangulation (const facetriangulation_t
 	{
 		Developer (DEVELOPER_LEVEL_SPAM, "Debug: triangulation: internal error 11.\n");
 	}
-#ifdef HLRAD_BILINEARINTERPOLATION
 	FindSquares (lt);
-#endif
 
 	// Calculate hull points
 	PlaceHullPoints (lt);
