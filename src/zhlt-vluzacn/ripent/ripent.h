@@ -19,9 +19,7 @@
 #define DEFAULT_CHART false
 #define DEFAULT_INFO true
 #define DEFAULT_WRITEEXTENTFILE false
-#ifdef ZHLT_EMBEDLIGHTMAP
 #ifdef RIPENT_TEXTURE
 #define DEFAULT_DELETEEMBEDDEDLIGHTMAPS false
-#endif
 #endif
 

@@ -54,7 +54,6 @@
 	#ifdef ZHLT_XASH
 //#define ZHLT_XASH2 // build the compiler for Xash engine with change in bsp format //--vluzacn
 	#endif
-#define ZHLT_EMBEDLIGHTMAP // this feature requires HLRAD_TEXTURE and RIPENT_TEXTURE //--vluzacn
 //#define ZHLT_HIDDENSOUNDTEXTURE //--vluzacn
 
 #define COMMON_HULLU // winding optimisations by hullu

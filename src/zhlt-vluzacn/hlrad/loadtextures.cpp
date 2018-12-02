@@ -414,7 +414,6 @@ void LoadTextures ()
 	}
 }
 
-#ifdef ZHLT_EMBEDLIGHTMAP
 
 // color quantization algorithm
 
@@ -1493,5 +1492,4 @@ void EmbedLightmapInTextures ()
 	}
 }
 
-#endif
 #endif

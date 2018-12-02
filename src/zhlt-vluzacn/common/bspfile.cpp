@@ -699,11 +699,7 @@ void GetFaceExtents (int facenum, int mins_out[2], int maxs_out[2])
 	mins[0] = mins[1] = 999999;
 	maxs[0] = maxs[1] = -99999;
 
-#ifdef ZHLT_EMBEDLIGHTMAP
 	tex = &g_texinfo[ParseTexinfoForFace (f)];
-#else
-	tex = &g_texinfo[f->texinfo];
-#endif
 
 	for (i = 0; i < f->numedges; i++)
 	{
@@ -921,18 +917,10 @@ int CountBlocks ()
 	for (k = 0; k < g_numfaces; k++)
 	{
 		dface_t *f = &g_dfaces[k];
-#ifdef ZHLT_EMBEDLIGHTMAP
 		const char *texname =  GetTextureByNumber (ParseTexinfoForFace (f));
-#else
-		const char *texname =  GetTextureByNumber (f->texinfo);
-#endif
 		if (!strncmp (texname, "sky", 3) //sky, no lightmap allocation.
 			|| !strncmp (texname, "!", 1) || !strncasecmp (texname, "water", 5) || !strncasecmp (texname, "laser", 5) //water, no lightmap allocation.
-#ifdef ZHLT_EMBEDLIGHTMAP
 			|| (g_texinfo[ParseTexinfoForFace (f)].flags & TEX_SPECIAL) //aaatrigger, I don't know.
-#else
-			|| (g_texinfo[f->texinfo].flags & TEX_SPECIAL) //aaatrigger, I don't know.
-#endif
 			)
 		{
 			continue;
@@ -1168,7 +1156,6 @@ void            PrintBSPFileSizes()
 }
 
 
-#ifdef ZHLT_EMBEDLIGHTMAP
 // =====================================================================================
 //  ParseImplicitTexinfoFromTexture
 //      purpose: get the actual texinfo for a face. the tools shouldn't directly use f->texinfo after embedlightmap is done
@@ -1364,7 +1351,6 @@ void DeleteEmbeddedLightmaps ()
 }
 
 
-#endif
 // =====================================================================================
 //  ParseEpair
 //      entity key/value pairs

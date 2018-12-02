@@ -51,10 +51,8 @@ bool g_pause = false;
 
 bool g_writeextentfile = DEFAULT_WRITEEXTENTFILE;
 
-#ifdef ZHLT_EMBEDLIGHTMAP
 #ifdef RIPENT_TEXTURE
 bool g_deleteembeddedlightmaps = DEFAULT_DELETEEMBEDDEDLIGHTMAPS;
-#endif
 #endif
 
 
@@ -810,10 +808,8 @@ static void     Usage(void)
 	Log("    -textureparse   : Parse and format texture data\n\n");
 #endif
 	Log("    -writeextentfile : Create extent file for the map\n");
-#ifdef ZHLT_EMBEDLIGHTMAP
 #ifdef RIPENT_TEXTURE
 	Log("    -deleteembeddedlightmaps : Delete textures created by hlrad\n");
-#endif
 #endif
 
     Log("    -texdata #      : Alter maximum texture memory limit (in kb)\n");
@@ -914,10 +910,8 @@ static void     Settings()
 	Log("texture parse       [ %7s ] [ %7s ]\n", g_textureparse ? "on" : "off", DEFAULT_TEXTUREPARSE ? "on" : "off");
 #endif
 	Log("write extent file   [ %7s ] [ %7s ]\n", g_writeextentfile ? "on" : "off", DEFAULT_WRITEEXTENTFILE ? "on" : "off");
-#ifdef ZHLT_EMBEDLIGHTMAP
 #ifdef RIPENT_TEXTURE
 	Log("delete rad textures [ %7s ] [ %7s ]\n", g_deleteembeddedlightmaps ? "on" : "off", DEFAULT_DELETEEMBEDDEDLIGHTMAPS ? "on" : "off");
-#endif
 #endif
 
     Log("\n\n");
@@ -1042,13 +1036,11 @@ int             main(int argc, char** argv)
 		{
 			g_writeextentfile = true;
 		}
-#ifdef ZHLT_EMBEDLIGHTMAP
 #ifdef RIPENT_TEXTURE
 		else if (!strcasecmp(argv[i], "-deleteembeddedlightmaps"))
 		{
 			g_deleteembeddedlightmaps = true;
 		}
-#endif
 #endif
 		else if (!strcasecmp (argv[i], "-lang"))
 		{
@@ -1126,13 +1118,11 @@ int             main(int argc, char** argv)
 #ifdef RIPENT_TEXTURE
 	ReadBSP(g_Mapname);
 	bool updatebsp = false;
-#ifdef ZHLT_EMBEDLIGHTMAP
 	if (g_deleteembeddedlightmaps)
 	{
 		DeleteEmbeddedLightmaps ();
 		updatebsp = true;
 	}
-#endif
 	switch (g_mode)
 	{
 	case hl_import:

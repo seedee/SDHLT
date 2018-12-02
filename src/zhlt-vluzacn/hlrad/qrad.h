@@ -217,12 +217,10 @@
 #ifdef HLRAD_AVOIDWALLBLEED
 	#define DEFAULT_BLEEDFIX true
 #endif
-#ifdef ZHLT_EMBEDLIGHTMAP
 	#define DEFAULT_EMBEDLIGHTMAP_POWEROFTWO true
 	#define DEFAULT_EMBEDLIGHTMAP_DENOMINATOR 188.0
 	#define DEFAULT_EMBEDLIGHTMAP_GAMMA 1.05
 	#define DEFAULT_EMBEDLIGHTMAP_RESOLUTION 1
-#endif
 #ifdef HLRAD_TEXLIGHTGAP
 	#define DEFAULT_TEXLIGHTGAP 0.0
 #endif
@@ -678,10 +676,8 @@ extern int g_numtextures;
 extern radtexture_t *g_textures;
 extern void AddWadFolder (const char *path);
 extern void LoadTextures ();
-#ifdef ZHLT_EMBEDLIGHTMAP
 #ifdef HLRAD_TEXTURE
 extern void EmbedLightmapInTextures ();
-#endif
 #endif
 #endif
 

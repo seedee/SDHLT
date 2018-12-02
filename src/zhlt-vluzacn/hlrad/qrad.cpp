@@ -3670,7 +3670,6 @@ vec_t FindDirectionScale (vec_t gamma)
 	return 1 / maxlength;
 }
 #endif
-#ifdef ZHLT_EMBEDLIGHTMAP
 static void ExtendLightmapBuffer ()
 {
 	int maxsize;
@@ -3709,7 +3708,6 @@ static void ExtendLightmapBuffer ()
 	}
 }
 
-#endif
 // =====================================================================================
 //  RadWorld
 // =====================================================================================
@@ -3947,9 +3945,7 @@ static void     RadWorld()
 	#endif
 	}
 #endif
-#ifdef ZHLT_EMBEDLIGHTMAP
 	ExtendLightmapBuffer (); // expand the size of lightdata array (for a few KB) to ensure that game engine reads within its valid range
-#endif
 }
 
 // =====================================================================================
@@ -5567,9 +5563,7 @@ int             main(const int argc, char** argv)
 	}
 #endif
     Settings();
-#ifdef ZHLT_EMBEDLIGHTMAP
 	DeleteEmbeddedLightmaps ();
-#endif
 #ifdef HLRAD_TEXTURE
 	LoadTextures ();
 #endif
@@ -5644,10 +5638,8 @@ int             main(const int argc, char** argv)
 	DeleteOpaqueNodes ();
 #endif
 
-#ifdef ZHLT_EMBEDLIGHTMAP
 #ifdef HLRAD_TEXTURE
 	EmbedLightmapInTextures ();
-#endif
 #endif
     if (g_chart)
         PrintBSPFileSizes();
