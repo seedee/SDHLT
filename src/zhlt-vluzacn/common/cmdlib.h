@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_MORE_PATCHES //--vluzacn
 #define HLRAD_SPARSEVISMATRIX_FAST //--vluzacn
 #define HLRAD_LOCALTRIANGULATION //--vluzacn
 	#ifdef HLRAD_LOCALTRIANGULATION

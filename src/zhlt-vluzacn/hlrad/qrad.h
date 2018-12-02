@@ -250,11 +250,7 @@ typedef unsigned char rgb_transfer_data_t;
 
 #define MAX_COMPRESSED_TRANSFER_INDEX_SIZE ((1 << 12) - 1)
 
-#ifdef HLRAD_MORE_PATCHES
 #define	MAX_PATCHES	(65535*16) // limited by transfer_index_t
-#else
-#define	MAX_PATCHES	(65535*4)
-#endif
 #define MAX_VISMATRIX_PATCHES 65535
 #define MAX_SPARSE_VISMATRIX_PATCHES MAX_PATCHES
 
@@ -458,11 +454,7 @@ extern vec3_t   g_face_offset[MAX_MAP_FACES];              // for models with or
 extern eModelLightmodes g_face_lightmode[MAX_MAP_FACES];
 extern vec3_t   g_face_centroids[MAX_MAP_EDGES];
 extern entity_t* g_face_texlights[MAX_MAP_FACES];
-#ifdef HLRAD_MORE_PATCHES
 extern patch_t* g_patches; // shrinked to its real size, because 1048576 patches * 256 bytes = 256MB will be too big
-#else
-extern patch_t  g_patches[MAX_PATCHES];
-#endif
 extern unsigned g_num_patches;
 
 extern float    g_lightscale;

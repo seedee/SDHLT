@@ -49,35 +49,17 @@ vec_t           g_fade = DEFAULT_FADE;
 patch_t*        g_face_patches[MAX_MAP_FACES];
 entity_t*       g_face_entity[MAX_MAP_FACES];
 eModelLightmodes g_face_lightmode[MAX_MAP_FACES];
-#ifdef HLRAD_MORE_PATCHES
 patch_t*		g_patches;
-#else
-patch_t         g_patches[MAX_PATCHES];
-#endif
 entity_t*		g_face_texlights[MAX_MAP_FACES];
 unsigned        g_num_patches;
 
-#ifdef HLRAD_MORE_PATCHES
 static vec3_t   (*emitlight)[MAXLIGHTMAPS]; //LRC
 static vec3_t   (*addlight)[MAXLIGHTMAPS]; //LRC
-#else
-static vec3_t   emitlight[MAX_PATCHES][MAXLIGHTMAPS]; //LRC
-static vec3_t   addlight[MAX_PATCHES][MAXLIGHTMAPS]; //LRC
-#endif
 #ifdef ZHLT_XASH
-#ifdef HLRAD_MORE_PATCHES
 static vec3_t	(*emitlight_direction)[MAXLIGHTMAPS];
 static vec3_t	(*addlight_direction)[MAXLIGHTMAPS];
-#else
-static vec3_t	emitlight_direction[MAX_PATCHES][MAXLIGHTMAPS];
-static vec3_t	addlight_direction[MAX_PATCHES][MAXLIGHTMAPS];
 #endif
-#endif
-#ifdef HLRAD_MORE_PATCHES
 static unsigned char (*newstyles)[MAXLIGHTMAPS];
-#else
-static unsigned char newstyles[MAX_PATCHES][MAXLIGHTMAPS];
-#endif
 
 vec3_t          g_face_offset[MAX_MAP_FACES];              // for rotating bmodels
 
@@ -1805,9 +1787,7 @@ static void     MakePatches()
     Log("%i faces\n", g_numfaces);
 
     Log("Create Patches : ");
-#ifdef HLRAD_MORE_PATCHES
 	g_patches = (patch_t *)AllocBlock (MAX_PATCHES * sizeof (patch_t));
-#endif
 
     for (i = 0; i < g_nummodels; i++)
     {
@@ -1974,13 +1954,11 @@ static int CDECL patch_sorter(const void* p1, const void* p2)
 // =====================================================================================
 static void     SortPatches()
 {
-#ifdef HLRAD_MORE_PATCHES
 	// SortPatches is the ideal place to do this, because the address of the patches are going to be invalidated.
 	patch_t *old_patches = g_patches;
 	g_patches = (patch_t *)AllocBlock ((g_num_patches + 1) * sizeof (patch_t)); // allocate one extra slot considering how terribly the code were written
 	memcpy (g_patches, old_patches, g_num_patches * sizeof (patch_t));
 	FreeBlock (old_patches);
-#endif
     qsort((void*)g_patches, (size_t) g_num_patches, sizeof(patch_t), patch_sorter);
 
     // Fixup g_face_patches & Fixup patch->next
@@ -2029,10 +2007,8 @@ static void     FreePatches()
         delete patch->winding;
     }
     memset(g_patches, 0, sizeof(patch_t) * g_num_patches);
-#ifdef HLRAD_MORE_PATCHES
 	FreeBlock (g_patches);
 	g_patches = NULL;
-#endif
 }
 
 //=====================================================================
@@ -2841,7 +2817,6 @@ static void     RadWorld()
         // build transfer lists
         MakeScalesStub();
 
-#ifdef HLRAD_MORE_PATCHES
 		// these arrays are only used in CollectLight, GatherLight and BounceLight
 		emitlight = (vec3_t (*)[MAXLIGHTMAPS])AllocBlock ((g_num_patches + 1) * sizeof (vec3_t [MAXLIGHTMAPS]));
 		addlight = (vec3_t (*)[MAXLIGHTMAPS])AllocBlock ((g_num_patches + 1) * sizeof (vec3_t [MAXLIGHTMAPS]));
@@ -2850,11 +2825,9 @@ static void     RadWorld()
 		addlight_direction = (vec3_t (*)[MAXLIGHTMAPS])AllocBlock ((g_num_patches + 1) * sizeof (vec3_t [MAXLIGHTMAPS]));
 	#endif
 		newstyles = (unsigned char (*)[MAXLIGHTMAPS])AllocBlock ((g_num_patches + 1) * sizeof (unsigned char [MAXLIGHTMAPS]));
-#endif
         // spread light around
         BounceLight();
 
-#ifdef HLRAD_MORE_PATCHES
 		FreeBlock (emitlight);
 		emitlight = NULL;
 		FreeBlock (addlight);
@@ -2867,7 +2840,6 @@ static void     RadWorld()
 	#endif
 		FreeBlock (newstyles);
 		newstyles = NULL;
-#endif
     }
 
     FreeTransfers();

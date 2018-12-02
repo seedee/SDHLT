@@ -85,7 +85,6 @@ static transfer_index_t* CompressTransferIndicies(transfer_raw_index_t* tRaw, co
     transfer_raw_index_t* raw = tRaw;
     transfer_raw_index_t* end = tRaw + rawSize - 1;        // -1 since we are comparing current with next and get errors when bumping into the 'end'
 
-#ifdef HLRAD_MORE_PATCHES
     unsigned        compressed_count_1 = 0;
 
 	for (x = 0; x < rawSize; x++)
@@ -100,9 +99,6 @@ static transfer_index_t* CompressTransferIndicies(transfer_raw_index_t* tRaw, co
 	}
 
 	transfer_index_t* CompressedArray = (transfer_index_t*)AllocBlock(sizeof(transfer_index_t) * compressed_count_1);
-#else
-    transfer_index_t CompressedArray[MAX_PATCHES];         // somewhat big stack object (1 Mb with 256k patches)
-#endif
     transfer_index_t* compressed = CompressedArray;
 
     for (x = 0; x < size; x++, raw++, compressed++)
@@ -116,7 +112,6 @@ static transfer_index_t* CompressTransferIndicies(transfer_raw_index_t* tRaw, co
 
     *iSize = compressed_count;
 
-#ifdef HLRAD_MORE_PATCHES
 	if (compressed_count != compressed_count_1)
 	{
 		Error ("CompressTransferIndicies: internal error");
@@ -127,24 +122,6 @@ static transfer_index_t* CompressTransferIndicies(transfer_raw_index_t* tRaw, co
 	ThreadUnlock();
 
 	return CompressedArray;
-#else
-    if (compressed_count)
-    {
-        unsigned        compressed_array_size = sizeof(transfer_index_t) * compressed_count;
-        transfer_index_t* rval = (transfer_index_t*)AllocBlock(compressed_array_size);
-
-        ThreadLock();
-        g_transfer_index_bytes += compressed_array_size;
-        ThreadUnlock();
-
-        memcpy(rval, CompressedArray, compressed_array_size);
-        return rval;
-    }
-    else
-    {
-        return NULL;
-    }
-#endif
 }
 
 #else /*COMPRESSED_TRANSFERS*/
@@ -158,16 +135,12 @@ static transfer_index_t* CompressTransferIndicies(const transfer_raw_index_t* tR
     transfer_raw_index_t* raw = tRaw;
     transfer_raw_index_t* end = tRaw + rawSize;
 
-#ifdef HLRAD_MORE_PATCHES
 	if (!size)
 	{
 		return NULL;
 	}
 
 	transfer_index_t CompressedArray = (transfer_index_t*)AllocBlock(sizeof(transfer_index_t) * size);
-#else
-    transfer_index_t CompressedArray[MAX_PATCHES];         // somewhat big stack object (1 Mb with 256k patches)
-#endif
     transfer_index_t* compressed = CompressedArray;
 
     for (x = 0; x < size; x++, raw++, compressed++)
@@ -179,30 +152,11 @@ static transfer_index_t* CompressTransferIndicies(const transfer_raw_index_t* tR
 
     *iSize = compressed_count;
 
-#ifdef HLRAD_MORE_PATCHES
 	ThreadLock();
 	g_transfer_index_bytes += sizeof(transfer_index_t) * size;
 	ThreadUnlock();
 
 	return CompressedArray;
-#else
-    if (compressed_count)
-    {
-        unsigned        compressed_array_size = sizeof(transfer_index_t) * compressed_count;
-        transfer_index_t* rval = AllocBlock(compressed_array_size);
-
-        ThreadLock();
-        g_transfer_index_bytes += compressed_array_size;
-        ThreadUnlock();
-
-        memcpy(rval, CompressedArray, compressed_array_size);
-        return rval;
-    }
-    else
-    {
-        return NULL;
-    }
-#endif
 }
 #endif /*COMPRESSED_TRANSFERS*/
 
@@ -241,13 +195,8 @@ void            MakeScales(const int threadnum)
     transfer_raw_index_t* tIndex;
     float* tData;
 
-#ifdef HLRAD_MORE_PATCHES
     transfer_raw_index_t* tIndex_All = (transfer_raw_index_t*)AllocBlock(sizeof(transfer_index_t) * (g_num_patches + 1));
     float* tData_All = (float*)AllocBlock(sizeof(float) * (g_num_patches + 1));
-#else
-    transfer_raw_index_t* tIndex_All = (transfer_raw_index_t*)AllocBlock(sizeof(transfer_index_t) * MAX_PATCHES);
-    float* tData_All = (float*)AllocBlock(sizeof(float) * MAX_PATCHES);
-#endif
 
     count = 0;
 
@@ -513,13 +462,8 @@ void            MakeRGBScales(const int threadnum)
     transfer_raw_index_t* tIndex;
     float* tRGBData;
 
-#ifdef HLRAD_MORE_PATCHES
     transfer_raw_index_t* tIndex_All = (transfer_raw_index_t*)AllocBlock(sizeof(transfer_index_t) * (g_num_patches + 1));
     float* tRGBData_All = (float*)AllocBlock(sizeof(float[3]) * (g_num_patches + 1));
-#else
-    transfer_raw_index_t* tIndex_All = (transfer_raw_index_t*)AllocBlock(sizeof(transfer_index_t) * MAX_PATCHES);
-    float* tRGBData_All = (float*)AllocBlock(sizeof(float[3]) * MAX_PATCHES);
-#endif
 
     count = 0;
 
