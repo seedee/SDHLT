@@ -63,9 +63,7 @@ patch_t*		g_patches;
 #else
 patch_t         g_patches[MAX_PATCHES];
 #endif
-#ifdef HLRAD_CUSTOMTEXLIGHT
 entity_t*		g_face_texlights[MAX_MAP_FACES];
-#endif
 unsigned        g_num_patches;
 
 #ifdef HLRAD_MORE_PATCHES
@@ -137,10 +135,6 @@ vec3_t		g_jitter_hack = { DEFAULT_JITTER_HACK_RED, DEFAULT_JITTER_HACK_GREEN, DE
 #ifndef HLRAD_ARG_MISC
 bool		g_diffuse_hack = DEFAULT_DIFFUSE_HACK;
 bool		g_spotlight_hack = DEFAULT_SPOTLIGHT_HACK;
-#endif
-#ifndef HLRAD_CUSTOMTEXLIGHT // no softlight hack
-vec3_t		g_softlight_hack = { DEFAULT_SOFTLIGHT_HACK_RED, DEFAULT_SOFTLIGHT_HACK_GREEN, DEFAULT_SOFTLIGHT_HACK_BLUE };
-float		g_softlight_hack_distance = DEFAULT_SOFTLIGHT_HACK_DISTANCE;
 #endif
 // --------------------------------------------------------------------------
 
@@ -497,11 +491,7 @@ static void     ReadLightFile(const char* const filename)
     }
     else
     {
-#ifdef HLRAD_CUSTOMTEXLIGHT
 		Log("Reading texlights from '%s'\n", filename);
-#else
-        Log("[Reading texlights from '%s']\n", filename);
-#endif
     }
 
     while (fgets(scan, sizeof(scan), f))
@@ -573,9 +563,6 @@ static void     ReadLightFile(const char* const filename)
         s_texlights.push_back(texlight);
     }
 	fclose (f); //--vluzacn
-#ifndef HLRAD_CUSTOMTEXLIGHT
-    Log("[%u texlights parsed from '%s']\n\n", file_texlights, filename);
-#endif
 }
 
 // =====================================================================================
@@ -607,7 +594,6 @@ static void     LightForTexture(const char* const name, vec3_t result)
 // =====================================================================================
 static void     BaseLightForFace(const dface_t* const f, vec3_t light)
 {
-#ifdef HLRAD_CUSTOMTEXLIGHT
 	int fn = f - g_dfaces;
 	if (g_face_texlights[fn])
 	{
@@ -639,7 +625,6 @@ static void     BaseLightForFace(const dface_t* const f, vec3_t light)
 		light[2] = b > 0? b: 0;
 		return;
 	}
-#endif
     texinfo_t*      tx;
     miptex_t*       mt;
     int             ofs;
@@ -1523,7 +1508,6 @@ static bool		getEmitMode (const patch_t *patch)
 	vec_t value = 
 		DotProduct (patch->baselight, patch->texturereflectivity) / 3
 		;
-#ifdef HLRAD_CUSTOMTEXLIGHT
 	if (g_face_texlights[patch->faceNumber])
 	{
 		if (*ValueForKey (g_face_texlights[patch->faceNumber], "_scale"))
@@ -1531,7 +1515,6 @@ static bool		getEmitMode (const patch_t *patch)
 			value *= FloatForKey (g_face_texlights[patch->faceNumber], "_scale");
 		}
 	}
-#endif
 	if (value > 0.0)
 	{
 		emitmode = true;
@@ -1540,7 +1523,6 @@ static bool		getEmitMode (const patch_t *patch)
 	{
 		emitmode = false;
 	}
-#ifdef HLRAD_CUSTOMTEXLIGHT
 	if (g_face_texlights[patch->faceNumber])
 	{
 		switch (IntForKey (g_face_texlights[patch->faceNumber], "_fast"))
@@ -1553,14 +1535,12 @@ static bool		getEmitMode (const patch_t *patch)
 			break;
 		}
 	}
-#endif
 	return emitmode;
 }
 static vec_t    getChop(const patch_t* const patch)
 {
     vec_t           rval;
 
-#ifdef HLRAD_CUSTOMTEXLIGHT
 	if (g_face_texlights[patch->faceNumber])
 	{
 		if (*ValueForKey (g_face_texlights[patch->faceNumber], "_chop"))
@@ -1573,7 +1553,6 @@ static vec_t    getChop(const patch_t* const patch)
 			return rval;
 		}
 	}
-#endif
 	if (!patch->emitmode)
     {
         rval = g_chop * getScale(patch);
@@ -1609,7 +1588,6 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
     // No g_patches at all for the sky!
     if (!IsSpecial(f))
     {
-#ifdef HLRAD_CUSTOMTEXLIGHT
 		if (g_face_texlights[fn])
 		{
 			style = IntForKey (g_face_texlights[fn], "style");
@@ -1621,7 +1599,6 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 				Error ("invalid light style: style (%d) >= ALLSTYLES (%d)", style, ALLSTYLES);
 			}
 		}
-#endif
         patch_t*        patch;
         vec3_t          light;
         vec3_t          centroid = { 0, 0, 0 };
@@ -2020,7 +1997,6 @@ static void		LoadOpaqueEntities()
 // =====================================================================================
 //  MakePatches
 // =====================================================================================
-#ifdef HLRAD_CUSTOMTEXLIGHT
 static entity_t *FindTexlightEntity (int facenum)
 {
 	dface_t *face = &g_dfaces[facenum];
@@ -2073,7 +2049,6 @@ static entity_t *FindTexlightEntity (int facenum)
 	}
 	return found;
 }
-#endif
 static void     MakePatches()
 {
     int             i;
@@ -2223,9 +2198,7 @@ static void     MakePatches()
             fn = mod->firstface + j;
             g_face_entity[fn] = ent;
             VectorCopy(origin, g_face_offset[fn]);
-#ifdef HLRAD_CUSTOMTEXLIGHT
 			g_face_texlights[fn] = FindTexlightEntity (fn);
-#endif
             g_face_lightmode[fn] = lightmode;
             f = g_dfaces + fn;
             w = new Winding(*f);
@@ -3463,9 +3436,6 @@ static void     Usage()
     Log("   -nodiffuse          : Disables light_environment diffuse hack\n");
     Log("   -nospotpoints       : Disables light_spot spherical point sources\n");
 #endif
-#ifndef HLRAD_CUSTOMTEXLIGHT // no softlight hack
-    Log("   -softlight r g b d  : Scaling values for backwards-light hack\n\n");
-#endif
     //Log("-= End of unofficial features! =-\n\n" );
 
     // ------------------------------------------------------------------------  
@@ -3694,11 +3664,6 @@ static void     Settings()
     safe_snprintf(buf2, sizeof(buf2), "%3.1f %3.1f %3.1f", DEFAULT_JITTER_HACK_RED, DEFAULT_JITTER_HACK_GREEN, DEFAULT_JITTER_HACK_BLUE);
     Log("monochromatic jitter [ %17s ] [ %17s ]\n", buf1, buf2);
 
-#ifndef HLRAD_CUSTOMTEXLIGHT // no softlight hack
-    safe_snprintf(buf1, sizeof(buf1), "%2.1f %2.1f %2.1f %2.1f", g_softlight_hack[0], g_softlight_hack[1], g_softlight_hack[2], g_softlight_hack_distance);
-    safe_snprintf(buf2, sizeof(buf2), "%2.1f %2.1f %2.1f %2.1f", DEFAULT_SOFTLIGHT_HACK_RED, DEFAULT_SOFTLIGHT_HACK_GREEN, DEFAULT_SOFTLIGHT_HACK_BLUE, DEFAULT_SOFTLIGHT_HACK_DISTANCE);
-    Log("softlight hack       [ %17s ] [ %17s ]\n", buf1, buf2);
-#endif
 
 #ifndef HLRAD_ARG_MISC
     Log("diffuse hack         [ %17s ] [ %17s ]\n", g_diffuse_hack ? "on" : "off", DEFAULT_DIFFUSE_HACK ? "on" : "off");
@@ -3768,11 +3733,7 @@ void            ReadInfoTexlights()
         if (strcmp(ValueForKey(mapent, "classname"), "info_texlights"))
             continue;
 
-#ifdef HLRAD_CUSTOMTEXLIGHT
 		Log("Reading texlights from info_texlights map entity\n");
-#else
-        Log("[Reading texlights from info_texlights map entity]\n");
-#endif
 
         for (ep = mapent->epairs; ep; ep = ep->next)
         {
@@ -3808,9 +3769,6 @@ void            ReadInfoTexlights()
             numtexlights++;
         }
 
-#ifndef HLRAD_CUSTOMTEXLIGHT
-        Log("[%i texlights parsed from info_texlights map entity]\n\n", numtexlights);
-#endif
     }
 }
 
@@ -4503,22 +4461,6 @@ int             main(const int argc, char** argv)
         else if (!strcasecmp(argv[i], "-nospotpoints"))
         {
         	g_spotlight_hack = false;
-        }
-#endif
-#ifndef HLRAD_CUSTOMTEXLIGHT // no softlight hack
-        else if (!strcasecmp(argv[i], "-softlight"))
-        {
-        	if (i + 4 < argc)
-			{
-				g_softlight_hack[0] = (float)atof(argv[++i]);
-				g_softlight_hack[1] = (float)atof(argv[++i]);
-				g_softlight_hack[2] = (float)atof(argv[++i]);
-				g_softlight_hack_distance = (float)atof(argv[++i]);
-			}
-			else
-			{
-				Error("expected three color scalers and a distance after '-softlight'\n");
-			}
         }
 #endif
         // ------------------------------------------------------------------------

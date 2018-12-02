@@ -127,12 +127,6 @@
 #define DEFAULT_SPOTLIGHT_HACK			true
 #endif
 
-#ifndef HLRAD_CUSTOMTEXLIGHT // no softlight hack
-#define DEFAULT_SOFTLIGHT_HACK_RED		0.0
-#define DEFAULT_SOFTLIGHT_HACK_GREEN		0.0
-#define DEFAULT_SOFTLIGHT_HACK_BLUE		0.0
-#define DEFAULT_SOFTLIGHT_HACK_DISTANCE 	0.0
-#endif
 
 // ------------------------------------------------------------------------
 
@@ -538,9 +532,7 @@ extern vec3_t   g_face_centroids[MAX_MAP_EDGES];
 extern vec3_t   g_face_texnormals[MAX_MAP_FACES];
 extern bool		GetIntertexnormal (int facenum1, int facenum2, vec_t *out = NULL);
 #endif
-#ifdef HLRAD_CUSTOMTEXLIGHT
 extern entity_t* g_face_texlights[MAX_MAP_FACES];
-#endif
 #ifdef HLRAD_MORE_PATCHES
 extern patch_t* g_patches; // shrinked to its real size, because 1048576 patches * 256 bytes = 256MB will be too big
 #else
@@ -608,10 +600,6 @@ extern vec3_t	g_jitter_hack;
 #ifndef HLRAD_ARG_MISC
 extern bool	g_diffuse_hack;
 extern bool	g_spotlight_hack;
-#endif
-#ifndef HLRAD_CUSTOMTEXLIGHT // no softlight hack
-extern vec3_t	g_softlight_hack;
-extern float	g_softlight_hack_distance;
 #endif
 
 // ------------------------------------------------------------------------
@@ -846,13 +834,11 @@ extern vec_t	CalcSightArea (const vec3_t receiver_origin, const vec3_t receiver_
 					, vec_t lighting_power, vec_t lighting_scale
 	#endif
 					);
-#ifdef HLRAD_CUSTOMTEXLIGHT
 extern vec_t	CalcSightArea_SpotLight (const vec3_t receiver_origin, const vec3_t receiver_normal, const Winding *emitter_winding, const vec3_t emitter_normal, vec_t emitter_stopdot, vec_t emitter_stopdot2, int skylevel
 	#ifdef HLRAD_DIVERSE_LIGHTING
 					, vec_t lighting_power, vec_t lighting_scale
 	#endif
 					);
-#endif
 #endif
 #ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 extern void		GetAlternateOrigin (const vec3_t pos, const vec3_t normal, const patch_t *patch, vec3_t &origin);

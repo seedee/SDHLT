@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_CUSTOMTEXLIGHT //--vluzacn
 #define HLRAD_ARG_MISC //--vluzacn
 #define HLRAD_PairEdges_FACESIDE_FIX //--vluzacn
 #define HLRAD_VISMATRIX_NOMARKSURFACES //--vluzacn
@@ -90,9 +89,7 @@
 #define HLRAD_SUNDIFFUSE //--vluzacn
 #define HLRAD_FASTMODE //--vluzacn
 #define HLRAD_OVERWRITEVERTEX_FIX //--vluzacn
-	#ifdef HLRAD_CUSTOMTEXLIGHT
 #define HLRAD_TEXLIGHT_SPOTS_FIX //--vluzacn
-	#endif
 #define HLRAD_BOUNCE_STYLE //--vluzacn
 #define HLRAD_BLUR //--vluzacn
 #define HLRAD_ACCURATEBOUNCE //--vluzacn
@@ -108,9 +105,7 @@
 #define HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN //--vluzacn
 	#endif
 #define HLRAD_ACCURATEBOUNCE_REDUCEAREA //--vluzacn
-	#ifdef HLRAD_CUSTOMTEXLIGHT
 #define HLRAD_CUSTOMTEXLIGHT_COLOR //--vluzacn
-	#endif
 #define HLRAD_SUBDIVIDEPATCH_NEW //--vluzacn
 #define HLRAD_DIVERSE_LIGHTING //--vluzacn
 	#ifdef HLRAD_BLUR

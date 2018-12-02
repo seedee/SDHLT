@@ -2057,10 +2057,6 @@ void            CreateDirectLights()
     float           angle;
     vec3_t          dest;
 
-#ifndef HLRAD_CUSTOMTEXLIGHT
-    // AJM: coplaner lighting
-    vec3_t          temp_normal;
-#endif
 
     numdlights = 0;
 	int styleused[ALLSTYLES];
@@ -2084,11 +2080,9 @@ void            CreateDirectLights()
         if (
 			DotProduct (p->baselight, p->texturereflectivity) / 3
 			> 0.0
-	#ifdef HLRAD_CUSTOMTEXLIGHT
 			&& !(g_face_texlights[p->faceNumber]
 				&& *ValueForKey (g_face_texlights[p->faceNumber], "_scale")
 				&& FloatForKey (g_face_texlights[p->faceNumber], "_scale") <= 0)
-	#endif
 			) //LRC
         {
             numdlights++;
@@ -2124,14 +2118,11 @@ void            CreateDirectLights()
 #endif
 #ifdef HLRAD_TEXLIGHTGAP
 			dl->texlightgap = g_texlightgap;
-#ifdef HLRAD_CUSTOMTEXLIGHT
 			if (g_face_texlights[p->faceNumber] && *ValueForKey (g_face_texlights[p->faceNumber], "_texlightgap"))
 			{
 				dl->texlightgap = FloatForKey (g_face_texlights[p->faceNumber], "_texlightgap");
 			}
 #endif
-#endif
-#ifdef HLRAD_CUSTOMTEXLIGHT
 			dl->stopdot = 0.0;
 			dl->stopdot2 = 0.0;
 			if (g_face_texlights[p->faceNumber])
@@ -2149,12 +2140,10 @@ void            CreateDirectLights()
 				if (dl->stopdot2 > dl->stopdot)
 					dl->stopdot2 = dl->stopdot;
 			}
-#endif
 
             dl->type = emit_surface;
             VectorCopy(getPlaneFromFaceNumber(p->faceNumber)->normal, dl->normal);
             VectorCopy(p->baselight, dl->intensity); //LRC
-#ifdef HLRAD_CUSTOMTEXLIGHT
 			if (g_face_texlights[p->faceNumber])
 			{
 				if (*ValueForKey (g_face_texlights[p->faceNumber], "_scale"))
@@ -2163,7 +2152,6 @@ void            CreateDirectLights()
 					VectorScale (dl->intensity, scale, dl->intensity);
 				}
 			}
-#endif
             VectorScale(dl->intensity, p->area, dl->intensity);
 #ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 			VectorScale (dl->intensity, p->exposure, dl->intensity);
@@ -2187,69 +2175,6 @@ void            CreateDirectLights()
 				dl2->next = directlights[leafnum];
 				directlights[leafnum] = dl2;
 			}
-#endif
-#ifndef HLRAD_CUSTOMTEXLIGHT // no softlight hack
-        	// --------------------------------------------------------------
-	        // Changes by Adam Foster - afoster@compsoc.man.ac.uk
-	        // mazemaster's l33t backwards lighting (I still haven't a clue
-	        // what it's supposed to be for) :-)
-
-	        if (g_softlight_hack[0] || g_softlight_hack[1] || g_softlight_hack[2]) 
-            {
-		        numdlights++;
-		        dl = (directlight_t *) calloc(1, sizeof(directlight_t));
-
-				hlassume (dl != NULL, assume_NoMemory);
-
-		        VectorCopy(p->origin, dl->origin);
-
-		        leaf = PointInLeaf(dl->origin);
-		        leafnum = leaf - g_dleafs;
-
-		        dl->next = directlights[leafnum];
-		        directlights[leafnum] = dl;
-
-				dl->topatch = false;
-				if (!p->emitmode)
-				{
-					dl->topatch = true;
-				}
-#ifdef HLRAD_FASTMODE
-				if (g_fastmode)
-				{
-					dl->topatch = true;
-				}
-#endif
-#ifdef HLRAD_TEXLIGHT_SPOTS_FIX
-				dl->patch_area = p->area;
-	#ifdef HLRAD_ACCURATEBOUNCE_TEXLIGHT
-				dl->patch_emitter_range = p->emitter_range;
-				dl->patch = p;
-	#endif
-#endif
-#ifdef HLRAD_TEXLIGHTGAP
-				dl->texlightgap = 0;
-#endif
-		        dl->type = emit_surface;
-		        VectorCopy(getPlaneFromFaceNumber(p->faceNumber)->normal, dl->normal);
-		        VectorScale(dl->normal, g_softlight_hack_distance, temp_normal);
-		        VectorAdd(dl->origin, temp_normal, dl->origin);
-		        VectorScale(dl->normal, -1, dl->normal);
-
-                VectorCopy(p->baselight, dl->intensity); //LRC
-		        VectorScale(dl->intensity, p->area, dl->intensity);
-#ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
-				VectorScale (dl->intensity, p->exposure, dl->intensity);
-#endif
-				VectorScale (dl->intensity, 1.0 / Q_PI, dl->intensity);
-				VectorMultiply (dl->intensity, p->texturereflectivity, dl->intensity);
-
-		        dl->intensity[0] *= g_softlight_hack[0];
-		        dl->intensity[1] *= g_softlight_hack[1];
-		        dl->intensity[2] *= g_softlight_hack[2];
-	        }
-
-	        // --------------------------------------------------------------
 #endif
         }
 
@@ -2304,12 +2229,10 @@ void            CreateDirectLights()
 			}
 			continue;
 		}
-#ifdef HLRAD_CUSTOMTEXLIGHT
 		if (!strcmp (name, "light_surface"))
 		{
 			continue;
 		}
-#endif
 
         numdlights++;
         dl = (directlight_t*)calloc(1, sizeof(directlight_t));
@@ -3417,7 +3340,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								}
 							}
 #endif
-#ifdef HLRAD_CUSTOMTEXLIGHT
 	#ifdef HLRAD_ACCURATEBOUNCE_TEXLIGHT
 							if (dot2 * dist <= MINIMUM_PATCH_DISTANCE)
 							{
@@ -3468,33 +3390,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								ratio = dot * dot2 / (dist * dist);
 							}
 	#endif
-#else
-	#ifdef HLRAD_ACCURATEBOUNCE_TEXLIGHT
-							if (dot2 * dist <= MINIMUM_PATCH_DISTANCE)
-							{
-								continue;
-							}
-							vec_t range = l->patch_emitter_range;
-							ratio = dot * dot2 / (dist * dist * g_fade);
-	#else
-                            if (dot2 <= NORMAL_EPSILON) //ON_EPSILON / 10 //--vluzacn
-                            {
-                                continue;                  // behind light surface
-                            }
-							
-#ifdef HLRAD_ARG_MISC
-							vec_t denominator = dist * dist * g_fade;
-#else
-                            // Variable power falloff (1 = inverse linear, 2 = inverse square
-                            vec_t           denominator = dist * g_fade;
-                            if (g_falloff == 2)
-                            {
-                                denominator *= dist;
-                            }
-#endif
-                            ratio = dot * dot2 / denominator;
-	#endif
-#endif
 							
 #ifdef HLRAD_TEXLIGHT_SPOTS_FIX
 							// analogous to the one in MakeScales
@@ -3516,7 +3411,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 		#endif
 								vec_t sightarea;
 								int skylevel = l->patch->emitter_skylevel;
-		#ifdef HLRAD_CUSTOMTEXLIGHT
 								if (l->stopdot > 0.0) // stopdot2 > 0.0 or stopdot > 0.0
 								{
 									const vec_t *emitnormal = getPlaneFromFaceNumber (l->patch->faceNumber)->normal;
@@ -3538,23 +3432,12 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 			#endif
 										);
 								}
-		#else
-								sightarea = CalcSightArea (pos, normal, l->patch->winding, skylevel
-			#ifdef HLRAD_DIVERSE_LIGHTING
-									, lighting_power, lighting_scale
-			#endif
-									);
-		#endif
 
 								vec_t frac = dist / range;
 								frac = (frac - 0.5) * 2; // make a smooth transition between the two methods
 								frac = qmax (0, qmin (frac, 1));
 
 								vec_t ratio2 = (sightarea / l->patch_area); // because l->patch->area has been multiplied into l->intensity
-		#ifndef HLRAD_CUSTOMTEXLIGHT
-								// Variable power falloff (1 = inverse linear, 2 = inverse square
-								ratio2 /= g_fade;
-		#endif
 								ratio = frac * ratio + (1 - frac) * ratio2;
 							}
 		#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN

@@ -402,7 +402,6 @@ vec_t CalcSightArea (const vec3_t receiver_origin, const vec3_t receiver_normal,
 	return area;
 }
 
-#ifdef HLRAD_CUSTOMTEXLIGHT
 vec_t CalcSightArea_SpotLight (const vec3_t receiver_origin, const vec3_t receiver_normal, const Winding *emitter_winding, const vec3_t emitter_normal, vec_t emitter_stopdot, vec_t emitter_stopdot2, int skylevel
 	#ifdef HLRAD_DIVERSE_LIGHTING
 					, vec_t lighting_power, vec_t lighting_scale
@@ -483,7 +482,6 @@ vec_t CalcSightArea_SpotLight (const vec3_t receiver_origin, const vec3_t receiv
 	return area;
 }
 
-#endif
 #endif
 #ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 // =====================================================================================
