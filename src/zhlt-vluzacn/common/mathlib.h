@@ -186,9 +186,7 @@ typedef enum
 planetypes;
 
 #define last_axial plane_z
-#ifdef HLCSG_FACENORMALEPSILON
 #define DIR_EPSILON 0.0001
-#endif
 
 inline planetypes PlaneTypeForNormal(vec3_t normal)
 {
@@ -197,7 +195,6 @@ inline planetypes PlaneTypeForNormal(vec3_t normal)
     ax = fabs(normal[0]);
     ay = fabs(normal[1]);
     az = fabs(normal[2]);
-#ifdef HLCSG_FACENORMALEPSILON
     if (ax > 1.0 - DIR_EPSILON && ay < DIR_EPSILON && az < DIR_EPSILON)
     {
         return plane_x;
@@ -212,22 +209,6 @@ inline planetypes PlaneTypeForNormal(vec3_t normal)
     {
         return plane_z;
     }
-#else
-    if (ax > 1.0 - NORMAL_EPSILON && ay < NORMAL_EPSILON && az < NORMAL_EPSILON)
-    {
-        return plane_x;
-    }
-
-    if (ay > 1.0 - NORMAL_EPSILON && az < NORMAL_EPSILON && ax < NORMAL_EPSILON)
-    {
-        return plane_y;
-    }
-
-    if (az > 1.0 - NORMAL_EPSILON && ax < NORMAL_EPSILON && ay < NORMAL_EPSILON)
-    {
-        return plane_z;
-    }
-#endif
 
     if ((ax >= ay) && (ax >= az))
     {

@@ -31,7 +31,6 @@ int FindIntPlane(const vec_t* const normal, const vec_t* const origin)
 	for( ; returnval < g_nummapplanes; returnval++)
 	{
 		// BUG: there might be some multithread issue --vluzacn
-#ifdef HLCSG_FACENORMALEPSILON
 		if(	-DIR_EPSILON < (t = normal[0] - g_mapplanes[returnval].normal[0]) && t < DIR_EPSILON &&
 			-DIR_EPSILON < (t = normal[1] - g_mapplanes[returnval].normal[1]) && t < DIR_EPSILON &&
 			-DIR_EPSILON < (t = normal[2] - g_mapplanes[returnval].normal[2]) && t < DIR_EPSILON )
@@ -41,20 +40,6 @@ int FindIntPlane(const vec_t* const normal, const vec_t* const origin)
 			if (-DIST_EPSILON < t && t < DIST_EPSILON)
 			{ return returnval; }
 		}
-#else
-		if(	-NORMAL_EPSILON < (t = normal[0] - g_mapplanes[returnval].normal[0]) && t < NORMAL_EPSILON &&
-			-NORMAL_EPSILON < (t = normal[1] - g_mapplanes[returnval].normal[1]) && t < NORMAL_EPSILON &&
-			-NORMAL_EPSILON < (t = normal[2] - g_mapplanes[returnval].normal[2]) && t < NORMAL_EPSILON )
-		{
-			//t = (origin - plane_origin) dot (normal), unrolled
-			t = (origin[0] - g_mapplanes[returnval].origin[0]) * normal[0]
-				+ (origin[1] - g_mapplanes[returnval].origin[1]) * normal[1]
-				+ (origin[2] - g_mapplanes[returnval].origin[2]) * normal[2];
-
-			if (-DIST_EPSILON < t && t < DIST_EPSILON) // on plane
-			{ return returnval; }
-		}
-#endif
 	}
 
 	ThreadLock();
