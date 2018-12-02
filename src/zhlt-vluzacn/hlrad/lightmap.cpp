@@ -2433,11 +2433,7 @@ static void     CalcPoints(lightinfo_t* l)
 #else
 				// Pull the sample points towards the facemid if visibility is blocked
 				// and the facemid is inside the world
-	#ifdef HLRAD_NUDGE_SMALLSTEP
 				int             nudge_divisor = 4 * qmax(qmax(w, h), 4);
-	#else
-				int             nudge_divisor = qmax(qmax(w, h), 4);
-	#endif
 				int             max_nudge = nudge_divisor + 1;
 				bool            nudge_succeeded = false;
 
