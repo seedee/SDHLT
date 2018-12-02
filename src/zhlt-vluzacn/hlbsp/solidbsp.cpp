@@ -1566,11 +1566,7 @@ static int      ContentsForRank(const int rank)
     {
 
     case -1:
-#ifdef HLCSG_HLBSP_ALLOWEMPTYENTITY
 		return CONTENTS_EMPTY;
-#else
-        return CONTENTS_SOLID;                             // no faces at all
-#endif
     case 0:
         return CONTENTS_EMPTY;
     case 1:
@@ -2362,20 +2358,6 @@ node_t*         SolidBSP(const surfchain_t* const surfhead,
 #endif
 #endif
 
-#ifndef HLCSG_HLBSP_ALLOWEMPTYENTITY
-    if (!surfhead->surfaces)
-    {
-        // nothing at all to build
-#ifdef ZHLT_DETAILBRUSH
-		headnode->isportalleaf = true;
-		headnode->iscontentsdetail = (headnode->detailbrushes != NULL);
-		FreeLeafBrushes (headnode->detailbrushes);
-#endif
-        headnode->planenum = -1;
-        headnode->contents = CONTENTS_EMPTY;
-        return headnode;
-    }
-#endif
 
     // generate six portals that enclose the entire world
     MakeHeadnodePortals(headnode, surfhead->mins, surfhead->maxs);

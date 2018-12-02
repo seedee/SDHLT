@@ -96,11 +96,9 @@ void            ResetTmpFiles()
         safe_snprintf(filename, _MAX_PATH, "%s.wic", g_Mapname);
         _unlink(filename);
 #endif
-#ifdef HLCSG_HLBSP_ALLOWEMPTYENTITY
 
         safe_snprintf(filename, _MAX_PATH, "%s.hsz", g_Mapname);
         _unlink(filename);
-#endif
 #ifdef HLCSG_HLBSP_DOUBLEPLANE
 
         safe_snprintf(filename, _MAX_PATH, "%s.pln", g_Mapname);

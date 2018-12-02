@@ -67,7 +67,6 @@
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
-#define HLCSG_HLBSP_ALLOWEMPTYENTITY // needs more testing --vluzacn
 #define HLBSP_ChooseMidPlane_FIX //--vluzacn
 	#ifdef HLBSP_ChooseMidPlane_FIX
 #define HLBSP_ChoosePlane_VL //--vluzacn
@@ -111,9 +110,7 @@
 #define HLCSG_HULLFILE_AUTOPATH //--vluzacn
 //#define HLBSP_SUBDIVIDE_INMID // this may contribute to 'AllocBlock: full' problem though it may generate fewer faces. --vluzacn
 	#ifdef HLBSP_ChoosePlane_VL
-	#ifdef HLCSG_HLBSP_ALLOWEMPTYENTITY // possible that in a model there are surfaces but no splits
 #define HLCSG_HLBSP_SOLIDHINT //--vluzacn
-	#endif
 	#endif
 #define HLCSG_SORTSIDES //--vluzacn
 	#ifdef HLCSG_CSGBrush_BRUSHNUM_FIX

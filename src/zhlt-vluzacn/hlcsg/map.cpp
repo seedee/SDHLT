@@ -974,12 +974,6 @@ bool            ParseMapEntity()
 	}
 
 
-#ifndef HLCSG_HLBSP_ALLOWEMPTYENTITY
-    if (mapent->numbrushes && all_clip)
-        Fatal(assume_NO_VISIBILE_BRUSHES, "Entity %i has no visible brushes\n", 
-			g_numparsedentities
-			);
-#endif
 
     CheckFatal();
 	if (this_entity == 0)
@@ -1048,17 +1042,6 @@ bool            ParseMapEntity()
     }
 
 
-#ifndef HLCSG_HLBSP_ALLOWEMPTYENTITY
-    // if the given entity only has one brush and its an origin brush
-    if ((mapent->numbrushes == 1) && (g_mapbrushes[mapent->firstbrush].contents == CONTENTS_ORIGIN))
-    {
-        brushhull_t*    hull = g_mapbrushes[mapent->firstbrush].hulls;
-
-        Error("Entity %i, contains ONLY an origin brush near (%.0f,%.0f,%.0f)\n",
-			g_numparsedentities, 
-			  hull->bounds.m_Mins[0], hull->bounds.m_Mins[1], hull->bounds.m_Mins[2]);
-    }
-#endif
 
     GetVectorForKey(mapent, "origin", mapent->origin);
 

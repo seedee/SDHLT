@@ -22,7 +22,6 @@
 
 */
 
-#ifdef HLCSG_HLBSP_ALLOWEMPTYENTITY
 vec3_t          g_hull_size[NUM_HULLS][2] = 
 {
     {// 0x0x0
@@ -41,7 +40,6 @@ vec3_t          g_hull_size[NUM_HULLS][2] =
         {-16, -16, -18},    {16, 16, 18}
     }                                                     
 };
-#endif
 static FILE*    polyfiles[NUM_HULLS];
 #ifdef ZHLT_DETAILBRUSH
 static FILE*    brushfiles[NUM_HULLS];
@@ -1308,7 +1306,6 @@ static bool     ProcessModel()
 //    Log("ProcessModel: %i (%i f)\n", modnum, model->numfaces);
 
 	g_hullnum = 0; //vluzacn
-#ifdef HLCSG_HLBSP_ALLOWEMPTYENTITY
 	VectorFill (model->mins, 99999);
 	VectorFill (model->maxs, -99999);
 	{
@@ -1339,10 +1336,6 @@ static bool     ProcessModel()
 			}
 		}
 	}
-#else
-    VectorCopy(surfs->mins, model->mins);
-    VectorCopy(surfs->maxs, model->maxs);
-#endif
 
     // SolidBSP generates a node tree
     nodes = SolidBSP(surfs,
@@ -1372,7 +1365,6 @@ static bool     ProcessModel()
     // emit the faces for the bsp file
     model->headnode[0] = g_numnodes;
     model->firstface = g_numfaces;
-#ifdef HLCSG_HLBSP_ALLOWEMPTYENTITY
 	bool novisiblebrushes = false;
 	// model->headnode[0]<0 will crash HL, so must split it.
 	if (nodes->planenum == -1)
@@ -1417,7 +1409,6 @@ static bool     ProcessModel()
 		VectorFill (nodes->mins, 0);
 		VectorFill (nodes->maxs, 0);
 	}
-#endif
     WriteDrawNodes(nodes);
     model->numfaces = g_numfaces - model->firstface;
     model->visleafs = g_numleafs - startleafs;
@@ -1432,11 +1423,7 @@ static bool     ProcessModel()
 		model->headnode[1] = CONTENTS_EMPTY;
 		model->headnode[2] = CONTENTS_EMPTY;
 		model->headnode[3] = CONTENTS_EMPTY;
-#if defined (HLCSG_HLBSP_CUSTOMBOUNDINGBOX) || defined (HLCSG_HLBSP_ALLOWEMPTYENTITY)
 		goto skipclip;
-#else
-        return true;
-#endif
     }
 
     // the clipping hulls are simpler
@@ -1446,7 +1433,6 @@ static bool     ProcessModel()
 #ifdef ZHLT_DETAILBRUSH
 		detailbrushes = ReadBrushes (brushfiles[g_hullnum]);
 #endif
-#ifdef HLCSG_HLBSP_ALLOWEMPTYENTITY
 		{
 			int hullnum = g_hullnum;
 			if (surfs->mins[0] > surfs->maxs[0])
@@ -1476,7 +1462,6 @@ static bool     ProcessModel()
 				}
 			}
 		}
-#endif
         nodes = SolidBSP(surfs,
 #ifdef ZHLT_DETAILBRUSH
 			detailbrushes, 
@@ -1507,9 +1492,7 @@ static bool     ProcessModel()
 		    WriteClipNodes(nodes);
 		}
     }
-#if defined (HLCSG_HLBSP_CUSTOMBOUNDINGBOX) || defined (HLCSG_HLBSP_ALLOWEMPTYENTITY)
 	skipclip:
-#endif
 
 #ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 	{
@@ -1528,7 +1511,6 @@ static bool     ProcessModel()
 		}
 	}
 #endif
-#ifdef HLCSG_HLBSP_ALLOWEMPTYENTITY
 	Developer (DEVELOPER_LEVEL_MESSAGE, "model %d - mins=(%g,%g,%g) maxs=(%g,%g,%g)\n", modnum,
 		model->mins[0], model->mins[1], model->mins[2], model->maxs[0], model->maxs[1], model->maxs[2]);
 	if (model->mins[0] > model->maxs[0])
@@ -1560,7 +1542,6 @@ static bool     ProcessModel()
 			(ent? ValueForKey (ent, "targetname"): "unknown"), 
 			model->mins[0], model->mins[1], model->mins[2], model->maxs[0], model->maxs[1], model->maxs[2]);
 	}
-#endif
     return true;
 }
 
@@ -1734,7 +1715,6 @@ static void     ProcessFile(const char* const filename)
 			Error("Can't open %s", name);
 #endif
     }
-#ifdef HLCSG_HLBSP_ALLOWEMPTYENTITY
 	{
 		FILE			*f;
 		char			name[_MAX_PATH];
@@ -1766,7 +1746,6 @@ static void     ProcessFile(const char* const filename)
 			fclose (f);
 		}
 	}
-#endif
 
     // load the output of csg
     safe_snprintf(g_bspfilename, _MAX_PATH, "%s.bsp", filename);
@@ -1832,10 +1811,8 @@ static void     ProcessFile(const char* const filename)
 		unlink (name);
 #endif
     }
-#ifdef HLCSG_HLBSP_ALLOWEMPTYENTITY
 	safe_snprintf (name, _MAX_PATH, "%s.hsz", filename);
 	unlink (name);
-#endif
 #ifdef HLCSG_HLBSP_DOUBLEPLANE
 	safe_snprintf (name, _MAX_PATH, "%s.pln", filename);
 	unlink (name);

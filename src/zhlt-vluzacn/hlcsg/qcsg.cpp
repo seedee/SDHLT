@@ -2673,7 +2673,6 @@ int             main(const int argc, char** argv)
 		}
 #endif
     }
-#ifdef HLCSG_HLBSP_ALLOWEMPTYENTITY
 	{
 		FILE			*f;
 		char			name[_MAX_PATH];
@@ -2695,7 +2694,6 @@ int             main(const int argc, char** argv)
 		}
 		fclose (f);
 	}
-#endif
 
     ProcessModels();
 
