@@ -159,11 +159,7 @@ bool            GetToken(const bool crossline)
 
     // skip space
 skipspace:
-#ifdef ZHLT_TEXNAME_CHARSET
 	while (*s_script->script_p <= 32 && *s_script->script_p >= 0)
-#else
-    while (*s_script->script_p <= 32)
-#endif
     {
         if (s_script->script_p >= s_script->end_p)
             return EndOfScript(crossline);
@@ -226,11 +222,7 @@ skipspace:
     else
     {
         // regular token
-#ifdef ZHLT_TEXNAME_CHARSET
 		while ((*s_script->script_p > 32 || *s_script->script_p < 0) && *s_script->script_p != ';')
-#else
-        while (*s_script->script_p > 32 && *s_script->script_p != ';')
-#endif
         {
             *token_p++ = *s_script->script_p++;
 
