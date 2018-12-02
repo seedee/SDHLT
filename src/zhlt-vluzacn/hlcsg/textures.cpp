@@ -483,9 +483,7 @@ lumpinfo_t*     FindTexture(const lumpinfo_t* const source)
     {
         Warning("::FindTexture() texture %s not found!", source->name);
         if (!strcmp(source->name, "NULL")
-#ifdef HLCSG_PASSBULLETSBRUSH
 			|| !strcmp (source->name, "SKIP")
-#endif
 			)
         {
             Log("Are you sure you included zhlt.wad in your wadpath list?\n");

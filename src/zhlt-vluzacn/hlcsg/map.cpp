@@ -317,11 +317,7 @@ static void ParseBrush(entity_t* mapent)
 				{
 					b->bevel = true;
 				}
-#ifdef HLCSG_PASSBULLETSBRUSH
 				strcpy (g_token, "SKIP");
-#else
-				strcpy (g_token, "NULL");
-#endif
 			}
 		}
         safe_strncpy(side->td.name, g_token, sizeof(side->td.name));
@@ -621,7 +617,6 @@ static void ParseBrush(entity_t* mapent)
 			strcpy (side->td.name, "NULL");
 		}
 	}
-#ifdef HLCSG_PASSBULLETSBRUSH
 	if (b->cliphull != 0 && b->contents == CONTENTS_TOEMPTY)
 	{
 		// check for mix of CLIP and normal texture
@@ -648,7 +643,6 @@ static void ParseBrush(entity_t* mapent)
 			strcpy (side->td.name, "NULL");
 		}
 	}
-#endif
 
 }
 
