@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_LERP_TEXNORMAL //--vluzacn
 #define HLRAD_REDUCELIGHTMAP //--vluzacn
 	#ifdef HLRAD_REDUCELIGHTMAP
 #define HLRAD_AUTOCORING //--vluzacn

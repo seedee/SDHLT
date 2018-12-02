@@ -4501,7 +4501,6 @@ void            BuildFacelights(const int facenum)
 #endif
 
 #ifndef HLRAD_GROWSAMPLE
-#ifdef HLRAD_LERP_TEXNORMAL
 		vec3_t spot_original;
 		{
 			vec_t s_vec = l.texmins[0] * TEXTURE_STEP + (i % lightmapwidth) * TEXTURE_STEP;
@@ -4515,7 +4514,6 @@ void            BuildFacelights(const int facenum)
 			}
 		}
 #endif
-#endif
 #ifdef HLRAD_AUTOCORING
         for (k = 0; k < ALLSTYLES; k++)
         {
@@ -4523,11 +4521,7 @@ void            BuildFacelights(const int facenum)
             VectorCopy(spot, fl_samples[k][i].pos);
 			fl_samples[k][i].surface = l.surfpt_surface[i];
 #else
-#ifdef HLRAD_LERP_TEXNORMAL
             VectorCopy(spot_original, fl_samples[k][i].pos);
-#else
-            VectorCopy(spot, fl_samples[k][i].pos);
-#endif
 #endif
         }
 #else
@@ -4537,11 +4531,7 @@ void            BuildFacelights(const int facenum)
             VectorCopy(spot, facelight[facenum].samples[k][i].pos);
 			facelight[facenum].samples[k][i].surface = l.surfpt_surface[i];
 #else
-#ifdef HLRAD_LERP_TEXNORMAL
             VectorCopy(spot_original, facelight[facenum].samples[k][i].pos);
-#else
-            VectorCopy(spot, facelight[facenum].samples[k][i].pos);
-#endif
 #endif
         }
 #endif

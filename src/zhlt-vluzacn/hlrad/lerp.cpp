@@ -2023,15 +2023,9 @@ static bool LerpTriangle(const lerpTriangulation_t* trian, const vec3_t point, v
     p1 = trian->points[pt1];
     p2 = trian->points[pt2];
     p3 = trian->points[pt3];
-#ifdef HLRAD_LERP_TEXNORMAL
 	o1 = trian->points_pos[pt1];
 	o2 = trian->points_pos[pt2];
 	o3 = trian->points_pos[pt3];
-#else
-	o1 = p1->origin;
-	o2 = p2->origin;
-	o3 = p3->origin;
-#endif
 
 	dplane_t edge12, edge13, edge23;
 
@@ -2202,13 +2196,8 @@ static bool		LerpEdge(const lerpTriangulation_t* trian, const vec3_t point, vec3
 	#endif
 	p1 = trian->points[pt1];
 	p2 = trian->points[pt2];
-#ifdef HLRAD_LERP_TEXNORMAL
 	o1 = trian->points_pos[pt1];
 	o2 = trian->points_pos[pt2];
-#else
-	o1 = p1->origin;
-	o2 = p2->origin;
-#endif
     if (TestLineSegmentIntersectWall(trian, p1->origin, p2->origin))
 		return false;
 	VectorSubtract (o2, o1, increment);
@@ -2328,11 +2317,7 @@ static void     FindDists(const lerpTriangulation_t* const trian, const vec3_t p
 
     for (x = 0; x < numpoints; x++, patch++, dists++)
     {
-#ifdef HLRAD_LERP_TEXNORMAL
 		VectorSubtract (trian->points_pos[x], point, delta);
-#else
-        VectorSubtract((*patch)->origin, point, delta);
-#endif
 		vec3_t normal;
 		CrossProduct (trian->plane->normal, delta, normal);
 		CrossProduct (normal, trian->plane->normal, delta);
@@ -2494,17 +2479,14 @@ static void     AddPatchToTriangulation(lerpTriangulation_t* trian, patch_t* pat
 
             hlassume(trian->points != NULL, assume_NoMemory);
             memset(trian->points + trian->maxpoints, 0, sizeof(patch_t*) * DEFAULT_MAX_LERP_POINTS);   // clear the new block
-#ifdef HLRAD_LERP_TEXNORMAL
 			trian->points_pos = (vec3_t *)realloc(trian->points_pos, sizeof (vec3_t) * (trian->maxpoints + DEFAULT_MAX_LERP_POINTS));
 			hlassume (trian->points_pos != NULL, assume_NoMemory);
 			memset (trian->points_pos + trian->maxpoints, 0, sizeof (vec3_t) * DEFAULT_MAX_LERP_POINTS);
-#endif
 
             trian->maxpoints += DEFAULT_MAX_LERP_POINTS;
         }
 
         trian->points[pnum] = patch;
-#ifdef HLRAD_LERP_TEXNORMAL
 		VectorCopy (patch->origin, trian->points_pos[pnum]);
 		if (patch->faceNumber != trian->facenum)
 		{
@@ -2532,7 +2514,6 @@ static void     AddPatchToTriangulation(lerpTriangulation_t* trian, patch_t* pat
 			vec_t dist = (DotProduct (trian->points_pos[pnum], p1.normal) - p1.dist) / DotProduct (snapdir, p1.normal);
 			VectorMA (trian->points_pos[pnum], -dist, snapdir, trian->points_pos[pnum]);
 		}
-#endif
         trian->numpoints++;
     }
 }
@@ -2590,10 +2571,8 @@ static lerpTriangulation_t* AllocTriangulation()
     trian->maxwalls = DEFAULT_MAX_LERP_WALLS;
 
     trian->points = (patch_t**)calloc(DEFAULT_MAX_LERP_POINTS, sizeof(patch_t*));
-#ifdef HLRAD_LERP_TEXNORMAL
 	trian->points_pos = (vec3_t *)calloc (DEFAULT_MAX_LERP_POINTS, sizeof(vec3_t));
 	hlassume (trian->points_pos != NULL, assume_NoMemory);
-#endif
 
     trian->walls = (lerpWall_t*)calloc(DEFAULT_MAX_LERP_WALLS, sizeof(lerpWall_t));
 
@@ -2610,9 +2589,7 @@ void            FreeTriangulation(lerpTriangulation_t* trian)
 {
     free(trian->dists);
     free(trian->points);
-#ifdef HLRAD_LERP_TEXNORMAL
 	free(trian->points_pos);
-#endif
     free(trian->walls);
 	for (facelist_t *next; trian->allfaces; trian->allfaces = next)
 	{

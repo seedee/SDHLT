@@ -444,9 +444,7 @@ typedef struct
     unsigned        maxwalls;
     unsigned        numwalls;
     patch_t**       points;    // maxpoints
-#ifdef HLRAD_LERP_TEXNORMAL
 	vec3_t*			points_pos;
-#endif
     lerpDist_t*     dists;     // numpoints after points is populated
     lerpWall_t*     walls;     // maxwalls
 
