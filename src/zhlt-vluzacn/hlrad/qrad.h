@@ -644,9 +644,7 @@ extern vec_t*	g_skynormalsizes[SKYLEVELMAX+1]; // the weight of each normal
 extern void     BuildDiffuseNormals ();
 extern void     BuildFacelights(int facenum);
 extern void     PrecompLightmapOffsets();
-#ifdef HLRAD_REDUCELIGHTMAP
 extern void		ReduceLightmap ();
-#endif
 extern void     FinalLightFace(int facenum);
 #ifdef HLRAD_GROWSAMPLE
 extern void		ScaleDirectLights (); // run before AddPatchLights

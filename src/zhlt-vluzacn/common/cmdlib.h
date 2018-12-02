@@ -72,10 +72,7 @@
 
 
 
-#define HLRAD_REDUCELIGHTMAP //--vluzacn
-	#ifdef HLRAD_REDUCELIGHTMAP
 #define HLRAD_AUTOCORING //--vluzacn
-	#endif
 #define HLRAD_OPAQUEINSKY_FIX //--vluzacn
 #define HLRAD_SUNSPREAD //--vluzacn
 #define HLRAD_SUNDIFFUSE //--vluzacn

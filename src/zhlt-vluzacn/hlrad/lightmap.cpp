@@ -5707,12 +5707,6 @@ void            PrecompLightmapOffsets()
             continue;                                      // non-lit texture
         }
 
-#ifndef HLRAD_REDUCELIGHTMAP
-		if (IntForKey (g_face_entity[facenum], "zhlt_striprad"))
-		{
-			continue;
-		}
-#endif
 
 #ifdef HLRAD_AUTOCORING
 		{
@@ -5893,7 +5887,6 @@ void            PrecompLightmapOffsets()
 
     }
 }
-#ifdef HLRAD_REDUCELIGHTMAP
 void ReduceLightmap ()
 {
 	byte *oldlightdata = (byte *)malloc (g_lightdatasize);
@@ -6020,7 +6013,6 @@ void ReduceLightmap ()
 	free (olddlitdata);
 #endif
 }
-#endif
 
 
 // Change the sample light right under a mdl file entity's origin.
@@ -6576,12 +6568,6 @@ void            FinalLightFace(const int facenum)
         return;                                            // non-lit texture
     }
 
-#ifndef HLRAD_REDUCELIGHTMAP
-	if (IntForKey (g_face_entity[facenum], "zhlt_striprad"))
-	{
-		return;
-	}
-#endif
 
     for (lightstyles = 0; lightstyles < MAXLIGHTMAPS; lightstyles++)
     {

@@ -3325,7 +3325,6 @@ static void     RadWorld()
 	}
 #endif
 	MdlLightHack ();
-#ifdef HLRAD_REDUCELIGHTMAP
 	ReduceLightmap();
 	if (g_lightdatasize == 0)
 	{
@@ -3336,7 +3335,6 @@ static void     RadWorld()
 		g_ddlitdata[0] = 0;
 	#endif
 	}
-#endif
 	ExtendLightmapBuffer (); // expand the size of lightdata array (for a few KB) to ensure that game engine reads within its valid range
 }
 
