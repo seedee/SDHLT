@@ -67,7 +67,6 @@
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
-#define HLBSP_SubdivideFace_FIX //--vluzacn
 #define HLCSG_HLBSP_DOUBLEPLANE //--vluzacn
 #define HLBSP_AVOIDEPSILONSPLIT //--vluzacn
 #define HLCSG_HULLFILE_AUTOPATH //--vluzacn

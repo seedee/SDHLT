@@ -140,11 +140,7 @@ void            SubdivideFace(face_t* f, face_t** prevptr)
             {
                 Developer(DEVELOPER_LEVEL_SPAM, "SubdivideFace: didn't split the %d-sided polygon @(%.0f,%.0f,%.0f)",
                         f->numpoints, f->pts[0][0], f->pts[0][1], f->pts[0][2]);
-#ifndef HLBSP_SubdivideFace_FIX
-                break;
-#endif
             }
-#ifdef HLBSP_SubdivideFace_FIX
 			f = next;
 			if (front)
 			{
@@ -157,12 +153,6 @@ void            SubdivideFace(face_t* f, face_t** prevptr)
 				f = back;
 			}
 			*prevptr = f;
-#else
-            *prevptr = back;
-            back->next = front;
-            front->next = next;
-            f = back;
-#endif
         }
     }
 }
