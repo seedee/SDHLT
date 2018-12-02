@@ -1718,9 +1718,6 @@ static void     Settings()
 void            CSGCleanup()
 {
     //Log("CSGCleanup\n");
-#ifndef HLCSG_AUTOWAD_NEW
-    autowad_cleanup();
-#endif
     FreeWadPaths();
 }
 

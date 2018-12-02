@@ -32,9 +32,6 @@ typedef struct
 } lumpinfo_t;
 
 std::deque< std::string > g_WadInclude;
-#ifndef HLCSG_AUTOWAD_NEW
-std::map< int, bool > s_WadIncludeMap;
-#endif
 
 static int      nummiptex = 0;
 static lumpinfo_t miptex[MAX_MAP_TEXTURES];
@@ -42,9 +39,7 @@ static int      nTexLumps = 0;
 static lumpinfo_t* lumpinfo = NULL;
 static int      nTexFiles = 0;
 static FILE*    texfiles[MAX_TEXFILES];
-#ifdef HLCSG_AUTOWAD_NEW
 static wadpath_t* texwadpathes[MAX_TEXFILES]; // maps index of the wad to its path
-#endif
 
 // The old buggy code in effect limit the number of brush sides to MAX_MAP_BRUSHES
 
@@ -177,15 +172,11 @@ bool            TEX_InitFromWad()
 {
     int             i, j;
     wadinfo_t       wadinfo;
-#ifndef HLCSG_AUTOWAD_NEW
-    char            szTmpWad[1024]; // arbitrary, but needs to be large.
-#endif
     char*           pszWadFile;
     const char*     pszWadroot;
     wadpath_t*      currentwad;
 
     Log("\n"); // looks cleaner
-#ifdef HLCSG_AUTOWAD_NEW
 	// update wad inclusion
 	for (i = 0; i < g_iNumWadPaths; i++)
 	{
@@ -202,45 +193,21 @@ bool            TEX_InitFromWad()
 			}
 		}
 	}
-#endif
 
-#ifndef HLCSG_AUTOWAD_NEW
-    szTmpWad[0] = 0;
-#endif
     pszWadroot = getenv("WADROOT");
 
-#ifndef HLCSG_AUTOWAD_NEW
-    autowad_UpdateUsedWads();
-#endif
 
     // for eachwadpath
     for (i = 0; i < g_iNumWadPaths; i++)
     {
         FILE*           texfile;                           // temporary used in this loop
-#ifndef HLCSG_AUTOWAD_NEW
-        bool            bExcludeThisWad = false;
-#endif
 
         currentwad = g_pWadPaths[i];
         pszWadFile = currentwad->path;
 
 
-#ifndef HLCSG_AUTOWAD_NEW
-        #ifdef _DEBUG
-        Log("[dbg] Attempting to parse wad: '%s'\n", pszWadFile);
-        #endif
 
-        if (g_bWadAutoDetect && !currentwad->usedtextures)
-            continue;
-
-        #ifdef _DEBUG
-        Log("[dbg] Parsing wad\n");
-        #endif
-#endif
-
-#ifdef HLCSG_AUTOWAD_NEW
 		texwadpathes[nTexFiles] = currentwad;
-#endif
         texfiles[nTexFiles] = fopen(pszWadFile, "rb");
 
         #ifdef SYSTEM_WIN32
@@ -307,33 +274,6 @@ bool            TEX_InitFromWad()
         }
 
 		pszWadFile = currentwad->path; // correct it back
-#ifndef HLCSG_AUTOWAD_NEW
-        // look and see if we're supposed to include the textures from this WAD in the bsp.
-        WadInclude_i it;
-        for (it = g_WadInclude.begin(); it != g_WadInclude.end(); it++)
-        {
-            if (stristr(pszWadFile, it->c_str()))
-            {
-                Log("Including Wadfile: %s\n", pszWadFile);
-                bExcludeThisWad = true;             // wadincluding this one
-                s_WadIncludeMap[nTexFiles] = true;
-                break;
-            }
-        }
-		if (!bExcludeThisWad && !g_wadtextures) // -nowadtextures
-		{
-			Log("Including Wadfile: %s\n", pszWadFile);
-			bExcludeThisWad = true;
-		}
-
-        if (!bExcludeThisWad)
-        {
-            Log("Using Wadfile: %s\n", pszWadFile);
-			char tmp[_MAX_PATH];
-			ExtractFile (pszWadFile, tmp);
-            safe_snprintf(szTmpWad, 1024, "%s%s;", szTmpWad, tmp);
-        }
-#endif
 
         // temp assignment to make things cleaner:
         texfile = texfiles[nTexFiles];
@@ -387,15 +327,7 @@ bool            TEX_InitFromWad()
 
         // AJM: this feature is dependant on autowad. :(
         // CONSIDER: making it standard?
-#ifdef HLCSG_AUTOWAD_NEW
 		currentwad->totaltextures = wadinfo.numlumps;
-#else
-        {
-            double percused = ((float)(currentwad->usedtextures) / (float)(g_numUsedTextures)) * 100;
-            Log(" - Contains %i used texture%s, %2.2f percent of map (%d textures in wad)\n",
-                currentwad->usedtextures, currentwad->usedtextures == 1 ? "" : "s", percused, wadinfo.numlumps);
-        }
-#endif
 
         nTexFiles++;
         hlassume(nTexFiles < MAX_TEXFILES, assume_MAX_TEXFILES);
@@ -407,20 +339,6 @@ bool            TEX_InitFromWad()
     // sort texlumps in memory by name
     qsort((void*)lumpinfo, (size_t) nTexLumps, sizeof(lumpinfo[0]), lump_sorter_by_name);
 
-#ifndef HLCSG_AUTOWAD_NEW
-    Log("\n");
-	if (*szTmpWad)
-	{
-		Log ("Wad files required to run the map: \"%s\"\n", szTmpWad);
-	}
-	else
-	{
-		Log ("Wad files required to run the map: (None)\n");
-	}
-    SetKeyValue(&g_entities[0], "wad", szTmpWad);
-
-    Log("\n");
-#endif
     CheckFatal();
     return true;
 }
@@ -446,7 +364,6 @@ lumpinfo_t*     FindTexture(const lumpinfo_t* const source)
         }
     }
 
-#ifdef HLCSG_AUTOWAD_NEW
 	if (found)
 	{
 		// get the first and last matching lump
@@ -494,7 +411,6 @@ lumpinfo_t*     FindTexture(const lumpinfo_t* const source)
 		}
 		found = best;
 	}
-#endif
     return found;
 }
 
@@ -520,20 +436,7 @@ int             LoadLump(const lumpinfo_t* const source, byte* dest, int* texsiz
         }
         *texsize = source->disksize;
 
-#ifdef HLCSG_AUTOWAD_NEW
 		if (texwadpathes[source->iTexFile]->usedbymap)
-#else
-        bool wadinclude = false;
-        std::map< int, bool >::iterator it;
-        it = s_WadIncludeMap.find(source->iTexFile);
-        if (it != s_WadIncludeMap.end())
-        {
-            wadinclude = it->second;
-        }
-
-        // Should we just load the texture header w/o the palette & bitmap?
-        if (g_wadtextures && !wadinclude)
-#endif
         {
             // Just read the miptex header and zero out the data offsets.
             // We will load the entire texture from the WAD at engine runtime
@@ -615,28 +518,6 @@ void            AddAnimatingTextures()
     }
 }
 
-#ifndef HLCSG_AUTOWAD_NEW
-// =====================================================================================
-//  GetWadPath
-// AJM: this sub is obsolete
-// =====================================================================================
-char*           GetWadPath()
-{
-    const char*     path = ValueForKey(&g_entities[0], "_wad");
-
-    if (!path || !path[0])
-    {
-        path = ValueForKey(&g_entities[0], "wad");
-        if (!path || !path[0])
-        {
-            Warning("no wadfile specified");
-            return strdup("");
-        }
-    }
-
-    return strdup(path);
-}
-#endif
 
 // =====================================================================================
 //  WriteMiptex
@@ -672,9 +553,7 @@ void            WriteMiptex()
             if (found)
             {
                 miptex[i] = *found;
-#ifdef HLCSG_AUTOWAD_NEW
 				texwadpathes[found->iTexFile]->usedtextures++;
-#endif
             }
             else
             {
@@ -685,7 +564,6 @@ void            WriteMiptex()
     end = I_FloatTime();
     Verbose("FindTextures elapsed time = %ldms\n", (long)(end - start));
 
-#ifdef HLCSG_AUTOWAD_NEW
 	// Now we have filled lumpinfo for each miptex and the number of used textures for each wad.
 	{
 		char szTmpWad[MAX_VAL];
@@ -731,7 +609,6 @@ void            WriteMiptex()
 		SetKeyValue(&g_entities[0], "wad", szTmpWad);
 	}
 
-#endif
     start = I_FloatTime();
     {
         int             i;
@@ -863,11 +740,6 @@ int             TexinfoForBrushTexture(const plane_t* const plane, brush_texture
 		return -1;
 	}
     memset(&tx, 0, sizeof(tx));
-#ifndef HLCSG_AUTOWAD_NEW
-	ThreadLock ();
-	autowad_PushName (bt->name);
-	ThreadUnlock ();
-#endif
 	FindMiptex (bt->name);
 
     // set the special flag

@@ -53,22 +53,7 @@ void LoadWadconfig (const char *filename, const char *configname)
 				Error ("parsing '%s': too many wad files.", filename);
 			}
 			count++;
-#ifdef HLCSG_AUTOWAD_NEW
 			PushWadPath (g_token, !include);
-#else
-			wadpath_t *current = (wadpath_t *)malloc (sizeof (wadpath_t));
-			hlassume (current != NULL, assume_NoMemory);
-			g_pWadPaths[g_iNumWadPaths] = current;
-			g_iNumWadPaths++;
-			safe_strncpy (current->path, g_token, _MAX_PATH);
-			current->usedbymap = true; // what's this?
-			current->usedtextures = 0;
-			if (include)
-			{
-				Developer (DEVELOPER_LEVEL_MESSAGE, "LoadWadcfgfile: including '%s'.\n", current->path);
-				g_WadInclude.push_back(current->path);
-			}
-#endif
 		}
 	}
 	if (found == 0)
@@ -109,22 +94,7 @@ void LoadWadcfgfile (const char *filename)
 			Error ("parsing '%s': too many wad files.", filename);
 		}
 		count++;
-#ifdef HLCSG_AUTOWAD_NEW
 		PushWadPath (g_token, !include);
-#else
-		wadpath_t *current = (wadpath_t *)malloc (sizeof (wadpath_t));
-		hlassume (current != NULL, assume_NoMemory);
-		g_pWadPaths[g_iNumWadPaths] = current;
-		g_iNumWadPaths++;
-		safe_strncpy (current->path, g_token, _MAX_PATH);
-		current->usedbymap = true; // what's this?
-		current->usedtextures = 0;
-		if (include)
-		{
-			Developer (DEVELOPER_LEVEL_MESSAGE, "LoadWadcfgfile: including '%s'.\n", current->path);
-			g_WadInclude.push_back(current->path);
-		}
-#endif
 	}
 	free (buffer); // should not be freed because it is still being used as script buffer
 	//Log ("Using custom wadfile configuration: '%s' (with %i wad%s)\n", filename, count, count > 1 ? "s" : "");
