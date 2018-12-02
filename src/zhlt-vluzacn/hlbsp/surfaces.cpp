@@ -416,10 +416,8 @@ int             GetEdge(const vec3_t p1, const vec3_t p2, face_t* f)
     {
         edge = &g_dedges[i];
         if (v1 == edge->v[1] && v2 == edge->v[0] && !edgefaces[i][1] && edgefaces[i][0]->contents == f->contents
-#ifdef HLBSP_EDGESHARE_SAMESIDE
 			&& edgefaces[i][0]->planenum != (f->planenum ^ 1)
 			&& edgefaces[i][0]->contents == f->contents
-#endif
 			)
         {
             edgefaces[i][1] = f;
