@@ -2731,19 +2731,16 @@ void            CreateDirectLights()
 #endif
 
     numdlights = 0;
-#ifdef HLRAD_STYLEREPORT
 	int styleused[ALLSTYLES];
 	memset (styleused, 0, ALLSTYLES * sizeof(styleused[0]));
 	styleused[0] = true;
 	int numstyles = 1;
-#endif
 
     //
     // surfaces
     //
     for (i = 0, p = g_patches; i < g_num_patches; i++, p++)
     {
-#ifdef HLRAD_STYLEREPORT
 		if (p->emitstyle >= 0 && p->emitstyle < ALLSTYLES)
 		{
 			if (styleused[p->emitstyle] == false)
@@ -2752,7 +2749,6 @@ void            CreateDirectLights()
 				numstyles++;
 			}
 		}
-#endif
         if (
 	#ifdef HLRAD_REFLECTIVITY
 			DotProduct (p->baselight, p->texturereflectivity) / 3
@@ -2984,7 +2980,6 @@ void            CreateDirectLights()
 	#endif
 			)
 		{
-#ifdef HLRAD_STYLEREPORT
 			int style = IntForKey (e, "style");
 			if (style < 0)
 			{
@@ -2999,7 +2994,6 @@ void            CreateDirectLights()
 					numstyles++;
 				}
 			}
-#endif
 			continue;
 		}
 #ifdef HLRAD_CUSTOMTEXLIGHT
@@ -3030,7 +3024,6 @@ void            CreateDirectLights()
 		{
 			Error ("invalid light style: style (%d) >= ALLSTYLES (%d)", dl->style, ALLSTYLES);
 		}
-#ifdef HLRAD_STYLEREPORT
 		if (dl->style >= 0 && dl->style < ALLSTYLES)
 		{
 			if (styleused[dl->style] == false)
@@ -3039,7 +3032,6 @@ void            CreateDirectLights()
 				numstyles++;
 			}
 		}
-#endif
 #ifdef HLRAD_GatherPatchLight
 		dl->topatch = false;
 		if (IntForKey (e, "_fast") == 1)
@@ -3456,9 +3448,7 @@ void            CreateDirectLights()
 #else
     Log("%i direct lights\n", numdlights);
 #endif
-#ifdef HLRAD_STYLEREPORT
 	Log("%i light styles\n", numstyles);
-#endif
 #ifdef HLRAD_SKYFIX_FIX
 	// move all emit_skylight to leaf 0 (the solid leaf)
 	if (g_sky_lighting_fix)
