@@ -1187,10 +1187,8 @@ contents_t      CheckBrushContents(const brush_t* const b)
 				s->td.name);
         }
     }
-#ifdef HLCSG_HLBSP_CONTENTSNULL_FIX
 	if (contents == CONTENTS_NULL)
 		contents = CONTENTS_SOLID;
-#endif
 
     // check to make sure we dont have an origin brush as part of worldspawn
     if ((b->entitynum == 0) || (strcmp("func_group", ValueForKey(&g_entities[b->entitynum], "classname"))==0))
@@ -1224,9 +1222,6 @@ contents_t      CheckBrushContents(const brush_t* const b)
 		case CONTENTS_HINT:
 #ifdef HLCSG_EMPTYBRUSH
 		case CONTENTS_TOEMPTY:
-#endif
-#ifndef HLCSG_HLBSP_CONTENTSNULL_FIX
-        case CONTENTS_NULL:
 #endif
             break;
         default:
