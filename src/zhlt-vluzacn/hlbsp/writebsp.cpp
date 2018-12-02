@@ -301,7 +301,6 @@ static int		WriteDrawLeaf (node_t *node, const node_t *portalleaf)
 				f = f->original;
 				continue;
 			}
-#if defined(HLBSP_HIDDENFACE) || defined(ZHLT_HIDDENSOUNDTEXTURE)
 			bool ishidden = false;
 			{
 				const char *name = GetTextureByNumber (f->texturenum);
@@ -321,7 +320,6 @@ static int		WriteDrawLeaf (node_t *node, const node_t *portalleaf)
 				f = f->original;
 				continue;
 			}
-#endif
             g_dmarksurfaces[g_nummarksurfaces] = f->outputnumber;
             hlassume(g_nummarksurfaces < MAX_MAP_MARKSURFACES, assume_MAX_MAP_MARKSURFACES);
             g_nummarksurfaces++;

@@ -68,7 +68,6 @@
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
 //#define HLBSP_SUBDIVIDE_INMID // this may contribute to 'AllocBlock: full' problem though it may generate fewer faces. --vluzacn
-#define HLBSP_HIDDENFACE //--vluzacn
 #define HLBSP_BRINKHACK //--vluzacn
 #define HLBSP_MERGECLIPNODE // Will this break the BSP file format? //--vluzacn
 #define HLCSG_CLIPTYPEPRECISE_EPSILON_FIX //--vluzacn
