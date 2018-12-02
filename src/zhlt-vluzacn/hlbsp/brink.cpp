@@ -1879,19 +1879,15 @@ void *CreateBrinkinfo (const dclipnode_t *clipnodes, int headnode)
 	return info;
 }
 
-#ifdef HLBSP_MERGECLIPNODE
 extern int count_mergedclipnodes;
 typedef std::map< std::pair< int, std::pair< int, int > >, int > clipnodemap_t;
 inline clipnodemap_t::key_type MakeKey (const dclipnode_t &c)
 {
 	return std::make_pair (c.planenum, std::make_pair (c.children[0], c.children[1]));
 }
-#endif
 
 bool FixBrinks_r_r (const bclipnode_t *clipnode, const bpartition_t *p, bbrinklevel_e level, int &headnode_out, dclipnode_t *begin, dclipnode_t *end, dclipnode_t *&current
-#ifdef HLBSP_MERGECLIPNODE
 					, clipnodemap_t *outputmap
-#endif
 					)
 {
 	while (p && p->type > level)
@@ -1904,32 +1900,20 @@ bool FixBrinks_r_r (const bclipnode_t *clipnode, const bpartition_t *p, bbrinkle
 		return true;
 	}
 	dclipnode_t *cn;
-#ifdef HLBSP_MERGECLIPNODE
 	dclipnode_t tmpclipnode;
 	cn = &tmpclipnode;
 	dclipnode_t *c = current;
 	current++;
-#else
-	if (current >= end)
-	{
-		return false;
-	}
-	cn = current;
-	current++;
-#endif
 	cn->planenum = p->planenum;
 	cn->children[p->planeside] = p->content;
 	int r;
 	if (!FixBrinks_r_r (clipnode, p->next, level, r, begin, end, current
-#ifdef HLBSP_MERGECLIPNODE
 		, outputmap
-#endif
 		))
 	{
 		return false;
 	}
 	cn->children[!p->planeside] = r;
-#ifdef HLBSP_MERGECLIPNODE
 	clipnodemap_t::iterator output;
 	output = outputmap->find (MakeKey (*cn));
 	if (g_noclipnodemerge || output == outputmap->end ())
@@ -1952,57 +1936,38 @@ bool FixBrinks_r_r (const bclipnode_t *clipnode, const bpartition_t *p, bbrinkle
 		current = c;
 		headnode_out = output->second; // use the existing clipnode
 	}
-#else
-	headnode_out = cn - begin;
-#endif
 	return true;
 }
 
 bool FixBrinks_r (const bclipnode_t *clipnode, bbrinklevel_e level, int &headnode_out, dclipnode_t *begin, dclipnode_t *end, dclipnode_t *&current
-#ifdef HLBSP_MERGECLIPNODE
 				, clipnodemap_t *outputmap
-#endif
 				)
 {
 	if (clipnode->isleaf)
 	{
 		return FixBrinks_r_r (clipnode, clipnode->partitions, level, headnode_out, begin, end, current
-#ifdef HLBSP_MERGECLIPNODE
 							, outputmap
-#endif
 							);
 	}
 	else
 	{
 		dclipnode_t *cn;
-#ifdef HLBSP_MERGECLIPNODE
 		dclipnode_t tmpclipnode;
 		cn = &tmpclipnode;
 		dclipnode_t *c = current;
 		current++;
-#else
-		if (current >= end)
-		{
-			return false;
-		}
-		cn = current;
-		current++;
-#endif
 		cn->planenum = clipnode->planenum;
 		for (int k = 0; k < 2; k++)
 		{
 			int r;
 			if (!FixBrinks_r (clipnode->children[k], level, r, begin, end, current
-#ifdef HLBSP_MERGECLIPNODE
 				, outputmap
-#endif
 				))
 			{
 				return false;
 			}
 			cn->children[k] = r;
 		}
-#ifdef HLBSP_MERGECLIPNODE
 		clipnodemap_t::iterator output;
 		output = outputmap->find (MakeKey (*cn));
 		if (g_noclipnodemerge || output == outputmap->end ())
@@ -2025,9 +1990,6 @@ bool FixBrinks_r (const bclipnode_t *clipnode, bbrinklevel_e level, int &headnod
 			current = c;
 			headnode_out = output->second; // use existing clipnode
 		}
-#else
-		headnode_out = cn - begin;
-#endif
 		return true;
 	}
 }
@@ -2038,14 +2000,10 @@ bool FixBrinks (const void *brinkinfo, bbrinklevel_e level, int &headnode_out, d
 	dclipnode_t *begin = clipnodes_out;
 	dclipnode_t *end = &clipnodes_out[maxsize];
 	dclipnode_t *current = &clipnodes_out[size];
-#ifdef HLBSP_MERGECLIPNODE
 	clipnodemap_t outputmap;
-#endif
 	int r;
 	if (!FixBrinks_r (&info->clipnodes[0], level, r, begin, end, current
-#ifdef HLBSP_MERGECLIPNODE
 		, &outputmap
-#endif
 		))
 	{
 		return false;

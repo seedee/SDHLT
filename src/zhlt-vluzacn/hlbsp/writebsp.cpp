@@ -23,14 +23,12 @@ static int g_nummappedtexinfo;
 static texinfo_t g_mappedtexinfo[MAX_MAP_TEXINFO];
 static texinfomap_t g_texinfomap;
 
-#ifdef HLBSP_MERGECLIPNODE
 int count_mergedclipnodes;
 typedef std::map< std::pair< int, std::pair< int, int > >, int > clipnodemap_t;
 inline clipnodemap_t::key_type MakeKey (const dclipnode_t &c)
 {
 	return std::make_pair (c.planenum, std::make_pair (c.children[0], c.children[1]));
 }
-#endif
 
 // =====================================================================================
 //  WritePlane
@@ -94,9 +92,7 @@ static int WriteTexinfo (int texinfo)
 // =====================================================================================
 static int      WriteClipNodes_r(node_t* node
 								 , const node_t *portalleaf
-#ifdef HLBSP_MERGECLIPNODE
 								 , clipnodemap_t *outputmap
-#endif
 								 )
 {
     int             i, c;
@@ -131,33 +127,15 @@ static int      WriteClipNodes_r(node_t* node
 	}
 
 #ifdef ZHLT_XASH2
-#ifdef HLBSP_MERGECLIPNODE
 	dclipnode_t tmpclipnode; // this clipnode will be inserted into g_dclipnodes[c] if it can't be merged
 	cn = &tmpclipnode;
 	c = g_numclipnodes[g_hullnum - 1];
 	g_numclipnodes[g_hullnum - 1]++;
 #else
-    // emit a clipnode
-    hlassume(g_numclipnodes[g_hullnum - 1] < MAX_MAP_CLIPNODES, assume_MAX_MAP_CLIPNODES);
-
-    c = g_numclipnodes[g_hullnum - 1];
-    cn = &g_dclipnodes[g_hullnum - 1][g_numclipnodes];
-    g_numclipnodes[g_hullnum - 1]++;
-#endif
-#else
-#ifdef HLBSP_MERGECLIPNODE
 	dclipnode_t tmpclipnode; // this clipnode will be inserted into g_dclipnodes[c] if it can't be merged
 	cn = &tmpclipnode;
 	c = g_numclipnodes;
 	g_numclipnodes++;
-#else
-    // emit a clipnode
-    hlassume(g_numclipnodes < MAX_MAP_CLIPNODES, assume_MAX_MAP_CLIPNODES);
-
-    c = g_numclipnodes;
-    cn = &g_dclipnodes[g_numclipnodes];
-    g_numclipnodes++;
-#endif
 #endif
     if (node->planenum & 1)
     {
@@ -168,12 +146,9 @@ static int      WriteClipNodes_r(node_t* node
     {
         cn->children[i] = WriteClipNodes_r(node->children[i]
 			, portalleaf
-#ifdef HLBSP_MERGECLIPNODE
 			, outputmap
-#endif
 			);
     }
-#ifdef HLBSP_MERGECLIPNODE
 	clipnodemap_t::iterator output;
 	output = outputmap->find (MakeKey (*cn));
 	if (g_noclipnodemerge || output == outputmap->end ())
@@ -204,7 +179,6 @@ static int      WriteClipNodes_r(node_t* node
 #endif
 		c = output->second; // use existing clipnode
 	}
-#endif
 
     free(node);
     return c;
@@ -217,15 +191,11 @@ static int      WriteClipNodes_r(node_t* node
 // =====================================================================================
 void            WriteClipNodes(node_t* nodes)
 {
-#ifdef HLBSP_MERGECLIPNODE
 	// we only merge among the clipnodes of the same hull of the same model
 	clipnodemap_t outputmap;
-#endif
     WriteClipNodes_r(nodes
 		, NULL
-#ifdef HLBSP_MERGECLIPNODE
 		, &outputmap
-#endif
 		);
 }
 
@@ -640,9 +610,7 @@ void            BeginBSPFile()
 	g_nummappedtexinfo = 0;
 	g_texinfomap.clear ();
 
-#ifdef HLBSP_MERGECLIPNODE
 	count_mergedclipnodes = 0;
-#endif
     g_nummodels = 0;
     g_numfaces = 0;
     g_numnodes = 0;
@@ -681,7 +649,6 @@ void            FinishBSPFile()
 	{
 		Warning ("Number of world faces(%d) exceeded %d. Some faces will disappear in game.\nTo reduce world faces, change some world brushes (including func_details) to func_walls.\n", g_dmodels[0].numfaces, MAX_MAP_WORLDFACES);
 	}
-#ifdef HLBSP_MERGECLIPNODE
 	Developer (DEVELOPER_LEVEL_MESSAGE, "count_mergedclipnodes = %d\n", count_mergedclipnodes);
 	if (!g_noclipnodemerge)
 	{
@@ -696,7 +663,6 @@ void            FinishBSPFile()
 		Log ("Reduced %d clipnodes to %d\n", g_numclipnodes + count_mergedclipnodes, g_numclipnodes);
 #endif
 	}
-#endif
 	if(!g_noopt)
 	{
 		{
@@ -893,9 +859,7 @@ void            FinishBSPFile()
 #else
 			numclipnodes = 0;
 #endif
-#ifdef HLBSP_MERGECLIPNODE
 			count_mergedclipnodes = 0;
-#endif
 			for (i = 0; i < g_nummodels; i++)
 			{
 				for (j = 1; j < NUM_HULLS; j++)
@@ -936,9 +900,7 @@ void            FinishBSPFile()
 			{
 				Warning ("Not all brinks have been fixed because clipnode data is almost full.");
 			}
-#ifdef HLBSP_MERGECLIPNODE
 			Developer (DEVELOPER_LEVEL_MESSAGE, "count_mergedclipnodes = %d\n", count_mergedclipnodes);
-#endif
 #ifdef ZHLT_XASH2
 			int g_numclipnodes_total = 0;
 			int numclipnodes_total = 0;

@@ -45,9 +45,7 @@
 #define DEFAULT_NOBRINK			false
 #define DEFAULT_NOCLIP          false
 #define DEFAULT_NOOPT			false
-#ifdef HLBSP_MERGECLIPNODE
 #define DEFAULT_NOCLIPNODEMERGE	false
-#endif
 #define DEFAULT_LEAKONLY        false
 #define DEFAULT_WATERVIS        false
 #define DEFAULT_CHART           false
@@ -310,9 +308,7 @@ extern bool     g_nofill;
 extern bool		g_noinsidefill;
 extern bool     g_notjunc;
 extern bool		g_nobrink;
-#ifdef HLBSP_MERGECLIPNODE
 extern bool		g_noclipnodemerge;
-#endif
 extern bool     g_watervis;
 extern bool     g_chart;
 extern bool     g_estimate;

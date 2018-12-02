@@ -54,9 +54,7 @@ char			g_extentfilename[_MAX_PATH];
 
 // command line flags
 bool			g_noopt = DEFAULT_NOOPT;		// don't optimize BSP on write
-#ifdef HLBSP_MERGECLIPNODE
 bool			g_noclipnodemerge = DEFAULT_NOCLIPNODEMERGE;
-#endif
 bool            g_nofill = DEFAULT_NOFILL;      // dont fill "-nofill"
 bool			g_noinsidefill = DEFAULT_NOINSIDEFILL;
 bool            g_notjunc = DEFAULT_NOTJUNC;
@@ -1426,9 +1424,7 @@ static void     Usage()
     Log("    -nofill        : Don't fill outside (will mask LEAKs) (not for final runs)\n");
 	Log("    -noinsidefill  : Don't fill empty spaces\n");
 	Log("    -noopt         : Don't optimize planes on BSP write   (not for final runs)\n");
-#ifdef HLBSP_MERGECLIPNODE
 	Log("    -noclipnodemerge: Don't optimize clipnodes\n");
-#endif
     Log("    -texdata #     : Alter maximum texture memory limit (in kb)\n");
     Log("    -lightdata #   : Alter maximum lighting memory limit (in kb)\n");
     Log("    -chart         : display bsp statitics\n");
@@ -1514,9 +1510,7 @@ static void     Settings()
     Log("nofill              [ %7s ] [ %7s ]\n", g_nofill ? "on" : "off", DEFAULT_NOFILL ? "on" : "off");
 	Log("noinsidefill        [ %7s ] [ %7s ]\n", g_noinsidefill ? "on" : "off", DEFAULT_NOINSIDEFILL ? "on" : "off");
 	Log("noopt               [ %7s ] [ %7s ]\n", g_noopt ? "on" : "off", DEFAULT_NOOPT ? "on" : "off");
-#ifdef HLBSP_MERGECLIPNODE
 	Log("no clipnode merging [ %7s ] [ %7s ]\n", g_noclipnodemerge? "on": "off", DEFAULT_NOCLIPNODEMERGE? "on": "off");
-#endif
     Log("null tex. stripping [ %7s ] [ %7s ]\n", g_bUseNullTex ? "on" : "off", DEFAULT_NULLTEX ? "on" : "off" );
 #ifdef ZHLT_DETAIL // AJM
     Log("detail brushes      [ %7s ] [ %7s ]\n", g_bDetailBrushes ? "on" : "off", DEFAULT_DETAIL ? "on" : "off" );
@@ -1843,12 +1837,10 @@ int             main(const int argc, char** argv)
 		{
 			g_noopt = true;
 		}
-#ifdef HLBSP_MERGECLIPNODE
 		else if (!strcasecmp (argv[i], "-noclipnodemerge"))
 		{
 			g_noclipnodemerge = true;
 		}
-#endif
         else if (!strcasecmp(argv[i], "-subdivide"))
         {
             if (i + 1 < argc)	//added "1" .--vluzacn
