@@ -40,11 +40,7 @@
 #define DEFAULT_CHART       false
 #define DEFAULT_INFO        true
 
-#ifdef HLCSG_CLIPTYPEPRECISE_EPSILON_FIX
 #define FLOOR_Z 0.7 // Quake default
-#else
-#define FLOOR_Z 0.5
-#endif
 #define DEFAULT_CLIPTYPE clip_simple //clip_legacy //--vluzacn
 
 #define DEFAULT_NULLTEX     true

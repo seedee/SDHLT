@@ -498,7 +498,6 @@ void ExpandBrush(brush_t* brush, const int hullnum)
 		{
 			//don't adjust origin - we'll correct g_texinfo's flags in a later step
 		}
-#ifdef HLCSG_CLIPTYPEPRECISE_EPSILON_FIX
 		// The old offset will generate an extremely small gap when the normal is close to axis, causing epsilon errors (ambiguous leafnode content, player falling into ground, etc.).
 		// For example: with the old shifting method, slopes with angle arctan(1/8) and arctan(1/64) will result in gaps of 0.0299 unit and 0.000488 unit respectively, which are smaller than ON_EPSILON, while in both 'simple' cliptype and the new method, the gaps are 2.0 units and 0.25 unit, which are good.
 		// This also reduce the number of clipnodes used for cliptype precise.
@@ -511,9 +510,6 @@ void ExpandBrush(brush_t* brush, const int hullnum)
 			origin[2] += g_hull_size[hullnum][1][2];
 		}
 		else if (g_cliptype == clip_legacy || g_cliptype == clip_normalized)
-#else
-		else if(g_cliptype == clip_legacy || (g_cliptype == clip_precise && (normal[2] > FLOOR_Z)) || g_cliptype == clip_normalized)
-#endif
 		{
 			if(normal[0])
 			{ origin[0] += normal[0] * (normal[0] > 0 ? g_hull_size[hullnum][1][0] : -g_hull_size[hullnum][0][0]); }
@@ -623,7 +619,6 @@ void ExpandBrush(brush_t* brush, const int hullnum)
 						VectorCopy(edge_start,origin);
 
 						//unrolled loop - legacy never hits this point, so don't test for it
-#ifdef HLCSG_CLIPTYPEPRECISE_EPSILON_FIX
 						if (g_cliptype == clip_precise && normal[2] > FLOOR_Z)
 						{
 							origin[0] += 0;
@@ -631,9 +626,6 @@ void ExpandBrush(brush_t* brush, const int hullnum)
 							origin[2] += g_hull_size[hullnum][1][2];
 						}
 						else if (g_cliptype == clip_normalized)
-#else
-						if((g_cliptype == clip_precise && (normal[2] > FLOOR_Z)) || g_cliptype == clip_normalized)
-#endif
 						{
 							if(normal[0])
 							{ origin[0] += normal[0] * (normal[0] > 0 ? g_hull_size[hullnum][1][0] : -g_hull_size[hullnum][0][0]); }
