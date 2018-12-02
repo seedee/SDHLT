@@ -505,7 +505,6 @@ void            PairEdges()
 
 #define MAX_SINGLEMAP ((MAX_SURFACE_EXTENT+1)*(MAX_SURFACE_EXTENT+1)) //#define	MAX_SINGLEMAP	(18*18*4) //--vluzacn
 
-#ifdef HLRAD_AVOIDWALLBLEED
 typedef enum
 {
 	WALLFLAG_NONE = 0,
@@ -515,7 +514,6 @@ typedef enum
 }
 wallflag_t;
 
-#endif
 typedef struct
 {
     vec_t*          light;
@@ -550,9 +548,7 @@ typedef struct
 	vec3_t			(*lmcache_direction)[ALLSTYLES];
 #endif
 	vec3_t			*lmcache_normal; // record the phong normals
-#ifdef HLRAD_AVOIDWALLBLEED
 	int				*lmcache_wallflags; // wallflag_t
-#endif
 	int				lmcachewidth;
 	int				lmcacheheight;
 }
@@ -698,10 +694,8 @@ static void     CalcFaceExtents(lightinfo_t* l)
 #endif
 		l->lmcache_normal = (vec3_t *)malloc (l->lmcachewidth * l->lmcacheheight * sizeof (vec3_t));
 		hlassume (l->lmcache_normal != NULL, assume_NoMemory);
-#ifdef HLRAD_AVOIDWALLBLEED
 		l->lmcache_wallflags = (int *)malloc (l->lmcachewidth * l->lmcacheheight * sizeof (int));
 		hlassume (l->lmcache_wallflags != NULL, assume_NoMemory);
-#endif
 		l->surfpt_position = (vec3_t *)malloc (MAX_SINGLEMAP * sizeof (vec3_t));
 		l->surfpt_surface = (int *)malloc (MAX_SINGLEMAP * sizeof (int));
 		hlassume (l->surfpt_position != NULL && l->surfpt_surface != NULL, assume_NoMemory);
@@ -1368,9 +1362,7 @@ static void DeleteSampleFrag (samplefraginfo_t *fraginfo)
 static light_flag_t SetSampleFromST(vec_t* const point,
 									vec_t* const position, // a valid world position for light tracing
 									int* const surface, // the face used for phong normal and patch interpolation
-#ifdef HLRAD_AVOIDWALLBLEED
 									bool *nudged,
-#endif
 									const lightinfo_t* const l, const vec_t original_s, const vec_t original_t,
 									const vec_t square[2][2], // {smin, tmin}, {smax, tmax}
 									eModelLightmodes lightmode)
@@ -1395,9 +1387,7 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 	vec3_t bestpos;
 	vec_t bests, bestt;
 	vec_t best_dist;
-#ifdef HLRAD_AVOIDWALLBLEED
 	bool best_nudged;
-#endif
 
 	found = false;
 	for (f = fraginfo->head; f; f = f->next)
@@ -1406,13 +1396,9 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 		vec_t s, t;
 		vec_t dist;
 
-#ifdef HLRAD_AVOIDWALLBLEED
 		bool nudged_one;
-#endif
 		if (!FindNearestPosition (f->facenum, f->mywinding, f->mywindingplane, f->myorigin[0], f->myorigin[1], pos, &s, &t, &dist
-#ifdef HLRAD_AVOIDWALLBLEED
 									, &nudged_one
-#endif
 									))
 		{
 			continue;
@@ -1424,12 +1410,10 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 		{
 			better = true;
 		}
-#ifdef HLRAD_AVOIDWALLBLEED
 		else if (nudged_one != best_nudged)
 		{
 			better = !nudged_one;
 		}
-#endif
 		else if (fabs (dist - best_dist) > 2 * ON_EPSILON)
 		{
 			better = (dist < best_dist);
@@ -1451,9 +1435,7 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 			bests = s;
 			bestt = t;
 			best_dist = dist;
-#ifdef HLRAD_AVOIDWALLBLEED
 			best_nudged = nudged_one;
-#endif
 		}
 	}
 	
@@ -1489,10 +1471,8 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 		VectorCopy (bestpos, position);
 		// surface
 		*surface = bestfrag->facenum;
-#ifdef HLRAD_AVOIDWALLBLEED
 		// whether nudged to fit
 		*nudged = best_nudged;
-#endif
 		// returned value
 		LuxelFlag = LightNormal;
 	}
@@ -1501,9 +1481,7 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 		SetSurfFromST (l, point, original_s, original_t);
 		VectorMA (point, DEFAULT_HUNT_OFFSET, faceplane->normal, position);
 		*surface = facenum;
-#ifdef HLRAD_AVOIDWALLBLEED
 		*nudged = true;
-#endif
 		LuxelFlag = LightOutside;
 	}
 
@@ -1542,14 +1520,10 @@ static void		CalcPoints(lightinfo_t* l)
 			square[0][1] = ut - TEXTURE_STEP;
 			square[1][0] = us + TEXTURE_STEP;
 			square[1][1] = ut + TEXTURE_STEP;
-#ifdef HLRAD_AVOIDWALLBLEED
 			bool nudged;
-#endif
 			*pLuxelFlags = SetSampleFromST (surf,
 											l->surfpt_position[s+w*t], &l->surfpt_surface[s+w*t],
-#ifdef HLRAD_AVOIDWALLBLEED
 											&nudged,
-#endif
 											l, us, ut,
 											square,
 											lightmode);
@@ -3339,10 +3313,8 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 		vec3_t *sampled_direction;
 	#endif
 		vec3_t *normal_out;
-	#ifdef HLRAD_AVOIDWALLBLEED
 		bool nudged;
 		int *wallflags_out;
-	#endif
 
 		// prepare input parameter and output parameter
 		{
@@ -3357,9 +3329,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 			sampled_direction = l->lmcache_direction[i];
 	#endif
 			normal_out = &l->lmcache_normal[i];
-	#ifdef HLRAD_AVOIDWALLBLEED
 			wallflags_out = &l->lmcache_wallflags[i];
-	#endif
 //
 // The following graph illustrates the range in which a sample point can affect the lighting of a face when g_blur = 1.5 and g_extra = on
 //              X : the sample point. They are placed on every TEXTURE_STEP/lmcache_density (=16.0/3) texture pixels. We calculate light for each sample point, which is the main time sink.
@@ -3408,9 +3378,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 				blocked = false;
 				if (SetSampleFromST (
 									surfpt, spot, &surface,
-	#ifdef HLRAD_AVOIDWALLBLEED
 									&nudged,
-	#endif
 									l, s_vec, t_vec,
 									square,
 									g_face_lightmode[facenum]) == LightOutside)
@@ -3447,7 +3415,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 
 				delete surfacewinding;
 			}
-	#ifdef HLRAD_AVOIDWALLBLEED
 			*wallflags_out = WALLFLAG_NONE;
 			if (blocked)
 			{
@@ -3457,7 +3424,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 			{
 				*wallflags_out |= WALLFLAG_NUDGED;
 			}
-	#endif
 		}
 		// calculate normal for the sample
 		{
@@ -3586,7 +3552,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 					}
 				}
 			}
-	#ifdef HLRAD_AVOIDWALLBLEED
 			if (g_drawnudge)
 			{
 				for (j = 0; j < ALLSTYLES && styles[j] != 255; j++)
@@ -3607,7 +3572,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 					}
 				}
 			}
-	#endif
 		}
 	}
 }
@@ -3634,9 +3598,7 @@ void            BuildFacelights(const int facenum)
 	byte			pvs2[(MAX_MAP_LEAFS + 7) / 8];
 	int				thisoffset2 = -1, lastoffset2 = -1;
 
-#ifdef HLRAD_AVOIDWALLBLEED
 	int				*sample_wallflags;
-#endif
 
     f = &g_dfaces[facenum];
 
@@ -3726,9 +3688,7 @@ void            BuildFacelights(const int facenum)
 		patch->totalstyle_all[0] = 0;
 	}
 
-#ifdef HLRAD_AVOIDWALLBLEED
 	sample_wallflags = (int *)malloc ((2 * l.lmcache_side + 1) * (2 * l.lmcache_side + 1) * sizeof (int));
-#endif
     spot = l.surfpt[0];
     for (i = 0; i < l.numsurfpt; i++, spot += 3)
     {
@@ -3745,15 +3705,12 @@ void            BuildFacelights(const int facenum)
 		vec_t weighting, subsamples;
 		vec3_t centernormal;
 		vec_t weighting_correction;
-#ifdef HLRAD_AVOIDWALLBLEED
 		int pass;
-#endif
 		s_center = (i % lightmapwidth) * l.lmcache_density + l.lmcache_offset;
 		t_center = (i / lightmapwidth) * l.lmcache_density + l.lmcache_offset;
 		sizehalf = 0.5 * g_blur * l.lmcache_density;
 		subsamples = 0.0;
 		VectorCopy (l.lmcache_normal[s_center + l.lmcachewidth * t_center], centernormal);
-#ifdef HLRAD_AVOIDWALLBLEED
 		if (g_bleedfix && !g_drawnudge)
 		{
 			int s_origin = s_center;
@@ -3809,18 +3766,14 @@ void            BuildFacelights(const int facenum)
 				}
 			}
 		}
-#endif
-#ifdef HLRAD_AVOIDWALLBLEED
 	  for (pass = 0; pass < 2; pass++)
 	  {
-#endif
 		for (s = s_center - l.lmcache_side; s <= s_center + l.lmcache_side; s++)
 		{
 			for (t = t_center - l.lmcache_side; t <= t_center + l.lmcache_side; t++)
 			{
 				weighting = (qmin (0.5, sizehalf - (s - s_center)) - qmax (-0.5, -sizehalf - (s - s_center)))
 					* (qmin (0.5, sizehalf - (t - t_center)) - qmax (-0.5, -sizehalf - (t - t_center)));
-#ifdef HLRAD_AVOIDWALLBLEED
 				if (g_bleedfix && !g_drawnudge)
 				{
 					int wallflags = sample_wallflags[(s - s_center + l.lmcache_side) + (2 * l.lmcache_side + 1) * (t - t_center + l.lmcache_side)];
@@ -3836,7 +3789,6 @@ void            BuildFacelights(const int facenum)
 						}
 					}
 				}
-#endif
 				pos = s + l.lmcachewidth * t;
 				// when blur distance (g_blur) is large, the subsample can be very far from the original lightmap sample (aligned with interval TEXTURE_STEP (16.0))
 				// in some cases such as a thin cylinder, the subsample can even grow into the opposite side
@@ -3856,7 +3808,6 @@ void            BuildFacelights(const int facenum)
 				subsamples += weighting;
 			}
 		}
-#ifdef HLRAD_AVOIDWALLBLEED
 		if (subsamples > NORMAL_EPSILON)
 		{
 			break;
@@ -3873,18 +3824,13 @@ void            BuildFacelights(const int facenum)
 			}
 		}
 	  }
-#endif
 #ifdef ZHLT_XASH
 		for (int k = 0; k < ALLSTYLES; k++)
 		{
 			VectorClear (fl_samples[k][i].normal);
 		}
 #endif
-#ifdef HLRAD_AVOIDWALLBLEED
 		if (subsamples > 0)
-#else
-		if (subsamples > NORMAL_EPSILON)
-#endif
 		{
 #ifdef ZHLT_XASH
 			for (int k = 0; k < ALLSTYLES; k++) // fill 'sample.normal' for all 64 styles, just like what we did on 'sample.pos'
@@ -3901,9 +3847,7 @@ void            BuildFacelights(const int facenum)
 			}
 		}
     } // end of i loop
-#ifdef HLRAD_AVOIDWALLBLEED
 	free (sample_wallflags);
-#endif
 
     // average up the direct light on each patch for radiosity
 	AddSamplesToPatches ((const sample_t **)fl_samples, f_styles, facenum, &l);
@@ -4352,9 +4296,7 @@ void            BuildFacelights(const int facenum)
 	free (l.lmcache_direction);
 #endif
 	free (l.lmcache_normal);
-#ifdef HLRAD_AVOIDWALLBLEED
 	free (l.lmcache_wallflags);
-#endif
 	free (l.surfpt_position);
 	free (l.surfpt_surface);
 }

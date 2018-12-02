@@ -133,18 +133,14 @@ int g_blockopaque = DEFAULT_BLOCKOPAQUE;
 bool g_notextures = DEFAULT_NOTEXTURES;
 vec_t g_texreflectgamma = DEFAULT_TEXREFLECTGAMMA;
 vec_t g_texreflectscale = DEFAULT_TEXREFLECTSCALE;
-#ifdef HLRAD_AVOIDWALLBLEED
 bool g_bleedfix = DEFAULT_BLEEDFIX;
-#endif
 bool g_drawpatch = false;
 bool g_drawsample = false;
 vec3_t g_drawsample_origin = {0,0,0};
 vec_t g_drawsample_radius = 0;
 bool g_drawedge = false;
 bool g_drawlerp = false;
-#ifdef HLRAD_AVOIDWALLBLEED
 bool g_drawnudge = false;
-#endif
 
 // Cosine of smoothing angle(in radians)
 float           g_coring = DEFAULT_CORING;                 // Light threshold to force to blackness(minimizes lightmaps)
@@ -3020,16 +3016,12 @@ static void     Usage()
 	Log("   -texreflectscale # : Reflectivity for 255-white texture.\n");
 	Log("   -blur #        : Enlarge lightmap sample to blur the lightmap.\n");
 	Log("   -noemitterrange: Don't fix pointy texlights.\n");
-#ifdef HLRAD_AVOIDWALLBLEED
 	Log("   -nobleedfix    : Don't fix wall bleeding problem for large blur value.\n");
-#endif
 	Log("   -drawpatch     : Export light patch positions to file 'mapname_patch.pts'.\n");
 	Log("   -drawsample x y z r    : Export light sample positions in an area to file 'mapname_sample.pts'.\n");
 	Log("   -drawedge      : Export smooth edge positions to file 'mapname_edge.pts'.\n");
 	Log("   -drawlerp      : Show bounce light triangulation status.\n");
-#ifdef HLRAD_AVOIDWALLBLEED
 	Log("   -drawnudge     : Show nudged samples.\n");
-#endif
 #ifdef HLRAD_PRESERVELIGHTMAPCOLOR
 	Log("   -drawoverload  : Highlight fullbright spots\n");
 #endif
@@ -3221,9 +3213,7 @@ static void     Settings()
 	safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_BLUR);
 	Log("blur size            [ %17s ] [ %17s ]\n", buf1, buf2);
 	Log("no emitter range     [ %17s ] [ %17s ]\n", g_noemitterrange ? "on" : "off", DEFAULT_NOEMITTERRANGE ? "on" : "off");
-#ifdef HLRAD_AVOIDWALLBLEED
 	Log("wall bleeding fix    [ %17s ] [ %17s ]\n", g_bleedfix ? "on" : "off", DEFAULT_BLEEDFIX ? "on" : "off");
-#endif
 
     Log("\n\n");
 }
@@ -4029,12 +4019,10 @@ int             main(const int argc, char** argv)
 		{
 			g_drawlerp = true;
 		}
-#ifdef HLRAD_AVOIDWALLBLEED
 		else if (!strcasecmp(argv[i], "-drawnudge"))
 		{
 			g_drawnudge = true;
 		}
-#endif
 #ifdef ZHLT_XASH
 		else if (!strcasecmp (argv[i], "-drawdirection"))
 		{
@@ -4142,12 +4130,10 @@ int             main(const int argc, char** argv)
 		{
 			g_noemitterrange = true;
 		}
-#ifdef HLRAD_AVOIDWALLBLEED
 		else if (!strcasecmp (argv[i], "-nobleedfix"))
 		{
 			g_bleedfix = false;
 		}
-#endif
 #ifdef HLRAD_TEXLIGHTGAP
 		else if (!strcasecmp (argv[i], "-texlightgap"))
 		{

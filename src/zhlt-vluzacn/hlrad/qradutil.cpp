@@ -418,9 +418,7 @@ bool InvertMatrix (const matrix_t &m, matrix_t &m_inverse)
 typedef struct
 {
 	bool valid;
-#ifdef HLRAD_AVOIDWALLBLEED
 	bool nudged;
-#endif
 	vec_t best_s; // FindNearestPosition will return this value
 	vec_t best_t;
 	vec3_t pos; // with DEFAULT_HUNT_OFFSET
@@ -537,9 +535,7 @@ static void CalcSinglePosition (positionmap_t *map, int is, int it)
 	VectorScale (v_t,  1, clipplanes[2].normal); clipplanes[2].dist =  tmin;
 	VectorScale (v_t, -1, clipplanes[3].normal); clipplanes[3].dist = -tmax;
 
-#ifdef HLRAD_AVOIDWALLBLEED
 	p->nudged = true; // it's nudged unless it can get its position directly from its s,t
-#endif
 	zone = new Winding (*map->texwinding);
 	for (int x = 0; x < 4 && zone->m_NumPoints > 0; x++)
 	{
@@ -568,9 +564,7 @@ static void CalcSinglePosition (positionmap_t *map, int is, int it)
 			if (IsPositionValid (map, test_st, p->pos))
 			{
 				p->valid = true;
-#ifdef HLRAD_AVOIDWALLBLEED
 				p->nudged = false;
-#endif
 				p->best_s = test_st[0];
 				p->best_t = test_st[1];
 			}
@@ -809,9 +803,7 @@ void FreePositionMaps ()
 }
 
 bool FindNearestPosition (int facenum, const Winding *texwinding, const dplane_t &texplane, vec_t s, vec_t t, vec3_t &pos, vec_t *best_s, vec_t *best_t, vec_t *dist
-#ifdef HLRAD_AVOIDWALLBLEED
 							, bool *nudged
-#endif
 							)
 {
 	positionmap_t *map;
@@ -850,9 +842,7 @@ bool FindNearestPosition (int facenum, const Winding *texwinding, const dplane_t
 		ismax = qmin (ismax, map->w - 1);
 
 		found = false;
-#ifdef HLRAD_AVOIDWALLBLEED
 		bool best_nudged = true;
-#endif
 		for (it = itmin; it <= itmax; it++)
 		{
 			for (is = ismin; is <= ismax; is++)
@@ -874,20 +864,16 @@ bool FindNearestPosition (int facenum, const Winding *texwinding, const dplane_t
 				d = VectorLength (v);
 
 				if (!found || 
-#ifdef HLRAD_AVOIDWALLBLEED
 					!p->nudged && best_nudged ||
 					p->nudged == best_nudged
 						&&
-#endif
 						d < best_dist - 2 * ON_EPSILON)
 				{
 					found = true;
 					best_is = is;
 					best_it = it;
 					best_dist = d;
-#ifdef HLRAD_AVOIDWALLBLEED
 					best_nudged = p->nudged;
-#endif
 				}
 			}
 		}
@@ -901,15 +887,11 @@ bool FindNearestPosition (int facenum, const Winding *texwinding, const dplane_t
 			*best_s = p->best_s;
 			*best_t = p->best_t;
 			*dist = 0.0;
-#ifdef HLRAD_AVOIDWALLBLEED
 			*nudged = p->nudged;
-#endif
 			return true;
 		}
 	}
-#ifdef HLRAD_AVOIDWALLBLEED
 	*nudged = true;
-#endif
 
 	itmin = map->h;
 	itmax = -1;

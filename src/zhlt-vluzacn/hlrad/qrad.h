@@ -136,9 +136,7 @@
 	#define DEFAULT_TEXREFLECTSCALE 0.7f // arbitrary (This is lower than 1.0, because textures are usually brightened in order to look better in Goldsrc. Textures are made brightened because Goldsrc is only able to darken the texture when combining the texture with the lightmap.)
 	#define DEFAULT_BLUR 1.5 // classic lighting is equivalent to "-blur 1.0"
 	#define DEFAULT_NOEMITTERRANGE false
-#ifdef HLRAD_AVOIDWALLBLEED
 	#define DEFAULT_BLEEDFIX true
-#endif
 	#define DEFAULT_EMBEDLIGHTMAP_POWEROFTWO true
 	#define DEFAULT_EMBEDLIGHTMAP_DENOMINATOR 188.0
 	#define DEFAULT_EMBEDLIGHTMAP_GAMMA 1.05
@@ -539,9 +537,7 @@ extern vec3_t	g_jitter_hack;
 	extern vec_t g_drawsample_radius;
 	extern bool g_drawedge;
 	extern bool g_drawlerp;
-#ifdef HLRAD_AVOIDWALLBLEED
 	extern bool g_drawnudge;
-#endif
 	extern float g_corings[ALLSTYLES];
 	extern int stylewarningcount; // not thread safe
 	extern int stylewarningnext; // not thread safe
@@ -553,9 +549,7 @@ extern vec3_t	g_jitter_hack;
 	extern vec_t g_texreflectscale;
 	extern vec_t g_blur;
 	extern bool g_noemitterrange;
-#ifdef HLRAD_AVOIDWALLBLEED
 	extern bool g_bleedfix;
-#endif
 	extern vec_t g_maxdiscardedlight;
 	extern vec3_t g_maxdiscardedpos;
 #ifdef HLRAD_TEXLIGHTGAP
@@ -651,9 +645,7 @@ extern bool		InvertMatrix (const matrix_t &m, matrix_t &m_inverse);
 extern void		FindFacePositions (int facenum);
 extern void		FreePositionMaps ();
 extern bool		FindNearestPosition (int facenum, const Winding *texwinding, const dplane_t &texplane, vec_t s, vec_t t, vec3_t &pos, vec_t *best_s, vec_t *best_t, vec_t *best_dist
-#ifdef HLRAD_AVOIDWALLBLEED
 									, bool *nudged
-#endif
 									);
 
 // makescales.c
