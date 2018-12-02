@@ -583,15 +583,11 @@ int             LoadLump(const lumpinfo_t* const source, byte* dest, int* texsiz
 #ifdef HLCSG_FILEREADFAILURE_FIX
 						, int dest_maxsize
 #endif
-#ifdef ZHLT_NOWADDIR
 						, byte *&writewad_data, int &writewad_datasize
-#endif
 						)
 {
-#ifdef ZHLT_NOWADDIR
 	writewad_data = NULL;
 	writewad_datasize = -1;
-#endif
     //Log("** PnFNFUNC: LoadLump\n");
 
     *texsize = 0;
@@ -632,14 +628,12 @@ int             LoadLump(const lumpinfo_t* const source, byte* dest, int* texsiz
 
             for (i = 0; i < MIPLEVELS; i++)
                 miptex->offsets[i] = 0;
-#ifdef ZHLT_NOWADDIR
 			writewad_data = (byte *)malloc (source->disksize);
 			hlassume (writewad_data != NULL, assume_NoMemory);
 			if (fseek (texfiles[source->iTexFile], source->filepos, SEEK_SET))
 				Error ("File read failure");
 			SafeRead (texfiles[source->iTexFile], writewad_data, source->disksize);
 			writewad_datasize = source->disksize;
-#endif
             return sizeof(miptex_t);
         }
         else
@@ -873,7 +867,6 @@ void            WriteMiptex()
         l = (dmiptexlump_t*)g_dtexdata;
         data = (byte*) & l->dataofs[nummiptex];
         l->nummiptex = nummiptex;
-#ifdef ZHLT_NOWADDIR
 		char writewad_name[_MAX_PATH];
 		FILE *writewad_file;
 		int writewad_maxlumpinfos;
@@ -901,11 +894,9 @@ void            WriteMiptex()
 		writewad_header.numlumps = 0;
 		if (fseek (writewad_file, sizeof (wadinfo_t), SEEK_SET))
 			Error ("File write failure");
-#endif
         for (i = 0; i < nummiptex; i++)
         {
             l->dataofs[i] = data - (byte*) l;
-#ifdef ZHLT_NOWADDIR
 			byte *writewad_data;
 			int writewad_datasize;
 			len = LoadLump (miptex + i, data, &texsize
@@ -928,13 +919,6 @@ void            WriteMiptex()
 				SafeWrite (writewad_file, writewad_data, writewad_datasize);
 				free (writewad_data);
 			}
-#else
-            len = LoadLump(miptex + i, data, &texsize
-#ifdef HLCSG_FILEREADFAILURE_FIX
-							, &g_dtexdata[g_max_map_miptex] - data
-#endif
-							);
-#endif
 
             if (!len)
             {
@@ -949,7 +933,6 @@ void            WriteMiptex()
             data += len;
         }
         g_texdatasize = data - g_dtexdata;
-#ifdef ZHLT_NOWADDIR
 		writewad_header.infotableofs = ftell (writewad_file);
 		SafeWrite (writewad_file, writewad_lumpinfos, writewad_header.numlumps * sizeof (dlumpinfo_t));
 		if (fseek (writewad_file, 0, SEEK_SET))
@@ -957,7 +940,6 @@ void            WriteMiptex()
 		SafeWrite (writewad_file, &writewad_header, sizeof (wadinfo_t));
 		if (fclose (writewad_file))
 			Error ("File write failure");
-#endif
     }
     end = I_FloatTime();
     Log("Texture usage is at %1.2f mb (of %1.2f mb MAX)\n", (float)totaltexsize / (1024 * 1024),

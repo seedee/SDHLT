@@ -50,7 +50,6 @@
 //#define ZHLT_DETAIL                         // HLCSG, HLBSP - detail brushes     //should never turn on
 //#define ZHLT_PROGRESSFILE                   // ALL TOOLS - estimate progress reporting to -progressfile //should never turn on
 //#define ZHLT_NSBOB //should never turn on
-#define ZHLT_NOWADDIR //--vluzacn
 //#define ZHLT_XASH // build the compiler for Xash engine //--vluzacn
 	#ifdef ZHLT_XASH
 //#define ZHLT_XASH2 // build the compiler for Xash engine with change in bsp format //--vluzacn
