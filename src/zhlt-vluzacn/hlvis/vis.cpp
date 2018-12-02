@@ -63,9 +63,6 @@ overview_t		g_overview[g_overview_max];
 int				g_overview_count = 0;
 leafinfo_t*		g_leafinfos = NULL;
 
-#ifdef ZHLT_PROGRESSFILE // AJM
-char*           g_progressfile = DEFAULT_PROGRESSFILE; // "-progressfile path"
-#endif
 
 static int      totalvis = 0;
 
@@ -1123,9 +1120,6 @@ static void     Usage()
 #ifdef SYSTEM_WIN32
     Log("    -estimate       : display estimated time during compile\n");
 #endif
-#ifdef ZHLT_PROGRESSFILE // AJM
-    Log("    -progressfile path  : specify the path to a file for progress estimate output\n");
-#endif
 #ifdef SYSTEM_POSIX
     Log("    -noestimate     : do not display continuous compile time estimates\n");
 #endif
@@ -1447,20 +1441,6 @@ int             main(const int argc, char** argv)
             }
         }
 
-#ifdef ZHLT_PROGRESSFILE // AJM
-        else if (!strcasecmp(argv[i], "-progressfile"))
-        {
-            if (i + 1 < argc)	//added "1" .--vluzacn
-            {
-                g_progressfile = argv[++i];
-            }
-            else
-            {
-            	Log("Error: -progressfile: expected path to progress file following parameter\n");
-                Usage();
-            }
-        }
-#endif
         
         // AJM: MVD
 		else if(!strcasecmp(argv[i], "-maxdistance"))

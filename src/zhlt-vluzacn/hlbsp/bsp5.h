@@ -53,9 +53,6 @@
 
 #define DEFAULT_NULLTEX             true
 
-#ifdef ZHLT_PROGRESSFILE // AJM
-#define DEFAULT_PROGRESSFILE NULL // progress file is only used if g_progressfile is non-null
-#endif
 
 #ifdef SYSTEM_WIN32
 #define DEFAULT_ESTIMATE        false

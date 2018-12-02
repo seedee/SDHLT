@@ -53,9 +53,6 @@
 #define DEFAULT_DETAIL      true
 #endif
 
-#ifdef ZHLT_PROGRESSFILE // AJM
-#define DEFAULT_PROGRESSFILE NULL // progress file is only used if g_progressfile is non-null
-#endif
 #define DEFAULT_SCALESIZE -1.0 //dont scale
 #define DEFAULT_RESETLOG true
 #define DEFAULT_NOLIGHTOPT false
@@ -287,9 +284,6 @@ typedef enum{clip_smallest,clip_normalized,clip_simple,clip_precise,clip_legacy}
 extern cliptype g_cliptype;
 extern const char*	GetClipTypeString(cliptype);
 
-#ifdef ZHLT_PROGRESSFILE // AJM
-extern char*    g_progressfile ;
-#endif
 extern vec_t g_scalesize;
 extern bool g_resetlog;
 extern bool g_nolightopt;

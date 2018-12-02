@@ -62,9 +62,6 @@ bool            g_bWadAutoDetect = DEFAULT_WADAUTODETECT; // "-wadautodetect"
 bool            g_bDetailBrushes = DEFAULT_DETAIL; // "-detail"
 #endif
 
-#ifdef ZHLT_PROGRESSFILE // AJM
-char*           g_progressfile = DEFAULT_PROGRESSFILE; // "-progressfile path"
-#endif
 vec_t g_scalesize = DEFAULT_SCALESIZE;
 bool g_resetlog = DEFAULT_RESETLOG;
 bool g_nolightopt = DEFAULT_NOLIGHTOPT;
@@ -1546,9 +1543,6 @@ static void     Usage()
 #ifdef SYSTEM_WIN32
     Log("    -estimate        : display estimated time during compile\n");
 #endif
-#ifdef ZHLT_PROGRESSFILE // AJM
-    Log("    -progressfile path  : specify the path to a file for progress estimate output\n");
-#endif
 #ifdef SYSTEM_POSIX
     Log("    -noestimate      : do not display continuous compile time estimates\n");
 #endif
@@ -1903,20 +1897,6 @@ int             main(const int argc, char** argv)
         }
 #endif
 
-#ifdef ZHLT_PROGRESSFILE // AJM
-        else if (!strcasecmp(argv[i], "-progressfile"))
-        {
-            if (i + 1 < argc)	//added "1" .--vluzacn
-            {
-                g_progressfile = argv[++i];
-            }
-            else
-            {
-            	Log("Error: -progressfile: expected path to progress file following parameter\n");
-                Usage();
-            }
-        }
-#endif
 
         else if (!strcasecmp(argv[i], "-nowadtextures"))
         {

@@ -84,13 +84,6 @@ int             GetThreadWork()
     {
 		PrintConsole
 			("\r%6d /%6d", dispatch, workcount);
-#ifdef ZHLT_PROGRESSFILE // AJM
-        if (g_progressfile)
-        {
-            
-
-        }
-#endif
 
         if (f != oldf)
         {
@@ -116,26 +109,12 @@ int             GetThreadWork()
 					PrintConsole
 						(s1, f, (long)(finish), (long)(finish2),
                            (long)(finish3));
-#ifdef ZHLT_PROGRESSFILE // AJM
-                    if (g_progressfile)
-                    {
-
-
-                    }
-#endif
                 }
                 else
                 {
 					PrintConsole
 						(s2, f);
 
-#ifdef ZHLT_PROGRESSFILE // AJM
-                    if (g_progressfile)
-                    {
-
-
-                    }
-#endif
                 }
             }
         }

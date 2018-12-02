@@ -128,9 +128,6 @@ bool            g_chart = DEFAULT_CHART;
 bool            g_estimate = DEFAULT_ESTIMATE;
 bool            g_info = DEFAULT_INFO;
 
-#ifdef ZHLT_PROGRESSFILE // AJM
-char*           g_progressfile = DEFAULT_PROGRESSFILE; // "-progressfile path"
-#endif
 
 // Patch creation and subdivision criteria
 bool            g_subdivide = DEFAULT_SUBDIVIDE;
@@ -2930,9 +2927,6 @@ static void     Usage()
 #ifdef SYSTEM_WIN32
     Log("    -estimate       : display estimated time during compile\n");
 #endif
-#ifdef ZHLT_PROGRESSFILE // AJM
-    Log("    -progressfile path  : specify the path to a file for progress estimate output\n");
-#endif
 #ifdef SYSTEM_POSIX
     Log("    -noestimate     : Do not display continuous compile time estimates\n");
 #endif
@@ -3890,20 +3884,6 @@ int             main(const int argc, char** argv)
         	g_rgb_transfers = true;
         }
 
-#ifdef ZHLT_PROGRESSFILE // AJM
-        else if (!strcasecmp(argv[i], "-progressfile"))
-        {
-            if (i + 1 < argc)	//added "1" .--vluzacn
-            {
-                g_progressfile = argv[++i];
-            }
-            else
-            {
-            	Log("Error: -progressfile: expected path to progress file following parameter\n");
-                Usage();
-            }
-        }
-#endif
 
 		else if (!strcasecmp(argv[i], "-bscale"))
 		{

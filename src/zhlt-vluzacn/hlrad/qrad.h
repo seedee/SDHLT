@@ -65,9 +65,6 @@
 #define DEFAULT_SMOOTHING2_VALUE	-1.0
 #define DEFAULT_INCREMENTAL         false
 
-#ifdef ZHLT_PROGRESSFILE // AJM
-#define DEFAULT_PROGRESSFILE NULL // progress file is only used if g_progressfile is non-null
-#endif
 
 // ------------------------------------------------------------------------
 // Changes by Adam Foster - afoster@compsoc.man.ac.uk
@@ -444,9 +441,6 @@ extern opaqueList_t* g_opaque_face_list;
 extern unsigned      g_opaque_face_count; // opaque entity count //HLRAD_OPAQUE_NODE
 extern unsigned      g_max_opaque_face_count;    // Current array maximum (used for reallocs)
 
-#ifdef ZHLT_PROGRESSFILE // AJM
-extern char*           g_progressfile ;
-#endif
 
 // ------------------------------------------------------------------------
 // Changes by Adam Foster - afoster@compsoc.man.ac.uk

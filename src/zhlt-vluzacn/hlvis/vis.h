@@ -20,9 +20,6 @@
 
 #define DEFAULT_MAXDISTANCE_RANGE   0
 
-#ifdef ZHLT_PROGRESSFILE // AJM
-#define DEFAULT_PROGRESSFILE NULL // progress file is only used if g_progressfile is non-null
-#endif
 
 #define DEFAULT_FULLVIS     false
 #define DEFAULT_CHART       false
