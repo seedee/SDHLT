@@ -60,7 +60,6 @@ static unsigned IsVisbitInArray(const unsigned x, const unsigned y)
     }
 }
 
-#ifdef HLRAD_SPARSEVISMATRIX_FAST
 static void		SetVisColumn (int patchnum, bool uncompressedcolumn[MAX_SPARSE_VISMATRIX_PATCHES])
 {
 	sparse_column_t *column;
@@ -133,116 +132,6 @@ static void		SetVisColumn (int patchnum, bool uncompressedcolumn[MAX_SPARSE_VISM
 		Error ("SetVisColumn: internal error");
 	}
 }
-#else
-// Vismatrix protected
-static void     InsertVisbitIntoArray(const unsigned x, const unsigned y)
-{
-    unsigned        count;
-    unsigned        y_byte = y / 8;
-    sparse_column_t* column = s_vismatrix + x;
-    sparse_row_t*   row = column->row;
-
-    if (!column->count)
-    {
-        column->count++;
-        row = column->row = (sparse_row_t*)malloc(sizeof(sparse_row_t));
-
-		hlassume (row != NULL, assume_NoMemory);
-
-        row->offset = y_byte;
-        row->values = 1 << (y & 7);
-        return;
-    }
-
-    // Insertion
-    count = 0;
-    while (count < column->count)
-    {
-        if (row->offset > y_byte)
-        {
-            unsigned        newsize = (column->count + 1) * sizeof(sparse_row_t);
-            sparse_row_t*   newrow = (sparse_row_t*)malloc(newsize);
-
-			hlassume (newrow != NULL, assume_NoMemory);
-
-            memcpy(newrow, column->row, count * sizeof(sparse_row_t));
-            memcpy(newrow + count + 1, column->row + count, (column->count - count) * sizeof(sparse_row_t));
-
-            row = newrow + count;
-            row->offset = y_byte;
-            row->values = 1 << (y & 7);
-
-            free(column->row);
-            column->row = newrow;
-            column->count++;
-            return;
-        }
-
-        row++;
-        count++;
-    }
-
-    // Append
-    {
-        unsigned        newsize = (count + 1) * sizeof(sparse_row_t);
-        sparse_row_t*   newrow = (sparse_row_t*)malloc(newsize);
-
-		hlassume (newrow != NULL, assume_NoMemory);
-
-        memcpy(newrow, column->row, column->count * sizeof(sparse_row_t));
-
-        row = newrow + column->count;
-        row->offset = y_byte;
-        row->values = 1 << (y & 7);
-
-        free(column->row);
-        column->row = newrow;
-        column->count++;
-        return;
-    }
-}
-
-// Vismatrix public
-static void     SetVisBit(unsigned x, unsigned y)
-{
-    unsigned        offset;
-
-    if (x == y)
-    {
-        return;
-    }
-
-    if (x > y)
-    {
-        const unsigned a = x;
-        const unsigned b = y;
-        x = b;
-        y = a;
-    }
-
-    if (x > g_num_patches)
-    {
-        Warning("in SetVisBit(), x > num_patches");
-    }
-    if (y > g_num_patches)
-    {
-        Warning("in SetVisBit(), y > num_patches");
-    }
-
-    ThreadLock();
-
-    if ((offset = IsVisbitInArray(x, y)) != -1)
-    {
-        s_vismatrix[x].row[offset].values |= 1 << (y & 7);
-    }
-    else
-    {
-        InsertVisbitIntoArray(x, y);
-    }
-
-    ThreadUnlock();
-}
-#endif
 
 // Vismatrix public
 static bool     CheckVisBitSparse(unsigned x, unsigned y
@@ -298,9 +187,7 @@ static bool     CheckVisBitSparse(unsigned x, unsigned y
  */
 static void     TestPatchToFace(const unsigned patchnum, const int facenum, const int head
 								, byte *pvs
-#ifdef HLRAD_SPARSEVISMATRIX_FAST
 								, bool uncompressedcolumn[MAX_SPARSE_VISMATRIX_PATCHES]
-#endif
 								)
 {
     patch_t*        patch = &g_patches[patchnum];
@@ -388,11 +275,7 @@ static void     TestPatchToFace(const unsigned patchnum, const int facenum, cons
                     {
                     	AddTransparencyToRawArray(patchnum, m, transparency);
                     }
-#ifdef HLRAD_SPARSEVISMATRIX_FAST
 					uncompressedcolumn[m] = true;
-#else
-                    SetVisBit(m, patchnum);
-#endif
                 }
             }
         }
@@ -421,10 +304,8 @@ static void     BuildVisLeafs(int threadnum)
     patch_t*        patch;
     int             head;
     unsigned        patchnum;
-#ifdef HLRAD_SPARSEVISMATRIX_FAST
 	bool *uncompressedcolumn = (bool *)malloc (MAX_SPARSE_VISMATRIX_PATCHES * sizeof (bool));
 	hlassume (uncompressedcolumn != NULL, assume_NoMemory);
-#endif
 
     while (1)
     {
@@ -466,28 +347,20 @@ static void     BuildVisLeafs(int threadnum)
 				if (patch->leafnum != i)
 					continue;
 				patchnum = patch - g_patches;
-	#ifdef HLRAD_SPARSEVISMATRIX_FAST
 				for (int m = 0; m < g_num_patches; m++)
 				{
 					uncompressedcolumn[m] = false;
 				}
-	#endif
 				for (facenum2 = facenum + 1; facenum2 < g_numfaces; facenum2++)
 					TestPatchToFace (patchnum, facenum2, head, pvs
-	#ifdef HLRAD_SPARSEVISMATRIX_FAST
 									, uncompressedcolumn
-	#endif
 									);
-	#ifdef HLRAD_SPARSEVISMATRIX_FAST
 				SetVisColumn (patchnum, uncompressedcolumn);
-	#endif
 			}
 		}
 
     }
-#ifdef HLRAD_SPARSEVISMATRIX_FAST
 	free (uncompressedcolumn);
-#endif
 }
 
 #ifdef SYSTEM_WIN32
