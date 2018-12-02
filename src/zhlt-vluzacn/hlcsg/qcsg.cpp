@@ -1292,7 +1292,6 @@ static void     SetLightStyles()
 	        //LRC (ends)
         }
         t = ValueForKey(e, "targetname");
-#ifdef HLCSG_STYLEHACK
 		if (*ValueForKey (e, "zhlt_usestyle"))
 		{
 			t = ValueForKey(e, "zhlt_usestyle");
@@ -1301,7 +1300,6 @@ static void     SetLightStyles()
 				t = "";
 			}
 		}
-#endif
         if (!t[0])
         {
             continue;
