@@ -67,7 +67,6 @@
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
-#define HLCSG_CheckBrushContents_FIX //--vluzacn
 #define HLCSG_ERROR_MISSINGTEXTURE //--vluzacn
 #define HLCSG_BEVELMISSINGFIX //--vluzacn
 #define HLCSG_SORTBRUSH_FIX //--vluzacn

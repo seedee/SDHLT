@@ -1151,9 +1151,7 @@ contents_t      CheckBrushContents(const brush_t* const b)
     contents_t      contents;
     side_t*         s;
     int             i;
-#ifdef HLCSG_CheckBrushContents_FIX
 	int				best_i;
-#endif
 #ifdef HLCSG_CUSTOMCONTENT
 	bool			assigned = false;
 #endif
@@ -1162,7 +1160,6 @@ contents_t      CheckBrushContents(const brush_t* const b)
 
     // cycle though the sides of the brush and attempt to get our best side contents for
     //  determining overall brush contents
-#ifdef HLCSG_CheckBrushContents_FIX
 	if (b->numsides == 0)
 	{
 		Error ("Entity %i, Brush %i: Brush with no sides.\n",
@@ -1174,7 +1171,6 @@ contents_t      CheckBrushContents(const brush_t* const b)
 			);
 	}
 	best_i = 0;
-#endif
     best_contents = TextureContents(s->td.name);
 #ifdef HLCSG_CUSTOMCONTENT
 	// Difference between SKIP, ContentEmpty:
@@ -1198,9 +1194,7 @@ contents_t      CheckBrushContents(const brush_t* const b)
 #endif
         if (contents_consider > best_contents)
         {
-#ifdef HLCSG_CheckBrushContents_FIX
 			best_i = i;
-#endif
             // if our current surface contents is better (larger) than our best, make it our best.
             best_contents = contents_consider;
         }
@@ -1209,12 +1203,7 @@ contents_t      CheckBrushContents(const brush_t* const b)
 
     // attempt to pick up on mixed_face_contents errors
     s = &g_brushsides[b->firstside];
-#ifdef HLCSG_CheckBrushContents_FIX
 	for (i = 0; i < b->numsides; i++, s++)
-#else
-    s++;
-    for (i = 1; i < b->numsides; i++, s++)
-#endif
     {
         contents_t contents2 = TextureContents(s->td.name);
 #ifdef HLCSG_CUSTOMCONTENT
@@ -1247,11 +1236,7 @@ contents_t      CheckBrushContents(const brush_t* const b)
 #else
 				b->entitynum, b->brushnum, 
 #endif
-#ifdef HLCSG_CheckBrushContents_FIX
                 g_brushsides[b->firstside + best_i].td.name,
-#else
-                g_brushsides[b->firstside].td.name, 
-#endif
 				s->td.name);
         }
     }
