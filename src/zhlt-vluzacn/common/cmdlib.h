@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_OPAQUE_STYLE_BOUNCE //--vluzacn
 #define HLRAD_GetPhongNormal_VL //--vluzacn
 #define HLRAD_CUSTOMSMOOTH //--vluzacn
 #define HLRAD_READABLE_EXCEEDSTYLEWARNING //--vluzacn
@@ -186,10 +185,8 @@
 	#ifdef HLRAD_CUSTOMTEXLIGHT
 #define HLRAD_TEXLIGHT_SPOTS_FIX //--vluzacn
 	#endif
-	#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 	#ifdef HLRAD_REFLECTIVITY
 #define HLRAD_BOUNCE_STYLE //--vluzacn
-	#endif
 	#endif
 	#ifdef HLRAD_CalcPoints_NEW
 #define HLRAD_BLUR //--vluzacn

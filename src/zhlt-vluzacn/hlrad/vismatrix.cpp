@@ -134,13 +134,11 @@ static void     TestPatchToFace(const unsigned patchnum, const int facenum, cons
 						continue;
 					}
 
-#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 					if (opaquestyle != -1)
 					{
 						AddStyleToStyleArray (m, patchnum, opaquestyle);
 						AddStyleToStyleArray (patchnum, m, opaquestyle);
 					}
-#endif
                     //Log("SDF::3\n");
 
                     // patchnum can see patch m
@@ -475,8 +473,6 @@ void            MakeScalesVismatrix()
         else
             _unlink(transferfile);
         DumpTransfersMemoryUsage();
-#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 		CreateFinalStyleArrays ("dynamic shadow array");
-#endif
     }
 }

@@ -915,12 +915,10 @@ extern void	GetTransparency(const unsigned p1, const unsigned p2, vec3_t &trans,
 extern void	AddTransparencyToRawArray(const unsigned p1, const unsigned p2, const vec3_t trans);
 extern void	CreateFinalTransparencyArrays(const char *print_name);
 extern void	FreeTransparencyArrays();
-#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 extern void GetStyle(const unsigned p1, const unsigned p2, int &style, unsigned int &next_index);
 extern void	AddStyleToStyleArray(const unsigned p1, const unsigned p2, const int style);
 extern void	CreateFinalStyleArrays(const char *print_name);
 extern void	FreeStyleArrays();
-#endif
 
 // lerp.c
 #ifdef HLRAD_LOCALTRIANGULATION

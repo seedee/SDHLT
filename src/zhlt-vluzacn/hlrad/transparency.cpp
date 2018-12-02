@@ -293,7 +293,6 @@ void GetTransparency(const unsigned p1, const unsigned p2, vec3_t &trans, unsign
 
 
 
-#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 #ifndef HLRAD_TRANSPARENCY_FAST
 #define STYLE_LIST_GROWTH 2048
 #endif
@@ -425,4 +424,3 @@ void GetStyle(const unsigned p1, const unsigned p2, int &style, unsigned int &ne
 	
 	next_index = s_style_count;
 }
-#endif

@@ -2682,9 +2682,7 @@ static void     GatherLight(int threadnum)
 	vec3_t			adds_direction[ALLSTYLES];
 #endif
 	int				style;
-#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 	unsigned int	fastfind_index = 0;
-#endif
 
     while (1)
     {
@@ -2738,10 +2736,8 @@ static void     GatherLight(int threadnum)
                  //LRC:
 				patch_t*		emitpatch = &g_patches[patchnum];
 				unsigned		emitstyle;
-#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 				int				opaquestyle = -1;
 				GetStyle (j, patchnum, opaquestyle, fastfind_index);
-#endif
 				float_decompress (g_transfer_compress_type, tData, &f);
 #ifdef ZHLT_XASH
 				vec3_t direction;
@@ -2767,7 +2763,6 @@ static void     GatherLight(int threadnum)
 	#endif
 					if (isPointFinite (v))
 					{
-	#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 						int addstyle = emitpatch->directstyle[emitstyle];
 		#ifdef HLRAD_BOUNCE_STYLE
 						if (emitpatch->bouncestyle != -1)
@@ -2790,13 +2785,6 @@ static void     GatherLight(int threadnum)
 						vec_t brightness = VectorAvg (v);
 						VectorMA (adds_direction[addstyle], brightness, direction, adds_direction[addstyle]);
 	#endif
-	#else
-						VectorAdd(adds[emitpatch->directstyle[emitstyle]], v, adds[emitpatch->directstyle[emitstyle]]);
-	#ifdef ZHLT_XASH
-						vec_t brightness = VectorAvg (v);
-						VectorMA (adds_direction[emitpatch->directstyle[emitstyle]], brightness, direction, adds_direction[emitpatch->directstyle[emitstyle]]);
-	#endif
-	#endif
 					}
 				}
 #endif
@@ -2808,7 +2796,6 @@ static void     GatherLight(int threadnum)
 	#endif
 					if (isPointFinite(v))
 					{
-	#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 						int addstyle = emitpatch->totalstyle[emitstyle];
 		#ifdef HLRAD_BOUNCE_STYLE
 						if (emitpatch->bouncestyle != -1)
@@ -2830,13 +2817,6 @@ static void     GatherLight(int threadnum)
 	#ifdef ZHLT_XASH
 						vec_t brightness = VectorAvg (v);
 						VectorMA (adds_direction[addstyle], brightness, direction, adds_direction[addstyle]);
-	#endif
-	#else
-						VectorAdd(adds[emitpatch->totalstyle[emitstyle]], v, adds[emitpatch->totalstyle[emitstyle]]);
-	#ifdef ZHLT_XASH
-						vec_t brightness = VectorAvg (v);
-						VectorMA (adds_direction[emitpatch->totalstyle[emitstyle]], brightness, direction, adds_direction[emitpatch->totalstyle[emitstyle]]);
-	#endif
 	#endif
 					}
 					else
@@ -2963,9 +2943,7 @@ static void     GatherRGBLight(int threadnum)
 	vec3_t			adds_direction[ALLSTYLES];
 #endif
 	int				style;
-#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 	unsigned int	fastfind_index = 0;
-#endif
 
     while (1)
     {
@@ -3018,10 +2996,8 @@ static void     GatherRGBLight(int threadnum)
                  //LRC:
 				patch_t*		emitpatch = &g_patches[patchnum];
 				unsigned		emitstyle;
-#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 				int				opaquestyle = -1;
 				GetStyle (j, patchnum, opaquestyle, fastfind_index);
-#endif
 				vector_decompress (g_rgbtransfer_compress_type, tRGBData, &f[0], &f[1], &f[2]);
 #ifdef ZHLT_XASH
 				vec3_t direction;
@@ -3047,7 +3023,6 @@ static void     GatherRGBLight(int threadnum)
 	#endif
 					if (isPointFinite (v))
 					{
-	#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 						int addstyle = emitpatch->directstyle[emitstyle];
 		#ifdef HLRAD_BOUNCE_STYLE
 						if (emitpatch->bouncestyle != -1)
@@ -3070,13 +3045,6 @@ static void     GatherRGBLight(int threadnum)
 						vec_t brightness = VectorAvg (v);
 						VectorMA (adds_direction[addstyle], brightness, direction, adds_direction[addstyle]);
 	#endif
-	#else
-						VectorAdd(adds[emitpatch->directstyle[emitstyle]], v, adds[emitpatch->directstyle[emitstyle]]);
-	#ifdef ZHLT_XASH
-						vec_t brightness = VectorAvg (v);
-						VectorMA (adds_direction[emitpatch->directstyle[emitstyle]], brightness, direction, adds_direction[emitpatch->directstyle[emitstyle]]);
-	#endif
-	#endif
 					}
 				}
 #endif
@@ -3088,7 +3056,6 @@ static void     GatherRGBLight(int threadnum)
 	#endif
 					if (isPointFinite(v))
 					{
-	#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 						int addstyle = emitpatch->totalstyle[emitstyle];
 		#ifdef HLRAD_BOUNCE_STYLE
 						if (emitpatch->bouncestyle != -1)
@@ -3110,13 +3077,6 @@ static void     GatherRGBLight(int threadnum)
 	#ifdef ZHLT_XASH
 						vec_t brightness = VectorAvg (v);
 						VectorMA (adds_direction[addstyle], brightness, direction, adds_direction[addstyle]);
-	#endif
-	#else
-						VectorAdd(adds[emitpatch->totalstyle[emitstyle]], v, adds[emitpatch->totalstyle[emitstyle]]);
-	#ifdef ZHLT_XASH
-						vec_t brightness = VectorAvg (v);
-						VectorMA (adds_direction[emitpatch->totalstyle[emitstyle]], brightness, direction, adds_direction[emitpatch->totalstyle[emitstyle]]);
-	#endif
 	#endif
 					}
 					else
@@ -3623,9 +3583,7 @@ static void     RadWorld()
 #endif
 
     FreeTransfers();
-#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 	FreeStyleArrays ();
-#endif
 	
 #ifdef HLRAD_LOCALTRIANGULATION
 	NamedRunThreadsOnIndividual (g_numfaces, g_estimate, CreateTriangulations);

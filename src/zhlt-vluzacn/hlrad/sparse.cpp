@@ -411,13 +411,11 @@ static void     TestPatchToFace(const unsigned patchnum, const int facenum, cons
 						continue;
 					}
 
-#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 					if (opaquestyle != -1)
 					{
 						AddStyleToStyleArray (m, patchnum, opaquestyle);
 						AddStyleToStyleArray (patchnum, m, opaquestyle);
 					}
-#endif
                                         
                     if(g_customshadow_with_bouncelight && !VectorCompare(transparency, vec3_one) )
                     {
@@ -745,8 +743,6 @@ void            MakeScalesSparseVismatrix()
         }
         // release visibility matrix
         DumpTransfersMemoryUsage();
-#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 		CreateFinalStyleArrays ("dynamic shadow array");
-#endif
     }
 }

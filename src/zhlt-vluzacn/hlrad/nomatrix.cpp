@@ -116,12 +116,10 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 			}
 
             {
-#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 				if (opaquestyle != -1)
 				{
 					AddStyleToStyleArray (patchnum1, patchnum2, opaquestyle);
 				}
-#endif
             	if(g_customshadow_with_bouncelight)
             	{
             		VectorCopy(transparency, transparency_out);
@@ -211,12 +209,10 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 			}
 
             {
-#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 				if (opaquestyle != -1)
 				{
 					AddStyleToStyleArray (receiver, emitter, opaquestyle);
 				}
-#endif
             	if(g_customshadow_with_bouncelight)
             	{
             		VectorCopy(transparency, transparency_out);
@@ -259,8 +255,6 @@ void            MakeScalesNoVismatrix()
             unlink(transferfile);
         }
         DumpTransfersMemoryUsage();
-#ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 		CreateFinalStyleArrays ("dynamic shadow array");
-#endif
     }
 }
