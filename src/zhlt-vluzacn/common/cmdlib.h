@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_POINT_IN_EDGE_FIX	//--vluzacn
 #define HLRAD_MULTISKYLIGHT //--vluzacn
 #define HLRAD_ALLOWZEROBRIGHTNESS //--vluzacn
 #define HLRAD_OPAQUE_GROUP //--vluzacn //obsolete

@@ -1020,9 +1020,7 @@ extern vec_t	snap_to_winding_noedge(const Winding& w, const dplane_t& plane, vec
 #endif
 #endif
 #ifndef HLRAD_OPAQUE_NODE
-#ifdef HLRAD_POINT_IN_EDGE_FIX
 extern bool		point_in_winding_percentage(const Winding& w, const dplane_t& plane, const vec3_t point, const vec3_t ray, double &percentage);
-#endif
 #endif
 #ifndef HLRAD_LOCALTRIANGULATION
 extern bool     point_in_wall(const lerpWall_t* wall, vec3_t point);

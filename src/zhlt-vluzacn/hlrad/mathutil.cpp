@@ -265,7 +265,6 @@ vec_t			snap_to_winding_noedge(const Winding& w, const dplane_t& plane, vec_t* c
 
 #endif
 #ifndef HLRAD_OPAQUE_NODE
-#ifdef HLRAD_POINT_IN_EDGE_FIX
 bool			point_in_winding_percentage(const Winding& w, const dplane_t& plane, const vec3_t point, const vec3_t ray, double &percentage)
 {
     unsigned        numpoints = w.m_NumPoints;
@@ -323,7 +322,6 @@ bool			point_in_winding_percentage(const Winding& w, const dplane_t& plane, cons
 	}
 }
 
-#endif
 #endif
 #ifndef HLRAD_LERP_VL
 // =====================================================================================
@@ -516,9 +514,7 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 	VectorNormalize (direction);
 
     vec3_t	    scale = {1.0, 1.0, 1.0};
-#ifdef HLRAD_POINT_IN_EDGE_FIX
 	double		percentage;
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 	opaquestyleout = -1;
 #endif
@@ -551,11 +547,7 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
                  p1[0], p1[1], p1[2], p2[0], p2[1], p2[2], point[0], point[1], point[2], plane->normal[0],
                  plane->normal[1], plane->normal[2], plane->dist);
 #endif
-#ifdef HLRAD_POINT_IN_EDGE_FIX
             if (point_in_winding_percentage(*winding, *plane, point, direction, percentage))
-#else
-            if (point_in_winding(*winding, *plane, point))
-#endif
             {
 #if 0
                 Log("Ray from (%4.3f %4.3f %4.3f) to (%4.3f %4.3f %4.3f) blocked by face %u @ (%4.3f %4.3f %4.3f)\n",
@@ -566,11 +558,9 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 		        if(g_opaque_face_list[x].transparency)
 		        {
 					VectorCopy (g_opaque_face_list[x].transparency_scale, scale_one);
-	#ifdef HLRAD_POINT_IN_EDGE_FIX
 					if (percentage != 1.0)
 						for (i = 0; i < 3; ++i)
 							scale_one[i] = pow (scale_one[i], percentage);
-	#endif
 			        VectorMultiply(scale, scale_one, scale);
 		        }
                 else
