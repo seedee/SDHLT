@@ -2114,9 +2114,7 @@ void            CreateDirectLights()
 				}
 			}
             VectorScale(dl->intensity, p->area, dl->intensity);
-#ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 			VectorScale (dl->intensity, p->exposure, dl->intensity);
-#endif
 			VectorScale (dl->intensity, 1.0 / Q_PI, dl->intensity);
 			VectorMultiply (dl->intensity, p->texturereflectivity, dl->intensity);
         

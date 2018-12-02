@@ -635,11 +635,9 @@ static bool     PlacePatchInside(patch_t* patch)
 
     plane = getPlaneFromFaceNumber(patch->faceNumber);
 
-#ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 	vec_t pointsfound;
 	vec_t pointstested;
 	pointsfound = pointstested = 0;
-#endif
 	vec3_t center;
 	bool found;
 	vec3_t bestpoint;
@@ -652,15 +650,11 @@ static bool     PlacePatchInside(patch_t* patch)
 	found = false;
 	
 	VectorMA (center, PATCH_HUNT_OFFSET, plane->normal, point);
-#ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 	pointstested++;
-#endif
     if (HuntForWorld (point, face_offset, plane, 4, 0.2, PATCH_HUNT_OFFSET) ||
 		HuntForWorld (point, face_offset, plane, 4, 0.8, PATCH_HUNT_OFFSET))
 	{
-#ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 		pointsfound++;
-#endif
 		VectorSubtract (point, center, v);
 		dist = VectorLength (v);
 		if (!found || dist < bestdist)
@@ -670,9 +664,6 @@ static bool     PlacePatchInside(patch_t* patch)
 			bestdist = dist;
 		}
 	}
-#ifndef HLRAD_ACCURATEBOUNCE_REDUCEAREA
-	if (!found)
-#endif
 	{
 		for (int i = 0; i < patch->winding->m_NumPoints; i++)
 		{
@@ -684,15 +675,11 @@ static bool     PlacePatchInside(patch_t* patch)
 			VectorAdd (point, center, point);
 			VectorScale (point, 1.0/3.0, point);
 			VectorMA (point, PATCH_HUNT_OFFSET, plane->normal, point);
-	#ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 			pointstested++;
-	#endif
 			if (HuntForWorld (point, face_offset, plane, 4, 0.2, PATCH_HUNT_OFFSET) ||
 				HuntForWorld (point, face_offset, plane, 4, 0.8, PATCH_HUNT_OFFSET))
 			{
-	#ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 				pointsfound++;
-	#endif
 				VectorSubtract (point, center, v);
 				dist = VectorLength (v);
 				if (!found || dist < bestdist)
@@ -705,9 +692,7 @@ static bool     PlacePatchInside(patch_t* patch)
 		}
 	}
 
-#ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 	patch->exposure = pointsfound / pointstested;
-#endif
 	if (found)
 	{
 		VectorCopy (bestpoint, patch->origin);

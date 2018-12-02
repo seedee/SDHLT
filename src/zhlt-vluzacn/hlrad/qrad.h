@@ -278,9 +278,7 @@ typedef struct patch_s
     struct patch_s* next;                                  // next in face
     vec3_t          origin;                                // Center centroid of winding (cached info calculated from winding)
     vec_t           area;                                  // Surface area of this patch (cached info calculated from winding)
-#ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 	vec_t			exposure;
-#endif
 	vec_t			emitter_range;                         // Range from patch origin (cached info calculated from winding)
 	int				emitter_skylevel;                      // The "skylevel" used for sampling of normals, when the receiver patch is within the range of ACCURATEBOUNCE_THRESHOLD * this->radius. (cached info calculated from winding)
     Winding*        winding;                               // Winding (patches are triangles, so its easy)

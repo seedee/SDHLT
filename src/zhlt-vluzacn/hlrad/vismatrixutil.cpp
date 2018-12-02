@@ -398,9 +398,7 @@ void            MakeScales(const int threadnum)
 				}
 			}
 
-#ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 			trans *= patch2->exposure;
-#endif
             trans = trans * VectorAvg(transparency); //hullu: add transparency effect
 			if (patch->translucent_b)
 			{
@@ -678,9 +676,7 @@ void            MakeRGBScales(const int threadnum)
 					continue;
 				}
 			}
-#ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 			trans_one *= patch2->exposure;
-#endif
             VectorFill(trans, trans_one);
             VectorMultiply(trans, transparency, trans); //hullu: add transparency effect
 			if (patch->translucent_b)
