@@ -116,11 +116,6 @@ void            ResetTmpFiles()
 
 		safe_snprintf(filename, _MAX_PATH, "%s.ext", g_Mapname);
 		_unlink(filename);
-#ifdef ZHLT_XASH
-
-		safe_snprintf(filename, _MAX_PATH, "%s.dlit", g_Mapname);
-		_unlink(filename);
-#endif
     }
 }
 
@@ -579,9 +574,6 @@ void            Banner()
 #ifdef ZHLT_XASH2
 	Log (" - special edition for Xash with change in bsp format\n");
 #else
-#ifdef ZHLT_XASH
-	Log(" - special edition for Xash\n");
-#endif
 #endif
 
     Log("Zoner's Half-Life Compilation Tools -- Custom Build\n"

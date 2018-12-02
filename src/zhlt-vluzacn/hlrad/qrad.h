@@ -253,9 +253,6 @@ typedef enum
     ePatchFlagOutside = 1
 } ePatchFlags;
 
-#ifdef ZHLT_XASH
-#define DIFFUSE_DIRECTION_SCALE (2.0/3.0) //Integrate[2 \[Pi] Sin[\[Theta]] Cos[\[Theta]], {\[Theta], 0, \[Pi]/2}] / Integrate[2 \[Pi] Sin[\[Theta]] Cos[\[Theta]] Cos[\[Theta]], {\[Theta], 0, \[Pi]/2}]
-#endif
 typedef struct patch_s
 {
     struct patch_s* next;                                  // next in face
@@ -286,40 +283,22 @@ typedef struct patch_s
 	unsigned char	directstyle[MAXLIGHTMAPS];
 	// HLRAD_AUTOCORING: totallight: all light gathered by patch
 	vec3_t          totallight[MAXLIGHTMAPS];				// accumulated by radiosity does NOT include light accounted for by direct lighting
-#ifdef ZHLT_XASH
-	vec3_t			totallight_direction[MAXLIGHTMAPS];
-#endif
 	// HLRAD_AUTOCORING: directlight: emissive light gathered by sample
 	vec3_t			directlight[MAXLIGHTMAPS];				// direct light only
-#ifdef ZHLT_XASH
-	vec3_t			directlight_direction[MAXLIGHTMAPS];
-#endif
 	int				bouncestyle; // light reflected from this patch must convert to this style. -1 = normal (don't convert)
 	unsigned char	emitstyle;
     vec3_t          baselight;                             // emissivity only, uses emitstyle
 	bool			emitmode;								// texlight emit mode. 1 for normal, 0 for fast.
 	vec_t			samples;
 	vec3_t*			samplelight_all;						// NULL, or [ALLSTYLES] during BuildFacelights
-#ifdef ZHLT_XASH
-	vec3_t*			samplelight_all_direction;
-#endif
 	unsigned char*	totalstyle_all;						// NULL, or [ALLSTYLES] during BuildFacelights
 	vec3_t*			totallight_all;						// NULL, or [ALLSTYLES] during BuildFacelights
-#ifdef ZHLT_XASH
-	vec3_t*			totallight_all_direction;
-#endif
 	vec3_t*			directlight_all;						// NULL, or [ALLSTYLES] during BuildFacelights
-#ifdef ZHLT_XASH
-	vec3_t*			directlight_all_direction;
-#endif
 	int				leafnum;
 } patch_t;
 
 //LRC
 vec3_t* GetTotalLight(patch_t* patch, int style
-#ifdef ZHLT_XASH
-	, const vec3_t *&direction_out
-#endif
 	);
 
 typedef struct facelist_s
@@ -389,13 +368,6 @@ extern void EmbedLightmapInTextures ();
 // qrad globals
 //
 
-#ifdef ZHLT_XASH
-extern int g_max_map_dlitdata;
-extern int g_dlitdatasize;
-extern byte *g_ddlitdata;
-extern char g_dlitfile[_MAX_PATH];
-extern vec_t g_directionscale;
-#endif
 extern patch_t* g_face_patches[MAX_MAP_FACES];
 extern entity_t* g_face_entity[MAX_MAP_FACES];
 extern vec3_t   g_face_offset[MAX_MAP_FACES];              // for models with origins
@@ -608,9 +580,6 @@ extern void	FreeStyleArrays();
 extern void CreateTriangulations (int facenum);
 extern void GetTriangulationPatches (int facenum, int *numpatches, const int **patches);
 extern void InterpolateSampleLight (const vec3_t position, int surface, int numstyles, const int *styles, vec3_t *outs
-#ifdef ZHLT_XASH
-				, vec3_t *outs_direction
-#endif
 				);
 extern void FreeTriangulations ();
 

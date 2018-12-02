@@ -48,9 +48,6 @@
 // ZHLT_* features are spread across more than one tool. Hence, changing
 //      one of these settings probably means recompiling the whole set
 //#define ZHLT_XASH // build the compiler for Xash engine //--vluzacn
-	#ifdef ZHLT_XASH
-//#define ZHLT_XASH2 // build the compiler for Xash engine with change in bsp format //--vluzacn
-	#endif
 
 	#ifdef SYSTEM_WIN32
 #define RIPENT_PAUSE //--vluzacn

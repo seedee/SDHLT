@@ -544,9 +544,6 @@ typedef struct
 	int				lmcache_offset; // shared by both s and t direction
 	int				lmcache_side;
 	vec3_t			(*lmcache)[ALLSTYLES]; // lm: short for lightmap // don't forget to free!
-#ifdef ZHLT_XASH
-	vec3_t			(*lmcache_direction)[ALLSTYLES];
-#endif
 	vec3_t			*lmcache_normal; // record the phong normals
 	int				*lmcache_wallflags; // wallflag_t
 	int				lmcachewidth;
@@ -685,13 +682,7 @@ static void     CalcFaceExtents(lightinfo_t* l)
 		l->lmcachewidth = l->texsize[0] * l->lmcache_density + 1 + 2 * l->lmcache_side;
 		l->lmcacheheight = l->texsize[1] * l->lmcache_density + 1 + 2 * l->lmcache_side;
 		l->lmcache = (vec3_t (*)[ALLSTYLES])malloc (l->lmcachewidth * l->lmcacheheight * sizeof (vec3_t [ALLSTYLES]));
-#ifdef ZHLT_XASH
-		l->lmcache_direction = (vec3_t (*)[ALLSTYLES])malloc (l->lmcachewidth * l->lmcacheheight * sizeof (vec3_t [ALLSTYLES]));
-#endif
 		hlassume (l->lmcache != NULL, assume_NoMemory);
-#ifdef ZHLT_XASH
-		hlassume (l->lmcache_direction != NULL, assume_NoMemory);
-#endif
 		l->lmcache_normal = (vec3_t *)malloc (l->lmcachewidth * l->lmcacheheight * sizeof (vec3_t));
 		hlassume (l->lmcache_normal != NULL, assume_NoMemory);
 		l->lmcache_wallflags = (int *)malloc (l->lmcachewidth * l->lmcacheheight * sizeof (int));
@@ -1599,11 +1590,6 @@ typedef struct
     vec3_t          pos;
     vec3_t          light;
 	int				surface; // this sample can grow into another face
-#ifdef ZHLT_XASH
-	// this increases the maximum (at 100% AllocBlock, 4 light styles) possible usage of memory of all light samples from 100MB to 200MB
-	vec3_t			light_direction; // sum of light direction * light contribution (rgb averaged)
-	vec3_t			normal; // phong normal
-#endif
 }
 sample_t;
 
@@ -2456,9 +2442,6 @@ void BuildDiffuseNormals ()
 	free (triangles);
 }
 static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const vec3_t normal, vec3_t* sample
-#ifdef ZHLT_XASH
-								  , vec3_t* sample_direction
-#endif
 								  , byte* styles
 								  , int step
 								  , int miptex
@@ -2479,14 +2462,8 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 	bool			sky_used = false;
 	vec3_t			testline_origin;
 	vec3_t			adds[ALLSTYLES];
-#ifdef ZHLT_XASH
-	vec3_t			adds_direction[ALLSTYLES];
-#endif
 	int				style;
 	memset (adds, 0, ALLSTYLES * sizeof(vec3_t));
-#ifdef ZHLT_XASH
-	memset (adds_direction, 0, ALLSTYLES * sizeof (vec3_t));
-#endif
 	bool			lighting_diversify;
 	vec_t			lighting_power;
 	vec_t			lighting_scale;
@@ -2579,10 +2556,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								continue;
 							}
 
-		#ifdef ZHLT_XASH
-							vec3_t direction;
-							VectorCopy (l->sunnormals[j], direction);
-		#endif
 							vec3_t add_one;
 							if (lighting_diversify)
 							{
@@ -2600,10 +2573,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 									continue; // dynamic light of other styles hits this toggleable opaque entity, then it completely vanishes.
 							}
 							VectorAdd (adds[style], add_one, adds[style]);
-		#ifdef ZHLT_XASH
-							vec_t avg = VectorAvg (add_one);
-							VectorMA (adds_direction[style], avg, direction, adds_direction[style]);
-		#endif
 						  } // (loop over the normals)
 						}
 						while (0);
@@ -2663,10 +2632,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 									continue;
 								}
 
-						#ifdef ZHLT_XASH
-								vec3_t direction;
-								VectorCopy (skynormals[j], direction);
-						#endif
 								vec_t factor = qmin (qmax (0.0, (1 - DotProduct (l->normal, skynormals[j])) / 2), 1.0); // how far this piece of sky has deviated from the sun
 								VectorScale (l->diffuse_intensity, 1 - factor, sky_intensity);
 								VectorMA (sky_intensity, factor, l->diffuse_intensity2, sky_intensity);
@@ -2688,10 +2653,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 										continue; // dynamic light of other styles hits this toggleable opaque entity, then it completely vanishes.
 								}
 								VectorAdd (adds[style], add_one, adds[style]);
-						#ifdef ZHLT_XASH
-								vec_t avg = VectorAvg (add_one);
-								VectorMA (adds_direction[style], avg, direction, adds_direction[style]);
-						#endif
 							} // (loop over the normals)
 
 						}
@@ -2727,15 +2688,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 						denominator = dist * dist * l->fade;
 
 						vec3_t add;
-#ifdef ZHLT_XASH
-						vec3_t direction;
-						VectorSubtract (vec3_origin, delta, direction);
-						if ((-dot) > 0)
-						{
-							// reflect the direction back (this is not ideal!)
-							VectorMA (direction, -(-dot) * 2, normal, direction);
-						}
-#endif
                         switch (l->type)
                         {
                         case emit_point:
@@ -2932,10 +2884,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								continue; // dynamic light of other styles hits this toggleable opaque entity, then it completely vanishes.
 						}
 						VectorAdd (adds[style], add, adds[style]);
-	#ifdef ZHLT_XASH
-						vec_t avg = VectorAvg (add);
-						VectorMA (adds_direction[style], avg, direction, adds_direction[style]);
-	#endif
                     } // end emit_skylight
 
                 }
@@ -2972,9 +2920,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 			}
 
 			VectorAdd(sample[style_index], adds[style], sample[style_index]);
-#ifdef ZHLT_XASH
-			VectorAdd (sample_direction[style_index], adds_direction[style], sample_direction[style_index]);
-#endif
 		}
 		else
 		{
@@ -3091,9 +3036,6 @@ static void AddSamplesToPatches (const sample_t **samples, const unsigned char *
 							patch->totalstyle_all[k] = style;
 						}
 						VectorMA (patch->samplelight_all[k], area, s->light, patch->samplelight_all[k]);
-			#ifdef ZHLT_XASH
-						VectorMA (patch->samplelight_all_direction[k], area, s->light_direction, patch->samplelight_all_direction[k]);
-			#endif
 					}
 				}
 			}
@@ -3282,9 +3224,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 
 	facenum = l->surfnum;
 	memset (l->lmcache, 0, l->lmcachewidth * l->lmcacheheight * sizeof (vec3_t [ALLSTYLES]));
-#ifdef ZHLT_XASH
-	memset (l->lmcache_direction, 0, l->lmcachewidth * l->lmcacheheight * sizeof (vec3_t [ALLSTYLES]));
-#endif
 
 	// for each sample whose light we need to calculate
 	for (i = 0; i < l->lmcachewidth * l->lmcacheheight; i++)
@@ -3301,9 +3240,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 		vec3_t spot2;
 		vec3_t pointnormal2;
 		vec3_t *sampled;
-	#ifdef ZHLT_XASH
-		vec3_t *sampled_direction;
-	#endif
 		vec3_t *normal_out;
 		bool nudged;
 		int *wallflags_out;
@@ -3317,9 +3253,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 			nearest_s = qmax (0, qmin ((int)floor (s + 0.5), l->texsize[0]));
 			nearest_t = qmax (0, qmin ((int)floor (t + 0.5), l->texsize[1]));
 			sampled = l->lmcache[i];
-	#ifdef ZHLT_XASH
-			sampled_direction = l->lmcache_direction[i];
-	#endif
 			normal_out = &l->lmcache_normal[i];
 			wallflags_out = &l->lmcache_wallflags[i];
 //
@@ -3485,9 +3418,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 			if (!blocked)
 			{
 				GatherSampleLight(spot, pvs, pointnormal, sampled
-	#ifdef ZHLT_XASH
-					, sampled_direction
-	#endif
 					, styles
 					, 0
 					, l->miptex
@@ -3498,16 +3428,9 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 			{
 				vec3_t sampled2[ALLSTYLES];
 				memset (sampled2, 0, ALLSTYLES * sizeof (vec3_t));
-	#ifdef ZHLT_XASH
-				vec3_t sampled2_direction[ALLSTYLES];
-				memset (sampled2_direction, 0, ALLSTYLES * sizeof (vec3_t));
-	#endif
 				if (!blocked)
 				{
 					GatherSampleLight(spot2, pvs2, pointnormal2, sampled2
-	#ifdef ZHLT_XASH
-						, sampled2_direction
-	#endif
 						, styles
 						, 0
 						, l->miptex
@@ -3516,27 +3439,9 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 				}
 				for (j = 0; j < ALLSTYLES && styles[j] != 255; j++)
 				{
-		#ifdef ZHLT_XASH
-					// reflect the direction back
-					vec_t dot = DotProduct (sampled2_direction[j], pointnormal);
-					VectorMA (sampled2_direction[j], -dot * 2, pointnormal, sampled2_direction[j]);
-					vec_t front = 0, back = 0;
-					// calculate the change of brightness and adjust the direction. This is not totally right when the translucent value is not grayscale,
-					// but at least it still preserves the condition that VectorLength(light_direction) <= VectorAvg(light).
-					for (int x = 0; x < 3; x++)
-					{
-						front += ((1.0 - l->translucent_v[x]) * sampled[j][x]) / 3;
-						back += (l->translucent_v[x] * sampled2[j][x]) / 3;
-					}
-					front = fabs (VectorAvg (sampled[j])) > NORMAL_EPSILON? front / VectorAvg (sampled[j]): 0;
-					back = fabs (VectorAvg (sampled2[j])) > NORMAL_EPSILON? back / VectorAvg (sampled2[j]): 0;
-		#endif
 					for (int x = 0; x < 3; x++)
 					{
 						sampled[j][x] = (1.0 - l->translucent_v[x]) * sampled[j][x] + l->translucent_v[x] * sampled2[j][x];
-		#ifdef ZHLT_XASH
-						sampled_direction[j][x] = front * sampled_direction[j][x] + back * sampled2_direction[j][x];
-		#endif
 					}
 				}
 			}
@@ -3656,22 +3561,12 @@ void            BuildFacelights(const int facenum)
 		hlassume (patch->samplelight_all = (vec3_t *)malloc (ALLSTYLES * sizeof (vec3_t)), assume_NoMemory);
 		hlassume (patch->totallight_all = (vec3_t *)malloc (ALLSTYLES * sizeof (vec3_t)), assume_NoMemory);
 		hlassume (patch->directlight_all = (vec3_t *)malloc (ALLSTYLES * sizeof (vec3_t)), assume_NoMemory);
-#ifdef ZHLT_XASH
-		hlassume (patch->samplelight_all_direction = (vec3_t *)malloc (ALLSTYLES * sizeof (vec3_t)), assume_NoMemory);
-		hlassume (patch->totallight_all_direction = (vec3_t *)malloc (ALLSTYLES * sizeof (vec3_t)), assume_NoMemory);
-		hlassume (patch->directlight_all_direction = (vec3_t *)malloc (ALLSTYLES * sizeof (vec3_t)), assume_NoMemory);
-#endif
 		for (j = 0; j < ALLSTYLES; j++)
 		{
 			patch->totalstyle_all[j] = 255;
 			VectorClear (patch->samplelight_all[j]);
 			VectorClear (patch->totallight_all[j]);
 			VectorClear (patch->directlight_all[j]);
-#ifdef ZHLT_XASH
-			VectorClear (patch->samplelight_all_direction[j]);
-			VectorClear (patch->totallight_all_direction[j]);
-			VectorClear (patch->directlight_all_direction[j]);
-#endif
 		}
 		patch->totalstyle_all[0] = 0;
 	}
@@ -3789,9 +3684,6 @@ void            BuildFacelights(const int facenum)
 				for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
 				{
 					VectorMA (fl_samples[j][i].light, weighting, l.lmcache[pos][j], fl_samples[j][i].light);
-		#ifdef ZHLT_XASH
-					VectorMA (fl_samples[j][i].light_direction, weighting, l.lmcache_direction[pos][j], fl_samples[j][i].light_direction);
-		#endif
 				}
 				subsamples += weighting;
 			}
@@ -3806,32 +3698,14 @@ void            BuildFacelights(const int facenum)
 			for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
 			{
 				VectorClear (fl_samples[j][i].light);
-		#ifdef ZHLT_XASH
-				VectorClear (fl_samples[j][i].light_direction);
-		#endif
 			}
 		}
 	  }
-#ifdef ZHLT_XASH
-		for (int k = 0; k < ALLSTYLES; k++)
-		{
-			VectorClear (fl_samples[k][i].normal);
-		}
-#endif
 		if (subsamples > 0)
 		{
-#ifdef ZHLT_XASH
-			for (int k = 0; k < ALLSTYLES; k++) // fill 'sample.normal' for all 64 styles, just like what we did on 'sample.pos'
-			{
-				VectorCopy (centernormal, fl_samples[k][i].normal);
-			}
-#endif
 			for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
 			{
 				VectorScale (fl_samples[j][i].light, 1.0 / subsamples, fl_samples[j][i].light);
-		#ifdef ZHLT_XASH
-				VectorScale (fl_samples[j][i].light_direction, 1.0 / subsamples, fl_samples[j][i].light_direction);
-		#endif
 			}
 		}
     } // end of i loop
@@ -3853,10 +3727,6 @@ void            BuildFacelights(const int facenum)
 					vec3_t v;
 					VectorScale (patch->samplelight_all[istyle], 1.0f / patch->samples, v);
 					VectorAdd (patch->directlight_all[istyle], v, patch->directlight_all[istyle]);
-		#ifdef ZHLT_XASH
-					VectorScale (patch->samplelight_all_direction[istyle], 1.0f / patch->samples, v);
-					VectorAdd (patch->directlight_all_direction[istyle], v, patch->directlight_all_direction[istyle]);
-		#endif
 				}
 			}
             //LRC (ends)
@@ -3915,32 +3785,19 @@ void            BuildFacelights(const int facenum)
 				lastoffset2 = thisoffset2;
 			}
 			vec3_t frontsampled[ALLSTYLES], backsampled[ALLSTYLES];
-		#ifdef ZHLT_XASH
-			vec3_t frontsampled_direction[ALLSTYLES], backsampled_direction[ALLSTYLES];
-		#endif
 			for (j = 0; j < ALLSTYLES; j++)
 			{
 				VectorClear (frontsampled[j]);
 				VectorClear (backsampled[j]);
-		#ifdef ZHLT_XASH
-				VectorClear (frontsampled_direction[j]);
-				VectorClear (backsampled_direction[j]);
-		#endif
 			}
 			VectorSubtract (vec3_origin, l.facenormal, normal2);
 			GatherSampleLight (patch->origin, pvs, l.facenormal, frontsampled, 
-		#ifdef ZHLT_XASH
-				frontsampled_direction, 
-		#endif
 				patch->totalstyle_all
 				, 1
 				, l.miptex
 				, facenum
 				);
 			GatherSampleLight (spot2, pvs2, normal2, backsampled, 
-		#ifdef ZHLT_XASH
-				backsampled_direction, 
-		#endif
 				patch->totalstyle_all
 				, 1
 				, l.miptex
@@ -3948,24 +3805,9 @@ void            BuildFacelights(const int facenum)
 				);
 			for (j = 0; j < ALLSTYLES && patch->totalstyle_all[j] != 255; j++)
 			{
-	#ifdef ZHLT_XASH
-				vec_t dot = DotProduct (backsampled_direction[j], l.facenormal);
-				VectorMA (backsampled_direction[j], -dot * 2, l.facenormal, backsampled_direction[j]);
-				vec_t front = 0, back = 0;
-				for (int x = 0; x < 3; x++)
-				{
-					front += ((1.0 - l.translucent_v[x]) * frontsampled[j][x]) / 3;
-					back += (l.translucent_v[x] * backsampled[j][x]) / 3;
-				}
-				front = fabs (VectorAvg (frontsampled[j])) > NORMAL_EPSILON? front / VectorAvg (frontsampled[j]): 0;
-				back = fabs (VectorAvg (backsampled[j])) > NORMAL_EPSILON? back / VectorAvg (backsampled[j]): 0;
-	#endif
 				for (int x = 0; x < 3; x++)
 				{
 					patch->totallight_all[j][x] += (1.0 - l.translucent_v[x]) * frontsampled[j][x] + l.translucent_v[x] * backsampled[j][x];
-		#ifdef ZHLT_XASH
-					patch->totallight_all_direction[j][x] += front * frontsampled_direction[j][x] + back * backsampled_direction[j][x];
-		#endif
 				}
 			}
 		}
@@ -3973,9 +3815,6 @@ void            BuildFacelights(const int facenum)
 		{
 			GatherSampleLight (patch->origin, pvs, l.facenormal, 
 				patch->totallight_all, 
-	#ifdef ZHLT_XASH
-				patch->totallight_all_direction, 
-	#endif
 				patch->totalstyle_all
 				, 1
 				, l.miptex
@@ -3995,10 +3834,6 @@ void            BuildFacelights(const int facenum)
                 for (i = 0; i < l.numsurfpt; i++, s++)
                 {
                     VectorAdd(s->light, g_ambient, s->light);
-#ifdef ZHLT_XASH
-					vec_t avg = VectorAvg (g_ambient);
-					VectorMA (s->light_direction, -DIFFUSE_DIRECTION_SCALE * avg, s->normal, s->light_direction);
-#endif
                 }
                 break;
             }
@@ -4073,10 +3908,6 @@ void            BuildFacelights(const int facenum)
 				for (i = 0; i < l.numsurfpt; i++, s++)
 				{
 					VectorAdd(s->light, g_face_patches[facenum]->baselight, s->light);
-#ifdef ZHLT_XASH
-					vec_t avg = VectorAvg (g_face_patches[facenum]->baselight);
-					VectorMA (s->light_direction, -DIFFUSE_DIRECTION_SCALE * avg, s->normal, s->light_direction);
-#endif
 				}
 			}
 		}
@@ -4192,9 +4023,6 @@ void            BuildFacelights(const int facenum)
 				maxlights[bestindex] = 0;
 				patch->totalstyle[k] = patch->totalstyle_all[bestindex];
 				VectorCopy (patch->totallight_all[bestindex], patch->totallight[k]);
-		#ifdef ZHLT_XASH
-				VectorCopy (patch->totallight_all_direction[bestindex], patch->totallight_direction[k]);
-		#endif
 			}
 			else
 			{
@@ -4242,9 +4070,6 @@ void            BuildFacelights(const int facenum)
 				maxlights[bestindex] = 0;
 				patch->directstyle[k] = patch->totalstyle_all[bestindex];
 				VectorCopy (patch->directlight_all[bestindex], patch->directlight[k]);
-		#ifdef ZHLT_XASH
-				VectorCopy (patch->directlight_all_direction[bestindex], patch->directlight_direction[k]);
-		#endif
 			}
 			else
 			{
@@ -4274,9 +4099,6 @@ void            BuildFacelights(const int facenum)
 		patch->directlight_all = NULL;
 	}
 	free (l.lmcache);
-#ifdef ZHLT_XASH
-	free (l.lmcache_direction);
-#endif
 	free (l.lmcache_normal);
 	free (l.lmcache_wallflags);
 	free (l.surfpt_position);
@@ -4297,9 +4119,6 @@ void            PrecompLightmapOffsets()
 	patch_t*        patch; //LRC
 
     g_lightdatasize = 0;
-#ifdef ZHLT_XASH
-	g_dlitdatasize = 0;
-#endif
 
     for (facenum = 0; facenum < g_numfaces; facenum++)
     {
@@ -4407,9 +4226,6 @@ void            PrecompLightmapOffsets()
 						for (j = 0; j < fl->numsamples; j++)
 						{
 							VectorClear (fl->samples[k][j].light);
-		#ifdef ZHLT_XASH
-							VectorClear (fl->samples[k][j].light_direction);
-		#endif
 						}
 					}
 				}
@@ -4449,10 +4265,6 @@ void            PrecompLightmapOffsets()
         f->lightofs = g_lightdatasize;
         g_lightdatasize += fl->numsamples * 3 * lightstyles;
 		hlassume (g_lightdatasize <= g_max_map_lightdata, assume_MAX_MAP_LIGHTING); //lightdata
-#ifdef ZHLT_XASH
-		g_dlitdatasize += fl->numsamples * 3 * lightstyles;
-		hlassume (g_dlitdatasize < g_max_map_dlitdata, assume_MAX_MAP_LIGHTING);
-#endif
 
     }
 }
@@ -4461,16 +4273,6 @@ void ReduceLightmap ()
 	byte *oldlightdata = (byte *)malloc (g_lightdatasize);
 	hlassume (oldlightdata != NULL, assume_NoMemory);
 	memcpy (oldlightdata, g_dlightdata, g_lightdatasize);
-#ifdef ZHLT_XASH
-	if (g_dlitdatasize != g_lightdatasize)
-	{
-		Error ("g_dlitdatasize != g_lightdatasize");
-	}
-	byte *olddlitdata = (byte *)malloc (g_dlitdatasize);
-	hlassume (olddlitdata != NULL, assume_NoMemory);
-	memcpy (olddlitdata, g_ddlitdata, g_dlitdatasize);
-	g_dlitdatasize = 0;
-#endif
 	g_lightdatasize = 0;
 
 	int facenum;
@@ -4517,20 +4319,11 @@ void ReduceLightmap ()
 			{
 				f->styles[k] = styles[k];
 				hlassume (g_lightdatasize + fl->numsamples * 3 <= g_max_map_lightdata, assume_MAX_MAP_LIGHTING);
-		#ifdef ZHLT_XASH
-				hlassume (g_dlitdatasize + fl->numsamples * 3 <= g_max_map_dlitdata, assume_MAX_MAP_LIGHTING);
-		#endif
 				for (i = 0; i < fl->numsamples; i++)
 				{
 					VectorCopy (values[k], (byte *)&g_dlightdata[g_lightdatasize + i * 3]);
-		#ifdef ZHLT_XASH
-					VectorFill ((byte *)&g_ddlitdata[g_lightdatasize + i * 3], 128);
-		#endif
 				}
 				g_lightdatasize += fl->numsamples * 3;
-		#ifdef ZHLT_XASH
-				g_dlitdatasize += fl->numsamples * 3;
-		#endif
 			}
 			continue;
 		}
@@ -4566,21 +4359,11 @@ void ReduceLightmap ()
 			f->styles[numstyles] = oldstyles[k];
 			hlassume (g_lightdatasize + fl->numsamples * 3 * (numstyles + 1) <= g_max_map_lightdata, assume_MAX_MAP_LIGHTING);
 			memcpy (&g_dlightdata[f->lightofs + fl->numsamples * 3 * numstyles], &oldlightdata[oldofs + fl->numsamples * 3 * k], fl->numsamples * 3);
-#ifdef ZHLT_XASH
-			hlassume (g_dlitdatasize + fl->numsamples * 3 * (numstyles + 1) <= g_max_map_dlitdata, assume_MAX_MAP_LIGHTING);
-			memcpy (&g_ddlitdata[f->lightofs + fl->numsamples * 3 * numstyles], &olddlitdata[oldofs + fl->numsamples * 3 * k], fl->numsamples * 3);
-#endif
 			numstyles++;
 		}
 		g_lightdatasize += fl->numsamples * 3 * numstyles;
-#ifdef ZHLT_XASH
-		g_dlitdatasize += fl->numsamples * 3 * numstyles;
-#endif
 	}
 	free (oldlightdata);
-#ifdef ZHLT_XASH
-	free (olddlitdata);
-#endif
 }
 
 
@@ -4952,9 +4735,6 @@ void ScaleDirectLights ()
 			{
 				samp = &fl->samples[k][i];
 				VectorScale (samp->light, g_direct_scale, samp->light);
-	#ifdef ZHLT_XASH
-				VectorScale (samp->light_direction, g_direct_scale, samp->light_direction);
-	#endif
 			}
 		}
 	}
@@ -4998,27 +4778,15 @@ void AddPatchLights (int facenum)
 
 				{
 					vec3_t v;
-		#ifdef ZHLT_XASH
-					vec3_t v_direction;
-		#endif
 
 					int style = f_other->styles[k];
 					InterpolateSampleLight (samp->pos, samp->surface, 1, &style, &v
-		#ifdef ZHLT_XASH
-											, &v_direction
-		#endif
 											);
 
 					VectorAdd (samp->light, v, v);
-		#ifdef ZHLT_XASH
-					VectorAdd (samp->light_direction, v_direction, v_direction);
-		#endif
 					if (VectorMaximum (v) >= g_corings[f_other->styles[k]])
 					{
 						VectorCopy (v, samp->light);
-		#ifdef ZHLT_XASH
-						VectorCopy (v_direction, samp->light_direction);
-		#endif
 					}
 					else
 					{
@@ -5089,16 +4857,6 @@ void            FinalLightFace(const int facenum)
 	vec3_t			*original_basiclight;
 	int				(*final_basiclight)[3];
 	int				lbi[3];
-#ifdef ZHLT_XASH
-	vec3_t			*original_basicdirection;
-	vec3_t			*final_basicdirection;
-	vec3_t			direction;
-	vec3_t			directionnormals[3];
-	vec3_t			debug_original_light;
-	vec3_t			debug_final_light;
-	vec3_t			debug_original_direction;
-	vec3_t			debug_final_direction;
-#endif
 
     // ------------------------------------------------------------------------
     // Changes by Adam Foster - afoster@compsoc.man.ac.uk
@@ -5139,49 +4897,12 @@ void            FinalLightFace(const int facenum)
 	final_basiclight = (int (*)[3])calloc (fl->numsamples, sizeof(int [3]));
 	hlassume (original_basiclight != NULL, assume_NoMemory);
 	hlassume (final_basiclight != NULL, assume_NoMemory);
-#ifdef ZHLT_XASH
-	original_basicdirection = (vec3_t *)calloc (fl->numsamples, sizeof(vec3_t));
-	final_basicdirection = (vec3_t *)calloc (fl->numsamples, sizeof (vec3_t));
-	hlassume (original_basicdirection != NULL, assume_NoMemory);
-	hlassume (final_basicdirection != NULL, assume_NoMemory);
-#endif
     for (k = 0; k < lightstyles; k++)
     {
         samp = fl->samples[k];
         for (j = 0; j < fl->numsamples; j++, samp++)
         {
-#ifdef ZHLT_XASH
-			{
-
-				VectorCopy (samp->normal, directionnormals[2]);
-
-				vec3_t texdirections[2];
-				const vec3_t &facenormal = getPlaneFromFace (f)->normal;
-				texinfo_t *tx = &g_texinfo[f->texinfo];
-				for (int side = 0; side < 2; side++)
-				{
-					CrossProduct (facenormal, tx->vecs[!side], texdirections[side]);
-					VectorNormalize (texdirections[side]);
-					if (DotProduct (texdirections[side], tx->vecs[side]) < 0)
-					{
-						VectorSubtract (vec3_origin, texdirections[side], texdirections[side]);
-					}
-				}
-
-				for (int side = 0; side < 2; side++)
-				{
-					vec_t dot;
-					dot = DotProduct (texdirections[side], samp->normal);
-					VectorMA (texdirections[side], -dot, samp->normal, directionnormals[side]);
-					VectorNormalize (directionnormals[side]);
-				}
-				VectorSubtract (vec3_origin, directionnormals[1], directionnormals[1]);
-			}
-#endif
 			VectorCopy (samp->light, lb);
-	#ifdef ZHLT_XASH
-			VectorCopy (samp->light_direction, direction);
-	#endif
 			if (f->styles[0] != 0)
 			{
 				Warning ("wrong f->styles[0]");
@@ -5190,34 +4911,11 @@ void            FinalLightFace(const int facenum)
 			if (k == 0)
 			{
 				VectorCopy (lb, original_basiclight[j]);
-	#ifdef ZHLT_XASH
-				VectorCopy (direction, original_basicdirection[j]);
-	#endif
 			}
 			else
 			{
 				VectorAdd (lb, original_basiclight[j], lb);
-	#ifdef ZHLT_XASH
-				VectorAdd (direction, original_basicdirection[j], direction);
-	#endif
 			}
-	#ifdef ZHLT_XASH
-			{
-				VectorCopy (lb, debug_original_light);
-				VectorCopy (direction, debug_original_direction);
-				// get the real direction
-				// this is what the direction should be after style 0 and this style are added together
-				vec_t avg = VectorAvg (lb);
-				if (avg > NORMAL_EPSILON)
-				{
-					VectorScale (direction, 1 / avg, direction);
-				}
-				else
-				{
-					VectorClear (direction);
-				}
-			}
-	#endif
             // ------------------------------------------------------------------------
 	        // Changes by Adam Foster - afoster@compsoc.man.ac.uk
 	        // colour lightscale:
@@ -5288,36 +4986,14 @@ void            FinalLightFace(const int facenum)
 				lbi[i] = (int) floor (lb[i] + 0.5);
 				if (lbi[i] < 0) lbi[i] = 0;
 			}
-	#ifdef ZHLT_XASH
-			{
-				vec_t avg = (lbi[0] + lbi[1] + lbi[2]) / 3.0;
-				VectorScale (direction, avg, direction);
-				VectorCopy (lbi, debug_final_light);
-				VectorCopy (direction, debug_final_direction);
-			}
-	#endif
 			if (k == 0)
 			{
 				VectorCopy (lbi, final_basiclight[j]);
-	#ifdef ZHLT_XASH
-				VectorCopy (direction, final_basicdirection[j]);
-	#endif
 			}
 			else
 			{
 				VectorSubtract (lbi, final_basiclight[j], lbi);
-	#ifdef ZHLT_XASH
-				VectorSubtract (direction, final_basicdirection[j], direction);
-	#endif
 			}
-	#ifdef ZHLT_XASH
-			{
-				// because the direction will be multiplied with the brightness when styles are added together, now divide the direction by the brightness
-				vec_t avg = (lbi[0] + lbi[1] + lbi[2]) / 3.0;
-				avg = qmax (1, avg);
-				VectorScale (direction, 1 / avg, direction);
-			}
-	#endif
 			if (k == 0)
 			{
 				if (g_colour_jitter_hack[0] || g_colour_jitter_hack[1] || g_colour_jitter_hack[2]) 
@@ -5342,63 +5018,19 @@ void            FinalLightFace(const int facenum)
                 colors[1] = (unsigned char)lbi[1];
                 colors[2] = (unsigned char)lbi[2];
             }
-	#ifdef ZHLT_XASH
-			{
-				vec3_t v;
-				VectorScale (direction, g_directionscale, v); // the scale is calculated such that length(v) < 1
-				if (DotProduct (v, v) > 1 + NORMAL_EPSILON)
-				{
-	#if 0
-					{
-						ThreadLock ();
-						printf ("facenum = %d sample = %d styleindex = %d\n", facenum, j, k);
-						printf ("original_basiclight = %f %f %f\n", (vec_t)original_basiclight[j][0], (vec_t)original_basiclight[j][1], (vec_t)original_basiclight[j][2]);
-						printf ("original_basicdirection = %f %f %f\n", (vec_t)original_basicdirection[j][0], (vec_t)original_basicdirection[j][1], (vec_t)original_basicdirection[j][2]);
-						printf ("final_basiclight = %f %f %f\n", (vec_t)final_basiclight[j][0], (vec_t)final_basiclight[j][1], (vec_t)final_basiclight[j][2]);
-						printf ("final_basicdirection = %f %f %f\n", (vec_t)final_basicdirection[j][0], (vec_t)final_basicdirection[j][1], (vec_t)final_basicdirection[j][2]);
-						printf ("debug_original_light = %f %f %f\n",  (vec_t)debug_original_light[0], (vec_t)debug_original_light[1], (vec_t)debug_original_light[2]);
-						printf ("debug_original_direction = %f %f %f\n",  (vec_t)debug_original_direction[0], (vec_t)debug_original_direction[1], (vec_t)debug_original_direction[2]);
-						printf ("debug_final_light = %f %f %f\n",  (vec_t)debug_final_light[0], (vec_t)debug_final_light[1], (vec_t)debug_final_light[2]);
-						printf ("debug_final_direction = %f %f %f\n",  (vec_t)debug_final_direction[0], (vec_t)debug_final_direction[1], (vec_t)debug_final_direction[2]);
-						ThreadUnlock ();
-					}
-	#endif
-					VectorNormalize (v);
-				}
-				VectorSubtract (vec3_origin, v, v); // let the direction point from face sample to light source
-				unsigned char *dots = &g_ddlitdata[f->lightofs + k * fl->numsamples * 3 + j * 3];
-				for (int x = 0; x < 3; x++)
-				{
-					int i;
-					i = DotProduct (v, directionnormals[x]) * 128 + 128;
-					i = qmax (0, qmin (i, 255));
-					dots[x] = (unsigned char)i;
-				}
-			}
-	#endif
         }
     }
 	free (original_basiclight);
 	free (final_basiclight);
-#ifdef ZHLT_XASH
-	free (original_basicdirection);
-	free (final_basicdirection);
-#endif
 
 }
 
 
 //LRC
 vec3_t    totallight_default = { 0, 0, 0 };
-#ifdef ZHLT_XASH
-vec3_t    totallight_default_direction = { 0, 0, 0 };
-#endif
 
 //LRC - utility for getting the right totallight value from a patch
 vec3_t* GetTotalLight(patch_t* patch, int style
-#ifdef ZHLT_XASH
-	, const vec3_t *&direction_out
-#endif
 	)
 {
 	int i;
@@ -5406,15 +5038,9 @@ vec3_t* GetTotalLight(patch_t* patch, int style
 	{
 		if (patch->totalstyle[i] == style)
 		{
-#ifdef ZHLT_XASH
-			direction_out = &(patch->totallight_direction[i]);
-#endif
 			return &(patch->totallight[i]);
 		}
 	}
-#ifdef ZHLT_XASH
-	direction_out = &totallight_default_direction;
-#endif
 	return &totallight_default;
 }
 

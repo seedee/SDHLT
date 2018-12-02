@@ -762,9 +762,6 @@ static void CalcInterpolation (const localtriangulation_t *lt, const vec3_t spot
 }
 
 static void ApplyInterpolation (const interpolation_t *interp, int numstyles, const int *styles, vec3_t *outs
-#ifdef ZHLT_XASH
-								, vec3_t *outs_direction
-#endif
 								)
 {
 	int i;
@@ -773,9 +770,6 @@ static void ApplyInterpolation (const interpolation_t *interp, int numstyles, co
 	for (j = 0; j < numstyles; j++)
 	{
 		VectorClear (outs[j]);
-#ifdef ZHLT_XASH
-		VectorClear (outs_direction[j]);
-#endif
 	}
 	if (interp->totalweight <= 0)
 	{
@@ -785,18 +779,9 @@ static void ApplyInterpolation (const interpolation_t *interp, int numstyles, co
 	{
 		for (j = 0; j < numstyles; j++)
 		{
-#ifdef ZHLT_XASH
-			const vec3_t *b_direction;
-#endif
 			const vec3_t *b = GetTotalLight (&g_patches[interp->points[i].patchnum], styles[j]
-#ifdef ZHLT_XASH
-											, b_direction
-#endif
 											);
 			VectorMA (outs[j], interp->points[i].weight / interp->totalweight, *b, outs[j]);
-#ifdef ZHLT_XASH
-			VectorMA (outs_direction[j], interp->points[i].weight / interp->totalweight, *b_direction, outs_direction[j]);
-#endif
 		}
 	}
 }
@@ -805,9 +790,6 @@ static void ApplyInterpolation (const interpolation_t *interp, int numstyles, co
 //  InterpolateSampleLight
 // =====================================================================================
 void InterpolateSampleLight (const vec3_t position, int surface, int numstyles, const int *styles, vec3_t *outs
-#ifdef ZHLT_XASH
-							, vec3_t *outs_direction
-#endif
 							)
 {
 	try
@@ -900,9 +882,6 @@ void InterpolateSampleLight (const vec3_t position, int surface, int numstyles, 
 	if (maininterp->totalweight > 0)
 	{
 		ApplyInterpolation (maininterp, numstyles, styles, outs
-#ifdef ZHLT_XASH
-							, outs_direction
-#endif
 							);
 		if (g_drawlerp)
 		{
@@ -944,9 +923,6 @@ void InterpolateSampleLight (const vec3_t position, int surface, int numstyles, 
 		if (maininterp->totalweight > 0)
 		{
 			ApplyInterpolation (maininterp, numstyles, styles, outs
-#ifdef ZHLT_XASH
-								, outs_direction
-#endif
 								);
 			if (g_drawlerp)
 			{
@@ -996,9 +972,6 @@ void InterpolateSampleLight (const vec3_t position, int surface, int numstyles, 
 					maininterp->totalweight += maininterp->points[j].weight;
 				}
 				ApplyInterpolation (maininterp, numstyles, styles, outs
-#ifdef ZHLT_XASH
-									, outs_direction
-#endif
 									);
 				if (g_drawlerp)
 				{
@@ -1017,9 +990,6 @@ void InterpolateSampleLight (const vec3_t position, int surface, int numstyles, 
 				maininterp->totalweight = 0;
 				maininterp->points.resize (0);
 				ApplyInterpolation (maininterp, numstyles, styles, outs
-#ifdef ZHLT_XASH
-									, outs_direction
-#endif
 									);
 				if (g_drawlerp)
 				{

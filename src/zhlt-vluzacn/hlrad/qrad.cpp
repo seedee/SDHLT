@@ -25,14 +25,6 @@
  * every surface must be divided into at least two g_patches each axis
  */
 
-#ifdef ZHLT_XASH
-int g_dlitdatasize = 0;
-int g_max_map_dlitdata = 0;
-byte *g_ddlitdata = NULL;
-char g_dlitfile[_MAX_PATH] = "";
-bool g_drawdirection = false;
-vec_t g_directionscale = 0.0;
-#endif
 bool			g_fastmode = DEFAULT_FASTMODE;
 typedef enum
 {
@@ -55,10 +47,6 @@ unsigned        g_num_patches;
 
 static vec3_t   (*emitlight)[MAXLIGHTMAPS]; //LRC
 static vec3_t   (*addlight)[MAXLIGHTMAPS]; //LRC
-#ifdef ZHLT_XASH
-static vec3_t	(*emitlight_direction)[MAXLIGHTMAPS];
-static vec3_t	(*addlight_direction)[MAXLIGHTMAPS];
-#endif
 static unsigned char (*newstyles)[MAXLIGHTMAPS];
 
 vec3_t          g_face_offset[MAX_MAP_FACES];              // for rotating bmodels
@@ -2034,24 +2022,15 @@ static void     CollectLight()
     for (i = 0, patch = g_patches; i < g_num_patches; i++, patch++)
     {
 		vec3_t newtotallight[MAXLIGHTMAPS];
-#ifdef ZHLT_XASH
-		vec3_t newtotallight_direction[MAXLIGHTMAPS];
-#endif
 		for (j = 0; j < MAXLIGHTMAPS && newstyles[i][j] != 255; j++)
 		{
 			VectorClear (newtotallight[j]);
-#ifdef ZHLT_XASH
-			VectorClear (newtotallight_direction[j]);
-#endif
 			int k;
 			for (k = 0; k < MAXLIGHTMAPS && patch->totalstyle[k] != 255; k++)
 			{
 				if (patch->totalstyle[k] == newstyles[i][j])
 				{
 					VectorCopy (patch->totallight[k], newtotallight[j]);
-#ifdef ZHLT_XASH
-					VectorCopy (patch->totallight_direction[k], newtotallight_direction[k]);
-#endif
 					break;
 				}
 			}
@@ -2063,10 +2042,6 @@ static void     CollectLight()
 				patch->totalstyle[j] = newstyles[i][j];
 				VectorCopy (newtotallight[j], patch->totallight[j]);
 				VectorCopy (addlight[i][j], emitlight[i][j]);
-#ifdef ZHLT_XASH
-				VectorCopy (newtotallight_direction[j], patch->totallight_direction[j]);
-				VectorCopy (addlight_direction[i][j], emitlight_direction[i][j]);
-#endif
 			}
 			else
 			{
@@ -2098,9 +2073,6 @@ static void     GatherLight(int threadnum)
     transfer_index_t* tIndex;
 	float f;
 	vec3_t			adds[ALLSTYLES];
-#ifdef ZHLT_XASH
-	vec3_t			adds_direction[ALLSTYLES];
-#endif
 	int				style;
 	unsigned int	fastfind_index = 0;
 
@@ -2112,9 +2084,6 @@ static void     GatherLight(int threadnum)
             break;
         }
 		memset (adds, 0, ALLSTYLES * sizeof(vec3_t));
-#ifdef ZHLT_XASH
-		memset (adds_direction, 0, ALLSTYLES * sizeof (vec3_t));
-#endif
 
         patch = &g_patches[j];
 
@@ -2125,13 +2094,7 @@ static void     GatherLight(int threadnum)
 		for (m = 0; m < MAXLIGHTMAPS && patch->totalstyle[m] != 255; m++)
 		{
 			VectorAdd (adds[patch->totalstyle[m]], patch->totallight[m], adds[patch->totalstyle[m]]);
-#ifdef ZHLT_XASH
-			VectorAdd (adds_direction[patch->totalstyle[m]], patch->totallight_direction[m], adds_direction[patch->totalstyle[m]]);
-#endif
 		}
-#ifdef ZHLT_XASH
-		const vec3_t &patchnormal = getPlaneFromFaceNumber (patch->faceNumber)->normal;
-#endif
 
         for (k = 0; k < iIndex; k++, tIndex++)
         {
@@ -2148,17 +2111,6 @@ static void     GatherLight(int threadnum)
 				int				opaquestyle = -1;
 				GetStyle (j, patchnum, opaquestyle, fastfind_index);
 				float_decompress (g_transfer_compress_type, tData, &f);
-#ifdef ZHLT_XASH
-				vec3_t direction;
-				VectorSubtract (patch->origin, emitpatch->origin, direction);
-				VectorNormalize (direction);
-				vec_t dot = DotProduct (direction, patchnormal);
-				if (dot > 0)
-				{
-					// reflect the direction back
-					VectorMA (direction, -dot * 2, patchnormal, direction);
-				}
-#endif
 
 				// for each style on the emitting patch
 				for (emitstyle = 0; emitstyle < MAXLIGHTMAPS && emitpatch->directstyle[emitstyle] != 255; emitstyle++)
@@ -2183,10 +2135,6 @@ static void     GatherLight(int threadnum)
 								continue;
 						}
 						VectorAdd(adds[addstyle], v, adds[addstyle]);
-	#ifdef ZHLT_XASH
-						vec_t brightness = VectorAvg (v);
-						VectorMA (adds_direction[addstyle], brightness, direction, adds_direction[addstyle]);
-	#endif
 					}
 				}
 				for (emitstyle = 0; emitstyle < MAXLIGHTMAPS && emitpatch->totalstyle[emitstyle] != 255; emitstyle++)
@@ -2211,10 +2159,6 @@ static void     GatherLight(int threadnum)
 								continue;
 						}
 						VectorAdd(adds[addstyle], v, adds[addstyle]);
-	#ifdef ZHLT_XASH
-						vec_t brightness = VectorAvg (v);
-						VectorMA (adds_direction[addstyle], brightness, direction, adds_direction[addstyle]);
-	#endif
 					}
 					else
 					{
@@ -2255,9 +2199,6 @@ static void     GatherLight(int threadnum)
 				maxlights[beststyle] = 0;
 				newstyles[j][m] = beststyle;
 				VectorCopy (adds[beststyle], addlight[j][m]);
-#ifdef ZHLT_XASH
-				VectorCopy (adds_direction[beststyle], addlight_direction[j][m]);
-#endif
 			}
 			else
 			{
@@ -2294,9 +2235,6 @@ static void     GatherRGBLight(int threadnum)
     transfer_index_t* tIndex;
 	float f[3];
 	vec3_t			adds[ALLSTYLES];
-#ifdef ZHLT_XASH
-	vec3_t			adds_direction[ALLSTYLES];
-#endif
 	int				style;
 	unsigned int	fastfind_index = 0;
 
@@ -2308,9 +2246,6 @@ static void     GatherRGBLight(int threadnum)
             break;
         }
 		memset (adds, 0, ALLSTYLES * sizeof(vec3_t));
-#ifdef ZHLT_XASH
-		memset (adds_direction, 0, ALLSTYLES * sizeof (vec3_t));
-#endif
 
         patch = &g_patches[j];
 
@@ -2321,13 +2256,7 @@ static void     GatherRGBLight(int threadnum)
 		for (m = 0; m < MAXLIGHTMAPS && patch->totalstyle[m] != 255; m++)
 		{
 			VectorAdd (adds[patch->totalstyle[m]], patch->totallight[m], adds[patch->totalstyle[m]]);
-#ifdef ZHLT_XASH
-			VectorAdd (adds_direction[patch->totalstyle[m]], patch->totallight_direction[m], adds_direction[patch->totalstyle[m]]);
-#endif
 		}
-#ifdef ZHLT_XASH
-		const vec3_t &patchnormal = getPlaneFromFaceNumber (patch->faceNumber)->normal;
-#endif
 
         for (k = 0; k < iIndex; k++, tIndex++)
         {
@@ -2343,17 +2272,6 @@ static void     GatherRGBLight(int threadnum)
 				int				opaquestyle = -1;
 				GetStyle (j, patchnum, opaquestyle, fastfind_index);
 				vector_decompress (g_rgbtransfer_compress_type, tRGBData, &f[0], &f[1], &f[2]);
-#ifdef ZHLT_XASH
-				vec3_t direction;
-				VectorSubtract (patch->origin, emitpatch->origin, direction);
-				VectorNormalize (direction);
-				vec_t dot = DotProduct (direction, patchnormal);
-				if (dot > 0)
-				{
-					// reflect the direction back
-					VectorMA (direction, -dot * 2, patchnormal, direction);
-				}
-#endif
 
 				// for each style on the emitting patch
 				for (emitstyle = 0; emitstyle < MAXLIGHTMAPS && emitpatch->directstyle[emitstyle] != 255; emitstyle++)
@@ -2378,10 +2296,6 @@ static void     GatherRGBLight(int threadnum)
 								continue;
 						}
 						VectorAdd(adds[addstyle], v, adds[addstyle]);
-	#ifdef ZHLT_XASH
-						vec_t brightness = VectorAvg (v);
-						VectorMA (adds_direction[addstyle], brightness, direction, adds_direction[addstyle]);
-	#endif
 					}
 				}
 				for (emitstyle = 0; emitstyle < MAXLIGHTMAPS && emitpatch->totalstyle[emitstyle] != 255; emitstyle++)
@@ -2406,10 +2320,6 @@ static void     GatherRGBLight(int threadnum)
 								continue;
 						}
 						VectorAdd(adds[addstyle], v, adds[addstyle]);
-	#ifdef ZHLT_XASH
-						vec_t brightness = VectorAvg (v);
-						VectorMA (adds_direction[addstyle], brightness, direction, adds_direction[addstyle]);
-	#endif
 					}
 					else
 					{
@@ -2450,9 +2360,6 @@ static void     GatherRGBLight(int threadnum)
 				maxlights[beststyle] = 0;
 				newstyles[j][m] = beststyle;
 				VectorCopy (adds[beststyle], addlight[j][m]);
-#ifdef ZHLT_XASH
-				VectorCopy (adds_direction[beststyle], addlight_direction[j][m]);
-#endif
 			}
 			else
 			{
@@ -2495,9 +2402,6 @@ static void     BounceLight()
 		for (j = 0; j < MAXLIGHTMAPS && patch->totalstyle[j] != 255; j++)
 		{
 			VectorCopy (patch->totallight[j], emitlight[i][j]);
-#ifdef ZHLT_XASH
-			VectorCopy (patch->totallight_direction[j], emitlight_direction[i][j]);
-#endif
 		}
     }
 
@@ -2522,9 +2426,6 @@ static void     BounceLight()
 		for (j = 0; j < MAXLIGHTMAPS && patch->totalstyle[j] != 255; j++)
 		{
 			VectorCopy (emitlight[i][j], patch->totallight[j]);
-#ifdef ZHLT_XASH
-			VectorCopy (emitlight_direction[i][j], patch->totallight_direction[j]);
-#endif
 		}
 	}
 }
@@ -2595,63 +2496,6 @@ static void     FreeTransfers()
     }
 }
 
-#ifdef ZHLT_XASH
-vec_t FindDirectionScale (vec_t gamma)
-	// gamma           0.55(default) 0.6   0.7   0.8   0.9   1.0   0.5   0.4   0.3   0.2   0.1
-	// returned value  0.266         0.313 0.424 0.565 0.751 1.000 0.225 0.155 0.099 0.055 0.023
-{
-	if (gamma >= 1.0 - NORMAL_EPSILON)
-	{
-		return 1.0;
-	}
-	if (gamma < NORMAL_EPSILON)
-	{
-		return 0.0;
-	}
-	int numsteps = 200;
-	vec_t testmax = 2.0;
-	vec3_t staticlight;
-	vec3_t dynamiclight;
-	vec_t maxlength = 1;
-	int maxlength_i = -1;
-	int maxlength_j = -1;
-	int i, j;
-	for (i = 0; i < numsteps; i++)
-	{
-		for (j = 0; j < numsteps; j++)
-		{
-			vec_t directionlength;
-			staticlight[0] = 1.0;
-			staticlight[2] = staticlight[1] = testmax * (vec_t)i / (vec_t)numsteps;
-			dynamiclight[0] = testmax * (vec_t)j / (vec_t)numsteps;
-			dynamiclight[2] = dynamiclight[1] = 0.0;
-			{
-				vec3_t finalstaticlight, finaldynamiclight;
-				directionlength = (VectorAvg (staticlight) * 1.0 + VectorAvg (dynamiclight) * (-1.0)) / (VectorAvg (staticlight) + VectorAvg (dynamiclight));
-				for (int k = 0; k < 3; k++)
-				{
-					finalstaticlight[k] = pow (staticlight[k], gamma);
-					finaldynamiclight[k] = pow (staticlight[k] + dynamiclight[k], gamma) - finalstaticlight[k];
-				}
-				if (VectorAvg (finaldynamiclight) < NORMAL_EPSILON)
-				{
-					continue;
-				}
-				directionlength = (VectorAvg (finalstaticlight) + VectorAvg (finaldynamiclight)) * directionlength;
-				directionlength = fabs ((directionlength - VectorAvg (finalstaticlight) * 1.0) / VectorAvg (finaldynamiclight));
-			}
-			if (directionlength > maxlength)
-			{
-				maxlength = directionlength;
-				maxlength_i = i;
-				maxlength_j = j;
-			}
-		}
-	}
-	Developer (DEVELOPER_LEVEL_MESSAGE, "maxlength = %f i = %d j = %d\n", maxlength, maxlength_i, maxlength_j);
-	return 1 / maxlength;
-}
-#endif
 static void ExtendLightmapBuffer ()
 {
 	int maxsize;
@@ -2682,11 +2526,6 @@ static void ExtendLightmapBuffer ()
 		hlassume (maxsize <= g_max_map_lightdata, assume_MAX_MAP_LIGHTING);
 		memset (&g_dlightdata[g_lightdatasize], 0, maxsize - g_lightdatasize);
 		g_lightdatasize = maxsize;
-#ifdef ZHLT_XASH
-		hlassume (maxsize < g_max_map_dlitdata, assume_MAX_MAP_LIGHTING);
-		memset (&g_ddlitdata[g_dlitdatasize], 0, maxsize - g_dlitdatasize);
-		g_dlitdatasize = maxsize;
-#endif
 	}
 }
 
@@ -2796,10 +2635,6 @@ static void     RadWorld()
 		// these arrays are only used in CollectLight, GatherLight and BounceLight
 		emitlight = (vec3_t (*)[MAXLIGHTMAPS])AllocBlock ((g_num_patches + 1) * sizeof (vec3_t [MAXLIGHTMAPS]));
 		addlight = (vec3_t (*)[MAXLIGHTMAPS])AllocBlock ((g_num_patches + 1) * sizeof (vec3_t [MAXLIGHTMAPS]));
-	#ifdef ZHLT_XASH
-		emitlight_direction = (vec3_t (*)[MAXLIGHTMAPS])AllocBlock ((g_num_patches + 1) * sizeof (vec3_t [MAXLIGHTMAPS]));
-		addlight_direction = (vec3_t (*)[MAXLIGHTMAPS])AllocBlock ((g_num_patches + 1) * sizeof (vec3_t [MAXLIGHTMAPS]));
-	#endif
 		newstyles = (unsigned char (*)[MAXLIGHTMAPS])AllocBlock ((g_num_patches + 1) * sizeof (unsigned char [MAXLIGHTMAPS]));
         // spread light around
         BounceLight();
@@ -2808,12 +2643,6 @@ static void     RadWorld()
 		emitlight = NULL;
 		FreeBlock (addlight);
 		addlight = NULL;
-	#ifdef ZHLT_XASH
-		FreeBlock (emitlight_direction);
-		emitlight_direction = NULL;
-		FreeBlock (addlight_direction);
-		addlight_direction = NULL;
-	#endif
 		FreeBlock (newstyles);
 		newstyles = NULL;
     }
@@ -2826,9 +2655,6 @@ static void     RadWorld()
     // blend bounced light into direct light and save
     PrecompLightmapOffsets();
 
-#ifdef ZHLT_XASH
-	g_directionscale = FindDirectionScale (VectorAvg (g_colour_qgamma));
-#endif
 
 	ScaleDirectLights ();
 
@@ -2854,10 +2680,6 @@ static void     RadWorld()
 	{
 		g_lightdatasize = 1;
 		g_dlightdata[0] = 0;
-	#ifdef ZHLT_XASH
-		g_dlitdatasize = 1;
-		g_ddlitdata[0] = 0;
-	#endif
 	}
 	ExtendLightmapBuffer (); // expand the size of lightdata array (for a few KB) to ensure that game engine reads within its valid range
 }
@@ -3335,31 +3157,6 @@ void            LoadRadFiles(const char* const mapname, const char* const user_r
 
     ReadInfoTexlights(); // AJM
 }
-#ifdef ZHLT_XASH
-void WriteDlitData (const char *filename)
-{
-	FILE *f;
-	if (g_drawdirection)
-	{
-		if (g_dlitdatasize != g_lightdatasize)
-		{
-			Error ("g_dlitdatasize != g_lightdatasize");
-		}
-		memcpy (g_dlightdata, g_ddlitdata, g_lightdatasize);
-	}
-	f = SafeOpenWrite (filename);
-	fputc ('Q', f);
-	fputc ('L', f);
-	fputc ('I', f);
-	fputc ('T', f);
-	fputc (1, f);
-	fputc (0, f);
-	fputc (0, f);
-	fputc (0, f);
-	SafeWrite (f, g_ddlitdata, g_dlitdatasize);
-	fclose (f);
-}
-#endif
 
 // =====================================================================================
 //  main
@@ -3936,12 +3733,6 @@ int             main(const int argc, char** argv)
 		{
 			g_drawnudge = true;
 		}
-#ifdef ZHLT_XASH
-		else if (!strcasecmp (argv[i], "-drawdirection"))
-		{
-			g_drawdirection = true;
-		}
-#endif
 
 		else if (!strcasecmp(argv[i], "-compress"))
 		{
@@ -4133,12 +3924,6 @@ int             main(const int argc, char** argv)
 #endif
     dtexdata_init();
     atexit(dtexdata_free);
-#ifdef ZHLT_XASH
-	g_max_map_dlitdata = g_max_map_lightdata;
-	g_ddlitdata = (byte *)malloc (g_max_map_dlitdata);
-	hlassume (g_ddlitdata != NULL, assume_NoMemory);
-	safe_snprintf (g_dlitfile, _MAX_PATH, "%s.dlit", g_Mapname);
-#endif
     // END INIT
 
     // BEGIN RAD
@@ -4212,11 +3997,6 @@ int             main(const int argc, char** argv)
     if (g_chart)
         PrintBSPFileSizes();
 
-#ifdef ZHLT_XASH
-	WriteDlitData (g_dlitfile);
-	free (g_ddlitdata);
-	g_ddlitdata = NULL;
-#endif
     WriteBSPFile(g_source);
 
     end = I_FloatTime();
