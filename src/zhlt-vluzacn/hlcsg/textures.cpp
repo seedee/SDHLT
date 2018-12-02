@@ -466,7 +466,6 @@ bool            TEX_InitFromWad()
     qsort((void*)lumpinfo, (size_t) nTexLumps, sizeof(lumpinfo[0]), lump_sorter_by_name);
 
 #ifndef HLCSG_AUTOWAD_NEW
-#ifdef HLCSG_CHART_FIX
     Log("\n");
 #ifdef HLCSG_ONLYENTS_NOWADCHANGE
 	if (*szTmpWad)
@@ -479,7 +478,6 @@ bool            TEX_InitFromWad()
 	}
 #else
     Log("\"wad\" is \"%s\"\n", szTmpWad);
-#endif
 #endif
     SetKeyValue(&g_entities[0], "wad", szTmpWad);
 
@@ -797,7 +795,6 @@ void            WriteMiptex()
 			}
 		}
 		
-	#ifdef HLCSG_CHART_FIX
 		Log("\n");
 		if (*szTmpWad)
 		{
@@ -807,7 +804,6 @@ void            WriteMiptex()
 		{
 			Log ("Wad files required to run the map: (None)\n");
 		}
-	#endif
 		SetKeyValue(&g_entities[0], "wad", szTmpWad);
 	}
 

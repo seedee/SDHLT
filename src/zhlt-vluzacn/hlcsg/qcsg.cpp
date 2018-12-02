@@ -1473,10 +1473,8 @@ void WriteBSP(const char* const name)
 
     UnparseEntities();
     ConvertHintToEmpty(); // this is ridiculous. --vluzacn
-#ifdef HLCSG_CHART_FIX
     if (g_chart)
         PrintBSPFileSizes();
-#endif
     WriteBSPFile(path);
 }
 
@@ -2648,12 +2646,6 @@ int             main(const int argc, char** argv)
 #endif
 
         // Write it all back out again.
-#ifndef HLCSG_CHART_FIX
-        if (g_chart)
-        {
-            PrintBSPFileSizes();
-        }
-#endif
         WriteBSP(g_Mapname);
 
         end = I_FloatTime();
@@ -2763,10 +2755,6 @@ int             main(const int argc, char** argv)
 
     EmitPlanes();
 
-#ifndef HLCSG_CHART_FIX
-    if (g_chart)
-        PrintBSPFileSizes();
-#endif
 
     WriteBSP(g_Mapname);
 
