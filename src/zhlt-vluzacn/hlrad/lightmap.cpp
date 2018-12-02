@@ -4348,7 +4348,6 @@ void            PrecompLightmapOffsets()
 						VectorCompareMaximum (maxlights1[f->styles[k]], fl->samples[k][i].light, maxlights1[f->styles[k]]);
 					}
 				}
-#ifdef HLRAD_LOCALTRIANGULATION
 				int numpatches;
 				const int *patches;
 				GetTriangulationPatches (facenum, &numpatches, &patches); // collect patches and their neighbors
@@ -4356,10 +4355,6 @@ void            PrecompLightmapOffsets()
 				for (i = 0; i < numpatches; i++)
 				{
 					patch = &g_patches[patches[i]];
-#else
-				for (patch = g_face_patches[facenum]; patch; patch = patch->next)
-				{
-#endif
 					for (k = 0; k < MAXLIGHTMAPS && patch->totalstyle[k] != 255; k++)
 					{
 						VectorCompareMaximum (maxlights2[patch->totalstyle[k]], patch->totallight[k], maxlights2[patch->totalstyle[k]]);
@@ -4990,9 +4985,6 @@ void ScaleDirectLights ()
 void AddPatchLights (int facenum)
 {
 	dface_t *f;
-#ifndef HLRAD_LOCALTRIANGULATION
-	lerpTriangulation_t *trian;
-#endif
 	facelightlist_t *item;
 	dface_t *f_other;
 	facelight_t *fl_other;
@@ -5007,9 +4999,6 @@ void AddPatchLights (int facenum)
 		return;
 	}
 
-#ifndef HLRAD_LOCALTRIANGULATION
-	trian = CreateTriangulation (facenum);
-#endif
 	
 	for (item = g_dependentfacelights[facenum]; item != NULL; item = item->next)
 	{
@@ -5031,20 +5020,12 @@ void AddPatchLights (int facenum)
 					vec3_t v_direction;
 		#endif
 
-#ifdef HLRAD_LOCALTRIANGULATION
 					int style = f_other->styles[k];
 					InterpolateSampleLight (samp->pos, samp->surface, 1, &style, &v
 		#ifdef ZHLT_XASH
 											, &v_direction
 		#endif
 											);
-#else
-					SampleTriangulation (trian, samp->pos, v, 
-		#ifdef ZHLT_XASH
-										v_direction, 
-		#endif
-										f_other->styles[k]); //LRC
-#endif
 
 					VectorAdd (samp->light, v, v);
 		#ifdef ZHLT_XASH
@@ -5075,9 +5056,6 @@ void AddPatchLights (int facenum)
 		}
 	}
 
-#ifndef HLRAD_LOCALTRIANGULATION
-	FreeTriangulation (trian);
-#endif
 }
 
 // =====================================================================================

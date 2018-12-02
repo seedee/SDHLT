@@ -72,14 +72,9 @@
 
 
 
-#define HLRAD_LOCALTRIANGULATION //--vluzacn
-	#ifdef HLRAD_LOCALTRIANGULATION
 #define HLRAD_BILINEARINTERPOLATION //--vluzacn
-	#endif
 #define HLRAD_TEXLIGHTGAP //--vluzacn
-	#ifdef HLRAD_LOCALTRIANGULATION
 #define HLRAD_FARPATCH_FIX //--vluzacn
-	#endif
 #define HLRAD_TRANSPARENCY_FAST //--vluzacn
 
 #if defined (ZHLT_XASH) || defined (ZHLT_XASH2)

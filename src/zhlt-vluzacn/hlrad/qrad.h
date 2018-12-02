@@ -352,51 +352,6 @@ extern edgeshare_t g_edgeshare[MAX_MAP_EDGES];
 // lerp.c stuff
 //
 
-#ifndef HLRAD_LOCALTRIANGULATION
-typedef struct lerprect_s
-{
-    dplane_t        plane; // all walls will be perpindicular to face normal in some direction
-	vec3_t			increment;
-	vec3_t			vertex0, vertex1;
-}
-lerpWall_t;
-
-typedef struct lerpdist_s
-{
-    vec_t           dist;
-    unsigned        patch;
-	vec3_t			pos;
-	int				invalid;
-} lerpDist_t;
-
-// Valve's default was 2048 originally.
-// MAX_LERP_POINTS causes lerpTriangulation_t to consume :
-// 2048 : roughly 17.5Mb
-// 3072 : roughly 35Mb
-// 4096 : roughly 70Mb
-#define	DEFAULT_MAX_LERP_POINTS		     512
-#define DEFAULT_MAX_LERP_WALLS           128
-
-typedef struct
-{
-    unsigned        maxpoints;
-    unsigned        numpoints;
-
-    unsigned        maxwalls;
-    unsigned        numwalls;
-    patch_t**       points;    // maxpoints
-	vec3_t*			points_pos;
-    lerpDist_t*     dists;     // numpoints after points is populated
-    lerpWall_t*     walls;     // maxwalls
-
-    unsigned        facenum;
-    const dface_t*  face;
-    const dplane_t* plane;
-	facelist_t*		allfaces;
-}
-lerpTriangulation_t;
-
-#endif
 // These are bitflags for lighting adjustments for special cases
 typedef enum
 {
@@ -662,7 +617,6 @@ extern void	CreateFinalStyleArrays(const char *print_name);
 extern void	FreeStyleArrays();
 
 // lerp.c
-#ifdef HLRAD_LOCALTRIANGULATION
 extern void CreateTriangulations (int facenum);
 extern void GetTriangulationPatches (int facenum, int *numpatches, const int **patches);
 extern void InterpolateSampleLight (const vec3_t position, int surface, int numstyles, const int *styles, vec3_t *outs
@@ -671,16 +625,6 @@ extern void InterpolateSampleLight (const vec3_t position, int surface, int nums
 #endif
 				);
 extern void FreeTriangulations ();
-#else
-extern void     SampleTriangulation(const lerpTriangulation_t* const trian, const vec3_t point, vec3_t result, 
-#ifdef ZHLT_XASH
-					vec3_t &result_direction, 
-#endif
-					int style); //LRC
-extern void     DestroyTriangulation(lerpTriangulation_t* trian);
-extern lerpTriangulation_t* CreateTriangulation(unsigned int facenum);
-extern void     FreeTriangulation(lerpTriangulation_t* trian);
-#endif
 
 // mathutil.c
 extern bool     TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
@@ -696,10 +640,6 @@ extern bool     point_in_winding(const Winding& w, const dplane_t& plane, const 
 extern bool     point_in_winding_noedge(const Winding& w, const dplane_t& plane, const vec_t* point, vec_t width);
 extern void     snap_to_winding(const Winding& w, const dplane_t& plane, vec_t* point);
 extern vec_t	snap_to_winding_noedge(const Winding& w, const dplane_t& plane, vec_t* point, vec_t width, vec_t maxmove);
-#ifndef HLRAD_LOCALTRIANGULATION
-extern bool     point_in_wall(const lerpWall_t* wall, vec3_t point);
-extern bool     point_in_tri(const vec3_t point, const dplane_t* const plane, const vec3_t p1, const vec3_t p2, const vec3_t p3);
-#endif
 extern void     SnapToPlane(const dplane_t* const plane, vec_t* const point, vec_t offset);
 extern vec_t	CalcSightArea (const vec3_t receiver_origin, const vec3_t receiver_normal, const Winding *emitter_winding, int skylevel
 					, vec_t lighting_power, vec_t lighting_scale

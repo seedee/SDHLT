@@ -2845,10 +2845,8 @@ static void     RadWorld()
     FreeTransfers();
 	FreeStyleArrays ();
 	
-#ifdef HLRAD_LOCALTRIANGULATION
 	NamedRunThreadsOnIndividual (g_numfaces, g_estimate, CreateTriangulations);
 
-#endif
     // blend bounced light into direct light and save
     PrecompLightmapOffsets();
 
@@ -2867,10 +2865,8 @@ static void     RadWorld()
 		FreeFacelightDependencyList ();
 	}
 
-#ifdef HLRAD_LOCALTRIANGULATION
 	FreeTriangulations ();
 
-#endif
     NamedRunThreadsOnIndividual(g_numfaces, g_estimate, FinalLightFace);
 	if (g_maxdiscardedlight > 0.01)
 	{
