@@ -70,9 +70,7 @@ bool            g_bDetailBrushes = DEFAULT_DETAIL; // "-detail"
 char*           g_progressfile = DEFAULT_PROGRESSFILE; // "-progressfile path"
 #endif
 vec_t g_scalesize = DEFAULT_SCALESIZE;
-#ifdef HLCSG_KEEPLOG
 bool g_resetlog = DEFAULT_RESETLOG;
-#endif
 #ifdef HLCSG_OPTIMIZELIGHTENTITY
 bool g_nolightopt = DEFAULT_NOLIGHTOPT;
 #endif
@@ -1831,9 +1829,7 @@ static void     Usage()
     Log("    -chart           : display bsp statitics\n");
     Log("    -low | -high     : run program an altered priority level\n");
     Log("    -nolog           : don't generate the compile logfiles\n");
-#ifdef HLCSG_KEEPLOG
 	Log("    -noresetlog      : Do not delete log file\n");
-#endif
     Log("    -threads #       : manually specify the number of threads to run\n");
 #ifdef SYSTEM_WIN32
     Log("    -estimate        : display estimated time during compile\n");
@@ -1916,9 +1912,7 @@ static void     Settings()
 
     Log("verbose               [ %7s ] [ %7s ]\n", g_verbose ? "on" : "off", DEFAULT_VERBOSE ? "on" : "off");
     Log("log                   [ %7s ] [ %7s ]\n", g_log ? "on" : "off", DEFAULT_LOG ? "on" : "off");
-#ifdef HLCSG_KEEPLOG
     Log("reset logfile         [ %7s ] [ %7s ]\n", g_resetlog ? "on" : "off", DEFAULT_RESETLOG ? "on" : "off");
-#endif
 
     Log("developer             [ %7d ] [ %7d ]\n", g_developer, DEFAULT_DEVELOPER);
     Log("chart                 [ %7s ] [ %7s ]\n", g_chart ? "on" : "off", DEFAULT_CHART ? "on" : "off");
@@ -2355,12 +2349,10 @@ int             main(const int argc, char** argv)
 				Usage();
 			}
 		}
-#ifdef HLCSG_KEEPLOG
 		else if (!strcasecmp (argv[i], "-noresetlog"))
 		{
 			g_resetlog = false;
 		}
-#endif
 #ifdef HLCSG_OPTIMIZELIGHTENTITY
 		else if (!strcasecmp (argv[i], "-nolightopt"))
 		{
@@ -2420,9 +2412,7 @@ int             main(const int argc, char** argv)
 
     // other stuff
     ResetErrorLog();                     
-#ifdef HLCSG_KEEPLOG
 	if (!g_onlyents && g_resetlog)
-#endif
 		ResetLog();                          
     OpenLog(g_clientid);                  
     atexit(CloseLog);                       

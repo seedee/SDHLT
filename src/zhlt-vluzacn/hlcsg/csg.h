@@ -61,9 +61,7 @@
 #define DEFAULT_PROGRESSFILE NULL // progress file is only used if g_progressfile is non-null
 #endif
 #define DEFAULT_SCALESIZE -1.0 //dont scale
-#ifdef HLCSG_KEEPLOG
 #define DEFAULT_RESETLOG true
-#endif
 #ifdef HLCSG_OPTIMIZELIGHTENTITY
 #define DEFAULT_NOLIGHTOPT false
 #endif
@@ -321,9 +319,7 @@ extern const char*	GetClipTypeString(cliptype);
 extern char*    g_progressfile ;
 #endif
 extern vec_t g_scalesize;
-#ifdef HLCSG_KEEPLOG
 extern bool g_resetlog;
-#endif
 #ifdef HLCSG_OPTIMIZELIGHTENTITY
 extern bool g_nolightopt;
 #endif
