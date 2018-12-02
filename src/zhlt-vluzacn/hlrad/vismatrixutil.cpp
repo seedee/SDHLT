@@ -329,10 +329,8 @@ void            MakeScales(const int threadnum)
 			{
 				VectorSubtract (patch2->origin, backorigin, delta);
 			}
-#ifdef HLRAD_ACCURATEBOUNCE
 			// move emitter back to its plane
 			VectorMA (delta, -PATCH_HUNT_OFFSET, normal2, delta);
-#endif
 
             dist = VectorNormalize(delta);
             dot1 = DotProduct(delta, normal1);
@@ -341,7 +339,6 @@ void            MakeScales(const int threadnum)
 				dot1 = DotProduct (delta, backnormal);
 			}
             dot2 = -DotProduct(delta, normal2);
-#ifdef HLRAD_ACCURATEBOUNCE
 #ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 			bool light_behind_surface = false;
 			if (dot1 <= NORMAL_EPSILON)
@@ -358,7 +355,6 @@ void            MakeScales(const int threadnum)
 			{
 				continue;
 			}
-#endif
 
 #ifdef HLRAD_DIVERSE_LIGHTING
 			if (lighting_diversify
@@ -373,7 +369,6 @@ void            MakeScales(const int threadnum)
             trans = (dot1 * dot2) / (dist * dist);         // Inverse square falloff factoring angle between patch normals
             if (trans * patch2->area > 0.8f)
 				trans = 0.8f / patch2->area;
-#ifdef HLRAD_ACCURATEBOUNCE
 			if (dist < patch2->emitter_range - ON_EPSILON)
 			{
 	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
@@ -415,7 +410,6 @@ void            MakeScales(const int threadnum)
 				}
 			}
 	#endif
-#endif
 
 #ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 			trans *= patch2->exposure;
@@ -433,35 +427,15 @@ void            MakeScales(const int threadnum)
 				}
 			}
 
-#ifndef HLRAD_ACCURATEBOUNCE
-            if (trans >= 0)
-#endif
             {
 
 
 				trans = trans * patch2->area;
             }
-#ifndef HLRAD_ACCURATEBOUNCE
-            else
-            {
-#if 0
-                Warning("transfer < 0 (%f): dist=(%f)\n"
-                        "   dot1=(%f) patch@(%4.3f %4.3f %4.3f) normal(%4.3f %4.3f %4.3f)\n"
-                        "   dot2=(%f) patch@(%4.3f %4.3f %4.3f) normal(%4.3f %4.3f %4.3f)\n",
-                        trans, dist,
-                        dot1, patch->origin[0], patch->origin[1], patch->origin[2], patch->normal[0], patch->normal[1],
-                        patch->normal[2], dot2, patch2->origin[0], patch2->origin[1], patch2->origin[2],
-                        patch2->normal[0], patch2->normal[1], patch2->normal[2]);
-#endif
-                trans = 0.0;
-            }
-#endif
-#ifdef HLRAD_ACCURATEBOUNCE
 			if (trans <= 0.0)
 			{
 				continue;
 			}
-#endif
 
             *tData = trans;
             *tIndex = j;
@@ -646,10 +620,8 @@ void            MakeRGBScales(const int threadnum)
 			{
 				VectorSubtract (patch2->origin, backorigin, delta);
 			}
-#ifdef HLRAD_ACCURATEBOUNCE
 			// move emitter back to its plane
 			VectorMA (delta, -PATCH_HUNT_OFFSET, normal2, delta);
-#endif
 
             dist = VectorNormalize(delta);
             dot1 = DotProduct(delta, normal1);
@@ -658,7 +630,6 @@ void            MakeRGBScales(const int threadnum)
 				dot1 = DotProduct (delta, backnormal);
 			}
             dot2 = -DotProduct(delta, normal2);
-#ifdef HLRAD_ACCURATEBOUNCE
 #ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 			bool light_behind_surface = false;
 			if (dot1 <= NORMAL_EPSILON)
@@ -675,7 +646,6 @@ void            MakeRGBScales(const int threadnum)
 			{
 				continue;
 			}
-#endif
 			
 #ifdef HLRAD_DIVERSE_LIGHTING
 			if (lighting_diversify
@@ -693,7 +663,6 @@ void            MakeRGBScales(const int threadnum)
 			{
 				trans_one = 0.8f / patch2->area;
 			}
-#ifdef HLRAD_ACCURATEBOUNCE
 			if (dist < patch2->emitter_range - ON_EPSILON)
 			{
 	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
@@ -735,7 +704,6 @@ void            MakeRGBScales(const int threadnum)
 				}
 			}
 	#endif
-#endif
 #ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 			trans_one *= patch2->exposure;
 #endif
@@ -759,33 +727,14 @@ void            MakeRGBScales(const int threadnum)
 				}
 			}
 
-#ifdef HLRAD_ACCURATEBOUNCE
 			if (trans_one <= 0.0)
 			{
 				continue;
 			}
-#else
-			if (trans_one >= 0)
-#endif
 			{
 
                 VectorScale(trans, patch2 -> area, trans);
             }
-#ifndef HLRAD_ACCURATEBOUNCE
-            else
-            {
-#if 0
-                Warning("transfer < 0 (%4.3f %4.3f %4.3f): dist=(%f)\n"
-                        "   dot1=(%f) patch@(%4.3f %4.3f %4.3f) normal(%4.3f %4.3f %4.3f)\n"
-                        "   dot2=(%f) patch@(%4.3f %4.3f %4.3f) normal(%4.3f %4.3f %4.3f)\n",
-                        trans[0], trans[1], trans[2], dist,
-                        dot1, patch->origin[0], patch->origin[1], patch->origin[2], patch->normal[0], patch->normal[1],
-                        patch->normal[2], dot2, patch2->origin[0], patch2->origin[1], patch2->origin[2],
-                        patch2->normal[0], patch2->normal[1], patch2->normal[2]);
-#endif
-                VectorFill(trans,0.0);
-            }
-#endif
 
 			VectorCopy(trans, tRGBData);
             *tIndex = j;

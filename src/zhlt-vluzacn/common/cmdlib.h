@@ -72,10 +72,7 @@
 
 
 
-#define HLRAD_ACCURATEBOUNCE //--vluzacn
-	#ifdef HLRAD_ACCURATEBOUNCE
 #define HLRAD_ACCURATEBOUNCE_TEXLIGHT // note: this reduces the compile time in '-extra' mode //--vluzacn
-	#endif
 #define HLRAD_ACCURATEBOUNCE_SAMPLELIGHT //--vluzacn
 	#ifdef HLRAD_ACCURATEBOUNCE_TEXLIGHT
 #define HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN //--vluzacn

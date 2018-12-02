@@ -135,9 +135,7 @@
 	#define DEFAULT_TEXREFLECTGAMMA 1.76f // 2.0(texgamma cvar) / 2.5 (gamma cvar) * 2.2 (screen gamma) = 1.76
 	#define DEFAULT_TEXREFLECTSCALE 0.7f // arbitrary (This is lower than 1.0, because textures are usually brightened in order to look better in Goldsrc. Textures are made brightened because Goldsrc is only able to darken the texture when combining the texture with the lightmap.)
 	#define DEFAULT_BLUR 1.5 // classic lighting is equivalent to "-blur 1.0"
-#ifdef HLRAD_ACCURATEBOUNCE
 	#define DEFAULT_NOEMITTERRANGE false
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 	#define DEFAULT_BLEEDFIX true
 #endif
@@ -172,14 +170,9 @@
 #define PATCH_HUNT_OFFSET 0.5 //--vluzacn
 #define HUNT_WALL_EPSILON (3 * ON_EPSILON) // place sample at least this distance away from any wall //--vluzacn
 
-#ifdef HLRAD_ACCURATEBOUNCE
 #define MINIMUM_PATCH_DISTANCE ON_EPSILON
 #define ACCURATEBOUNCE_THRESHOLD 4.0 // If the receiver patch is closer to emitter patch than EXACTBOUNCE_THRESHOLD * emitter_patch->radius, calculate the exact visibility amount.
 #define ACCURATEBOUNCE_DEFAULT_SKYLEVEL 5 // sample 1026 normals
-#else
-// If patches are allowed to be closer, the light gets amplified (which looks really damn weird)
-#define MINIMUM_PATCH_DISTANCE 1.01
-#endif
 
 
 #define ALLSTYLES 64 // HL limit. //--vluzacn
@@ -290,10 +283,8 @@ typedef struct patch_s
 #ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 	vec_t			exposure;
 #endif
-#ifdef HLRAD_ACCURATEBOUNCE
 	vec_t			emitter_range;                         // Range from patch origin (cached info calculated from winding)
 	int				emitter_skylevel;                      // The "skylevel" used for sampling of normals, when the receiver patch is within the range of ACCURATEBOUNCE_THRESHOLD * this->radius. (cached info calculated from winding)
-#endif
     Winding*        winding;                               // Winding (patches are triangles, so its easy)
     vec_t           scale;                                 // Texture scale for this face (blend of S and T scale)
     vec_t           chop;                                  // Texture chop for this face factoring in S and T scale
@@ -579,9 +570,7 @@ extern vec3_t	g_jitter_hack;
 	extern vec_t g_texreflectgamma;
 	extern vec_t g_texreflectscale;
 	extern vec_t g_blur;
-#ifdef HLRAD_ACCURATEBOUNCE
 	extern bool g_noemitterrange;
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 	extern bool g_bleedfix;
 #endif
@@ -754,7 +743,6 @@ extern bool     point_in_wall(const lerpWall_t* wall, vec3_t point);
 extern bool     point_in_tri(const vec3_t point, const dplane_t* const plane, const vec3_t p1, const vec3_t p2, const vec3_t p3);
 #endif
 extern void     SnapToPlane(const dplane_t* const plane, vec_t* const point, vec_t offset);
-#ifdef HLRAD_ACCURATEBOUNCE
 extern vec_t	CalcSightArea (const vec3_t receiver_origin, const vec3_t receiver_normal, const Winding *emitter_winding, int skylevel
 	#ifdef HLRAD_DIVERSE_LIGHTING
 					, vec_t lighting_power, vec_t lighting_scale
@@ -765,7 +753,6 @@ extern vec_t	CalcSightArea_SpotLight (const vec3_t receiver_origin, const vec3_t
 					, vec_t lighting_power, vec_t lighting_scale
 	#endif
 					);
-#endif
 #ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 extern void		GetAlternateOrigin (const vec3_t pos, const vec3_t normal, const patch_t *patch, vec3_t &origin);
 #endif

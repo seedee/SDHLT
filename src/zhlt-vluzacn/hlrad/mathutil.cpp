@@ -333,7 +333,6 @@ void            SnapToPlane(const dplane_t* const plane, vec_t* const point, vec
 	dist -= offset;
 	VectorMA (point, -dist, plane->normal, point);
 }
-#ifdef HLRAD_ACCURATEBOUNCE
 // =====================================================================================
 //  CalcSightArea
 // =====================================================================================
@@ -482,7 +481,6 @@ vec_t CalcSightArea_SpotLight (const vec3_t receiver_origin, const vec3_t receiv
 	return area;
 }
 
-#endif
 #ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 // =====================================================================================
 //  GetAlternateOrigin

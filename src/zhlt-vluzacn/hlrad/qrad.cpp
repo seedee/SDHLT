@@ -169,9 +169,7 @@ vec_t			g_corings[ALLSTYLES];
 vec3_t*			g_translucenttextures = NULL;
 vec_t			g_translucentdepth = DEFAULT_TRANSLUCENTDEPTH;
 vec_t			g_blur = DEFAULT_BLUR;
-#ifdef HLRAD_ACCURATEBOUNCE
 bool			g_noemitterrange = DEFAULT_NOEMITTERRANGE;
-#endif
 #ifdef HLRAD_TEXLIGHTGAP
 vec_t			g_texlightgap = DEFAULT_TEXLIGHTGAP;
 #endif
@@ -725,7 +723,6 @@ static bool     PlacePatchInside(patch_t* patch)
 		return false;
 	}
 }
-#ifdef HLRAD_ACCURATEBOUNCE
 static void		UpdateEmitterInfo (patch_t *patch)
 {
 #if ACCURATEBOUNCE_DEFAULT_SKYLEVEL + 3 > SKYLEVELMAX
@@ -771,7 +768,6 @@ static void		UpdateEmitterInfo (patch_t *patch)
 	}
 	patch->emitter_skylevel = skylevel;
 }
-#endif
 
 
 // =====================================================================================
@@ -1219,9 +1215,7 @@ static void     SubdividePatch(patch_t* patch)
     patch->area = patch->winding->getArea();
     patch->winding->getCenter(patch->origin);
     PlacePatchInside(patch);
-#ifdef HLRAD_ACCURATEBOUNCE
 	UpdateEmitterInfo (patch);
-#endif
 
     new_patch = g_patches + g_num_patches;
     for (; x < g_numwindings; x++, winding++)
@@ -1234,9 +1228,7 @@ static void     SubdividePatch(patch_t* patch)
             new_patch->area = new_patch->winding->getArea();
             new_patch->winding->getCenter(new_patch->origin);
             PlacePatchInside(new_patch);
-#ifdef HLRAD_ACCURATEBOUNCE
 			UpdateEmitterInfo (new_patch);
-#endif
 
             new_patch++;
             g_num_patches++;
@@ -1712,9 +1704,7 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 		VectorCopy (g_translucenttextures[g_texinfo[f->texinfo].miptex], patch->translucent_v);
 		patch->translucent_b = !VectorCompare (patch->translucent_v, vec3_origin);
         PlacePatchInside(patch);
-#ifdef HLRAD_ACCURATEBOUNCE
 		UpdateEmitterInfo (patch);
-#endif
 
         g_face_patches[fn] = patch;
         g_num_patches++;
@@ -3243,9 +3233,7 @@ static void     Usage()
 	Log("   -texreflectgamma # : Gamma that relates reflectivity to texture color bits.\n");
 	Log("   -texreflectscale # : Reflectivity for 255-white texture.\n");
 	Log("   -blur #        : Enlarge lightmap sample to blur the lightmap.\n");
-#ifdef HLRAD_ACCURATEBOUNCE
 	Log("   -noemitterrange: Don't fix pointy texlights.\n");
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 	Log("   -nobleedfix    : Don't fix wall bleeding problem for large blur value.\n");
 #endif
@@ -3446,9 +3434,7 @@ static void     Settings()
 	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_blur);
 	safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_BLUR);
 	Log("blur size            [ %17s ] [ %17s ]\n", buf1, buf2);
-#ifdef HLRAD_ACCURATEBOUNCE
 	Log("no emitter range     [ %17s ] [ %17s ]\n", g_noemitterrange ? "on" : "off", DEFAULT_NOEMITTERRANGE ? "on" : "off");
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 	Log("wall bleeding fix    [ %17s ] [ %17s ]\n", g_bleedfix ? "on" : "off", DEFAULT_BLEEDFIX ? "on" : "off");
 #endif
@@ -4366,12 +4352,10 @@ int             main(const int argc, char** argv)
 				Usage ();
 			}
 		}
-#ifdef HLRAD_ACCURATEBOUNCE
 		else if (!strcasecmp (argv[i], "-noemitterrange"))
 		{
 			g_noemitterrange = true;
 		}
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 		else if (!strcasecmp (argv[i], "-nobleedfix"))
 		{
