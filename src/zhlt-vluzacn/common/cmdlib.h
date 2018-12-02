@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_SMOOTH_TEXNORMAL //--vluzacn
 #define HLRAD_TEXTURE //--vluzacn
 	#ifdef HLRAD_TEXTURE
 #define HLRAD_REFLECTIVITY //--vluzacn
@@ -97,9 +96,7 @@
 #define HLRAD_MDL_LIGHT_HACK_NEW //--vluzacn
 #define HLRAD_LERP_FACELIST //--vluzacn
 #define HLRAD_WATERBACKFACE_FIX // remove this if you have fixed the engine's bug of drawing water backface. --vluzacn
-	#ifdef HLRAD_SMOOTH_TEXNORMAL
 #define HLRAD_LERP_TEXNORMAL //--vluzacn
-	#endif
 #define HLRAD_REDUCELIGHTMAP //--vluzacn
 	#ifdef HLRAD_REDUCELIGHTMAP
 #define HLRAD_AUTOCORING //--vluzacn

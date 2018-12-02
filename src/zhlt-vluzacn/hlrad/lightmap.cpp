@@ -4,15 +4,12 @@ edgeshare_t     g_edgeshare[MAX_MAP_EDGES];
 vec3_t          g_face_centroids[MAX_MAP_EDGES]; // BUG: should this be [MAX_MAP_FACES]?
 bool            g_sky_lighting_fix = DEFAULT_SKY_LIGHTING_FIX;
 #ifndef HLRAD_GROWSAMPLE
-#ifdef HLRAD_SMOOTH_TEXNORMAL
 vec3_t          g_face_texnormals[MAX_MAP_FACES];
-#endif
 #endif
 
 //#define TEXTURE_STEP   16.0
 
 #ifndef HLRAD_GROWSAMPLE
-#ifdef HLRAD_SMOOTH_TEXNORMAL
 bool GetIntertexnormal (int facenum1, int facenum2, vec_t *out)
 {
 	vec3_t normal;
@@ -32,7 +29,6 @@ bool GetIntertexnormal (int facenum1, int facenum2, vec_t *out)
 	}
 	return true;
 }
-#endif
 #endif
 // =====================================================================================
 //  PairEdges
@@ -299,7 +295,6 @@ void            PairEdges()
     for (i = 0; i < g_numfaces; i++, f++)
     {
 #ifndef HLRAD_GROWSAMPLE
-#ifdef HLRAD_SMOOTH_TEXNORMAL
 		{
 			const dplane_t *fp = getPlaneFromFace (f);
 			vec3_t texnormal;
@@ -312,7 +307,6 @@ void            PairEdges()
 			}
 			VectorCopy (texnormal, g_face_texnormals[i]);
 		}
-#endif
 #endif
 		if (g_texinfo[f->texinfo].flags & TEX_SPECIAL)
 		{
@@ -405,14 +399,12 @@ void            PairEdges()
 					e->smooth = true;
 				}
 #ifndef HLRAD_GROWSAMPLE
-#ifdef HLRAD_SMOOTH_TEXNORMAL
 				if (!GetIntertexnormal (e->faces[0] - g_dfaces, e->faces[1] - g_dfaces))
 				{
 					e->coplanar = false;
 					VectorClear (e->interface_normal);
 					e->smooth = false;
 				}
-#endif
 #endif
 #ifdef HLRAD_GROWSAMPLE
 				if (e->smooth)
@@ -506,10 +498,8 @@ void            PairEdges()
 							if (DotProduct (edgenormal, normal) < qmax (smoothvalue - NORMAL_EPSILON, NORMAL_EPSILON))
 								break;
 #ifndef HLRAD_GROWSAMPLE
-	#ifdef HLRAD_SMOOTH_TEXNORMAL
 							if (!GetIntertexnormal (fcurrent - g_dfaces, e->faces[0] - g_dfaces) || !GetIntertexnormal (fcurrent - g_dfaces, e->faces[1] - g_dfaces))
 								break;
-	#endif
 #endif
 							if (fcurrent != e->faces[0] && fcurrent != e->faces[1] &&
 								(TestFaceIntersect (test0, fcurrent - g_dfaces) || TestFaceIntersect (test1, fcurrent - g_dfaces)))
@@ -1753,7 +1743,6 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 	int				facenum_tosnap = PointInFace (l, surf_original);
 	const dface_t*	f_tosnap = &g_dfaces[facenum_tosnap];
 	const dplane_t*	p_tosnap = getPlaneFromFace (f_tosnap);
-#ifdef HLRAD_SMOOTH_TEXNORMAL
 	vec3_t			snapdir;
 	if (!GetIntertexnormal (facenum, facenum_tosnap, snapdir))
 	{
@@ -1761,7 +1750,6 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 		f_tosnap = f;
 		p_tosnap = p;
 	}
-#endif
 
 	vec3_t			surf_direct;
 	dleaf_t*		leaf_direct;
@@ -1769,17 +1757,9 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 	{
 		vec_t dist;
 		vec_t scale;
-#ifdef HLRAD_SMOOTH_TEXNORMAL
 		scale = DotProduct (snapdir, p_tosnap->normal);
-#else
-		scale = DotProduct (l->texnormal, p_tosnap->normal);
-#endif
 		dist = DotProduct (surf_direct, p_tosnap->normal) - DotProduct (face_delta, p_tosnap->normal) - p_tosnap->dist - DEFAULT_HUNT_OFFSET;
-#ifdef HLRAD_SMOOTH_TEXNORMAL
 		VectorMA (surf_direct, - dist / scale, snapdir, surf_direct);
-#else
-		VectorMA (surf_direct, - dist / scale, l->texnormal, surf_direct);
-#endif
 	}
 	leaf_direct = HuntForWorld (surf_direct, face_delta, p_tosnap, huntsize, huntscale, DEFAULT_HUNT_OFFSET);
 

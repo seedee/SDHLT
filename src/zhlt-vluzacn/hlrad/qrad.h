@@ -565,10 +565,8 @@ extern vec3_t   g_face_offset[MAX_MAP_FACES];              // for models with or
 extern eModelLightmodes g_face_lightmode[MAX_MAP_FACES];
 extern vec3_t   g_face_centroids[MAX_MAP_EDGES];
 #ifndef HLRAD_GROWSAMPLE
-#ifdef HLRAD_SMOOTH_TEXNORMAL
 extern vec3_t   g_face_texnormals[MAX_MAP_FACES];
 extern bool		GetIntertexnormal (int facenum1, int facenum2, vec_t *out = NULL);
-#endif
 #endif
 #ifdef HLRAD_CUSTOMTEXLIGHT
 extern entity_t* g_face_texlights[MAX_MAP_FACES];
