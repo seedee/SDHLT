@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_MULTISKYLIGHT //--vluzacn
 #define HLRAD_ALLOWZEROBRIGHTNESS //--vluzacn
 #define HLRAD_OPAQUE_GROUP //--vluzacn //obsolete
 	#ifdef HLRAD_OPAQUE_GROUP
@@ -83,9 +82,7 @@
 #define HLRAD_TRANCPARENCYLOSS_FIX //--vluzacn
 #define HLRAD_STYLE_CORING //--vluzacn
 	#ifdef HLRAD_STYLE_CORING
-	#ifdef HLRAD_MULTISKYLIGHT
 #define HLRAD_OPAQUE_STYLE //--vluzacn
-	#endif
 	#endif
 #define HLRAD_CheckVisBitNoVismatrix_NOSWAP //--vluzacn
 	#ifdef HLRAD_OPAQUE_STYLE
@@ -136,9 +133,7 @@
 #define HLRAD_SMOOTH_FACELIST //--vluzacn
 	#endif
 #define HLRAD_SortPatches_FIX // Important!! --vluzacn
-	#ifdef HLRAD_MULTISKYLIGHT
 #define HLRAD_GatherPatchLight //--vluzacn
-	#endif
 	#ifdef HLRAD_GatherPatchLight
 #define HLRAD_SOFTSKY //--vluzacn
 	#endif
@@ -204,9 +199,7 @@
 	#ifdef HLRAD_SOFTSKY
 #define HLRAD_SUNSPREAD //--vluzacn
 	#endif
-	#ifdef HLRAD_MULTISKYLIGHT
 #define HLRAD_SUNDIFFUSE //--vluzacn
-	#endif
 	#ifdef HLRAD_GatherPatchLight
 #define HLRAD_FASTMODE //--vluzacn
 	#endif
@@ -290,7 +283,7 @@
 #define HLRAD_TRANSPARENCY_FAST //--vluzacn
 
 #if defined (ZHLT_XASH) || defined (ZHLT_XASH2)
-#if !defined (HLRAD_LERP_VL) || !defined (HLRAD_AUTOCORING) || !defined (HLRAD_MULTISKYLIGHT) || !defined (HLRAD_AVOIDNORMALFLIP)
+#if !defined (HLRAD_LERP_VL) || !defined (HLRAD_AUTOCORING) || !defined (HLRAD_AVOIDNORMALFLIP)
 #error "ZHLT_XASH has not been implemented for current configuration"
 #endif
 #endif

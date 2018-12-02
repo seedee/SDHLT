@@ -3558,7 +3558,6 @@ void            CreateDirectLights()
 		directlights[0] = skylights;
 	}
 #endif
-#ifdef HLRAD_MULTISKYLIGHT
 	if (g_sky_lighting_fix)
 	{
 		int countlightenvironment = 0;
@@ -3582,7 +3581,6 @@ void            CreateDirectLights()
 			Warning ("More than one light_environments are in use. Add entity info_sunlight to clarify the sunlight's brightness for in-game model(.mdl) rendering.");
 		}
 	}
-#endif
 }
 
 // =====================================================================================
@@ -3823,11 +3821,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 #ifdef HLRAD_GatherPatchLight
 	int				step_match;
 #endif
-#ifdef HLRAD_MULTISKYLIGHT
 	bool			sky_used = false;
-#else
-    directlight_t*  sky_used = NULL;
-#endif
 #ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 	vec3_t			testline_origin;
 #endif
@@ -3909,7 +3903,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                     // skylights work fundamentally differently than normal lights
                     if (l->type == emit_skylight)
                     {
-#ifdef HLRAD_MULTISKYLIGHT
 						if (!g_sky_lighting_fix)
 						{
 							if (sky_used)
@@ -4194,60 +4187,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 						}
 						while (0);
 
-#else /*HLRAD_MULTISKYLIGHT*/
-                        // only allow one of each sky type to hit any given point
-                        if (sky_used)
-                        {
-                            continue;
-                        }
-                        sky_used = l;
-
-                        // make sure the angle is okay
-                        dot = -DotProduct(normal, l->normal);
-                        if (dot <= NORMAL_EPSILON) //ON_EPSILON / 10 //--vluzacn
-                        {
-                            continue;
-                        }
-
-                        // search back to see if we can hit a sky brush
-                        VectorScale(l->normal, -BOGUS_RANGE, delta);
-                        VectorAdd(pos, delta, delta);
-#ifdef HLRAD_OPAQUEINSKY_FIX
-						vec3_t skyhit;
-						VectorCopy (delta, skyhit);
-#endif
-                        if (TestLine(pos, delta
-#ifdef HLRAD_OPAQUEINSKY_FIX
-							, skyhit
-#endif
-							) != CONTENTS_SKY)
-                        {
-                            continue;                      // occluded
-                        }
-
-			            vec3_t transparency = {1.0,1.0,1.0};
-                        if (TestSegmentAgainstOpaqueList(pos, 
-#ifdef HLRAD_OPAQUEINSKY_FIX
-							skyhit
-#else
-							delta
-#endif
-							, transparency
-							))
-                        {
-                            continue;
-                        }
-						
-#ifdef HLRAD_DIVERSE_LIGHTING
-						if (lighting_diversify)
-						{
-							dot = lighting_scale * pow (dot, lighting_power);
-						}
-#endif
-                        VectorScale(l->intensity, dot, add);
-                        VectorMultiply(add, transparency, add);
-
-#endif /*HLRAD_MULTISKYLIGHT*/
                     }
                     else // not emit_skylight
                     {
@@ -4721,107 +4660,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
         }
     }
 
-#ifndef HLRAD_MULTISKYLIGHT
-    if (sky_used && g_indirect_sun != 0.0)
-    {
-        vec3_t          total;
-        int             j;
-		vec3_t          sky_intensity;
-
-		// -----------------------------------------------------------------------------------
-		// Changes by Adam Foster - afoster@compsoc.man.ac.uk
-		// Instead of using intensity from sky_used->intensity, get it from the new sky_used->diffuse_intensity
-		VectorScale(sky_used->diffuse_intensity, g_indirect_sun / (NUMVERTEXNORMALS * 2), sky_intensity);
-		// That should be it. Who knows - it might actually work!
-        // AJM: It DOES actually work. Havent you ever heard of beta testing....
-		// -----------------------------------------------------------------------------------
-
-        total[0] = total[1] = total[2] = 0.0;
-        for (j = 0; j < NUMVERTEXNORMALS; j++)
-        {
-            // make sure the angle is okay
-            dot = -DotProduct(normal, r_avertexnormals[j]);
-            if (dot <= NORMAL_EPSILON) //ON_EPSILON / 10 //--vluzacn
-            {
-                continue;
-            }
-
-            // search back to see if we can hit a sky brush
-            VectorScale(r_avertexnormals[j], -BOGUS_RANGE, delta);
-            VectorAdd(pos, delta, delta);
-#ifdef HLRAD_OPAQUEINSKY_FIX
-			vec3_t skyhit;
-			VectorCopy (delta, skyhit);
-#endif
-            if (TestLine(pos, delta
-#ifdef HLRAD_OPAQUEINSKY_FIX
-				, skyhit
-#endif
-				) != CONTENTS_SKY)
-            {
-                continue;                                  // occluded
-            }
-
-			vec3_t transparency = {1.0,1.0,1.0};
-			if (TestSegmentAgainstOpaqueList(pos, 
-#ifdef HLRAD_OPAQUEINSKY_FIX
-				skyhit
-#else
-				delta
-#endif
-				, transparency
-				))
-			{
-				continue;
-			}
-#ifdef HLRAD_DIVERSE_LIGHTING
-			if (lighting_diversify)
-			{
-				dot = lighting_scale * pow (dot, lighting_power);
-			}
-#endif
-            VectorScale(sky_intensity, dot, add);
-                        VectorMultiply(add, transparency, add);
-            VectorAdd(total, add, total);
-        }
-        if (VectorMaximum(total) > 0)
-        {
-#ifdef HLRAD_STYLE_CORING
-			VectorAdd (adds[sky_used->style], total, adds[sky_used->style]);
-#else
-            for (style_index = 0; style_index < MAXLIGHTMAPS; style_index++)
-            {
-                if (styles[style_index] == sky_used->style || styles[style_index] == 255)
-                {
-                    break;
-                }
-            }
-
-            if (style_index == MAXLIGHTMAPS)
-            {
-#ifdef HLRAD_READABLE_EXCEEDSTYLEWARNING
-				if (++stylewarningcount >= stylewarningnext)
-				{
-					stylewarningnext = stylewarningcount * 2;
-					Warning("Too many direct light styles on a face(%f,%f,%f)\n", pos[0], pos[1], pos[2]);
-					Warning(" total %d warnings for too many styles", stylewarningcount);
-				}
-#else
-                Warning("Too many direct light styles on a face(%f,%f,%f)\n", pos[0], pos[1], pos[2]);
-#endif
-                return;
-            }
-
-            if (styles[style_index] == 255)
-            {
-                styles[style_index] = sky_used->style;
-            }
-
-            VectorAdd(sample[style_index], total, sample[style_index]);
-#endif
-        }
-    }
-#endif /*HLRAD_MULTISKYLIGHT*/
 #ifdef HLRAD_STYLE_CORING
 	for (style = 0; style < ALLSTYLES; ++style)
 	{
