@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_CUSTOMCHOP // don't use this --vluzacn
 #define HLRAD_RGBTRANSFIX //--vluzacn
 	#ifdef HLRAD_RGBTRANSFIX
 #define HLRAD_TRANSWEIRDFIX //--vluzacn

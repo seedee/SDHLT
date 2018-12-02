@@ -1358,7 +1358,6 @@ static void     SubdividePatch(patch_t* patch)
 static float    totalarea = 0;
 // =====================================================================================
 
-#ifdef HLRAD_CUSTOMCHOP
 vec_t *chopscales; //[nummiptex]
 void ReadCustomChopValue()
 {
@@ -1400,7 +1399,6 @@ vec_t ChopScaleForTexture (int facenum)
 {
     return chopscales[g_texinfo[g_dfaces[facenum].texinfo].miptex];
 }
-#endif
 #ifdef HLRAD_CUSTOMSMOOTH
 vec_t *g_smoothvalues; //[nummiptex]
 void ReadCustomSmoothValue()
@@ -1677,9 +1675,7 @@ static vec_t    getChop(const patch_t* const patch)
 #endif
     }
 
-#ifdef HLRAD_CUSTOMCHOP
 	rval *= ChopScaleForTexture (patch->faceNumber);
-#endif
     return rval;
 }
 
@@ -5481,9 +5477,7 @@ int             main(const int argc, char** argv)
 	LoadTextures ();
 #endif
     LoadRadFiles(g_Mapname, user_lights, argv[0]);
-#ifdef HLRAD_CUSTOMCHOP
 	ReadCustomChopValue ();
-#endif
 #ifdef HLRAD_CUSTOMSMOOTH
 	ReadCustomSmoothValue ();
 #endif
