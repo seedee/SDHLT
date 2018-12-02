@@ -63,7 +63,6 @@
 
 // tool specific settings below only mean a recompile of the tool affected
 
-#define HLCSG_FASTFIND
         #define HLCSG_NULLIFY_INVISIBLE //requires null textures as prerequisite
 
 #define HLCSG_COPYBRUSH //--vluzacn
