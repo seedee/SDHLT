@@ -893,11 +893,7 @@ bool Winding::Clip(const dplane_t& split, bool keepon
         {
             sides[i] = SIDE_FRONT;
         }
-#ifdef ZHLT_WINDING_FIX
         else if (dot < -ON_EPSILON)
-#else
-        else if (dot < ON_EPSILON)
-#endif
         {
             sides[i] = SIDE_BACK;
         }
@@ -963,7 +959,6 @@ bool Winding::Clip(const dplane_t& split, bool keepon
         }
         vec_t* p2 = m_Points[tmp];
         dot = dists[i] / (dists[i] - dists[i + 1]);
-#ifdef ZHLT_WINDING_FIX // we must guarantee that no reversed edge will form
         for (j = 0; j < 3; j++)
         {                                                  // avoid round off error when possible
             if (split.normal[j] == 1)
@@ -973,26 +968,6 @@ bool Winding::Clip(const dplane_t& split, bool keepon
             else
                 mid[j] = p1[j] + dot * (p2[j] - p1[j]);
         }
-#else
-        for (j = 0; j < 3; j++)
-        {                                                  // avoid round off error when possible
-            if (split.normal[j] < 1.0 - NORMAL_EPSILON)
-            {
-                if (split.normal[j] > -1.0 + NORMAL_EPSILON)
-                {
-                    mid[j] = p1[j] + dot * (p2[j] - p1[j]);
-                }
-                else
-                {
-                    mid[j] = -split.dist;
-                }
-            }
-            else
-            {
-                mid[j] = split.dist;
-            }
-        }
-#endif
 
         VectorCopy(mid, newPoints[newNumPoints]);
         newNumPoints++;
@@ -1156,7 +1131,6 @@ void Winding::Divide(const dplane_t& split, Winding** front, Winding** back
         }
         vec_t* p2 = m_Points[tmp];
         dot = dists[i] / (dists[i] - dists[i + 1]);
-#ifdef ZHLT_WINDING_FIX
         for (j = 0; j < 3; j++)
         {                                                  // avoid round off error when possible
             if (split.normal[j] == 1)
@@ -1166,26 +1140,6 @@ void Winding::Divide(const dplane_t& split, Winding** front, Winding** back
             else
                 mid[j] = p1[j] + dot * (p2[j] - p1[j]);
         }
-#else
-        for (j = 0; j < 3; j++)
-        {                                                  // avoid round off error when possible
-            if (split.normal[j] < 1.0 - NORMAL_EPSILON)
-            {
-                if (split.normal[j] > -1.0 + NORMAL_EPSILON)
-                {
-                    mid[j] = p1[j] + dot * (p2[j] - p1[j]);
-                }
-                else
-                {
-                    mid[j] = -split.dist;
-                }
-            }
-            else
-            {
-                mid[j] = split.dist;
-            }
-        }
-#endif
 
         VectorCopy(mid, f->m_Points[f->m_NumPoints]);
         VectorCopy(mid, b->m_Points[b->m_NumPoints]);

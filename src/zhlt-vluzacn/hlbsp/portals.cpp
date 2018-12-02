@@ -201,7 +201,6 @@ static void     WritePortalFile_r(const node_t* const node)
                 w->getPlane(plane2);
                 if (DotProduct(p->plane.normal, plane2.normal) < 1.0 - ON_EPSILON)
                 {                                          // backwards...
-#ifdef ZHLT_WINDING_FIX
 					if (DotProduct(p->plane.normal, plane2.normal) > -1.0 + ON_EPSILON)
 					{
 						Warning ("Colinear portal @");
@@ -212,7 +211,6 @@ static void     WritePortalFile_r(const node_t* const node)
 						Warning ("Backward portal @");
 						w->Print ();
 					}
-#endif
                     fprintf(pf, "%u %i %i ", w->m_NumPoints, p->nodes[1]->visleafnum, p->nodes[0]->visleafnum);
                 }
                 else
