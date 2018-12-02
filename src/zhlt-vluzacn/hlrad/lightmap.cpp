@@ -2039,9 +2039,6 @@ static directlight_t* directlights[MAX_MAP_LEAFS];
 static facelight_t facelight[MAX_MAP_FACES];
 static int      numdlights;
 
-#ifndef HLRAD_REFLECTIVITY
-#define	DIRECT_SCALE	0.1f
-#endif
 
 // =====================================================================================
 //  CreateDirectLights
@@ -2085,11 +2082,7 @@ void            CreateDirectLights()
 			}
 		}
         if (
-	#ifdef HLRAD_REFLECTIVITY
 			DotProduct (p->baselight, p->texturereflectivity) / 3
-	#else
-			VectorAvg(p->baselight)
-	#endif
 	#ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
 			> 0.0
 	#else
@@ -2181,12 +2174,8 @@ void            CreateDirectLights()
 #ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 			VectorScale (dl->intensity, p->exposure, dl->intensity);
 #endif
-#ifdef HLRAD_REFLECTIVITY
 			VectorScale (dl->intensity, 1.0 / Q_PI, dl->intensity);
 			VectorMultiply (dl->intensity, p->texturereflectivity, dl->intensity);
-#else
-            VectorScale(dl->intensity, DIRECT_SCALE, dl->intensity);
-#endif
         
 #ifdef HLRAD_WATERBACKFACE_FIX
 			dface_t *f = &g_dfaces[p->faceNumber];
@@ -2260,12 +2249,8 @@ void            CreateDirectLights()
 #ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 				VectorScale (dl->intensity, p->exposure, dl->intensity);
 #endif
-#ifdef HLRAD_REFLECTIVITY
 				VectorScale (dl->intensity, 1.0 / Q_PI, dl->intensity);
 				VectorMultiply (dl->intensity, p->texturereflectivity, dl->intensity);
-#else
-		        VectorScale(dl->intensity, DIRECT_SCALE, dl->intensity);
-#endif
 
 		        dl->intensity[0] *= g_softlight_hack[0];
 		        dl->intensity[1] *= g_softlight_hack[1];

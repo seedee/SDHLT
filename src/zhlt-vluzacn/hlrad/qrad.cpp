@@ -154,10 +154,8 @@ vector_type g_rgbtransfer_compress_type = DEFAULT_RGBTRANSFER_COMPRESS_TYPE;
 bool g_softsky = DEFAULT_SOFTSKY;
 int g_blockopaque = DEFAULT_BLOCKOPAQUE;
 bool g_notextures = DEFAULT_NOTEXTURES;
-#ifdef HLRAD_REFLECTIVITY
 vec_t g_texreflectgamma = DEFAULT_TEXREFLECTGAMMA;
 vec_t g_texreflectscale = DEFAULT_TEXREFLECTSCALE;
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 bool g_bleedfix = DEFAULT_BLEEDFIX;
 #endif
@@ -1524,11 +1522,7 @@ static bool		getEmitMode (const patch_t *patch)
 {
 	bool emitmode = false;
 	vec_t value = 
-#ifdef HLRAD_REFLECTIVITY
 		DotProduct (patch->baselight, patch->texturereflectivity) / 3
-#else
-		VectorAvg (patch->baselight)
-#endif
 		;
 #ifdef HLRAD_CUSTOMTEXLIGHT
 	if (g_face_texlights[patch->faceNumber])
@@ -1685,7 +1679,6 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
         //LRC (ends)
 #endif
 
-#ifdef HLRAD_REFLECTIVITY
 		VectorCopy (g_textures[g_texinfo[f->texinfo].miptex].reflectivity, patch->texturereflectivity);
 #ifdef HLRAD_CUSTOMTEXLIGHT_COLOR
 		if (g_face_texlights[fn] && *ValueForKey (g_face_texlights[fn], "_texcolor"))
@@ -1786,7 +1779,6 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 			patch->bouncestyle = -1; // reflects light normally
 		}
 	#endif
-#endif
 #ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
 		patch->emitmode = getEmitMode (patch);
 #endif
@@ -2552,9 +2544,7 @@ static void     GatherLight(int threadnum)
 				for (emitstyle = 0; emitstyle < MAXLIGHTMAPS && emitpatch->directstyle[emitstyle] != 255; emitstyle++)
 				{
 					VectorScale(emitpatch->directlight[emitstyle], f, v);
-	#ifdef HLRAD_REFLECTIVITY
 					VectorMultiply(v, emitpatch->bouncereflectivity, v);
-	#endif
 					if (isPointFinite (v))
 					{
 						int addstyle = emitpatch->directstyle[emitstyle];
@@ -2585,9 +2575,7 @@ static void     GatherLight(int threadnum)
 				for (emitstyle = 0; emitstyle < MAXLIGHTMAPS && emitpatch->totalstyle[emitstyle] != 255; emitstyle++)
 				{
 					VectorScale(emitlight[patchnum][emitstyle], f, v);
-	#ifdef HLRAD_REFLECTIVITY
 					VectorMultiply(v, emitpatch->bouncereflectivity, v);
-	#endif
 					if (isPointFinite(v))
 					{
 						int addstyle = emitpatch->totalstyle[emitstyle];
@@ -2804,9 +2792,7 @@ static void     GatherRGBLight(int threadnum)
 				for (emitstyle = 0; emitstyle < MAXLIGHTMAPS && emitpatch->directstyle[emitstyle] != 255; emitstyle++)
 				{
 					VectorMultiply(emitpatch->directlight[emitstyle], f, v);
-	#ifdef HLRAD_REFLECTIVITY
 					VectorMultiply(v, emitpatch->bouncereflectivity, v);
-	#endif
 					if (isPointFinite (v))
 					{
 						int addstyle = emitpatch->directstyle[emitstyle];
@@ -2837,9 +2823,7 @@ static void     GatherRGBLight(int threadnum)
 				for (emitstyle = 0; emitstyle < MAXLIGHTMAPS && emitpatch->totalstyle[emitstyle] != 255; emitstyle++)
 				{
 					VectorMultiply(emitlight[patchnum][emitstyle], f, v);
-	#ifdef HLRAD_REFLECTIVITY
 					VectorMultiply(v, emitpatch->bouncereflectivity, v);
-	#endif
 					if (isPointFinite(v))
 					{
 						int addstyle = emitpatch->totalstyle[emitstyle];
@@ -3499,9 +3483,6 @@ static void     Usage()
     Log("   -customshadowwithbounce : Enables custom shadows with bounce light\n");
     Log("   -rgbtransfers           : Enables RGB Transfers (for custom shadows)\n\n");
 
-#ifndef HLRAD_REFLECTIVITY
-	Log("   -bscale        : Scaling light on every bounce\n\n");
-#endif
 	Log("   -minlight #    : Minimum final light (integer from 0 to 255)\n");
 	{
 		int i;
@@ -3518,10 +3499,8 @@ static void     Usage()
 	Log("   -depth #       : Thickness of translucent objects.\n");
 	Log("   -blockopaque # : Remove the black areas around opaque entities.(0=off 1=on)\n");
 	Log("   -notextures    : Don't load textures.\n");
-#ifdef HLRAD_REFLECTIVITY
 	Log("   -texreflectgamma # : Gamma that relates reflectivity to texture color bits.\n");
 	Log("   -texreflectscale # : Reflectivity for 255-white texture.\n");
-#endif
 #ifdef HLRAD_BLUR
 	Log("   -blur #        : Enlarge lightmap sample to blur the lightmap.\n");
 #endif
@@ -3743,11 +3722,6 @@ static void     Settings()
         "                     [ %17s ] [ %17s ]\n", g_customshadow_with_bouncelight ? "on" : "off", DEFAULT_CUSTOMSHADOW_WITH_BOUNCELIGHT ? "on" : "off");
     Log("rgb transfers        [ %17s ] [ %17s ]\n", g_rgb_transfers ? "on" : "off", DEFAULT_RGB_TRANSFERS ? "on" : "off"); 
 
-#ifndef HLRAD_REFLECTIVITY
-	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_transtotal_hack);
-	safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_TRANSTOTAL_HACK);
-	Log("bounce scale         [ %17s ] [ %17s ]\n", buf1, buf2);
-#endif
 	Log("minimum final light  [ %17d ] [ %17d ]\n", (int)g_minlight, (int)DEFAULT_MINLIGHT);
 	sprintf (buf1, "%d (%s)", g_transfer_compress_type, float_type_string[g_transfer_compress_type]);
 	sprintf (buf2, "%d (%s)", DEFAULT_TRANSFER_COMPRESS_TYPE, float_type_string[DEFAULT_TRANSFER_COMPRESS_TYPE]);
@@ -3761,14 +3735,12 @@ static void     Settings()
 	Log("translucent depth    [ %17s ] [ %17s ]\n", buf1, buf2);
 	Log("block opaque         [ %17s ] [ %17s ]\n", g_blockopaque ? "on" : "off", DEFAULT_BLOCKOPAQUE ? "on" : "off");
 	Log("ignore textures      [ %17s ] [ %17s ]\n", g_notextures ? "on" : "off", DEFAULT_NOTEXTURES ? "on" : "off");
-#ifdef HLRAD_REFLECTIVITY
 	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_texreflectgamma);
 	safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_TEXREFLECTGAMMA);
 	Log("reflectivity gamma   [ %17s ] [ %17s ]\n", buf1, buf2);
 	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_texreflectscale);
 	safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_TEXREFLECTSCALE);
 	Log("reflectivity scale   [ %17s ] [ %17s ]\n", buf1, buf2);
-#endif
 #ifdef HLRAD_BLUR
 	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_blur);
 	safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_BLUR);
@@ -4587,9 +4559,7 @@ int             main(const int argc, char** argv)
 
 		else if (!strcasecmp(argv[i], "-bscale"))
 		{
-#ifdef HLRAD_REFLECTIVITY
 			Error ("'-bscale' is obsolete.");
-#endif
             if (i + 1 < argc)
             {
                 g_transtotal_hack = (float)atof(argv[++i]);
@@ -4729,7 +4699,6 @@ int             main(const int argc, char** argv)
 		{
 			g_notextures = true;
 		}
-#ifdef HLRAD_REFLECTIVITY
 		else if (!strcasecmp (argv[i], "-texreflectgamma"))
 		{
 			if (i + 1 < argc)
@@ -4752,7 +4721,6 @@ int             main(const int argc, char** argv)
 				Usage ();
 			}
 		}
-#endif
 #ifdef HLRAD_BLUR
 		else if (!strcasecmp (argv[i], "-blur"))
 		{

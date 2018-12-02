@@ -373,7 +373,6 @@ void LoadTextures ()
 				LoadTextureFromWad (tex, mt);
 			}
 		}
-#ifdef HLRAD_REFLECTIVITY
 		{
 			vec3_t total;
 			VectorClear (total);
@@ -404,7 +403,6 @@ void LoadTextures ()
 				Warning ("Texture '%s': reflectivity (%f,%f,%f) greater than 1.0.", tex->name, tex->reflectivity[0], tex->reflectivity[1], tex->reflectivity[2]);
 			}
 		}
-#endif
 	}
 	if (!g_notextures)
 	{

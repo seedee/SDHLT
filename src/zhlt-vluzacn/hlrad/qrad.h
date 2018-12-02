@@ -54,11 +54,7 @@
 #ifndef HLRAD_ARG_MISC
 #define DEFAULT_FALLOFF             2
 #endif
-#ifdef HLRAD_REFLECTIVITY
 #define DEFAULT_BOUNCE              8
-#else
-#define DEFAULT_BOUNCE              1
-#endif
 #define DEFAULT_DUMPPATCHES         false
 #define DEFAULT_AMBIENT_RED         0.0
 #define DEFAULT_AMBIENT_GREEN       0.0
@@ -72,11 +68,7 @@
 #define DEFAULT_CHOP                64.0
 #define DEFAULT_TEXCHOP             32.0
 #define DEFAULT_LIGHTSCALE          2.0 //1.0 //vluzacn
-#ifdef HLRAD_REFLECTIVITY
 #define DEFAULT_DLIGHT_THRESHOLD	10.0
-#else
-#define DEFAULT_DLIGHT_THRESHOLD    25.0
-#endif
 #define DEFAULT_DLIGHT_SCALE        1.0 //2.0 //vluzacn
 #define DEFAULT_SMOOTHING_VALUE     50.0
 #define DEFAULT_SMOOTHING2_VALUE	-1.0
@@ -114,15 +106,9 @@
 // ------------------------------------------------------------------------
 // Changes by Adam Foster - afoster@compsoc.man.ac.uk
 
-#ifdef HLRAD_REFLECTIVITY
 #define DEFAULT_COLOUR_GAMMA_RED		0.55
 #define DEFAULT_COLOUR_GAMMA_GREEN		0.55
 #define DEFAULT_COLOUR_GAMMA_BLUE		0.55
-#else
-#define DEFAULT_COLOUR_GAMMA_RED		0.5
-#define DEFAULT_COLOUR_GAMMA_GREEN		0.5
-#define DEFAULT_COLOUR_GAMMA_BLUE		0.5
-#endif
 
 #define DEFAULT_COLOUR_LIGHTSCALE_RED		2.0 //1.0 //vluzacn
 #define DEFAULT_COLOUR_LIGHTSCALE_GREEN		2.0 //1.0 //vluzacn
@@ -169,10 +155,8 @@
 	#define DEFAULT_BLOCKOPAQUE 1
 	#define DEFAULT_TRANSLUCENTDEPTH 2.0f
 	#define DEFAULT_NOTEXTURES false
-#ifdef HLRAD_REFLECTIVITY
 	#define DEFAULT_TEXREFLECTGAMMA 1.76f // 2.0(texgamma cvar) / 2.5 (gamma cvar) * 2.2 (screen gamma) = 1.76
 	#define DEFAULT_TEXREFLECTSCALE 0.7f // arbitrary (This is lower than 1.0, because textures are usually brightened in order to look better in Goldsrc. Textures are made brightened because Goldsrc is only able to darken the texture when combining the texture with the lightmap.)
-#endif
 #ifdef HLRAD_BLUR
 	#define DEFAULT_BLUR 1.5 // classic lighting is equivalent to "-blur 1.0"
 #endif
@@ -362,10 +346,8 @@ typedef struct patch_s
     ePatchFlags     flags;
 	bool			translucent_b;                           // gather light from behind
 	vec3_t			translucent_v;
-#ifdef HLRAD_REFLECTIVITY
 	vec3_t			texturereflectivity;
 	vec3_t			bouncereflectivity;
-#endif
 
 	unsigned char	totalstyle[MAXLIGHTMAPS];
 #ifdef HLRAD_AUTOCORING
@@ -532,9 +514,7 @@ typedef struct
 	int width, height;
 	byte *canvas; //[height][width]
 	byte palette[256][3];
-#ifdef HLRAD_REFLECTIVITY
 	vec3_t reflectivity;
-#endif
 } radtexture_t;
 extern int g_numtextures;
 extern radtexture_t *g_textures;
@@ -669,10 +649,8 @@ extern float	g_softlight_hack_distance;
 	extern vec3_t *g_lightingconeinfo; //[nummiptex]; X component = power, Y component = scale, Z component = nothing
 #endif
 	extern bool g_notextures;
-#ifdef HLRAD_REFLECTIVITY
 	extern vec_t g_texreflectgamma;
 	extern vec_t g_texreflectscale;
-#endif
 #ifdef HLRAD_BLUR
 	extern vec_t g_blur;
 #endif

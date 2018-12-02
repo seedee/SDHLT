@@ -72,15 +72,12 @@
 
 
 
-#define HLRAD_REFLECTIVITY //--vluzacn
 #define HLRAD_VIS_FIX //--vluzacn
 #define HLRAD_ENTITYBOUNCE_FIX //--vluzacn
 #define HLRAD_OPAQUE_ALPHATEST //--vluzacn
 #define HLRAD_TEXLIGHTTHRESHOLD_FIX //--vluzacn
-	#ifdef HLRAD_REFLECTIVITY
 	#ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
 #define HLRAD_CUSTOMTEXLIGHT //--vluzacn
-	#endif
 	#endif
 #define HLRAD_ARG_MISC //--vluzacn
 #define HLRAD_PairEdges_FACESIDE_FIX //--vluzacn
@@ -104,9 +101,7 @@
 	#ifdef HLRAD_CUSTOMTEXLIGHT
 #define HLRAD_TEXLIGHT_SPOTS_FIX //--vluzacn
 	#endif
-	#ifdef HLRAD_REFLECTIVITY
 #define HLRAD_BOUNCE_STYLE //--vluzacn
-	#endif
 #define HLRAD_BLUR //--vluzacn
 #define HLRAD_ACCURATEBOUNCE //--vluzacn
 	#ifdef HLRAD_TEXLIGHT_SPOTS_FIX

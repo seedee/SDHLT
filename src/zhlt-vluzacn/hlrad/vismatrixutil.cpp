@@ -486,11 +486,7 @@ void            MakeScales(const int threadnum)
             g_transfer_data_bytes += data_size;
             ThreadUnlock();
 
-#ifdef HLRAD_REFLECTIVITY
 			total = 1 / Q_PI;
-#else
-			total = g_transtotal_hack / Q_PI;
-#endif
             {
                 unsigned        x;
                 transfer_data_t* t1 = patch->tData;
@@ -814,11 +810,7 @@ void            MakeRGBScales(const int threadnum)
             g_transfer_data_bytes += data_size;
             ThreadUnlock();
 
-#ifdef HLRAD_REFLECTIVITY
 			total = 1 / Q_PI;
-#else
-			total = g_transtotal_hack / Q_PI;
-#endif
             {
                 unsigned        x;
                 rgb_transfer_data_t* t1 = patch->tRGBData;
