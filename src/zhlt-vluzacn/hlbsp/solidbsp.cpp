@@ -451,10 +451,8 @@ static surface_t* ChooseMidPlaneFromList(surface_t* surfaces, const vec3_t mins,
         value = 0;
 
         dist = plane->dist * plane->normal[l];
-#ifdef HLBSP_MAXNODESIZE_SKYBOX
 		if (maxs[l] - dist < ON_EPSILON || dist - mins[l] < ON_EPSILON)
 			continue;
-#endif
 		if (maxs[l] - dist < g_maxnode_size/2.0 - ON_EPSILON || dist - mins[l] < g_maxnode_size/2.0 - ON_EPSILON)
 			continue;
 #ifdef HLBSP_CHOOSEMIDPLANE
@@ -782,9 +780,7 @@ int CalcSplitDetaillevel (const node_t *node)
 }
 static surface_t* SelectPartition(surface_t* surfaces, const node_t* const node, const bool usemidsplit
 								  , int splitdetaillevel
-#ifdef HLBSP_MAXNODESIZE_SKYBOX
 								  , vec3_t validmins, vec3_t validmaxs
-#endif
 								  )
 {
 	if (splitdetaillevel == -1)
@@ -796,11 +792,7 @@ static surface_t* SelectPartition(surface_t* surfaces, const node_t* const node,
 	if (usemidsplit)
 	{
 		surface_t *s = ChooseMidPlaneFromList(surfaces, 
-#ifdef HLBSP_MAXNODESIZE_SKYBOX
 			validmins, validmaxs
-#else
-			node->mins, node->maxs
-#endif
 			, splitdetaillevel
 			);
 		if (s != NULL)
@@ -1569,9 +1561,7 @@ static void     SplitNodePortals(node_t *node)
 //      Returns true if the node should be midsplit.(very large)
 // =====================================================================================
 static bool     CalcNodeBounds(node_t* node
-#ifdef HLBSP_MAXNODESIZE_SKYBOX
 							   , vec3_t validmins, vec3_t validmaxs
-#endif
 							   )
 {
     int             i;
@@ -1625,7 +1615,6 @@ static bool     CalcNodeBounds(node_t* node
 	{
 		return false;
 	}
-#ifdef HLBSP_MAXNODESIZE_SKYBOX
 	for (i = 0; i < 3; i++)
 	{
 		validmins[i] = qmax (node->mins[i], -(ENGINE_ENTITY_RANGE + g_maxnode_size));
@@ -1645,15 +1634,6 @@ static bool     CalcNodeBounds(node_t* node
 			return true;
 		}
 	}
-#else
-    for (i = 0; i < 3; i++)
-    {
-        if (node->maxs[i] - node->mins[i] > g_maxnode_size)
-        {
-            return true;
-        }
-    }
-#endif
     return false;
 }
 
@@ -1714,14 +1694,10 @@ static void     BuildBspTree_r(node_t* node)
     surface_t*      split;
     bool            midsplit;
     surface_t*      allsurfs;
-#ifdef HLBSP_MAXNODESIZE_SKYBOX
 	vec3_t			validmins, validmaxs;
-#endif
 
     midsplit = CalcNodeBounds(node
-#ifdef HLBSP_MAXNODESIZE_SKYBOX
 		, validmins, validmaxs
-#endif
 		);
 #ifdef HLBSP_DETAILBRUSH_CULL
 	if (node->boundsbrush)
@@ -1739,9 +1715,7 @@ static void     BuildBspTree_r(node_t* node)
 	FixDetaillevelForDiscardable (node, splitdetaillevel);
     split = SelectPartition(node->surfaces, node, midsplit
 		, splitdetaillevel
-#ifdef HLBSP_MAXNODESIZE_SKYBOX
 		, validmins, validmaxs
-#endif
 		);
 	if (!node->isdetail && (!split || split->detaillevel > 0))
 	{
