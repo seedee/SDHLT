@@ -404,7 +404,6 @@ static void     SplitFaceTmp(face_t* in, const dplane_t* const split, face_t** f
     {
         Error("SplitFace: numpoints > MAXEDGES");
     }
-#ifdef HLBSP_REMOVECOLINEARPOINTS
 	{
 		Winding *wd = new Winding (newf->numpoints);
 		int x;
@@ -443,7 +442,6 @@ static void     SplitFaceTmp(face_t* in, const dplane_t* const split, face_t** f
 			*front = NULL;
 		}
 	}
-#endif
 }
 
 // =====================================================================================

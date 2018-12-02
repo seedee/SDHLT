@@ -1181,14 +1181,12 @@ static void     DivideSurface(surface_t* in, const dplane_t* const split, surfac
 
     // if nothing actually got split, just move the in plane
 makesurfs:
-#ifdef HLBSP_REMOVECOLINEARPOINTS
 	if (frontlist == NULL && backlist == NULL)
 	{
 		*front = NULL;
 		*back = NULL;
 		return;
 	}
-#endif
     if (frontlist == NULL)
     {
         *front = NULL;
