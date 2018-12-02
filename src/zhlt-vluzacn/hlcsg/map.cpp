@@ -24,7 +24,6 @@ int				g_numparsedentities;
 int				g_numparsedbrushes;
 #endif
 
-#ifdef HLCSG_COPYBRUSH
 brush_t *CopyCurrentBrush (entity_t *entity, const brush_t *brush)
 {
 	if (entity->firstbrush + entity->numbrushes != g_nummapbrushes)
@@ -57,7 +56,6 @@ brush_t *CopyCurrentBrush (entity_t *entity, const brush_t *brush)
 #endif
 	return newb;
 }
-#endif
 #ifdef HLCSG_HULLBRUSH
 void DeleteCurrentEntity (entity_t *entity)
 {
@@ -250,11 +248,7 @@ static bool CheckForInvisible(entity_t* mapent)
 //  ParseBrush
 //      parse a brush from script
 // =====================================================================================
-#ifdef HLCSG_COPYBRUSH
 static void ParseBrush(entity_t* mapent)
-#else
-static contents_t ParseBrush(entity_t* mapent)
-#endif
 {
     brush_t*        b;
     int             i, j;
@@ -817,9 +811,6 @@ static contents_t ParseBrush(entity_t* mapent)
 	}
 #endif
 
-#ifndef HLCSG_COPYBRUSH
-    return contents;
-#endif
 }
 
 
@@ -872,24 +863,11 @@ bool            ParseMapEntity()
 
         if (!strcmp(g_token, "{"))  // must be a brush
         {
-#ifdef HLCSG_COPYBRUSH
 			ParseBrush (mapent);
-#else
-            contents_t contents = ParseBrush(mapent);
-#endif
 #ifdef HLCSG_COUNT_NEW
 			g_numparsedbrushes++;
 #endif
 
-#ifndef HLCSG_COPYBRUSH
-            if ((contents != CONTENTS_CLIP)
-				&& (contents != CONTENTS_ORIGIN)
-#ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
-				&& contents != CONTENTS_BOUNDINGBOX
-#endif
-				)
-                all_clip = false;
-#endif
         }
         else                        // else assume an epair
         {
@@ -912,7 +890,6 @@ bool            ParseMapEntity()
 #endif
         }
     }
-#ifdef HLCSG_COPYBRUSH
 	{
 		int i;
 		for (i = 0; i < mapent->numbrushes; i++)
@@ -934,7 +911,6 @@ bool            ParseMapEntity()
 			}
 		}
 	}
-#endif
 #ifdef HLCSG_COPYMODELKEYVALUE
 	if (*ValueForKey (mapent, "zhlt_usemodel"))
 	{

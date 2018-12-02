@@ -64,19 +64,14 @@
 // tool specific settings below only mean a recompile of the tool affected
 
 
-#define HLCSG_COPYBRUSH //--vluzacn
-	#ifdef HLCSG_COPYBRUSH
 #define HLCSG_CUSTOMHULL //--vluzacn
-	#endif
 #define HLCSG_SCALESIZE //--vluzacn
 #define HLCSG_SEARCHWADPATH_VL //--vluzacn
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
 #define HLCSG_LOGVERSION //--vluzacn
-	#ifdef HLCSG_COPYBRUSH
 #define HLCSG_COPYMODELKEYVALUE //--vluzacn
-	#endif
 #define HLCSG_CheckBrushContents_FIX //--vluzacn
 #define HLCSG_ERROR_MISSINGTEXTURE //--vluzacn
 #define HLCSG_BEVELMISSINGFIX //--vluzacn
