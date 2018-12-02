@@ -3442,7 +3442,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 //  AddSampleToPatch
 //      Take the sample's collected light and add it back into the apropriate patch for the radiosity pass.
 // =====================================================================================
-#ifdef HLRAD_ACCURATEBOUNCE_SAMPLELIGHT
 static void AddSamplesToPatches (const sample_t **samples, const unsigned char *styles, int facenum, const lightinfo_t *l)
 {
 	patch_t *patch;
@@ -3554,70 +3553,6 @@ static void AddSamplesToPatches (const sample_t **samples, const unsigned char *
 	}
 	free (texwindings);
 }
-#else
-static void     AddSampleToPatch(const sample_t* const s, const int facenum, int style) //LRC
-{
-    patch_t*        patch;
-    BoundingBox     bounds;
-    int             i;
-
-
-    for (patch = g_face_patches[facenum]; patch; patch = patch->next)
-    {
-        // see if the point is in this patch (roughly)
-        patch->winding->getBounds(bounds);
-        for (i = 0; i < 3; i++)
-        {
-            if (bounds.m_Mins[i] > s->pos[i] + 16)
-            {
-                goto nextpatch;
-            }
-            if (bounds.m_Maxs[i] < s->pos[i] - 16)
-            {
-                goto nextpatch;
-            }
-        }
-		if (style == 0)
-		{
-			patch->samples++;
-		}
-
-        // add the sample to the patch
-        //LRC:
-		for (i = 0; i < ALLSTYLES && patch->totalstyle_all[i] != 255; i++)
-		{
-			if (patch->totalstyle_all[i] == style)
-				break;
-		}
-		if (i == ALLSTYLES) // shouldn't happen
-		{
-			if (++stylewarningcount >= stylewarningnext)
-			{
-				stylewarningnext = stylewarningcount * 2;
-				Warning("Too many direct light styles on a face(?,?,?)\n");
-				Warning(" total %d warnings for too many styles", stylewarningcount);
-			}
-		}
-		else
-		{
-			if (patch->totalstyle_all[i] == 255)
-			{
-				patch->totalstyle_all[i] = style;
-			}
-			VectorAdd(patch->samplelight_all[i], s->light, patch->samplelight_all[i]);
-		#ifdef ZHLT_XASH
-			VectorAdd (patch->samplelight_all_direction[i], s->light_direction, patch->samplelight_all_direction[i]);
-		#endif
-		}
-        //LRC (ends)
-        //return;
-
-      nextpatch:;
-    }
-
-    // don't worry if some samples don't find a patch
-}
-#endif
 
 // =====================================================================================
 //  GetPhongNormal
@@ -4475,9 +4410,6 @@ void            BuildFacelights(const int facenum)
 		#ifdef ZHLT_XASH
 				VectorScale (fl_samples[j][i].light_direction, 1.0 / subsamples, fl_samples[j][i].light_direction);
 		#endif
-	#ifndef HLRAD_ACCURATEBOUNCE_SAMPLELIGHT
-				AddSampleToPatch (&fl_samples[j][i], facenum, f_styles[j]); //LRC
-	#endif
 			}
 		}
     } // end of i loop
@@ -4486,18 +4418,14 @@ void            BuildFacelights(const int facenum)
 #endif
 
     // average up the direct light on each patch for radiosity
-#ifdef HLRAD_ACCURATEBOUNCE_SAMPLELIGHT
 	AddSamplesToPatches ((const sample_t **)fl_samples, f_styles, facenum, &l);
-#endif
     {
         for (patch = g_face_patches[facenum]; patch; patch = patch->next)
         {
             //LRC:
 			unsigned istyle;
-		#ifdef HLRAD_ACCURATEBOUNCE_SAMPLELIGHT
 			if (patch->samples <= ON_EPSILON * ON_EPSILON)
 				patch->samples = 0.0;
-		#endif
 			if (patch->samples)
 			{
 				for (istyle = 0; istyle < ALLSTYLES && patch->totalstyle_all[istyle] != 255; istyle++)

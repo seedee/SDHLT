@@ -317,11 +317,7 @@ typedef struct patch_s
 	unsigned char	emitstyle;
     vec3_t          baselight;                             // emissivity only, uses emitstyle
 	bool			emitmode;								// texlight emit mode. 1 for normal, 0 for fast.
-#ifdef HLRAD_ACCURATEBOUNCE_SAMPLELIGHT
 	vec_t			samples;
-#else
-	int				samples;
-#endif
 	vec3_t*			samplelight_all;						// NULL, or [ALLSTYLES] during BuildFacelights
 #ifdef ZHLT_XASH
 	vec3_t*			samplelight_all_direction;
