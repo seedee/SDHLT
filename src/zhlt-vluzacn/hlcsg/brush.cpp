@@ -992,11 +992,7 @@ static contents_t TextureContents(const char* const name)
 // =====================================================================================
 //Cpt_Andrew - Env_Sky Check
 // =====================================================================================
-#ifdef HLCSG_TextureContents_FIX
     if (!strncasecmp(name, "env_sky", 7))
-#else
-    if (!strncasecmp(name, "env_sky", 3))
-#endif
         return CONTENTS_SKY;
 // =====================================================================================
 
@@ -1005,13 +1001,11 @@ static contents_t TextureContents(const char* const name)
 
     if (!strncasecmp(name + 1, "!slime", 6))
         return CONTENTS_SLIME;
-#ifdef HLCSG_TextureContents_FIX
     if (!strncasecmp(name, "!lava", 5))
         return CONTENTS_LAVA;
 
     if (!strncasecmp(name, "!slime", 6))
         return CONTENTS_SLIME;
-#endif
 
     if (name[0] == '!') //optimized -- don't check for current unless it's liquid (KGP)
 	{
