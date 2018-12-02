@@ -947,7 +947,6 @@ bool            CheckFaceForSkip(const face_t* const f)
 	return false;
 }
 
-#ifdef HLCSG_HLBSP_SOLIDHINT
 bool CheckFaceForDiscardable (const face_t *f)
 {
 	const char *name = GetTextureByNumber (f->texturenum);
@@ -956,7 +955,6 @@ bool CheckFaceForDiscardable (const face_t *f)
 	return false;
 }
 
-#endif
 // =====================================================================================
 //  SetFaceType
 // =====================================================================================
@@ -974,12 +972,10 @@ static          facestyle_e SetFaceType(face_t* f)
     {
         f->facestyle = face_null;
     }
-#ifdef HLCSG_HLBSP_SOLIDHINT
 	else if (CheckFaceForDiscardable (f))
 	{
 		f->facestyle = face_discardable;
 	}
-#endif
 
 // =====================================================================================
 //Cpt_Andrew - Env_Sky Check

@@ -130,18 +130,14 @@ static int      FaceSide(face_t* in, const dplane_t* const split
 typedef struct surfacetreenode_s
 {
 	int size; // can be zero, which invalidates mins and maxs
-#ifdef HLCSG_HLBSP_SOLIDHINT
 	int size_discardable;
-#endif
 	vec3_t mins;
 	vec3_t maxs;
 	bool isleaf;
 	// node
 	surfacetreenode_s *children[2];
 	std::vector< face_t * > *nodefaces;
-#ifdef HLCSG_HLBSP_SOLIDHINT
 	int nodefaces_discardablesize;
-#endif
 	// leaf
 	std::vector< face_t * > *leaffaces;
 }
@@ -165,9 +161,7 @@ surfacetree_t;
 void BuildSurfaceTree_r (surfacetree_t *tree, surfacetreenode_t *node)
 {
 	node->size = node->leaffaces->size ();
-#ifdef HLCSG_HLBSP_SOLIDHINT
 	node->size_discardable = 0;
-#endif
 	if (node->size == 0)
 	{
 		node->isleaf = true;
@@ -184,12 +178,10 @@ void BuildSurfaceTree_r (surfacetree_t *tree, surfacetreenode_t *node)
 			VectorCompareMinimum (node->mins, f->pts[x], node->mins);
 			VectorCompareMaximum (node->maxs, f->pts[x], node->maxs);
 		}
-#ifdef HLCSG_HLBSP_SOLIDHINT
 		if (f->facestyle == face_discardable)
 		{
 			node->size_discardable++;
 		}
-#endif
 	}
 
 	int bestaxis = -1;
@@ -218,9 +210,7 @@ void BuildSurfaceTree_r (surfacetree_t *tree, surfacetreenode_t *node)
 	// Each child node is at most 3/4 the size of the parent node.
 	// Most faces should be passed to a child node, faces left in the parent node are the ones whose dimensions are large enough to be comparable to the dimension of the parent node.
 	node->nodefaces = new std::vector< face_t * >;
-#ifdef HLCSG_HLBSP_SOLIDHINT
 	node->nodefaces_discardablesize = 0;
-#endif
 	node->children[0] = (surfacetreenode_t *)malloc (sizeof (surfacetreenode_t));
 	node->children[0]->leaffaces = new std::vector< face_t * >;
 	node->children[1] = (surfacetreenode_t *)malloc (sizeof (surfacetreenode_t));
@@ -238,12 +228,10 @@ void BuildSurfaceTree_r (surfacetree_t *tree, surfacetreenode_t *node)
 		if (low < dist1 + ON_EPSILON && high > dist2 - ON_EPSILON)
 		{
 			node->nodefaces->push_back (f);
-#ifdef HLCSG_HLBSP_SOLIDHINT
 			if (f->facestyle == face_discardable)
 			{
 				node->nodefaces_discardablesize++;
 			}
-#endif
 		}
 		else if (low >= dist1 && high <= dist2)
 		{
@@ -339,17 +327,13 @@ void TestSurfaceTree_r (surfacetree_t *tree, const surfacetreenode_t *node, cons
 	if (low > tree->epsilon)
 	{
 		tree->result.frontsize += node->size;
-#ifdef HLCSG_HLBSP_SOLIDHINT
 		tree->result.frontsize -= node->size_discardable;
-#endif
 		return;
 	}
 	if (high < -tree->epsilon)
 	{
 		tree->result.backsize += node->size;
-#ifdef HLCSG_HLBSP_SOLIDHINT
 		tree->result.backsize -= node->size_discardable;
-#endif
 		return;
 	}
 	if (node->isleaf)
@@ -489,12 +473,10 @@ static surface_t* ChooseMidPlaneFromList(surface_t* surfaces, const vec3_t mins,
 		for (it = surfacetree->result.middle->begin (); it != surfacetree->result.middle->end (); ++it)
 		{
 			f = *it;
-#ifdef HLCSG_HLBSP_SOLIDHINT
 			if (f->facestyle == face_discardable)
 			{
 				continue;
 			}
-#endif
 			if (f->planenum == p->planenum || f->planenum == (p->planenum ^ 1))
 			{
 				coplanarcount++;
@@ -619,12 +601,10 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 				}
 				for (f = p2->faces; f; f = f->next)
 				{
-#ifdef HLCSG_HLBSP_SOLIDHINT
 					if (f->facestyle == face_discardable)
 					{
 						continue;
 					}
-#endif
 					if (FaceSide (f, plane) == SIDE_ON)
 					{
 						totalsplit++;
@@ -667,12 +647,10 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 
 		for (f = p->faces; f; f = f->next)
 		{
-#ifdef HLCSG_HLBSP_SOLIDHINT
 			if (f->facestyle == face_discardable)
 			{
 				continue;
 			}
-#endif
 			coplanarcount++;
 		}
 #ifdef HLBSP_FAST_SELECTPARTITION
@@ -697,13 +675,11 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 			for (f = p2->faces; f; f = f->next)
 			{
 #endif
-#ifdef HLCSG_HLBSP_SOLIDHINT
 				if (f->facestyle == face_discardable)
 				{
 					FaceSide (f, plane, &epsilonsplit);
 					continue;
 				}
-#endif
 				switch (FaceSide(f, plane
 					, &epsilonsplit
 					))
@@ -725,12 +701,10 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 		}
 
 		value = crosscount - sqrt (coplanarcount); // Not optimized. --vluzacn
-#ifdef HLCSG_HLBSP_SOLIDHINT
 		if (coplanarcount == 0)
 		{
 			crosscount += 1;
 		}
-#endif
 		// This is the most efficient code among what I have ever tested:
 		// (1) BSP file is small, despite possibility of slowing down vis and rad (but still faster than the original non BSP balancing method).
 		// (2) Factors need not adjust across various maps.
@@ -805,7 +779,6 @@ int CalcSplitDetaillevel (const node_t *node)
 		{
 			continue;
 		}
-#ifdef HLCSG_HLBSP_SOLIDHINT
 		for (f = s->faces; f; f = f->next)
 		{
 			if (f->facestyle == face_discardable)
@@ -817,12 +790,6 @@ int CalcSplitDetaillevel (const node_t *node)
 				bestdetaillevel = f->detaillevel;
 			}
 		}
-#else
-		if (bestdetaillevel == -1 || s->detaillevel < bestdetaillevel)
-		{
-			bestdetaillevel = s->detaillevel;
-		}
-#endif
 	}
 	return bestdetaillevel;
 }
@@ -871,7 +838,6 @@ static surface_t* SelectPartition(surface_t* surfaces, const node_t* const node,
                 }
             }
 #endif
-#ifdef HLCSG_HLBSP_SOLIDHINT
 			face_t *f;
 			for (f = p->faces; f; f = f->next)
 			{
@@ -891,7 +857,6 @@ static surface_t* SelectPartition(surface_t* surfaces, const node_t* const node,
 				continue; // this surface is discardable
 				// if all surfaces are discardable, this will become a leaf node
 			}
-#endif
 #ifdef ZHLT_DETAILBRUSH
 			if (p->detaillevel != splitdetaillevel)
 			{
@@ -908,12 +873,6 @@ static surface_t* SelectPartition(surface_t* surfaces, const node_t* const node,
         return NULL;                                       // this is a leafnode
     }
 
-#ifndef HLCSG_HLBSP_SOLIDHINT // although there is only one undiscardable surface, maybe discardable surfaces should split first.
-    if (i == 1)
-    {
-        return bestsurface;                                // this is a final split
-    }
-#endif
 #endif
 
 	if (usemidsplit)
@@ -991,7 +950,6 @@ static void     CalcSurfaceInfo(surface_t* surf)
     }
 }
 #ifdef ZHLT_DETAILBRUSH
-#ifdef HLCSG_HLBSP_SOLIDHINT
 void FixDetaillevelForDiscardable (node_t *node, int detaillevel)
 {
 	// when we move on to the next detaillevel, some discardable faces of previous detail level remain not on node (because they are discardable). remove them now
@@ -1030,7 +988,6 @@ void FixDetaillevelForDiscardable (node_t *node, int detaillevel)
 		}
 	}
 }
-#endif
 #endif
 
 // =====================================================================================
@@ -1513,12 +1470,10 @@ static void     LinkLeafFaces(surface_t* planelist, node_t* leafnode)
         {
             for (f = surf->faces; f; f = f->next)
             {
-#ifdef HLCSG_HLBSP_SOLIDHINT
 				if (f->original == NULL)
 				{
 					continue;
 				}
-#endif
                 hlassume(nummarkfaces < MAX_LEAF_FACES, assume_MAX_LEAF_FACES);
 
                 markfaces[nummarkfaces++] = f->original;
@@ -1566,24 +1521,20 @@ static void MakeLeaf (node_t *leafnode)
 			{
 				continue;
 			}
-#ifdef HLCSG_HLBSP_SOLIDHINT
 			if (!surf->onnode)
 			{
 				continue;
 			}
-#endif
 			for (f = surf->faces; f; f = f->next)
 			{
 				if (f->original == NULL)
 				{ // because it is not on node or its content is solid
 					continue;
 				}
-#ifdef HLCSG_HLBSP_SOLIDHINT
 				if (f->original == NULL)
 				{
 					continue;
 				}
-#endif
 				hlassume(nummarkfaces < MAX_LEAF_FACES, assume_MAX_LEAF_FACES);
 
 				markfaces[nummarkfaces++] = f->original;
@@ -1885,12 +1836,10 @@ static void     CopyFacesToNode(node_t* node, surface_t* surf)
     node->faces = NULL;
     for (f = surf->faces; f; f = f->next)
     {
-#ifdef HLCSG_HLBSP_SOLIDHINT
 		if (f->facestyle == face_discardable)
 		{
 			continue;
 		}
-#endif
         if (f->contents != CONTENTS_SOLID)
         {
             newf = AllocFace();
@@ -1933,9 +1882,7 @@ static void     BuildBspTree_r(node_t* node)
 
 #ifdef ZHLT_DETAILBRUSH
 	int splitdetaillevel = CalcSplitDetaillevel (node);
-#ifdef HLCSG_HLBSP_SOLIDHINT
 	FixDetaillevelForDiscardable (node, splitdetaillevel);
-#endif
 #endif
     split = SelectPartition(node->surfaces, node, midsplit
 #ifdef ZHLT_DETAILBRUSH

@@ -56,10 +56,8 @@ void            SubdivideFace(face_t* f, face_t** prevptr)
 
     if (f->facestyle == face_null)
         return; // ideally these should have their tex_special flag set, so its here jic
-#ifdef HLCSG_HLBSP_SOLIDHINT
 	if (f->facestyle == face_discardable)
 		return;
-#endif
 	
     for (axis = 0; axis < 2; axis++)
     {

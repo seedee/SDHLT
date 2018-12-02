@@ -977,10 +977,8 @@ static contents_t TextureContents(const char* const name)
 		return CONTENTS_BOUNDINGBOX;
 
 
-#ifdef HLCSG_HLBSP_SOLIDHINT
 	if (!strncasecmp(name, "solidhint", 9))
 		return CONTENTS_NULL;
-#endif
 	if (!strncasecmp(name, "splitface", 9))
 		return CONTENTS_HINT;
 	if (!strncasecmp(name, "hint", 4))

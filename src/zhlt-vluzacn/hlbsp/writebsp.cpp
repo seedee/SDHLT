@@ -383,9 +383,7 @@ static void     WriteFace(face_t* f)
     if (    CheckFaceForHint(f)
         ||  CheckFaceForSkip(f)
         ||  CheckFaceForNull(f)  // AJM
-#ifdef HLCSG_HLBSP_SOLIDHINT
 		|| CheckFaceForDiscardable (f)
-#endif
 		|| f->texturenum == -1
 #ifdef HLBSP_REMOVECOVEREDFACES
 		|| f->referenced == 0 // this face is not referenced by any nonsolid leaf because it is completely covered by func_details
@@ -604,9 +602,7 @@ void OutputEdges_face (face_t *f)
 	if (CheckFaceForHint(f)
 		|| CheckFaceForSkip(f)
         || CheckFaceForNull(f)  // AJM
-#ifdef HLCSG_HLBSP_SOLIDHINT
 		|| CheckFaceForDiscardable (f)
-#endif
 		|| f->texturenum == -1
 #ifdef HLBSP_REMOVECOVEREDFACES
 		|| f->referenced == 0

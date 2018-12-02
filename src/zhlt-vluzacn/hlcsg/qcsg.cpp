@@ -481,16 +481,13 @@ static void     SaveOutside(const brush_t* const b, const int hull, bface_t* out
 		if (mirrorcontents == CONTENTS_TOEMPTY)
 		{
 			if (strncasecmp (texname, "SKIP", 4) && strncasecmp (texname, "HINT", 4)
-	#ifdef HLCSG_HLBSP_SOLIDHINT
 				&& strncasecmp (texname, "SOLIDHINT", 9)
-	#endif
 				)
 				// SKIP and HINT are special textures for hlbsp
 			{
 				backnull = true;
 			}
 		}
-	#ifdef HLCSG_HLBSP_SOLIDHINT
 		if (!strncasecmp (texname, "SOLIDHINT", 9))
 		{
 			if (frontcontents != backcontents)
@@ -498,7 +495,6 @@ static void     SaveOutside(const brush_t* const b, const int hull, bface_t* out
 				frontnull = backnull = true; // not discardable, so remove "SOLIDHINT" texture name and behave like NULL
 			}
 		}
-	#endif
 		if (b->entitynum != 0 && !strncasecmp (texname, "!", 1))
 		{
 			backnull = true; // strip water face on one side
@@ -543,9 +539,7 @@ static void     SaveOutside(const brush_t* const b, const int hull, bface_t* out
 			if (texinfo != -1 // nullified textures (NULL, BEVEL, aaatrigger, etc.)
 				&& !(tex->flags & TEX_SPECIAL) // sky
 				&& strncasecmp (texname, "SKIP", 4) && strncasecmp (texname, "HINT", 4) // HINT and SKIP will be nullified only after hlbsp
-	#ifdef HLCSG_HLBSP_SOLIDHINT
 				&& strncasecmp (texname, "SOLIDHINT", 9)
-	#endif
 				)
 			{
 				// check for "Malformed face (%d) normal"
@@ -878,9 +872,7 @@ static void     CSGBrush(int brushnum)
 				{
 					const char *texname = GetTextureByNumber_CSG (f->texinfo);
 					if (f->texinfo == -1 || !strncasecmp (texname, "SKIP", 4) || !strncasecmp (texname, "HINT", 4)
-	#ifdef HLCSG_HLBSP_SOLIDHINT
 						|| !strncasecmp (texname, "SOLIDHINT", 9)
-	#endif
 						)
 					{
 						// should not nullify the fragment inside detail brush
@@ -1058,9 +1050,7 @@ static void     CSGBrush(int brushnum)
 						if (onback && f->backcontents < b2->contents)
 							f->backcontents = b2->contents;
 						if (f->contents == CONTENTS_SOLID && f->backcontents == CONTENTS_SOLID
-#ifdef HLCSG_HLBSP_SOLIDHINT
 							&& strncasecmp (GetTextureByNumber_CSG (f->texinfo), "SOLIDHINT", 9)
-#endif
 							)
 						{
 							FreeFace (f);
@@ -1073,9 +1063,7 @@ static void     CSGBrush(int brushnum)
 						continue;
 					}
                     if (b1->contents > b2->contents
-#ifdef HLCSG_HLBSP_SOLIDHINT
 						|| b1->contents == b2->contents && !strncasecmp (GetTextureByNumber_CSG (f->texinfo), "SOLIDHINT", 9)
-#endif
 						)
                     {                                      // inside a water brush
                         f->contents = b2->contents;

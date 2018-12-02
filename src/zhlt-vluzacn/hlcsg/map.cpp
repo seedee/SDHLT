@@ -473,9 +473,7 @@ static void ParseBrush(entity_t* mapent)
 		side = &g_brushsides[b->firstside + j];
 		if(nullify && strncasecmp(side->td.name,"BEVEL",5) && strncasecmp(side->td.name,"ORIGIN",6)
 			&& strncasecmp(side->td.name,"HINT",4) && strncasecmp(side->td.name,"SKIP",4)
-#ifdef HLCSG_HLBSP_SOLIDHINT
 			&& strncasecmp(side->td.name,"SOLIDHINT",9)
-#endif
 			&& strncasecmp(side->td.name,"SPLITFACE",9)
 			&& strncasecmp(side->td.name,"BOUNDINGBOX",11)
 			&& strncasecmp(side->td.name,"CONTENT",7) && strncasecmp(side->td.name,"SKY",3)

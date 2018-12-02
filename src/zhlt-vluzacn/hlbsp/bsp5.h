@@ -87,9 +87,7 @@ typedef enum
 #ifdef ZHLT_DETAIL // AJM
     face_detail
 #endif
-#ifdef HLCSG_HLBSP_SOLIDHINT
 	face_discardable, // contents must not differ between front and back
-#endif
 }
 facestyle_e;
 
@@ -291,9 +289,7 @@ extern node_t*  AllocNode();
 extern bool     CheckFaceForHint(const face_t* const f);
 extern bool     CheckFaceForSkip(const face_t* const f);
 extern bool     CheckFaceForNull(const face_t* const f);
-#ifdef HLCSG_HLBSP_SOLIDHINT
 extern bool		CheckFaceForDiscardable (const face_t *f);
-#endif
 #ifdef HLBSP_BRINKHACK
 #define BRINK_FLOOR_THRESHOLD 0.7
 typedef enum
