@@ -334,9 +334,7 @@ void            PairEdges()
             if (e->faces[0] && e->faces[1]) {
 				// determine if coplanar
 				if (e->faces[0]->planenum == e->faces[1]->planenum
-#ifdef HLRAD_PairEdges_FACESIDE_FIX
 					&& e->faces[0]->side == e->faces[1]->side
-#endif
 					) {
 						e->coplanar = true;
 						VectorCopy(getPlaneFromFace(e->faces[0])->normal, e->interface_normal);
