@@ -1624,7 +1624,6 @@ void            UnparseEntities()
 			SetKeyValue (mapent, "convertto", "");
 		}
 	}
-#ifdef HLCSG_OPTIMIZELIGHTENTITY
 #ifdef HLCSG
 	extern bool g_nolightopt;
 	if (!g_nolightopt)
@@ -1668,7 +1667,6 @@ void            UnparseEntities()
 		}
 		free (lightneedcompare);
 	}
-#endif
 #endif
     for (i = 0; i < g_numentities; i++)
     {

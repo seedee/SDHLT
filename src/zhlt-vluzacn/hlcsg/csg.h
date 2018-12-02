@@ -62,9 +62,7 @@
 #endif
 #define DEFAULT_SCALESIZE -1.0 //dont scale
 #define DEFAULT_RESETLOG true
-#ifdef HLCSG_OPTIMIZELIGHTENTITY
 #define DEFAULT_NOLIGHTOPT false
-#endif
 #ifdef HLCSG_GAMETEXTMESSAGE_UTF8
 #define DEFAULT_NOUTF8 false
 #endif
@@ -316,9 +314,7 @@ extern char*    g_progressfile ;
 #endif
 extern vec_t g_scalesize;
 extern bool g_resetlog;
-#ifdef HLCSG_OPTIMIZELIGHTENTITY
 extern bool g_nolightopt;
-#endif
 #ifdef HLCSG_GAMETEXTMESSAGE_UTF8
 extern bool g_noutf8;
 #endif

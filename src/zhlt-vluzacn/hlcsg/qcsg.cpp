@@ -71,9 +71,7 @@ char*           g_progressfile = DEFAULT_PROGRESSFILE; // "-progressfile path"
 #endif
 vec_t g_scalesize = DEFAULT_SCALESIZE;
 bool g_resetlog = DEFAULT_RESETLOG;
-#ifdef HLCSG_OPTIMIZELIGHTENTITY
 bool g_nolightopt = DEFAULT_NOLIGHTOPT;
-#endif
 #ifdef HLCSG_GAMETEXTMESSAGE_UTF8
 bool g_noutf8 = DEFAULT_NOUTF8;
 #endif
@@ -1804,9 +1802,7 @@ static void     Usage()
     Log("    -nodetail        : dont handle detail brushes\n");
 #endif
 
-#ifdef HLCSG_OPTIMIZELIGHTENTITY
 	Log("    -nolightopt      : don't optimize engine light entities\n");
-#endif
 
 #ifdef HLCSG_GAMETEXTMESSAGE_UTF8
 	Log("    -notextconvert   : don't convert game_text message from Windows ANSI to UTF8 format\n");
@@ -1945,9 +1941,7 @@ static void     Settings()
 			strcpy (buf2, "None");
         Log("map scaling           [ %7s ] [ %7s ]\n", buf1, buf2);
     }
-#ifdef HLCSG_OPTIMIZELIGHTENTITY
     Log("light name optimize   [ %7s ] [ %7s ]\n", !g_nolightopt? "on" : "off", !DEFAULT_NOLIGHTOPT? "on" : "off");
-#endif
 #ifdef HLCSG_GAMETEXTMESSAGE_UTF8
 	Log("convert game_text     [ %7s ] [ %7s ]\n", !g_noutf8? "on" : "off", !DEFAULT_NOUTF8? "on" : "off");
 #endif
@@ -2305,12 +2299,10 @@ int             main(const int argc, char** argv)
 		{
 			g_resetlog = false;
 		}
-#ifdef HLCSG_OPTIMIZELIGHTENTITY
 		else if (!strcasecmp (argv[i], "-nolightopt"))
 		{
 			g_nolightopt = true;
 		}
-#endif
 #ifdef HLCSG_GAMETEXTMESSAGE_UTF8
 		else if (!strcasecmp (argv[i], "-notextconvert"))
 		{
