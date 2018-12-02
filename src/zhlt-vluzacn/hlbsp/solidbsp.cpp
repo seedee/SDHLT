@@ -1024,11 +1024,6 @@ static int      RankForContents(const int contents)
         //Log("(solid)\n");
         return 12;
 
-#ifdef ZHLT_DETAIL
-    case CONTENTS_DETAIL:
-        return 13;
-        //Log("(detail)\n");
-#endif
 
     default:
         hlassert(false);
@@ -1074,10 +1069,6 @@ static int      ContentsForRank(const int rank)
     case 12:
         return CONTENTS_SOLID;
 
-#ifdef ZHLT_DETAIL // AJM
-    case 13:
-        return CONTENTS_DETAIL;
-#endif
 
     default:
         hlassert(false);

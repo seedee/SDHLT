@@ -209,9 +209,6 @@ typedef enum
 
     CONTENTS_NULL = -17,     // AJM  // removed in csg and bsp, VIS or RAD shouldnt have to deal with this, only clip planes!
 
-#ifdef ZHLT_DETAIL   // AJM
-    CONTENTS_DETAIL = -18,  
-#endif
 
 	CONTENTS_BOUNDINGBOX = -19, // similar to CONTENTS_ORIGIN
 

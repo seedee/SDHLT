@@ -156,9 +156,6 @@ static bool     RecursiveFillOutside(node_t* l, const bool fill)
     int             s;
 
     if ((l->contents == CONTENTS_SOLID) || (l->contents == CONTENTS_SKY) 
-#ifdef ZHLT_DETAIL
-        || (l->contents == CONTENTS_DETAIL)
-#endif
         )
 	{
         /*if (l->contents != CONTENTS_SOLID)

@@ -69,9 +69,6 @@ int             g_subdivide_size = DEFAULT_SUBDIVIDE_SIZE;
 
 bool            g_bUseNullTex = DEFAULT_NULLTEX; // "-nonulltex"
 
-#ifdef ZHLT_DETAIL // AJM
-bool            g_bDetailBrushes = DEFAULT_DETAIL; // "-nodetail"
-#endif
 
 
 bool g_nohull2 = false;
@@ -881,22 +878,6 @@ bool            CheckFaceForEnv_Sky(const face_t* const f)
 
 
 
-#ifdef ZHLT_DETAIL
-// =====================================================================================
-//  CheckFaceForDetail
-//      Returns true if the passed face is part of a detail brush
-// =====================================================================================
-bool            CheckFaceForDetail(const face_t* const f)
-{
-    if (f->contents == CONTENTS_DETAIL)
-    {
-        //Log("CheckFaceForDetail:: got a detail face");
-        return true;
-    }
-
-    return false;
-}
-#endif
 
 // =====================================================================================
 //  CheckFaceForHint
@@ -963,13 +944,6 @@ static          facestyle_e SetFaceType(face_t* f)
 // =====================================================================================
 
 
-#ifdef ZHLT_DETAIL
-    else if (CheckFaceForDetail(f))
-    {
-        //Log("SetFaceType::detail face\n");
-        f->facestyle = face_detail;
-    }
-#endif
     else
     {
         f->facestyle = face_normal;
@@ -1433,9 +1407,6 @@ static void     Usage()
 
     Log("    -nonulltex     : Don't strip NULL faces\n");
 
-#ifdef ZHLT_DETAIL // AJM
-    Log("    -nodetail      : don't handle detail brushes\n");
-#endif
 
 	Log("    -nohull2       : Don't generate hull 2 (the clipping hull for large monsters and pushables)\n");
 
@@ -1502,9 +1473,6 @@ static void     Settings()
 	Log("noopt               [ %7s ] [ %7s ]\n", g_noopt ? "on" : "off", DEFAULT_NOOPT ? "on" : "off");
 	Log("no clipnode merging [ %7s ] [ %7s ]\n", g_noclipnodemerge? "on": "off", DEFAULT_NOCLIPNODEMERGE? "on": "off");
     Log("null tex. stripping [ %7s ] [ %7s ]\n", g_bUseNullTex ? "on" : "off", DEFAULT_NULLTEX ? "on" : "off" );
-#ifdef ZHLT_DETAIL // AJM
-    Log("detail brushes      [ %7s ] [ %7s ]\n", g_bDetailBrushes ? "on" : "off", DEFAULT_DETAIL ? "on" : "off" );
-#endif
     Log("notjunc             [ %7s ] [ %7s ]\n", g_notjunc ? "on" : "off", DEFAULT_NOTJUNC ? "on" : "off");
 	Log("nobrink             [ %7s ] [ %7s ]\n", g_nobrink? "on": "off", DEFAULT_NOBRINK? "on": "off");
     Log("subdivide size      [ %7d ] [ %7d ] (Min %d) (Max %d)\n",
@@ -1795,12 +1763,6 @@ int             main(const int argc, char** argv)
             g_bUseNullTex = false;
         }
 
-#ifdef ZHLT_DETAIL // AJM
-        else if (!strcasecmp(argv[i], "-nodetail"))
-        {
-            g_bDetailBrushes = false;
-        }
-#endif
 
 		else if (!strcasecmp (argv[i], "-nohull2"))
 		{

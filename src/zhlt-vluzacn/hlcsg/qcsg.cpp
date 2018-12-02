@@ -58,9 +58,6 @@ bool            g_bClipNazi = DEFAULT_CLIPNAZI;         // "-noclipeconomy"
 
 bool            g_bWadAutoDetect = DEFAULT_WADAUTODETECT; // "-wadautodetect"
 
-#ifdef ZHLT_DETAIL // AJM
-bool            g_bDetailBrushes = DEFAULT_DETAIL; // "-detail"
-#endif
 
 vec_t g_scalesize = DEFAULT_SCALESIZE;
 bool g_resetlog = DEFAULT_RESETLOG;
@@ -1552,9 +1549,6 @@ static void     Usage()
     Log("    -nonulltex       : Turns off null texture stripping\n");
 	Log("    -nonullifytrigger: don't remove 'aaatrigger' texture\n");
 
-#ifdef ZHLT_DETAIL // AJM
-    Log("    -nodetail        : dont handle detail brushes\n");
-#endif
 
 	Log("    -nolightopt      : don't optimize engine light entities\n");
 
@@ -1644,9 +1638,6 @@ static void     Settings()
 
     Log("null texture stripping[ %7s ] [ %7s ]\n", g_bUseNullTex     ? "on" : "off", DEFAULT_NULLTEX      ? "on" : "off");
 
-#ifdef ZHLT_DETAIL // AJM
-    Log("detail brushes        [ %7s ] [ %7s ]\n", g_bDetailBrushes  ? "on" : "off", DEFAULT_DETAIL       ? "on" : "off");
-#endif
 
     Log("clipnode economy mode [ %7s ] [ %7s ]\n", g_bClipNazi       ? "on" : "off", DEFAULT_CLIPNAZI     ? "on" : "off");
 
@@ -1890,12 +1881,6 @@ int             main(const int argc, char** argv)
             g_bWadAutoDetect = true;
         }
 
-#ifdef ZHLT_DETAIL // AJM
-        else if (!strcasecmp(argv[i], "-nodetail"))
-        {
-            g_bDetailBrushes = false;
-        }
-#endif
 
 
         else if (!strcasecmp(argv[i], "-nowadtextures"))

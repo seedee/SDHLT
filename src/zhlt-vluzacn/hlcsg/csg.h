@@ -49,9 +49,6 @@
 
 #define DEFAULT_WADAUTODETECT false
 
-#ifdef ZHLT_DETAIL // AJM
-#define DEFAULT_DETAIL      true
-#endif
 
 #define DEFAULT_SCALESIZE -1.0 //dont scale
 #define DEFAULT_RESETLOG true
@@ -273,9 +270,6 @@ extern const char* g_hullfile;
 
 extern bool     g_bUseNullTex; 
 
-#ifdef ZHLT_DETAIL // AJM
-extern bool g_bDetailBrushes;
-#endif
 
 extern bool     g_bClipNazi; 
 

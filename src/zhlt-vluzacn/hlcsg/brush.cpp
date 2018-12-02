@@ -1021,10 +1021,6 @@ const char*     ContentsToString(const contents_t type)
     case CONTENTS_NULL:
         return "NULL";
 
-#ifdef ZHLT_DETAIL // AJM
-    case CONTENTS_DETAIL:
-        return "DETAIL";
-#endif
 
 	case CONTENTS_TOEMPTY:
 		return "EMPTY";

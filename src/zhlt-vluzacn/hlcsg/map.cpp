@@ -931,56 +931,6 @@ bool            ParseMapEntity()
 		SetKeyValue (mapent, "compiler", versionstring);
 	}
     
-#ifdef ZHLT_DETAIL // AJM
-    if (!strcmp(ValueForKey(mapent, "classname"), "info_detail") && g_bDetailBrushes && this_entity != 0)
-    {
-        // mark all of the brushes in this entity as contents_detail
-        for (int i = mapent->firstbrush; i < mapent->firstbrush + mapent->numbrushes; i++)
-        {
-            g_mapbrushes[i].contents = CONTENTS_DETAIL;
-        }
-
-        // move these brushes to worldspawn
-        {
-            brush_t*        temp;
-            int             newbrushes;
-            int             worldbrushes;
-            int             i;
-
-            newbrushes = mapent->numbrushes;
-            worldbrushes = g_entities[0].numbrushes;
-
-            temp = (brush_t*)Alloc(newbrushes * sizeof(brush_t));
-            memcpy(temp, g_mapbrushes + mapent->firstbrush, newbrushes * sizeof(brush_t));
-
-            for (i = 0; i < newbrushes; i++)
-            {
-                temp[i].entitynum = 0;
-            }
-
-            // make space to move the brushes (overlapped copy)
-            memmove(g_mapbrushes + worldbrushes + newbrushes,
-                    g_mapbrushes + worldbrushes, sizeof(brush_t) * (g_nummapbrushes - worldbrushes - newbrushes));
-
-            // copy the new brushes down
-            memcpy(g_mapbrushes + worldbrushes, temp, sizeof(brush_t) * newbrushes);
-
-            // fix up indexes
-            g_numentities--;
-            g_entities[0].numbrushes += newbrushes;
-            for (i = 1; i < g_numentities; i++)
-            {
-                g_entities[i].firstbrush += newbrushes;
-            }
-            memset(mapent, 0, sizeof(*mapent));
-            Free(temp);
-        }
-
-        // delete this entity
-        g_numentities--;
-        return true;
-    }
-#endif
 
 
     if (!strcmp(ValueForKey(mapent, "classname"), "info_compile_parameters"))

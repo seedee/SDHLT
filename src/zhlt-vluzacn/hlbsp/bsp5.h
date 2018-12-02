@@ -62,9 +62,6 @@
 #define DEFAULT_ESTIMATE        true
 #endif
 
-#ifdef ZHLT_DETAIL // AJM
-#define DEFAULT_DETAIL      true
-#endif
 
 #define	MAXEDGES			48                 // 32
 #define	MAXPOINTS			28                 // don't let a base face get past this
@@ -77,9 +74,6 @@ typedef enum
     face_hint,
     face_skip,
     face_null,
-#ifdef ZHLT_DETAIL // AJM
-    face_detail
-#endif
 	face_discardable, // contents must not differ between front and back
 }
 facestyle_e;
@@ -283,9 +277,6 @@ extern bool     CheckFaceForEnv_Sky(const face_t* const f);
 // =====================================================================================
 
 
-#ifdef ZHLT_DETAIL // AJM
-extern bool     CheckFaceForDetail(const face_t* const f);
-#endif
 
 //=============================================================================
 // cull.c
@@ -313,9 +304,6 @@ extern char     g_bspfilename[_MAX_PATH];
 extern char		g_extentfilename[_MAX_PATH];
 
 
-#ifdef ZHLT_DETAIL // AJM
-extern bool g_bDetailBrushes;
-#endif
 
 extern bool     g_bUseNullTex;
 
