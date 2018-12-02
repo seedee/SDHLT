@@ -149,9 +149,7 @@ typedef struct
 {
 	vec3_t origin;
 	int visleafnum;
-#ifdef HLVIS_SKYBOXMODEL
 	int reverse;
-#endif
 }
 overview_t;
 extern const int g_overview_max;

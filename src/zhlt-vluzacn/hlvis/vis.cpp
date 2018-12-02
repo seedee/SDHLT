@@ -573,7 +573,6 @@ static void     LeafFlow(const int leafnum)
 			outbuffer[i >> 3] |= (1 << (i & 7));
 		}
 	}
-#ifdef HLVIS_SKYBOXMODEL
 	for (i = 0; i < g_portalleafs; i++)
 	{
 		if (g_leafinfos[i].isskyboxpoint)
@@ -581,7 +580,6 @@ static void     LeafFlow(const int leafnum)
 			outbuffer[i >> 3] |= (1 << (i & 7));
 		}
 	}
-#endif
     numvis = 0;
     for (i = 0; i < g_portalleafs; i++)
     {
@@ -931,7 +929,6 @@ static void     LoadPortals(char* portal_image)
 			int d = g_overview[j].visleafnum - g_leafstarts[i];
 			if (0 <= d && d < g_leafcounts[i])
 			{
-#ifdef HLVIS_SKYBOXMODEL
 				if (g_overview[j].reverse)
 				{
 					g_leafinfos[i].isskyboxpoint = true;
@@ -940,9 +937,6 @@ static void     LoadPortals(char* portal_image)
 				{
 					g_leafinfos[i].isoverviewpoint = true;
 				}
-#else
-				g_leafinfos[i].isoverviewpoint = true;
-#endif
 			}
 		}
 	}
@@ -1706,9 +1700,7 @@ int             main(const int argc, char** argv)
 					GetVectorForKey (&g_entities[i], "origin", p);
 					VectorCopy (p, g_overview[g_overview_count].origin);
 					g_overview[g_overview_count].visleafnum = VisLeafnumForPoint (p);
-#ifdef HLVIS_SKYBOXMODEL
 					g_overview[g_overview_count].reverse = IntForKey (&g_entities[i], "reverse");
-#endif
 					g_overview_count++;
 				}
 			}

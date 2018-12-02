@@ -69,7 +69,6 @@
 	#endif
 //#define HLBSP_SUBDIVIDE_INMID // this may contribute to 'AllocBlock: full' problem though it may generate fewer faces. --vluzacn
 
-#define HLVIS_SKYBOXMODEL //--vluzacn
 
 
 #define HLRAD_INFO_TEXLIGHTS
