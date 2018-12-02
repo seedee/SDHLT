@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_SortPatches_FIX // Important!! --vluzacn
 #define HLRAD_GatherPatchLight //--vluzacn
 	#ifdef HLRAD_GatherPatchLight
 #define HLRAD_SOFTSKY //--vluzacn

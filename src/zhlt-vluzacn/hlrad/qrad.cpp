@@ -2448,11 +2448,7 @@ static void     SortPatches()
         patch_t*        patch = g_patches + 1;
         patch_t*        prev = g_patches;
 
-#ifdef HLRAD_SortPatches_FIX
 		g_face_patches[prev->faceNumber] = prev;
-#else
-        g_face_patches[0] = g_patches;
-#endif
 
         for (x = 1; x < g_num_patches; x++, patch++)
         {
