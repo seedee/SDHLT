@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_PATCHBLACK_FIX //--vluzacn
 #define HLRAD_HuntForWorld_EDGE_FIX // similar to HLRAD_TestLine_EDGE_FIX. --vluzacn
 #define HLRAD_WITHOUTVIS //--vluzacn
 #define HLRAD_SNAPTOWINDING //--vluzacn
@@ -192,9 +191,7 @@
 	#ifdef HLRAD_ACCURATEBOUNCE_TEXLIGHT
 #define HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN //--vluzacn
 	#endif
-	#ifdef HLRAD_PATCHBLACK_FIX
 #define HLRAD_ACCURATEBOUNCE_REDUCEAREA //--vluzacn
-	#endif
 	#ifdef HLRAD_CUSTOMTEXLIGHT
 #define HLRAD_CUSTOMTEXLIGHT_COLOR //--vluzacn
 	#endif

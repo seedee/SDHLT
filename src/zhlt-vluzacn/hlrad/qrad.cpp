@@ -689,7 +689,6 @@ static bool     PlacePatchInside(patch_t* patch)
 
     plane = getPlaneFromFaceNumber(patch->faceNumber);
 
-#ifdef HLRAD_PATCHBLACK_FIX
 #ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 	vec_t pointsfound;
 	vec_t pointstested;
@@ -777,34 +776,6 @@ static bool     PlacePatchInside(patch_t* patch)
 				  patch->origin[0], patch->origin[1], patch->origin[2]);
 		return false;
 	}
-#else // obviously who wrote these code misunderstood the function of HuntForWorld
-    if (!HuntForWorld(patch->origin, face_offset, plane, 11, 0.1, 0.01) &&
-        !HuntForWorld(patch->origin, face_offset, plane, 11, 0.1, 0.1) &&
-        !HuntForWorld(patch->origin, face_offset, plane, 11, 0.1, 0.5) &&
-        !HuntForWorld(patch->origin, face_offset, plane, 11, 0.1, -0.01) &&
-        !HuntForWorld(patch->origin, face_offset, plane, 11, 0.1, -0.1))
-    {
-        // Try offsetting it by the plane normal (1 unit away) and try again
-
-        VectorAdd(plane->normal, patch->origin, patch->origin); // Original offset-into-world method
-        if (PointInLeaf(patch->origin) == g_dleafs)
-        {
-            if (!HuntForWorld(patch->origin, face_offset, plane, 11, 0.1, 0.01) &&
-                !HuntForWorld(patch->origin, face_offset, plane, 11, 0.1, 0.1) &&
-                !HuntForWorld(patch->origin, face_offset, plane, 11, 0.1, 0.5) &&
-                !HuntForWorld(patch->origin, face_offset, plane, 11, 0.1, -0.01) &&
-                !HuntForWorld(patch->origin, face_offset, plane, 11, 0.1, -0.1))
-            {
-                patch->flags = (ePatchFlags)(patch->flags | ePatchFlagOutside);
-                Developer(DEVELOPER_LEVEL_MESSAGE, "Patch @ (%4.3f %4.3f %4.3f) outside world\n",
-                          patch->origin[0], patch->origin[1], patch->origin[2]);
-                return false;
-            }
-        }
-    }
-
-    return true;
-#endif
 }
 #ifdef HLRAD_ACCURATEBOUNCE
 static void		UpdateEmitterInfo (patch_t *patch)
@@ -1718,12 +1689,6 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 
         totalarea += patch->area;
 
-#ifndef HLRAD_PATCHBLACK_FIX
-        PlacePatchInside(patch);
-#ifdef HLRAD_ACCURATEBOUNCE
-		UpdateEmitterInfo (patch);
-#endif
-#endif
 
         BaseLightForFace(f, light);
         //LRC        VectorCopy(light, patch->totallight);
@@ -1861,11 +1826,9 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 		VectorCopy (g_translucenttextures[g_texinfo[f->texinfo].miptex], patch->translucent_v);
 		patch->translucent_b = !VectorCompare (patch->translucent_v, vec3_origin);
 #endif
-#ifdef HLRAD_PATCHBLACK_FIX
         PlacePatchInside(patch);
 #ifdef HLRAD_ACCURATEBOUNCE
 		UpdateEmitterInfo (patch);
-#endif
 #endif
 
         g_face_patches[fn] = patch;

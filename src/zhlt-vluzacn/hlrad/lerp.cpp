@@ -2887,11 +2887,7 @@ void            SampleTriangulation(const lerpTriangulation_t* const trian, vec3
 // =====================================================================================
 static void     AddPatchToTriangulation(lerpTriangulation_t* trian, patch_t* patch)
 {
-#ifdef HLRAD_PATCHBLACK_FIX
 	if (patch->flags != ePatchFlagOutside)
-#else
-    if (!(patch->flags & ePatchFlagOutside))
-#endif
     {
         int             pnum = trian->numpoints;
 
