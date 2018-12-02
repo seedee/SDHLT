@@ -3320,10 +3320,8 @@ lerpTriangulation_t* CreateTriangulation(const unsigned int facenum)
 #endif
 
     trian->dists = (lerpDist_t*)calloc(trian->numpoints, sizeof(lerpDist_t));
-#ifdef HLRAD_HULLU
     //Get rid off error that seems to happen with some opaque faces (when opaque face have all edges 'out' of map)
     if(trian->numpoints != 0) // this line should be removed. --vluzacn
-#endif
     hlassume(trian->dists != NULL, assume_NoMemory);
 
     return trian;

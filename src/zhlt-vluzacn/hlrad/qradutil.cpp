@@ -540,9 +540,7 @@ static bool IsPositionValid (positionmap_t *map, const vec3_t &pos_st, vec3_t &p
 	{
 		// if the sample has gone beyond face boundaries, be careful that it hasn't passed a wall
 		vec3_t test;
-#ifdef HLRAD_HULLU
 		vec3_t transparency;
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 		int opaquestyle;
 #endif
@@ -561,9 +559,7 @@ static bool IsPositionValid (positionmap_t *map, const vec3_t &pos_st, vec3_t &p
 		}
 
 		if (TestSegmentAgainstOpaqueList (pos, test
-#ifdef HLRAD_HULLU
 				, transparency
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 				, opaquestyle
 #endif

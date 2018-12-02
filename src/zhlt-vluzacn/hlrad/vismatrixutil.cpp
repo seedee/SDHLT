@@ -234,10 +234,8 @@ void            MakeScales(const int threadnum)
     const vec_t*    normal1;
     const vec_t*    normal2;
 
-#ifdef HLRAD_HULLU
 #ifdef HLRAD_TRANSPARENCY_CPP
     unsigned int    fastfind_index = 0;
-#endif
 #endif
 
     vec_t           total;
@@ -317,20 +315,16 @@ void            MakeScales(const int threadnum)
             vec_t           dot1;
             vec_t           dot2;
 
-#ifdef HLRAD_HULLU
             vec3_t          transparency = {1.0,1.0,1.0};
-#endif
 #ifdef HLRAD_TRANSLUCENT
 			bool useback;
 			useback = false;
 #endif
 
             if (!g_CheckVisBit(i, j
-#ifdef HLRAD_HULLU
 				, transparency
 #ifdef HLRAD_TRANSPARENCY_CPP
 				, fastfind_index
-#endif
 #endif
 				) || (i == j))
             {
@@ -339,9 +333,7 @@ void            MakeScales(const int threadnum)
 				{
 					if ((i == j) ||
 						!CheckVisBitBackwards(i, j, backorigin, backnormal
-	#ifdef HLRAD_HULLU
 						, transparency
-	#endif
 						))
 					{
 						continue;
@@ -473,9 +465,7 @@ void            MakeScales(const int threadnum)
 #ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 			trans *= patch2->exposure;
 #endif
-#ifdef HLRAD_HULLU
             trans = trans * VectorAvg(transparency); //hullu: add transparency effect
-#endif
 #ifdef HLRAD_TRANSLUCENT
 			if (patch->translucent_b)
 			{
@@ -702,7 +692,6 @@ void            SwapTransfers(const int patchnum)
 }
 #endif /*HLRAD_NOSWAP*/
 
-#ifdef HLRAD_HULLU
 /*
  * =============
  * MakeScales
@@ -828,9 +817,7 @@ void            MakeRGBScales(const int threadnum)
 				if (patch->translucent_b)
 				{
 					if (!CheckVisBitBackwards(i, j, backorigin, backnormal
-	#ifdef HLRAD_HULLU
 						, transparency
-	#endif
 						) || (i==j))
 					{
 						continue;
@@ -1257,18 +1244,8 @@ void            SwapRGBTransfers(const int patchnum)
 }
 #endif /*HLRAD_NOSWAP*/
 
-#endif /*HLRAD_HULLU*/
 
 
-#ifndef HLRAD_HULLU
-
-void            DumpTransfersMemoryUsage()
-{
-    Log("Transfer Lists : %.0f transfers\n       Indices : %.0f bytes\n          Data : %.0f bytes\n",
-        (double)g_total_transfer, (double)g_transfer_index_bytes, (double)g_transfer_data_bytes);
-}
-
-#else
 
 //More human readable numbers
 void            DumpTransfersMemoryUsage()
@@ -1295,5 +1272,4 @@ void            DumpTransfersMemoryUsage()
 		Log("          Data : %11.0f bytes\n", (double)g_transfer_data_bytes);
 }
 
-#endif
 

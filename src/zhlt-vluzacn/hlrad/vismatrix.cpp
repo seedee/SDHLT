@@ -18,7 +18,6 @@ static byte*    s_vismatrix;
 
 
 #ifndef HLRAD_TRANSPARENCY_CPP
-#ifdef HLRAD_HULLU
 // =====================================================================================
 //      OPACITY ARRAY
 // =====================================================================================
@@ -45,7 +44,6 @@ static void FindOpacity(const unsigned bitpos, vec3_t &out)
 	VectorFill(out, 1.0);
 }
 
-#endif /*HLRAD_HULLU*/
 #endif
 
 // =====================================================================================
@@ -80,9 +78,7 @@ static void     TestPatchToFace(const unsigned patchnum, const int facenum, cons
             {
                 unsigned        m = patch2 - g_patches;
 
-#ifdef HLRAD_HULLU
 				vec3_t 		transparency = {1.0, 1.0, 1.0};
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 				int opaquestyle = -1;
 #endif
@@ -161,9 +157,7 @@ static void     TestPatchToFace(const unsigned patchnum, const int facenum, cons
 #else
 						patch->origin, patch2->origin
 #endif
-#ifdef HLRAD_HULLU
 						, transparency
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 						, opaquestyle
 #endif
@@ -184,7 +178,6 @@ static void     TestPatchToFace(const unsigned patchnum, const int facenum, cons
                     // patchnum can see patch m
                     unsigned        bitset = bitpos + m;
 
-#ifdef HLRAD_HULLU
 	#ifdef HLRAD_TRANSPARENCY_CPP
                     if(g_customshadow_with_bouncelight && !VectorCompare(transparency, vec3_one))
 					// zhlt3.4: if(g_customshadow_with_bouncelight && VectorCompare(transparency, vec3_one)) . --vluzacn
@@ -217,7 +210,6 @@ static void     TestPatchToFace(const unsigned patchnum, const int facenum, cons
                     	s_transparency_count++;
                     }
 	#endif
-#endif /*HLRAD_HULLU*/
 
 					ThreadLock (); //--vluzacn
                     s_vismatrix[bitset >> 3] |= 1 << (bitset & 7);
@@ -457,14 +449,12 @@ static void     FreeVisMatrix()
     }
 
 #ifndef HLRAD_TRANSPARENCY_CPP
-#ifdef HLRAD_HULLU
     if(s_transparency_list)
     {
     	free(s_transparency_list);
     	s_transparency_list = NULL;
     }
     s_transparency_count = s_max_transparency_count = 0;
-#endif
 #endif
 
 }
@@ -474,27 +464,19 @@ static void     FreeVisMatrix()
 // =====================================================================================
 #ifdef HLRAD_TRANSPARENCY_CPP
 static bool     CheckVisBitVismatrix(unsigned p1, unsigned p2
-#ifdef HLRAD_HULLU
 									 , vec3_t &transparency_out
 									 , unsigned int &next_index
-#endif
 									 )
 {
     unsigned        bitpos;
 
-#ifdef HLRAD_HULLU
     const unsigned a = p1;
     const unsigned b = p2;
 
     VectorFill(transparency_out, 1.0);
-#endif
 
     if (p1 > p2)
     {
-#ifndef HLRAD_HULLU
-        const unsigned a = p1;
-        const unsigned b = p2;
-#endif
         p1 = b;
         p2 = a;
     }
@@ -516,12 +498,10 @@ static bool     CheckVisBitVismatrix(unsigned p1, unsigned p2
 
     if (s_vismatrix[bitpos >> 3] & (1 << (bitpos & 7)))
     {
-#ifdef HLRAD_HULLU    	
     	if(g_customshadow_with_bouncelight)
     	{
     	    GetTransparency( a, b, transparency_out, next_index );
     	}
-#endif
         return true;
     }
 
@@ -529,9 +509,7 @@ static bool     CheckVisBitVismatrix(unsigned p1, unsigned p2
 }
 #else /*HLRAD_TRANSPARENCY_CPP*/
 static bool     CheckVisBitVismatrix(unsigned p1, unsigned p2
-#ifdef HLRAD_HULLU
 									 , vec3_t &transparency_out
-#endif
 									 )
 {
     unsigned        bitpos;
@@ -561,7 +539,6 @@ static bool     CheckVisBitVismatrix(unsigned p1, unsigned p2
 
     if (s_vismatrix[bitpos >> 3] & (1 << (bitpos & 7)))
     {
-#ifdef HLRAD_HULLU    	
     	if(g_customshadow_with_bouncelight)
     	{
     	    vec3_t getvalue = {1.0, 1.0, 1.0};
@@ -572,13 +549,10 @@ static bool     CheckVisBitVismatrix(unsigned p1, unsigned p2
     	{
     	    VectorFill(transparency_out, 1.0);
     	}
-#endif
         return true;
     }
 
-#ifdef HLRAD_HULLU
     VectorFill(transparency_out, 0.0);
-#endif
 
     return false;
 }
@@ -605,7 +579,6 @@ void            MakeScalesVismatrix()
         BuildVisMatrix();
         g_CheckVisBit = CheckVisBitVismatrix;
 
-#ifdef HLRAD_HULLU
 	#ifdef HLRAD_TRANSPARENCY_CPP
         CreateFinalTransparencyArrays("custom shadow array");
 	#else
@@ -614,33 +587,22 @@ void            MakeScalesVismatrix()
         else if(s_transparency_count)
         	Log("%-20s: %5.1f kilos\n", "custom shadow array", (s_max_transparency_count*sizeof(transparency_t)) / 1024.0);
 	#endif
-#endif
 
-#ifndef HLRAD_HULLU
-        NamedRunThreadsOn(g_num_patches, g_estimate, MakeScales);
-#else
 	if(g_rgb_transfers)
 		{NamedRunThreadsOn(g_num_patches, g_estimate, MakeRGBScales);}
 	else
 		{NamedRunThreadsOn(g_num_patches, g_estimate, MakeScales);}
-#endif
         FreeVisMatrix();
-#ifdef HLRAD_HULLU
 	#ifdef HLRAD_TRANSPARENCY_CPP
         FreeTransparencyArrays();
 	#endif
-#endif
 
 #ifndef HLRAD_NOSWAP
         // invert the transfers for gather vs scatter
-#ifndef HLRAD_HULLU
-        NamedRunThreadsOnIndividual(g_num_patches, g_estimate, SwapTransfers);
-#else
 	if(g_rgb_transfers)
 		{NamedRunThreadsOnIndividual(g_num_patches, g_estimate, SwapRGBTransfers);}
 	else
 		{NamedRunThreadsOnIndividual(g_num_patches, g_estimate, SwapTransfers);}
-#endif
 #endif /*HLRAD_NOSWAP*/
         if (g_incremental)
             writetransfers(transferfile, g_num_patches);

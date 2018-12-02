@@ -4,16 +4,13 @@
 //  CheckVisBit
 // =====================================================================================
 static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
-#ifdef HLRAD_HULLU
 									   , vec3_t &transparency_out
 #ifdef HLRAD_TRANSPARENCY_CPP
 									   , unsigned int &
 #endif
-#endif
 									   )
 	// patchnum1=receiver, patchnum2=emitter. //HLRAD_CheckVisBitNoVismatrix_NOSWAP
 {
-#ifdef HLRAD_HULLU
 #ifndef HLRAD_CheckVisBitNoVismatrix_NOSWAP
     // This fix was in vismatrix and sparse methods but not in nomatrix
     // Without this nomatrix causes SwapTransfers output lots of errors
@@ -34,14 +31,11 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
     {
         Warning("in CheckVisBit(), patchnum2 > num_patches");
     }
-#endif
 	
     patch_t*        patch = &g_patches[patchnum1];
     patch_t*        patch2 = &g_patches[patchnum2];
 
-#ifdef HLRAD_HULLU
     VectorFill(transparency_out, 1.0);
-#endif
 
     // if emitter is behind that face plane, skip all patches
 
@@ -59,9 +53,7 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 
             const dplane_t* plane = getPlaneFromFaceNumber(patch->faceNumber);
 
-#ifdef HLRAD_HULLU
             vec3_t transparency = {1.0,1.0,1.0};
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 			int opaquestyle = -1;
 #endif
@@ -131,9 +123,7 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 #else
 				patch->origin, patch2->origin
 #endif
-#ifdef HLRAD_HULLU
 				, transparency
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 				, opaquestyle
 #endif
@@ -149,12 +139,10 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 					AddStyleToStyleArray (patchnum1, patchnum2, opaquestyle);
 				}
 #endif
-#ifdef HLRAD_HULLU            	
             	if(g_customshadow_with_bouncelight)
             	{
             		VectorCopy(transparency, transparency_out);
             	}
-#endif
                 return true;
             }
         }
@@ -164,17 +152,13 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 }
 #ifdef HLRAD_TRANSLUCENT
        bool     CheckVisBitBackwards(unsigned receiver, unsigned emitter, const vec3_t &backorigin, const vec3_t &backnormal
-#ifdef HLRAD_HULLU
 									   , vec3_t &transparency_out
-#endif
 									   )
 {	
     patch_t*        patch = &g_patches[receiver];
     patch_t*        emitpatch = &g_patches[emitter];
 
-#ifdef HLRAD_HULLU
     VectorFill(transparency_out, 1.0);
-#endif
 
     if (emitpatch)
     {
@@ -183,9 +167,7 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
         if (DotProduct(backorigin, emitplane->normal) > (PatchPlaneDist(emitpatch) + MINIMUM_PATCH_DISTANCE))
         {
 
-#ifdef HLRAD_HULLU
             vec3_t transparency = {1.0,1.0,1.0};
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 			int opaquestyle = -1;
 #endif
@@ -240,9 +222,7 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 #else
 				backorigin, emitpatch->origin
 #endif
-#ifdef HLRAD_HULLU
 				, transparency
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 				, opaquestyle
 #endif
@@ -258,12 +238,10 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 					AddStyleToStyleArray (receiver, emitter, opaquestyle);
 				}
 #endif
-#ifdef HLRAD_HULLU            	
             	if(g_customshadow_with_bouncelight)
             	{
             		VectorCopy(transparency, transparency_out);
             	}
-#endif
                 return true;
             }
         }
@@ -288,25 +266,17 @@ void            MakeScalesNoVismatrix()
     if (!g_incremental || !readtransfers(transferfile, g_num_patches))
     {
         g_CheckVisBit = CheckVisBitNoVismatrix;
-#ifndef HLRAD_HULLU
-        NamedRunThreadsOn(g_num_patches, g_estimate, MakeScales);
-#else
 	if(g_rgb_transfers)
 		{NamedRunThreadsOn(g_num_patches, g_estimate, MakeRGBScales);}
 	else
 		{NamedRunThreadsOn(g_num_patches, g_estimate, MakeScales);}
-#endif
 
 #ifndef HLRAD_NOSWAP
         // invert the transfers for gather vs scatter
-#ifndef HLRAD_HULLU
-        NamedRunThreadsOnIndividual(g_num_patches, g_estimate, SwapTransfers);
-#else
 	if(g_rgb_transfers)
 		{NamedRunThreadsOnIndividual(g_num_patches, g_estimate, SwapRGBTransfers);}
 	else
 		{NamedRunThreadsOnIndividual(g_num_patches, g_estimate, SwapTransfers);}
-#endif
 #endif /*HLRAD_NOSWAP*/
         if (g_incremental)
         {

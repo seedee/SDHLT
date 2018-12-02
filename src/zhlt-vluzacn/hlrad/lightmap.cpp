@@ -2058,9 +2058,7 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 		vec3_t	surf_inwinding_noedge;
 		dleaf_t*leaf_inwinding;
 		dleaf_t*leaf_inwinding_noedge;
-#ifdef HLRAD_HULLU
 		vec3_t transparency = { 1.0, 1.0, 1.0 };
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 		int opaquestyle;
 #endif
@@ -2075,9 +2073,7 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 					|| !leaf_inwinding
 					|| TestLine (surf_direct, surf_inwinding) != CONTENTS_EMPTY
 					|| TestSegmentAgainstOpaqueList (surf_direct, surf_inwinding
-	#ifdef HLRAD_HULLU
 						, transparency
-	#endif
 	#ifdef HLRAD_OPAQUE_STYLE
 						, opaquestyle
 	#endif
@@ -2108,9 +2104,7 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 					|| !leaf_inwinding_noedge
 					|| TestLine (surf_inwinding, surf_inwinding_noedge) != CONTENTS_EMPTY
 					|| TestSegmentAgainstOpaqueList (surf_inwinding, surf_inwinding_noedge
-	#ifdef HLRAD_HULLU
 						, transparency
-	#endif
 	#ifdef HLRAD_OPAQUE_STYLE
 						, opaquestyle
 	#endif
@@ -2507,16 +2501,12 @@ static void     CalcPoints(lightinfo_t* l)
 							{
 								if (lightmode & eModelLightmodeConcave)
 								{
-		#ifdef HLRAD_HULLU
 									vec3_t transparency = { 1.0, 1.0, 1.0 };
-		#endif
 		#ifdef HLRAD_OPAQUE_STYLE
 									int opaquestyle;
 		#endif
 									if (TestSegmentAgainstOpaqueList(surface_midpoint, surf
-		#ifdef HLRAD_HULLU
 										, transparency
-		#endif
 		#ifdef HLRAD_OPAQUE_STYLE
 										, opaquestyle
 		#endif
@@ -2584,16 +2574,12 @@ static void     CalcPoints(lightinfo_t* l)
 					{
 						if (TestLine(surf, surf_nopull) == CONTENTS_EMPTY)
 						{
-#ifdef HLRAD_HULLU
 							vec3_t transparency = { 1.0, 1.0, 1.0 };
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 							int opaquestyle;
 #endif
 							if (!TestSegmentAgainstOpaqueList(surf, surf_nopull
-#ifdef HLRAD_HULLU
 								, transparency
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 								, opaquestyle
 #endif
@@ -3986,9 +3972,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								continue;                      // occluded
 							}
 
-	#ifdef HLRAD_HULLU
 							vec3_t transparency;
-	#endif
 	#ifdef HLRAD_OPAQUE_STYLE
 							int opaquestyle;
 	#endif
@@ -3998,9 +3982,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 	#else
 								delta
 	#endif
-	#ifdef HLRAD_HULLU
 								, transparency
-	#endif
 	#ifdef HLRAD_OPAQUE_STYLE
 								, opaquestyle
 	#endif
@@ -4029,9 +4011,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 	#else
 							VectorScale(l->intensity, dot, add_one);
 	#endif
-	#ifdef HLRAD_HULLU
 							VectorMultiply(add_one, transparency, add_one);
-	#endif
 	#ifdef HLRAD_OPAQUE_STYLE
 							// add to the total brightness of this sample
 							style = l->style;
@@ -4135,9 +4115,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								}
 
 					#ifdef HLRAD_OPAQUE_DIFFUSE_FIX
-					#ifdef HLRAD_HULLU
 								vec3_t transparency;
-					#endif
 					#ifdef HLRAD_OPAQUE_STYLE
 								int opaquestyle;
 					#endif
@@ -4147,9 +4125,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 					#else
 									delta
 					#endif
-					#ifdef HLRAD_HULLU
 									, transparency
-					#endif
 					#ifdef HLRAD_OPAQUE_STYLE
 									, opaquestyle
 					#endif
@@ -4194,9 +4170,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 					#endif
 								VectorScale(sky_intensity, dot, add_one);
 					#ifdef HLRAD_OPAQUE_DIFFUSE_FIX
-					#ifdef HLRAD_HULLU
 								VectorMultiply(add_one, transparency, add_one);
-					#endif
 					#endif /*HLRAD_OPAQUE_DIFFUSE_FIX*/
 					#ifdef HLRAD_OPAQUE_STYLE
 								// add to the total brightness of this sample
@@ -4257,18 +4231,14 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                             continue;                      // occluded
                         }
 
-#ifdef HLRAD_HULLU
 			            vec3_t transparency = {1.0,1.0,1.0};
-#endif
                         if (TestSegmentAgainstOpaqueList(pos, 
 #ifdef HLRAD_OPAQUEINSKY_FIX
 							skyhit
 #else
 							delta
 #endif
-#ifdef HLRAD_HULLU
 							, transparency
-#endif
 							))
                         {
                             continue;
@@ -4281,9 +4251,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 						}
 #endif
                         VectorScale(l->intensity, dot, add);
-#ifdef HLRAD_HULLU
                         VectorMultiply(add, transparency, add);
-#endif
 
 #endif /*HLRAD_MULTISKYLIGHT*/
                     }
@@ -4629,9 +4597,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 						{
 							continue;
 						}
-	#ifdef HLRAD_HULLU
 						vec3_t transparency;
-	#endif
 						int opaquestyle;
 						if (TestSegmentAgainstOpaqueList (pos, 
 	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
@@ -4639,16 +4605,12 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 	#else
 							l->origin
 	#endif
-	#ifdef HLRAD_HULLU
 							, transparency
-	#endif
 							, opaquestyle))
 						{
 							continue;
 						}
-	#ifdef HLRAD_HULLU
 						VectorMultiply (add, transparency, add);
-	#endif
 						// add to the total brightness of this sample
 						style = l->style;
 						if (opaquestyle != -1)
@@ -4675,9 +4637,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                     if (VectorMaximum(add) > (l->style ? g_coring : 0))
 #endif
                     {
-#ifdef HLRAD_HULLU
                  	    vec3_t transparency = {1.0,1.0,1.0};
-#endif 
 
                         if (l->type != emit_skylight && TestLine(pos, 
 	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
@@ -4698,9 +4658,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 	#else
 								l->origin
 	#endif
-#ifdef HLRAD_HULLU
 								, transparency
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 								, opaquestyle
 #endif
@@ -4715,12 +4673,10 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 #endif
 
 #ifdef HLRAD_STYLE_CORING
-#ifdef HLRAD_HULLU
 						if (l->type != emit_skylight)
 						{
 							VectorMultiply (add, transparency, add);
 						}
-#endif
 #ifdef ZHLT_XASH
 						if (l->type != emit_skylight)
 						{
@@ -4761,9 +4717,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                             styles[style_index] = l->style;
                         }
 
-#ifdef HLRAD_HULLU
                         VectorMultiply(add,transparency,add);
-#endif
                         VectorAdd(sample[style_index], add, sample[style_index]);
 #endif
                     }
@@ -4815,18 +4769,14 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
             }
 
 #ifdef HLRAD_OPAQUE_DIFFUSE_FIX
-#ifdef HLRAD_HULLU
 			vec3_t transparency = {1.0,1.0,1.0};
-#endif
 			if (TestSegmentAgainstOpaqueList(pos, 
 #ifdef HLRAD_OPAQUEINSKY_FIX
 				skyhit
 #else
 				delta
 #endif
-#ifdef HLRAD_HULLU
 				, transparency
-#endif
 				))
 			{
 				continue;
@@ -4840,9 +4790,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 #endif
             VectorScale(sky_intensity, dot, add);
 #ifdef HLRAD_OPAQUE_DIFFUSE_FIX
-#ifdef HLRAD_HULLU
                         VectorMultiply(add, transparency, add);
-#endif
 #endif /*HLRAD_OPAQUE_DIFFUSE_FIX*/
             VectorAdd(total, add, total);
         }
@@ -5855,10 +5803,8 @@ void            BuildFacelights(const int facenum)
 #endif
 
 #ifndef HLRAD_TRANCPARENCYLOSS_FIX
-#ifdef HLRAD_HULLU
     bool            b_transparency_loss = false;
     vec_t           light_left_for_facelight = 1.0;
-#endif
 #endif
 #ifdef HLRAD_AVOIDWALLBLEED
 	int				*sample_wallflags;
@@ -5926,7 +5872,6 @@ void            BuildFacelights(const int facenum)
     // get transparency loss (part of light go through transparency faces.. reduce facelight on these)
     //
 #ifndef HLRAD_OPAQUE_NODE
-#ifdef HLRAD_HULLU
     for(unsigned int m = 0; m < g_opaque_face_count; m++)
     {
         opaqueList_t* opaque = &g_opaque_face_list[m];
@@ -5943,7 +5888,6 @@ void            BuildFacelights(const int facenum)
             break;
         }
     }
-#endif
 #endif
 #endif
 
@@ -6718,7 +6662,6 @@ void            BuildFacelights(const int facenum)
 #endif
 
 #ifndef HLRAD_TRANCPARENCYLOSS_FIX
-#ifdef HLRAD_HULLU            
             if(b_transparency_loss)
             {
 #ifdef HLRAD_AUTOCORING
@@ -6730,7 +6673,6 @@ void            BuildFacelights(const int facenum)
             	 VectorScale(facelight[facenum].samples[j][i].light, light_left_for_facelight, facelight[facenum].samples[j][i].light);
 #endif
             }
-#endif
 #endif
 
 #ifndef HLRAD_ACCURATEBOUNCE_SAMPLELIGHT

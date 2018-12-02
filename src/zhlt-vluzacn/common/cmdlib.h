@@ -71,7 +71,6 @@
 
 
 
-#define HLRAD_HULLU // semi-opaque brush based entities and effects by hullu
 
 #define HLRAD_TRANSNONORMALIZE //--vluzacn
 #define HLRAD_OPAQUE_DIFFUSE_FIX //--vluzacn
@@ -79,9 +78,7 @@
 #define HLRAD_NOSWAP //--vluzacn
 #define HLRAD_TRANSTOTAL_HACK //--vluzacn
 	#endif
-	#ifdef HLRAD_HULLU
 #define HLRAD_TRANSPARENCY_CPP //--vluzacn
-	#endif
 	#ifdef HLRAD_TRANSPARENCY_CPP
 #define HLRAD_TestSegmentAgainstOpaqueList_VL //--vluzacn
 	#endif

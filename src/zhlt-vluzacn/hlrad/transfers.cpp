@@ -59,7 +59,6 @@ void            writetransfers(const char* const transferfile, const long total_
             }
             if (patch->iData)
             {
-#ifdef HLRAD_HULLU
 				if(g_rgb_transfers)
 				{
 	#ifdef HLRAD_TRANSFERDATA_COMPRESS
@@ -76,13 +75,6 @@ void            writetransfers(const char* const transferfile, const long total_
 			amtwritten = fwrite(patch->tData, sizeof(transfer_data_t), patch->iData, file);
 	#endif
 				}
-#else
-	#ifdef HLRAD_TRANSFERDATA_COMPRESS
-				amtwritten = fwrite(patch->tData, float_size[g_transfer_compress_type], patch->iData, file);
-	#else
-                amtwritten = fwrite(patch->tData, sizeof(transfer_data_t), patch->iData, file);
-	#endif
-#endif
                 if (amtwritten != patch->iData)
                 {
                     goto FailedWrite;
@@ -160,7 +152,6 @@ bool            readtransfers(const char* const transferfile, const long numpatc
             }
             if (patch->iData)
             {
-#ifdef HLRAD_HULLU
 				if(g_rgb_transfers)
 				{
 	#ifdef HLRAD_TRANSFERDATA_COMPRESS
@@ -189,19 +180,6 @@ bool            readtransfers(const char* const transferfile, const long numpatc
                     amtread = fread(patch->tData, sizeof(transfer_data_t), patch->iData, file);		    
 	#endif
 				}
-#else
-	#ifdef HLRAD_TRANSFERDATA_COMPRESS
-                patch->tData = (transfer_data_t*)AllocBlock(patch->iData * float_size[g_transfer_compress_type] + unused_size);
-	#else
-                patch->tData = (transfer_data_t*)AllocBlock(patch->iData * sizeof(transfer_data_t *));
-	#endif
-                hlassume(patch->tData != NULL, assume_NoMemory);
-	#ifdef HLRAD_TRANSFERDATA_COMPRESS
-                amtread = fread(patch->tData, float_size[g_transfer_compress_type], patch->iData, file);
-	#else
-                amtread = fread(patch->tData, sizeof(transfer_data_t), patch->iData, file);
-	#endif
-#endif
                 if (amtread != patch->iData)
                 {
                     goto FailedRead;

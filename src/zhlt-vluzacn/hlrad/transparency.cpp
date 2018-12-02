@@ -5,7 +5,6 @@
 //
 #include "qrad.h"
 
-#ifdef HLRAD_HULLU
 
 #ifndef HLRAD_TRANSPARENCY_FAST
 #define TRANS_LIST_GROWTH 64
@@ -290,7 +289,6 @@ void GetTransparency(const unsigned p1, const unsigned p2, vec3_t &trans, unsign
 }
 
 
-#endif /*HLRAD_HULLU*/
 
 
 

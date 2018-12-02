@@ -149,10 +149,8 @@ float		g_softlight_hack_distance = DEFAULT_SOFTLIGHT_HACK_DISTANCE;
 #endif
 // --------------------------------------------------------------------------
 
-#ifdef HLRAD_HULLU
 bool		g_customshadow_with_bouncelight = DEFAULT_CUSTOMSHADOW_WITH_BOUNCELIGHT;
 bool		g_rgb_transfers = DEFAULT_RGB_TRANSFERS;
-#endif
 
 #ifdef HLRAD_TRANSTOTAL_HACK
 float		g_transtotal_hack = DEFAULT_TRANSTOTAL_HACK;
@@ -314,7 +312,6 @@ void            GetParamsFromEnt(entity_t* mapent)
         Log("%30s [ %-9s ]\n", "Number of radiosity bounces", ValueForKey(mapent, "bounce"));
     }
     
-#ifdef HLRAD_HULLU
     iTmp = IntForKey(mapent, "customshadowwithbounce");
     if (iTmp)
     {  
@@ -327,7 +324,6 @@ void            GetParamsFromEnt(entity_t* mapent)
     	g_rgb_transfers = true;
     	Log("%30s [ %-9s ]\n", "RGB Transfers", ValueForKey(mapent, "rgbtransfers"));
     }
-#endif
 
     // ambient(string) : "Ambient world light (0.0 to 1.0, R G B)" : "0 0 0" 
     //vec3_t          g_ambient = { DEFAULT_AMBIENT_RED, DEFAULT_AMBIENT_GREEN, DEFAULT_AMBIENT_BLUE };
@@ -1825,13 +1821,11 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 	#endif
 					{
 						opacity = 1.0;
-	#ifdef HLRAD_HULLU
 						if (op->transparency)
 						{
 							opacity = 1.0 - VectorAvg (op->transparency_scale);
 							opacity = opacity > 1.0? 1.0: opacity < 0.0? 0.0: opacity;
 						}
-	#endif
 	#ifdef HLRAD_BOUNCE_STYLE
 						if (op->style != -1)
 						{ // toggleable opaque entity
@@ -1983,9 +1977,7 @@ static void     AddFaceToOpaqueList(
 #else
 									const unsigned facenum, const Winding* const winding
 #endif
-#ifdef HLRAD_HULLU
 									, const vec3_t &transparency_scale, const bool transparency
-#endif
 #ifndef HLRAD_OPAQUE_NODE
 #ifdef HLRAD_OPAQUE_GROUP
 									, const dmodel_t* mod
@@ -2019,10 +2011,8 @@ static void     AddFaceToOpaqueList(
 			style = -1;
 		}
 #endif
-#ifdef HLRAD_HULLU
         VectorCopy(transparency_scale, opaque->transparency_scale);
         opaque->transparency = transparency;
-#endif
 #ifdef HLRAD_OPAQUE_NODE
 		opaque->entitynum = entitynum;
 		opaque->modelnum = modelnum;
@@ -2121,7 +2111,6 @@ static void		LoadOpaqueEntities()
 				if (g_allow_opaques && (IntForKey (ent, "zhlt_lightflags") & eModelLightmodeOpaque))
 					opaque = true;
 			}
-#ifdef HLRAD_HULLU
 			vec3_t d_transparency;
 			VectorFill (d_transparency, 0.0);
 			bool b_transparency = false;
@@ -2148,7 +2137,6 @@ static void		LoadOpaqueEntities()
 				if (!VectorCompare (d_transparency, vec3_origin))
 					b_transparency = true;
 			}
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 			int opaquestyle = -1;
 			{
@@ -2195,9 +2183,7 @@ static void		LoadOpaqueEntities()
 			if (opaque)
 			{
 				AddFaceToOpaqueList (entnum, modelnum, origin
-#ifdef HLRAD_HULLU
 					, d_transparency, b_transparency
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 					, opaquestyle
 #endif
@@ -2298,10 +2284,8 @@ static void     MakePatches()
     int				style; //LRC
 
 #ifndef HLRAD_OPAQUE_NODE
-#ifdef HLRAD_HULLU
     vec3_t		d_transparency;
     bool		b_transparency;
-#endif
 #endif
 
     Log("%i faces\n", g_numfaces);
@@ -2385,7 +2369,6 @@ static void     MakePatches()
         }
 
 #ifndef HLRAD_OPAQUE_NODE
-#ifdef HLRAD_HULLU
 	// Check for colored transparency/custom shadows
         VectorFill(d_transparency, 1.0);
         b_transparency = false;
@@ -2412,7 +2395,6 @@ static void     MakePatches()
         		b_transparency = true;
         	}
         }
-#endif
 #endif
         // Allow models to be lit in an alternate location (pt3)
         if (b_light_origin && b_model_center)
@@ -2512,9 +2494,7 @@ static void     MakePatches()
                 if (lightmode & eModelLightmodeOpaque)
                 {
 					AddFaceToOpaqueList(fn, w
-#ifdef HLRAD_HULLU
 						, d_transparency, b_transparency
-#endif
 #ifdef HLRAD_OPAQUE_GROUP
 						, mod
 #endif
@@ -3108,7 +3088,6 @@ static void     GatherLight(int threadnum)
 }
 
 // RGB Transfer version
-#ifdef HLRAD_HULLU
 static void     GatherRGBLight(int threadnum)
 {
     int             j;
@@ -3466,7 +3445,6 @@ static void     GatherRGBLight(int threadnum)
 #endif
     }
 }
-#endif
 
 #ifdef SYSTEM_WIN32
 #pragma warning(pop)
@@ -3509,14 +3487,10 @@ static void     BounceLight()
     for (i = 0; i < g_numbounce; i++)
     {
         Log("Bounce %u ", i + 1);
-#ifdef HLRAD_HULLU
 	if(g_rgb_transfers)
 	       	{NamedRunThreadsOn(g_num_patches, g_estimate, GatherRGBLight);}
         else
         	{NamedRunThreadsOn(g_num_patches, g_estimate, GatherLight);}
-#else
-	NamedRunThreadsOn(g_num_patches, g_estimate, GatherLight);
-#endif
         CollectLight();
 
         if (g_dumppatches)
@@ -3593,13 +3567,11 @@ static void     FreeTransfers()
             FreeBlock(patch->tData);
             patch->tData = NULL;
         }
-#ifdef HLRAD_HULLU
         if (patch->tRGBData)
         {
             FreeBlock(patch->tRGBData);
             patch->tRGBData = NULL;
         }
-#endif
         if (patch->tIndex)
         {
             FreeBlock(patch->tIndex);
@@ -4038,10 +4010,8 @@ static void     Usage()
 
     // ------------------------------------------------------------------------  
     
-#ifdef HLRAD_HULLU
     Log("   -customshadowwithbounce : Enables custom shadows with bounce light\n");
     Log("   -rgbtransfers           : Enables RGB Transfers (for custom shadows)\n\n");
-#endif
 
 #ifdef HLRAD_TRANSTOTAL_HACK
 #ifndef HLRAD_REFLECTIVITY
@@ -4305,12 +4275,10 @@ static void     Settings()
 
     // ------------------------------------------------------------------------
 
-#ifdef HLRAD_HULLU
     Log("\n");
     Log("custom shadows with bounce light\n"
         "                     [ %17s ] [ %17s ]\n", g_customshadow_with_bouncelight ? "on" : "off", DEFAULT_CUSTOMSHADOW_WITH_BOUNCELIGHT ? "on" : "off");
     Log("rgb transfers        [ %17s ] [ %17s ]\n", g_rgb_transfers ? "on" : "off", DEFAULT_RGB_TRANSFERS ? "on" : "off"); 
-#endif
 
 #ifdef HLRAD_TRANSTOTAL_HACK
 #ifndef HLRAD_REFLECTIVITY
@@ -5164,7 +5132,6 @@ int             main(const int argc, char** argv)
 #endif
         // ------------------------------------------------------------------------
 
-#ifdef HLRAD_HULLU
         else if (!strcasecmp(argv[i], "-customshadowwithbounce"))
         {
         	g_customshadow_with_bouncelight = true;
@@ -5173,7 +5140,6 @@ int             main(const int argc, char** argv)
         {
         	g_rgb_transfers = true;
         }
-#endif
 
 #ifdef ZHLT_PROGRESSFILE // AJM
         else if (!strcasecmp(argv[i], "-progressfile"))

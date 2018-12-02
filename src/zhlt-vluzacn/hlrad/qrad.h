@@ -159,7 +159,6 @@
 
 // O_o ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Changes by Jussi Kivilinna <hullu@unitedadmins.com> [http://hullu.xtragaming.com/]
-#ifdef HLRAD_HULLU
 	// Transparency light support for bounced light(transfers) is extreamly slow 
 	// for 'vismatrix' and 'sparse' atm. 
 	// Only recommended to be used with 'nomatrix' mode
@@ -167,7 +166,6 @@
 
 	// RGB Transfers support for HLRAD .. to be used with -customshadowwithbounce
 	#define DEFAULT_RGB_TRANSFERS false
-#endif
 // o_O ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #ifdef HLRAD_TRANSTOTAL_HACK
@@ -358,7 +356,6 @@ typedef float transfer_data_t;
 typedef unsigned char rgb_transfer_data_t;
 #else
 //Special RGB mode for transfers
-#ifdef HLRAD_HULLU
 	#if defined(HLRAD_HULLU_48BIT_RGB_TRANSFERS) && defined(HLRAD_HULLU_96BIT_RGB_TRANSFERS)
 		#error Conflict: Both HLRAD_HULLU_48BIT_RGB_TRANSFERS and HLRAD_HULLU_96BIT_RGB_TRANSFERS defined!
 	#elif defined(HLRAD_HULLU_96BIT_RGB_TRANSFERS)
@@ -370,7 +367,6 @@ typedef unsigned char rgb_transfer_data_t;
 	#endif
 	
 	typedef rgb_transfer_t rgb_transfer_data_t;
-#endif
 #endif
 
 #define MAX_COMPRESSED_TRANSFER_INDEX_SIZE ((1 << 12) - 1)
@@ -413,9 +409,7 @@ typedef struct patch_s
 
     transfer_index_t* tIndex;
     transfer_data_t*  tData;
-#ifdef HLRAD_HULLU
     rgb_transfer_data_t*	tRGBData;
-#endif
 
     int             faceNumber;
     ePatchFlags     flags;
@@ -626,10 +620,8 @@ typedef struct
     unsigned facenum;
 #endif
 
-#ifdef HLRAD_HULLU
     vec3_t transparency_scale;
     bool transparency;
-#endif
 #ifndef HLRAD_OPAQUE_NODE
 #ifdef HLRAD_OPAQUE_GROUP
 	unsigned groupnum;
@@ -779,12 +771,10 @@ extern float	g_softlight_hack_distance;
 // ------------------------------------------------------------------------
 
 
-#ifdef HLRAD_HULLU
 	extern bool	g_customshadow_with_bouncelight;
 	extern bool	g_rgb_transfers;
 #ifdef HLRAD_TRANSPARENCY_CPP
 	extern const vec3_t vec3_one;
-#endif
 #endif
 
 #ifdef HLRAD_TRANSTOTAL_HACK
@@ -933,19 +923,15 @@ extern void     DeleteDirectLights();
 extern void     GetPhongNormal(int facenum, const vec3_t spot, vec3_t phongnormal); // added "const" --vluzacn
 
 typedef bool (*funcCheckVisBit) (unsigned, unsigned
-#ifdef HLRAD_HULLU
 								 , vec3_t&
 #ifdef HLRAD_TRANSPARENCY_CPP
 								 , unsigned int&
-#endif
 #endif
 								 );
 extern funcCheckVisBit g_CheckVisBit;
 #ifdef HLRAD_TRANSLUCENT
 extern bool CheckVisBitBackwards(unsigned receiver, unsigned emitter, const vec3_t &backorigin, const vec3_t &backnormal
-	#ifdef HLRAD_HULLU
 								, vec3_t &transparency_out
-	#endif
 								);
 #endif
 #ifdef HLRAD_MDL_LIGHT_HACK
@@ -995,21 +981,17 @@ extern void     SwapTransfers(int patchnum);
 #endif
 extern void     MakeScales(int threadnum);
 extern void     DumpTransfersMemoryUsage();
-#ifdef HLRAD_HULLU
 #ifndef HLRAD_NOSWAP
 extern void     SwapRGBTransfers(int patchnum);
 #endif
 extern void     MakeRGBScales(int threadnum);
-#endif
 
 #ifdef HLRAD_TRANSPARENCY_CPP
-#ifdef HLRAD_HULLU
 // transparency.c (transparency array functions - shared between vismatrix.c and sparse.c)
 extern void	GetTransparency(const unsigned p1, const unsigned p2, vec3_t &trans, unsigned int &next_index);
 extern void	AddTransparencyToRawArray(const unsigned p1, const unsigned p2, const vec3_t trans);
 extern void	CreateFinalTransparencyArrays(const char *print_name);
 extern void	FreeTransparencyArrays();
-#endif
 #endif
 #ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 extern void GetStyle(const unsigned p1, const unsigned p2, int &style, unsigned int &next_index);
@@ -1045,9 +1027,7 @@ extern void     FreeTriangulation(lerpTriangulation_t* trian);
 
 // mathutil.c
 extern bool     TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
-#ifdef HLRAD_HULLU
 					, vec3_t &scaleout
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 					, int &opaquestyleout
 #endif

@@ -530,9 +530,7 @@ inline bool LineSegmentIntersectsBounds (const vec3_t p1, const vec3_t p2, const
 //      Returns true if the segment intersects an item in the opaque list
 // =====================================================================================
 bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
-#ifdef HLRAD_HULLU
 					, vec3_t &scaleout
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 					, int &opaquestyleout // light must convert to this style. -1 = no convert
 #endif
@@ -540,9 +538,7 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 {
 #ifdef HLRAD_OPAQUE_NODE
 	int x;
-#ifdef HLRAD_HULLU
 	VectorFill (scaleout, 1.0);
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 	opaquestyleout = -1;
 #endif
@@ -552,13 +548,11 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 		{
 			continue;
 		}
-#ifdef HLRAD_HULLU
 		if (g_opaque_face_list[x].transparency)
 		{
 			VectorMultiply (scaleout, g_opaque_face_list[x].transparency_scale, scaleout);
 			continue;
 		}
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 		if (g_opaque_face_list[x].style != -1 && (opaquestyleout == -1 || g_opaque_face_list[x].style == opaquestyleout))
 		{
@@ -566,9 +560,7 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 			continue;
 		}
 #endif
-#ifdef HLRAD_HULLU
 		VectorFill (scaleout, 0.0);
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 		opaquestyleout = -1;
 #endif
@@ -588,9 +580,7 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 	VectorNormalize (direction);
 #endif
 
-#ifdef HLRAD_HULLU
     vec3_t	    scale = {1.0, 1.0, 1.0};
-#endif
 #ifdef HLRAD_POINT_IN_EDGE_FIX
 	double		percentage;
 #endif
@@ -638,7 +628,6 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
                     p2[0], p2[1], p2[2], g_opaque_face_list[x].facenum, point[0], point[1], point[2]);
 #endif
 
-#ifdef HLRAD_HULLU
 		        if(g_opaque_face_list[x].transparency)
 		        {
 #ifdef HLRAD_TestSegmentAgainstOpaqueList_VL
@@ -677,20 +666,15 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
                 	return true;
 #endif
                 }
-#else
-                return true;
-#endif
             }
         }
     }
 
-#ifdef HLRAD_HULLU
     VectorCopy(scale, scaleout);
     if(scaleout[0] < 0.01 && scaleout[1] < 0.01 && scaleout[2] < 0.01)
     {
     	return true; //so much shadowing that result is same as with normal opaque face
     }
-#endif
 
     return false;
 #endif /*HLRAD_OPAQUE_NODE*/
