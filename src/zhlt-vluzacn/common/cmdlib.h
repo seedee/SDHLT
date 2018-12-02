@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_VISMATRIX_NOMARKSURFACES //--vluzacn
 #define HLRAD_WATERBLOCKLIGHT //--vluzacn
 #define HLRAD_MDL_LIGHT_HACK_NEW //--vluzacn
 #define HLRAD_LERP_FACELIST //--vluzacn
@@ -122,9 +121,7 @@
 	#endif
 #define HLRAD_PRESERVELIGHTMAPCOLOR //--vluzacn
 #define HLRAD_MORE_PATCHES //--vluzacn
-	#ifdef HLRAD_VISMATRIX_NOMARKSURFACES
 #define HLRAD_SPARSEVISMATRIX_FAST //--vluzacn
-	#endif
 	#ifdef HLRAD_GROWSAMPLE
 #define HLRAD_LOCALTRIANGULATION //--vluzacn
 	#endif

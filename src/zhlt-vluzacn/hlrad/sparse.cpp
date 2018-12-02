@@ -428,46 +428,6 @@ static void     TestPatchToFace(const unsigned patchnum, const int facenum, cons
     }
 }
 
-#ifndef HLRAD_VISMATRIX_NOMARKSURFACES
-/*
- * ==============
- * BuildVisRow
- * 
- * Calc vis bits from a single patch
- * ==============
- */
-static void     BuildVisRow(const int patchnum, byte* pvs, const int head)
-{
-    int             j, k, l;
-    byte            face_tested[MAX_MAP_FACES];
-    dleaf_t*        leaf;
-
-    memset(face_tested, 0, g_numfaces);
-
-    // leaf 0 is the solid leaf (skipped)
-    for (j = 1, leaf = g_dleafs + 1; j < 1 + g_dmodels[0].visleafs; j++, leaf++)
-    {
-        if (!(pvs[(j - 1) >> 3] & (1 << ((j - 1) & 7))))
-        {
-            continue;                                      // not in pvs
-        }
-        for (k = 0; k < leaf->nummarksurfaces; k++)
-        {
-            l = g_dmarksurfaces[leaf->firstmarksurface + k];
-
-            // faces can be marksurfed by multiple leaves, but
-            // don't bother testing again
-            if (face_tested[l])
-                continue;
-            face_tested[l] = 1;
-
-            TestPatchToFace(patchnum, l, head
-				, pvs
-				);
-        }
-    }
-}
-#endif
 
 /*
  * ===========
@@ -528,7 +488,6 @@ static void     BuildVisLeafs(int threadnum)
         // leaf, and process the patches that
         // actually have origins inside
         //
-#ifdef HLRAD_VISMATRIX_NOMARKSURFACES
 		for (facenum = 0; facenum < g_numfaces; facenum++)
 		{
 			for (patch = g_face_patches[facenum]; patch; patch = patch->next)
@@ -553,50 +512,6 @@ static void     BuildVisLeafs(int threadnum)
 	#endif
 			}
 		}
-#else
-        for (lface = 0; lface < srcleaf->nummarksurfaces; lface++)
-        {
-            facenum = g_dmarksurfaces[srcleaf->firstmarksurface + lface];
-            for (patch = g_face_patches[facenum]; patch; patch = patch->next)
-            {
-				if (patch->leafnum != i)
-				{
-					continue;
-				}
-
-                patchnum = patch - g_patches;
-                // build to all other world leafs
-                BuildVisRow(patchnum, pvs, head);
-
-                // build to bmodel faces
-                if (g_nummodels < 2)
-                {
-                    continue;
-                }
-                for (facenum2 = g_dmodels[1].firstface; facenum2 < g_numfaces; facenum2++)
-                {
-                    TestPatchToFace(patchnum, facenum2, head
-						, pvs
-						);
-                }
-            }
-        }
-		if (g_nummodels >= 2)
-		{
-			for (facenum = g_dmodels[1].firstface; facenum < g_numfaces; facenum++)
-			{
-				for (patch = g_face_patches[facenum]; patch; patch = patch->next)
-				{
-					if (patch->leafnum != i)
-						continue;
-					patchnum = patch - g_patches;
-					// skip BuildVisRow here because entity patchnums are always bigger than world patchnums.
-					for (facenum2 = g_dmodels[1].firstface; facenum2 < g_numfaces; facenum2++)
-						TestPatchToFace(patchnum, facenum2, head, pvs);
-				}
-			}
-		}
-#endif
 
     }
 #ifdef HLRAD_SPARSEVISMATRIX_FAST
