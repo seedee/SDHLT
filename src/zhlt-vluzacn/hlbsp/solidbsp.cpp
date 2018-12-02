@@ -1661,11 +1661,7 @@ static void FreeLeafBrushes (node_t *leaf)
 //      Determines the contents of the leaf and creates the final list of original faces 
 //      that have some fragment inside this leaf
 // =====================================================================================
-#ifdef HLBSP_MAX_LEAF_FACES
 #define	MAX_LEAF_FACES	16384
-#else
-#define	MAX_LEAF_FACES	1024
-#endif
 
 #ifdef HLBSP_WARNMIXEDCONTENTS
 const char*     ContentsToString(int contents)
