@@ -2313,13 +2313,11 @@ static void     SortPatches()
             prev = patch;
         }
     }
-#ifdef HLRAD_ENTITYBOUNCE_FIX
 	for (unsigned x = 0; x < g_num_patches; x++)
 	{
 		patch_t *patch = &g_patches[x];
 		patch->leafnum = PointInLeaf (patch->origin) - g_dleafs;
 	}
-#endif
 }
 
 // =====================================================================================

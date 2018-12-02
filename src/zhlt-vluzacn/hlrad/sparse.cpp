@@ -297,9 +297,7 @@ static bool     CheckVisBitSparse(unsigned x, unsigned y
  * ==============
  */
 static void     TestPatchToFace(const unsigned patchnum, const int facenum, const int head
-#ifdef HLRAD_ENTITYBOUNCE_FIX
 								, byte *pvs
-#endif
 #ifdef HLRAD_SPARSEVISMATRIX_FAST
 								, bool uncompressedcolumn[MAX_SPARSE_VISMATRIX_PATCHES]
 #endif
@@ -336,12 +334,10 @@ static void     TestPatchToFace(const unsigned patchnum, const int facenum, cons
                 //  && v2 is visible from v1
                 if (m > patchnum)
 				{
-#ifdef HLRAD_ENTITYBOUNCE_FIX
 					if (patch2->leafnum == 0 || !(pvs[(patch2->leafnum - 1) >> 3] & (1 << ((patch2->leafnum - 1) & 7))))
 					{
 						continue;
 					}
-#endif
 #ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 					vec3_t origin1, origin2;
 					vec3_t delta;
@@ -466,9 +462,7 @@ static void     BuildVisRow(const int patchnum, byte* pvs, const int head)
             face_tested[l] = 1;
 
             TestPatchToFace(patchnum, l, head
-#ifdef HLRAD_ENTITYBOUNCE_FIX
 				, pvs
-#endif
 				);
         }
     }
@@ -565,18 +559,10 @@ static void     BuildVisLeafs(int threadnum)
             facenum = g_dmarksurfaces[srcleaf->firstmarksurface + lface];
             for (patch = g_face_patches[facenum]; patch; patch = patch->next)
             {
-#ifdef HLRAD_ENTITYBOUNCE_FIX
 				if (patch->leafnum != i)
 				{
 					continue;
 				}
-#else
-                leaf = PointInLeaf(patch->origin);
-                if (leaf != srcleaf)
-                {
-                    continue;
-                }
-#endif
 
                 patchnum = patch - g_patches;
                 // build to all other world leafs
@@ -590,14 +576,11 @@ static void     BuildVisLeafs(int threadnum)
                 for (facenum2 = g_dmodels[1].firstface; facenum2 < g_numfaces; facenum2++)
                 {
                     TestPatchToFace(patchnum, facenum2, head
-#ifdef HLRAD_ENTITYBOUNCE_FIX
 						, pvs
-#endif
 						);
                 }
             }
         }
-#ifdef HLRAD_ENTITYBOUNCE_FIX
 		if (g_nummodels >= 2)
 		{
 			for (facenum = g_dmodels[1].firstface; facenum < g_numfaces; facenum++)
@@ -613,7 +596,6 @@ static void     BuildVisLeafs(int threadnum)
 				}
 			}
 		}
-#endif
 #endif
 
     }

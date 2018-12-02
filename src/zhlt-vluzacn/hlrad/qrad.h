@@ -396,9 +396,7 @@ typedef struct patch_s
 	vec3_t*			directlight_all_direction;
 #endif
 #endif
-#ifdef HLRAD_ENTITYBOUNCE_FIX
 	int				leafnum;
-#endif
 } patch_t;
 
 //LRC

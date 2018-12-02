@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_ENTITYBOUNCE_FIX //--vluzacn
 #define HLRAD_OPAQUE_ALPHATEST //--vluzacn
 #define HLRAD_TEXLIGHTTHRESHOLD_FIX //--vluzacn
 	#ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
@@ -80,9 +79,7 @@
 	#endif
 #define HLRAD_ARG_MISC //--vluzacn
 #define HLRAD_PairEdges_FACESIDE_FIX //--vluzacn
-	#ifdef HLRAD_ENTITYBOUNCE_FIX
 #define HLRAD_VISMATRIX_NOMARKSURFACES //--vluzacn
-	#endif
 #define HLRAD_WATERBLOCKLIGHT //--vluzacn
 #define HLRAD_MDL_LIGHT_HACK_NEW //--vluzacn
 #define HLRAD_LERP_FACELIST //--vluzacn
