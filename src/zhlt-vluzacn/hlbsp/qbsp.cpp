@@ -881,14 +881,12 @@ static surfchain_t* SurflistFromValidFaces()
 // =====================================================================================
 bool            CheckFaceForNull(const face_t* const f)
 {
-#ifdef HLBSP_SKY_SOLID
 	if (f->contents == CONTENTS_SKY)
     {
 		const char *name = GetTextureByNumber (f->texturenum);
         if (strncasecmp(name, "sky", 3)) // for env_rain
 			return true;
     }
-#endif
     // null faces are only of facetype face_null if we are using null texture stripping
     if (g_bUseNullTex)
     {

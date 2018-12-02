@@ -67,7 +67,6 @@
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
-#define HLBSP_SKY_SOLID //--vluzacn
 #define HLCSG_HLBSP_CONTENTSNULL_FIX //--vluzacn
 #define HLCSG_HLBSP_ALLOWEMPTYENTITY // needs more testing --vluzacn
 #define HLBSP_ChooseMidPlane_FIX //--vluzacn
