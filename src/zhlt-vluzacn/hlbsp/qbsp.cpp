@@ -224,9 +224,7 @@ face_t*         NewFaceFromFace(const face_t* const in)
     newf->texturenum = in->texturenum;
     newf->original = in->original;
     newf->contents = in->contents;
-#ifdef HLBSP_NewFaceFromFace_FIX
 	newf->facestyle = in->facestyle;
-#endif
 #ifdef ZHLT_DETAILBRUSH
 	newf->detaillevel = in->detaillevel;
 #endif

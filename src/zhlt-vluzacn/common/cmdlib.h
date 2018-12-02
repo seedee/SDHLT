@@ -67,7 +67,6 @@
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
-#define HLBSP_NewFaceFromFace_FIX //--vluzacn
 #define HLCSG_OPTIMIZELIGHTENTITY //--vluzacn
 #define HLCSG_STYLEHACK //--vluzacn
 #define HLCSG_CSGBrush_BRUSHNUM_FIX //--vluzacn
