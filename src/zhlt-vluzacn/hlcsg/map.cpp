@@ -1040,7 +1040,6 @@ bool            ParseMapEntity()
 #endif
 
     CheckFatal();
-#ifdef HLCSG_LOGVERSION
 	if (this_entity == 0)
 	{
 		// Let the map tell which version of the compiler it comes from, to help tracing compiler bugs.
@@ -1048,7 +1047,6 @@ bool            ParseMapEntity()
 		sprintf (versionstring, "ZHLT " ZHLT_VERSIONSTRING " " HACK_VERSIONSTRING " (%s)", __DATE__);
 		SetKeyValue (mapent, "compiler", versionstring);
 	}
-#endif
     
 #ifdef ZHLT_DETAIL // AJM
     if (!strcmp(ValueForKey(mapent, "classname"), "info_detail") && g_bDetailBrushes && this_entity != 0)
