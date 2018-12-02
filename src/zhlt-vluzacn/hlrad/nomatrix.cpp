@@ -52,9 +52,7 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
             const dplane_t* plane = getPlaneFromFaceNumber(patch->faceNumber);
 
             vec3_t transparency = {1.0,1.0,1.0};
-#ifdef HLRAD_OPAQUE_STYLE
 			int opaquestyle = -1;
-#endif
 
             // check vis between patch and patch2
             //  if v2 is not behind light plane
@@ -122,9 +120,7 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 				patch->origin, patch2->origin
 #endif
 				, transparency
-#ifdef HLRAD_OPAQUE_STYLE
 				, opaquestyle
-#endif
 				))
 			{
 				return false;
@@ -166,9 +162,7 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
         {
 
             vec3_t transparency = {1.0,1.0,1.0};
-#ifdef HLRAD_OPAQUE_STYLE
 			int opaquestyle = -1;
-#endif
 
 #ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 			vec3_t emitorigin;
@@ -221,9 +215,7 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 				backorigin, emitpatch->origin
 #endif
 				, transparency
-#ifdef HLRAD_OPAQUE_STYLE
 				, opaquestyle
-#endif
 				))
 			{
 				return false;

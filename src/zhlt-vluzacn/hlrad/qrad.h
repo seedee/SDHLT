@@ -578,10 +578,8 @@ typedef struct
 #ifndef HLRAD_OPAQUE_NODE
 	unsigned groupnum;
 #endif
-#ifdef HLRAD_OPAQUE_STYLE
 	int style; // -1 = no style; transparency must be false if style >= 0
 	// style0 and same style will change to this style, other styles will be blocked.
-#endif
 #ifdef HLRAD_OPAQUE_BLOCK
 	bool block; // this entity can't be seen inside, so all lightmap sample should move outside.
 #endif
@@ -952,9 +950,7 @@ extern void     FreeTriangulation(lerpTriangulation_t* trian);
 // mathutil.c
 extern bool     TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 					, vec3_t &scaleout
-#ifdef HLRAD_OPAQUE_STYLE
 					, int &opaquestyleout
-#endif
 					);
 extern bool     intersect_line_plane(const dplane_t* const plane, const vec_t* const p1, const vec_t* const p2, vec3_t point);
 extern bool     intersect_linesegment_plane(const dplane_t* const plane, const vec_t* const p1, const vec_t* const p2,vec3_t point);

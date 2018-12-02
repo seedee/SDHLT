@@ -1951,9 +1951,7 @@ static void     AddFaceToOpaqueList(
 #ifndef HLRAD_OPAQUE_NODE
 									, const dmodel_t* mod
 #endif
-#ifdef HLRAD_OPAQUE_STYLE
 									, int style
-#endif
 #ifdef HLRAD_OPAQUE_BLOCK
 									, bool block
 #endif
@@ -1972,13 +1970,11 @@ static void     AddFaceToOpaqueList(
 
         g_opaque_face_count++;
 
-#ifdef HLRAD_OPAQUE_STYLE
 		if (transparency && style != -1)
 		{
 			Warning ("Dynamic shadow is not allowed in entity with custom shadow.\n");
 			style = -1;
 		}
-#endif
         VectorCopy(transparency_scale, opaque->transparency_scale);
         opaque->transparency = transparency;
 #ifdef HLRAD_OPAQUE_NODE
@@ -2011,9 +2007,7 @@ static void     AddFaceToOpaqueList(
 			opaque->groupnum=ig;
 		}
 #endif
-#ifdef HLRAD_OPAQUE_STYLE
 		opaque->style = style;
-#endif
 #ifdef HLRAD_OPAQUE_BLOCK
 		opaque->block = block;
 #endif
@@ -2101,7 +2095,6 @@ static void		LoadOpaqueEntities()
 				if (!VectorCompare (d_transparency, vec3_origin))
 					b_transparency = true;
 			}
-#ifdef HLRAD_OPAQUE_STYLE
 			int opaquestyle = -1;
 			{
 				int j;
@@ -2124,7 +2117,6 @@ static void		LoadOpaqueEntities()
 					}
 				}
 			}
-#endif
 #ifdef HLRAD_OPAQUE_BLOCK
 			bool block = false;
 			{
@@ -2135,10 +2127,8 @@ static void		LoadOpaqueEntities()
 						block = false;
 					if (b_transparency)
 						block = false;
-#ifdef HLRAD_OPAQUE_STYLE
 					if (opaquestyle != -1)
 						block = false;
-#endif
 				}
 			}
 #endif
@@ -2146,9 +2136,7 @@ static void		LoadOpaqueEntities()
 			{
 				AddFaceToOpaqueList (entnum, modelnum, origin
 					, d_transparency, b_transparency
-#ifdef HLRAD_OPAQUE_STYLE
 					, opaquestyle
-#endif
 #ifdef HLRAD_OPAQUE_BLOCK
 					, block
 #endif
@@ -2382,7 +2370,6 @@ static void     MakePatches()
 			Error ("invalid light style: style (%d) >= ALLSTYLES (%d)", style, ALLSTYLES);
 		}
 #ifndef HLRAD_OPAQUE_NODE
-#ifdef HLRAD_OPAQUE_STYLE
 		int opaquestyle = -1;
 		for (j = 0; j < g_numentities; j++)
 		{
@@ -2402,7 +2389,6 @@ static void     MakePatches()
 				break;
 			}
 		}
-#endif
 #endif
 #ifdef HLRAD_BOUNCE_STYLE
 		int bouncestyle = -1;
@@ -2452,9 +2438,7 @@ static void     MakePatches()
 					AddFaceToOpaqueList(fn, w
 						, d_transparency, b_transparency
 						, mod
-#ifdef HLRAD_OPAQUE_STYLE
 						, opaquestyle
-#endif
 						); 
                 }
             }

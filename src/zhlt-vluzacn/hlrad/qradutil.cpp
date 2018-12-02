@@ -520,9 +520,7 @@ static bool IsPositionValid (positionmap_t *map, const vec3_t &pos_st, vec3_t &p
 		// if the sample has gone beyond face boundaries, be careful that it hasn't passed a wall
 		vec3_t test;
 		vec3_t transparency;
-#ifdef HLRAD_OPAQUE_STYLE
 		int opaquestyle;
-#endif
 
 		VectorCopy (pos, test);
 		snap_to_winding_noedge (*map->facewindingwithoffset, map->faceplanewithoffset, test, DEFAULT_EDGE_WIDTH, 4 * DEFAULT_EDGE_WIDTH);
@@ -539,13 +537,9 @@ static bool IsPositionValid (positionmap_t *map, const vec3_t &pos_st, vec3_t &p
 
 		if (TestSegmentAgainstOpaqueList (pos, test
 				, transparency
-#ifdef HLRAD_OPAQUE_STYLE
 				, opaquestyle
-#endif
 				) == true
-#ifdef HLRAD_OPAQUE_STYLE
 			|| opaquestyle != -1
-#endif
 			)
 		{
 			return false;

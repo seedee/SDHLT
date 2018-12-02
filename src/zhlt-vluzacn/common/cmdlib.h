@@ -72,12 +72,9 @@
 
 
 
-#define HLRAD_OPAQUE_STYLE //--vluzacn
 #define HLRAD_CheckVisBitNoVismatrix_NOSWAP //--vluzacn
-	#ifdef HLRAD_OPAQUE_STYLE
 	#ifdef HLRAD_CheckVisBitNoVismatrix_NOSWAP
 #define HLRAD_OPAQUE_STYLE_BOUNCE //--vluzacn
-	#endif
 	#endif
 #define HLRAD_GetPhongNormal_VL //--vluzacn
 #define HLRAD_CUSTOMSMOOTH //--vluzacn

@@ -451,17 +451,13 @@ inline bool LineSegmentIntersectsBounds (const vec3_t p1, const vec3_t p2, const
 // =====================================================================================
 bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 					, vec3_t &scaleout
-#ifdef HLRAD_OPAQUE_STYLE
 					, int &opaquestyleout // light must convert to this style. -1 = no convert
-#endif
 					)
 {
 #ifdef HLRAD_OPAQUE_NODE
 	int x;
 	VectorFill (scaleout, 1.0);
-#ifdef HLRAD_OPAQUE_STYLE
 	opaquestyleout = -1;
-#endif
     for (x = 0; x < g_opaque_face_count; x++)
 	{
 		if (!TestLineOpaque (g_opaque_face_list[x].modelnum, g_opaque_face_list[x].origin, p1, p2))
@@ -473,17 +469,13 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 			VectorMultiply (scaleout, g_opaque_face_list[x].transparency_scale, scaleout);
 			continue;
 		}
-#ifdef HLRAD_OPAQUE_STYLE
 		if (g_opaque_face_list[x].style != -1 && (opaquestyleout == -1 || g_opaque_face_list[x].style == opaquestyleout))
 		{
 			opaquestyleout = g_opaque_face_list[x].style;
 			continue;
 		}
-#endif
 		VectorFill (scaleout, 0.0);
-#ifdef HLRAD_OPAQUE_STYLE
 		opaquestyleout = -1;
-#endif
 		return true;
 	}
 	return false;
@@ -500,9 +492,7 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 
     vec3_t	    scale = {1.0, 1.0, 1.0};
 	double		percentage;
-#ifdef HLRAD_OPAQUE_STYLE
 	opaquestyleout = -1;
-#endif
 
 	bool intersects[MAX_OPAQUE_GROUP_COUNT];
 	for (x = 0; x < g_opaque_group_count; x++)
@@ -546,7 +536,6 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 		        }
                 else
                 {
-#ifdef HLRAD_OPAQUE_STYLE
 					if (g_opaque_face_list[x].style == -1 || opaquestyleout != -1 && g_opaque_face_list[x].style != opaquestyleout)
 					{
 						VectorCopy(vec3_origin, scaleout);
@@ -557,10 +546,6 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 					{
 						opaquestyleout = g_opaque_face_list[x].style;
 					}
-#else
-					VectorCopy(vec3_origin, scaleout);
-                	return true;
-#endif
                 }
             }
         }

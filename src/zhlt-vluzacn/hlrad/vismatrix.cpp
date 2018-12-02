@@ -51,9 +51,7 @@ static void     TestPatchToFace(const unsigned patchnum, const int facenum, cons
                 unsigned        m = patch2 - g_patches;
 
 				vec3_t 		transparency = {1.0, 1.0, 1.0};
-#ifdef HLRAD_OPAQUE_STYLE
 				int opaquestyle = -1;
-#endif
 		
                 // check vis between patch and patch2
                 // if bit has not already been set
@@ -130,9 +128,7 @@ static void     TestPatchToFace(const unsigned patchnum, const int facenum, cons
 						patch->origin, patch2->origin
 #endif
 						, transparency
-#ifdef HLRAD_OPAQUE_STYLE
 						, opaquestyle
-#endif
 					))
 					{
 						continue;

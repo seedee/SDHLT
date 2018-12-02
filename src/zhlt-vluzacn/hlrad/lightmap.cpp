@@ -2057,9 +2057,7 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 		dleaf_t*leaf_inwinding;
 		dleaf_t*leaf_inwinding_noedge;
 		vec3_t transparency = { 1.0, 1.0, 1.0 };
-#ifdef HLRAD_OPAQUE_STYLE
 		int opaquestyle;
-#endif
 		{
 			blocked_direct = (leaf_direct == NULL);
 			if (!point_in_winding (*wd, *p, surf_original))
@@ -2072,13 +2070,9 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 					|| TestLine (surf_direct, surf_inwinding) != CONTENTS_EMPTY
 					|| TestSegmentAgainstOpaqueList (surf_direct, surf_inwinding
 						, transparency
-	#ifdef HLRAD_OPAQUE_STYLE
 						, opaquestyle
-	#endif
 						) == true
-	#ifdef HLRAD_OPAQUE_STYLE
 					|| opaquestyle != -1
-	#endif
 	#ifdef HLRAD_TRANSLUCENT
 					|| l->translucent_b
 	#endif
@@ -2103,13 +2097,9 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 					|| TestLine (surf_inwinding, surf_inwinding_noedge) != CONTENTS_EMPTY
 					|| TestSegmentAgainstOpaqueList (surf_inwinding, surf_inwinding_noedge
 						, transparency
-	#ifdef HLRAD_OPAQUE_STYLE
 						, opaquestyle
-	#endif
 						) == true
-	#ifdef HLRAD_OPAQUE_STYLE
 					|| opaquestyle != -1
-	#endif
 					)
 				{
 					blocked_inwinding = true;
@@ -2500,18 +2490,12 @@ static void     CalcPoints(lightinfo_t* l)
 								if (lightmode & eModelLightmodeConcave)
 								{
 									vec3_t transparency = { 1.0, 1.0, 1.0 };
-		#ifdef HLRAD_OPAQUE_STYLE
 									int opaquestyle;
-		#endif
 									if (TestSegmentAgainstOpaqueList(surface_midpoint, surf
 										, transparency
-		#ifdef HLRAD_OPAQUE_STYLE
 										, opaquestyle
-		#endif
 										)
-		#ifdef HLRAD_OPAQUE_STYLE
 										|| opaquestyle != -1
-		#endif
 										)
 									{
 										Log("SDF::4\n");
@@ -2573,18 +2557,12 @@ static void     CalcPoints(lightinfo_t* l)
 						if (TestLine(surf, surf_nopull) == CONTENTS_EMPTY)
 						{
 							vec3_t transparency = { 1.0, 1.0, 1.0 };
-#ifdef HLRAD_OPAQUE_STYLE
 							int opaquestyle;
-#endif
 							if (!TestSegmentAgainstOpaqueList(surf, surf_nopull
 								, transparency
-#ifdef HLRAD_OPAQUE_STYLE
 								, opaquestyle
-#endif
 								)
-#ifdef HLRAD_OPAQUE_STYLE
 								&& opaquestyle == -1
-#endif
 								)
 							{
 								*pLuxelFlags = LightNormal;
@@ -3026,7 +3004,6 @@ void            CreateDirectLights()
 				g_corings[style] = FloatForKey (e, "zhlt_stylecoring");
 			}
 		}
-#ifdef HLRAD_OPAQUE_STYLE
 		if (!strcmp (name, "light_shadow")
 	#ifdef HLRAD_BOUNCE_STYLE
 			|| !strcmp (name, "light_bounce")
@@ -3051,7 +3028,6 @@ void            CreateDirectLights()
 #endif
 			continue;
 		}
-#endif
 #ifdef HLRAD_CUSTOMTEXLIGHT
 		if (!strcmp (name, "light_surface"))
 		{
@@ -3791,12 +3767,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 {
     int             i;
     directlight_t*  l;
-#ifndef HLRAD_OPAQUE_STYLE
-    vec3_t          add;
-#ifdef ZHLT_XASH
-	vec3_t			add_direction;
-#endif
-#endif // now we always add the light into the total brightness of this sample immediately after each TestLine, because each TestLine may result in different style.
     vec3_t          delta;
     float           dot, dot2;
     float           dist;
@@ -3896,9 +3866,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							}
 							sky_used = true;
 						}
-#ifndef HLRAD_OPAQUE_STYLE
-						VectorClear (add);
-#endif
 						do // add sun light
 						{
 #ifdef HLRAD_GatherPatchLight
@@ -3947,9 +3914,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							}
 
 							vec3_t transparency;
-	#ifdef HLRAD_OPAQUE_STYLE
 							int opaquestyle;
-	#endif
 							if (TestSegmentAgainstOpaqueList(pos, 
 	#ifdef HLRAD_OPAQUEINSKY_FIX
 								skyhit
@@ -3957,9 +3922,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								delta
 	#endif
 								, transparency
-	#ifdef HLRAD_OPAQUE_STYLE
 								, opaquestyle
-	#endif
 								))
 							{
 								continue;
@@ -3986,7 +3949,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							VectorScale(l->intensity, dot, add_one);
 	#endif
 							VectorMultiply(add_one, transparency, add_one);
-	#ifdef HLRAD_OPAQUE_STYLE
 							// add to the total brightness of this sample
 							style = l->style;
 							if (opaquestyle != -1)
@@ -4001,14 +3963,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							vec_t avg = VectorAvg (add_one);
 							VectorMA (adds_direction[style], avg, direction, adds_direction[style]);
 		#endif
-	#else
-							// add to the contribution of this light
-							VectorAdd (add, add_one, add);
-		#ifdef ZHLT_XASH
-							vec_t avg = VectorAvg (add_one);
-							VectorMA (add_direction, avg, direction, add_direction);
-		#endif
-	#endif
 #ifdef HLRAD_SUNSPREAD
 						  } // (loop over the normals)
 #endif
@@ -4089,9 +4043,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								}
 
 								vec3_t transparency;
-					#ifdef HLRAD_OPAQUE_STYLE
 								int opaquestyle;
-					#endif
 								if (TestSegmentAgainstOpaqueList(pos, 
 					#ifdef HLRAD_OPAQUEINSKY_FIX
 									skyhit
@@ -4099,9 +4051,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 									delta
 					#endif
 									, transparency
-					#ifdef HLRAD_OPAQUE_STYLE
 									, opaquestyle
-					#endif
 									))
 								{
 									continue;
@@ -4142,7 +4092,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 					#endif
 								VectorScale(sky_intensity, dot, add_one);
 								VectorMultiply(add_one, transparency, add_one);
-					#ifdef HLRAD_OPAQUE_STYLE
 								// add to the total brightness of this sample
 								style = l->style;
 								if (opaquestyle != -1)
@@ -4157,14 +4106,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								vec_t avg = VectorAvg (add_one);
 								VectorMA (adds_direction[style], avg, direction, adds_direction[style]);
 						#endif
-					#else
-								// add to the contribution of this light
-								VectorAdd(add, add_one, add);
-						#ifdef ZHLT_XASH
-								vec_t avg = VectorAvg (add_one);
-								VectorMA (add_direction, avg, direction, add_direction);
-						#endif
-					#endif
 							} // (loop over the normals)
 
 						}
@@ -4220,9 +4161,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                         }
 #endif
 
-#ifdef HLRAD_OPAQUE_STYLE
 						vec3_t add;
-#endif
 #ifdef ZHLT_XASH
 						vec3_t direction;
 						VectorSubtract (vec3_origin, delta, direction);
@@ -4500,7 +4439,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                             break;
                         }
                         }
-#ifdef HLRAD_OPAQUE_STYLE
 						if (TestLine (pos, 
 	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 							testline_origin
@@ -4539,67 +4477,8 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 						vec_t avg = VectorAvg (add);
 						VectorMA (adds_direction[style], avg, direction, adds_direction[style]);
 	#endif
-#else
-	#ifdef ZHLT_XASH
-						VectorCopy (direcion, add_direction); // we'll scale it later
-	#endif
-#endif
                     } // end emit_skylight
 
-#ifndef HLRAD_OPAQUE_STYLE
-                    {
-                 	    vec3_t transparency = {1.0,1.0,1.0};
-
-                        if (l->type != emit_skylight && TestLine(pos, 
-	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
-							testline_origin
-	#else
-							l->origin
-	#endif
-							) != CONTENTS_EMPTY)
-                        {
-                            continue;                      // occluded
-                        }
-
-                        if (l->type != emit_skylight)
-                        {                                  // Don't test from light_environment entities to face, the special sky code occludes correctly
-                            if (TestSegmentAgainstOpaqueList(pos, 
-	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
-								testline_origin
-	#else
-								l->origin
-	#endif
-								, transparency
-#ifdef HLRAD_OPAQUE_STYLE
-								, opaquestyle
-#endif
-								))
-                            {
-                                continue;
-                            }
-                        }
-
-#ifdef HLRAD_OPACITY
-                        //VectorScale(add, l_opacity, add);
-#endif
-
-						if (l->type != emit_skylight)
-						{
-							VectorMultiply (add, transparency, add);
-						}
-#ifdef ZHLT_XASH
-						if (l->type != emit_skylight)
-						{
-							vec3_t avg = VectorAvg (add);
-							VectorScale (add_direction, avg, add_direction);
-						}
-#endif
-						VectorAdd (adds[l->style], add, adds[l->style]);
-#ifdef ZHLT_XASH
-						VectorAdd (adds_direction[l->style], add_direction, adds_direction[l->style]);
-#endif
-                    }
-#endif /*#ifndef HLRAD_OPAQUE_STYLE*/
                 }
             }
         }
