@@ -72,10 +72,7 @@
 
 
 
-#define HLRAD_CheckVisBitNoVismatrix_NOSWAP //--vluzacn
-	#ifdef HLRAD_CheckVisBitNoVismatrix_NOSWAP
 #define HLRAD_OPAQUE_STYLE_BOUNCE //--vluzacn
-	#endif
 #define HLRAD_GetPhongNormal_VL //--vluzacn
 #define HLRAD_CUSTOMSMOOTH //--vluzacn
 #define HLRAD_READABLE_EXCEEDSTYLEWARNING //--vluzacn
@@ -124,9 +121,7 @@
 #define HLRAD_SOFTSKY //--vluzacn
 	#endif
 #define HLRAD_OPAQUE_NODE //--vluzacn
-	#ifdef HLRAD_CheckVisBitNoVismatrix_NOSWAP
 #define HLRAD_TRANSLUCENT //--vluzacn
-	#endif
 	#ifdef HLRAD_OPAQUE_NODE
 	#ifdef HLRAD_CalcPoints_NEW
 #define HLRAD_OPAQUE_BLOCK //--vluzacn

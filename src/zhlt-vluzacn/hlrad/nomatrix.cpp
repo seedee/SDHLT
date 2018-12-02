@@ -9,17 +9,6 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 									   )
 	// patchnum1=receiver, patchnum2=emitter. //HLRAD_CheckVisBitNoVismatrix_NOSWAP
 {
-#ifndef HLRAD_CheckVisBitNoVismatrix_NOSWAP
-    // This fix was in vismatrix and sparse methods but not in nomatrix
-    // Without this nomatrix causes SwapTransfers output lots of errors
-    if (patchnum1 > patchnum2)
-    {
-        const unsigned a = patchnum1;
-        const unsigned b = patchnum2;
-        patchnum1 = b;
-        patchnum2 = a;
-    }
-#endif
     
     if (patchnum1 > g_num_patches)
     {
