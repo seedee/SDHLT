@@ -93,9 +93,7 @@ static int WriteTexinfo (int texinfo)
 //  WriteClipNodes_r
 // =====================================================================================
 static int      WriteClipNodes_r(node_t* node
-#ifdef ZHLT_DETAILBRUSH
 								 , const node_t *portalleaf
-#endif
 #ifdef HLBSP_MERGECLIPNODE
 								 , clipnodemap_t *outputmap
 #endif
@@ -105,7 +103,6 @@ static int      WriteClipNodes_r(node_t* node
     dclipnode_t*    cn;
     int             num;
 
-#ifdef ZHLT_DETAILBRUSH
 	if (node->isportalleaf)
 	{
 		if (node->contents == CONTENTS_SOLID)
@@ -132,15 +129,6 @@ static int      WriteClipNodes_r(node_t* node
 		free (node);
 		return num;
 	}
-#else
-    if (node->planenum == -1)
-    {
-        num = node->contents;
-        free(node->markfaces);
-        free(node);
-        return num;
-    }
-#endif
 
 #ifdef ZHLT_XASH2
 #ifdef HLBSP_MERGECLIPNODE
@@ -179,9 +167,7 @@ static int      WriteClipNodes_r(node_t* node
     for (i = 0; i < 2; i++)
     {
         cn->children[i] = WriteClipNodes_r(node->children[i]
-#ifdef ZHLT_DETAILBRUSH
 			, portalleaf
-#endif
 #ifdef HLBSP_MERGECLIPNODE
 			, outputmap
 #endif
@@ -236,9 +222,7 @@ void            WriteClipNodes(node_t* nodes)
 	clipnodemap_t outputmap;
 #endif
     WriteClipNodes_r(nodes
-#ifdef ZHLT_DETAILBRUSH
 		, NULL
-#endif
 #ifdef HLBSP_MERGECLIPNODE
 		, &outputmap
 #endif
@@ -248,34 +232,23 @@ void            WriteClipNodes(node_t* nodes)
 // =====================================================================================
 //  WriteDrawLeaf
 // =====================================================================================
-#ifdef ZHLT_DETAILBRUSH
 static int		WriteDrawLeaf (node_t *node, const node_t *portalleaf)
-#else
-static void     WriteDrawLeaf(const node_t* const node)
-#endif
 {
     face_t**        fp;
     face_t*         f;
     dleaf_t*        leaf_p;
-#ifdef ZHLT_DETAILBRUSH
 	int				leafnum = g_numleafs;
-#endif
 
     // emit a leaf
 	hlassume (g_numleafs < MAX_MAP_LEAFS, assume_MAX_MAP_LEAFS);
     leaf_p = &g_dleafs[g_numleafs];
     g_numleafs++;
 
-#ifdef ZHLT_DETAILBRUSH
 	leaf_p->contents = portalleaf->contents;
-#else
-    leaf_p->contents = node->contents;
-#endif
 
     //
     // write bounding box info
     //
-#ifdef ZHLT_DETAILBRUSH
 #ifdef HLBSP_DETAILBRUSH_CULL
 	vec3_t mins, maxs;
 #if 0
@@ -304,13 +277,6 @@ static void     WriteDrawLeaf(const node_t* const node)
 	{
 		leaf_p->mins[k] = (short)qmax (-32767, qmin ((int)portalleaf->mins[k], 32767));
 		leaf_p->maxs[k] = (short)qmax (-32767, qmin ((int)portalleaf->maxs[k], 32767));
-	}
-#endif
-#else
-	for (int k = 0; k < 3; k++)
-	{
-		leaf_p->mins[k] = (short)qmax (-32767, qmin ((int)node->mins[k], 32767));
-		leaf_p->maxs[k] = (short)qmax (-32767, qmin ((int)node->maxs[k], 32767));
 	}
 #endif
 
@@ -366,9 +332,7 @@ static void     WriteDrawLeaf(const node_t* const node)
     free(node->markfaces);
 
     leaf_p->nummarksurfaces = g_nummarksurfaces - leaf_p->firstmarksurface;
-#ifdef ZHLT_DETAILBRUSH
 	return leafnum;
-#endif
 }
 
 // =====================================================================================
@@ -416,31 +380,20 @@ static void     WriteFace(face_t* f)
 
     for (i = 0; i < f->numpoints; i++)
     {
-#ifdef ZHLT_DETAILBRUSH
 		e = f->outputedges[i];
-#else
-        e = GetEdge(f->pts[i], f->pts[(i + 1) % f->numpoints], f);
-#endif
         hlassume(g_numsurfedges < MAX_MAP_SURFEDGES, assume_MAX_MAP_SURFEDGES);
         g_dsurfedges[g_numsurfedges] = e;
         g_numsurfedges++;
     }
-#ifdef ZHLT_DETAILBRUSH
 	free (f->outputedges);
 	f->outputedges = NULL;
-#endif
 }
 
 // =====================================================================================
 //  WriteDrawNodes_r
 // =====================================================================================
-#ifdef ZHLT_DETAILBRUSH
 static int WriteDrawNodes_r (node_t *node, const node_t *portalleaf)
-#else
-static void     WriteDrawNodes_r(const node_t* const node)
-#endif
 {
-#ifdef ZHLT_DETAILBRUSH
 	if (node->isportalleaf)
 	{
 		if (node->contents == CONTENTS_SOLID)
@@ -466,20 +419,16 @@ static void     WriteDrawNodes_r(const node_t* const node)
 			return -1 - leafnum;
 		}
 	}
-#endif
     dnode_t*        n;
     int             i;
     face_t*         f;
-#ifdef ZHLT_DETAILBRUSH
 	int nodenum = g_numnodes;
-#endif
 
     // emit a node
     hlassume(g_numnodes < MAX_MAP_NODES, assume_MAX_MAP_NODES);
     n = &g_dnodes[g_numnodes];
     g_numnodes++;
 
-#ifdef ZHLT_DETAILBRUSH
 	vec3_t mins, maxs;
 #if 0
 	if (node->isdetail || node->isportalleaf)
@@ -508,13 +457,6 @@ static void     WriteDrawNodes_r(const node_t* const node)
 		n->mins[k] = (short)qmax (-32767, qmin ((int)mins[k], 32767));
 		n->maxs[k] = (short)qmax (-32767, qmin ((int)maxs[k], 32767));
 	}
-#else
-	for (int k = 0; k < 3; k++)
-	{
-		n->mins[k] = (short)qmax (-32767, qmin ((int)node->mins[k], 32767));
-		n->maxs[k] = (short)qmax (-32767, qmin ((int)node->maxs[k], 32767));
-	}
-#endif
 
     if (node->planenum & 1)
     {
@@ -535,31 +477,9 @@ static void     WriteDrawNodes_r(const node_t* const node)
     //
     for (i = 0; i < 2; i++)
     {
-#ifdef ZHLT_DETAILBRUSH
 		n->children[i] = WriteDrawNodes_r (node->children[i], portalleaf);
-#else
-        if (node->children[i]->planenum == -1)
-        {
-            if (node->children[i]->contents == CONTENTS_SOLID)
-            {
-                n->children[i] = -1;
-            }
-            else
-            {
-                n->children[i] = -(g_numleafs + 1);
-                WriteDrawLeaf(node->children[i]);
-            }
-        }
-        else
-        {
-            n->children[i] = g_numnodes;
-            WriteDrawNodes_r(node->children[i]);
-        }
-#endif
     }
-#ifdef ZHLT_DETAILBRUSH
 	return nodenum;
-#endif
 }
 
 // =====================================================================================
@@ -596,7 +516,6 @@ static void     FreeDrawNodes_r(node_t* node)
 //      Called after a drawing hull is completed
 //      Frees all nodes and faces
 // =====================================================================================
-#ifdef ZHLT_DETAILBRUSH
 void OutputEdges_face (face_t *f)
 {
 	if (CheckFaceForHint(f)
@@ -654,7 +573,6 @@ int OutputEdges_r (node_t *node, int detaillevel)
 	}
 	return next;
 }
-#endif
 #ifdef HLBSP_REMOVECOVEREDFACES
 static void RemoveCoveredFaces_r (node_t *node)
 {
@@ -698,7 +616,6 @@ static void RemoveCoveredFaces_r (node_t *node)
 #endif
 void            WriteDrawNodes(node_t* headnode)
 {
-#ifdef ZHLT_DETAILBRUSH
 #ifdef HLBSP_REMOVECOVEREDFACES
 	RemoveCoveredFaces_r (headnode); // fill "referenced" value
 #endif
@@ -709,17 +626,6 @@ void            WriteDrawNodes(node_t* headnode)
 		nextdetaillevel = OutputEdges_r (headnode, detaillevel);
 	}
 	WriteDrawNodes_r (headnode, NULL);
-#else
-    if (headnode->contents < 0)
-    {
-        WriteDrawLeaf(headnode);
-    }
-    else
-    {
-        WriteDrawNodes_r(headnode);
-        FreeDrawNodes_r(headnode);
-    }
-#endif
 }
 
 

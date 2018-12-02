@@ -170,11 +170,7 @@ static void     WritePortalFile_r(const node_t* const node)
     Winding*        w;
     dplane_t        plane2;
 
-#ifdef ZHLT_DETAILBRUSH
 	if (!node->isportalleaf)
-#else
-    if (!node->contents)
-#endif
     {
         WritePortalFile_r(node->children[0]);
         WritePortalFile_r(node->children[1]);
@@ -269,11 +265,7 @@ static void     NumberLeafs_r(node_t* node)
 {
     portal_t*       p;
 
-#ifdef ZHLT_DETAILBRUSH
 	if (!node->isportalleaf)
-#else
-    if (!node->contents)
-#endif
     {                                                      // decision node
         node->visleafnum = -99;
         NumberLeafs_r(node->children[0]);
@@ -306,7 +298,6 @@ static void     NumberLeafs_r(node_t* node)
     }
 }
 
-#ifdef ZHLT_DETAILBRUSH
 static int CountChildLeafs_r (node_t *node)
 {
 	if (node->planenum == -1)
@@ -345,7 +336,6 @@ static void WriteLeafCount_r (node_t *node)
 		fprintf (pf, "%i\n", count);
 	}
 }
-#endif
 /*
  * ================
  * WritePortalfile
@@ -381,9 +371,7 @@ void            WritePortalfile(node_t* headnode)
     fprintf(pf, "%i\n", num_visleafs);
     fprintf(pf, "%i\n", num_visportals);
 
-#ifdef ZHLT_DETAILBRUSH
 	WriteLeafCount_r (headnode);
-#endif
     WritePortalFile_r(headnode);
     fclose(pf);
 #ifdef HLBSP_VIEWPORTAL
@@ -402,11 +390,7 @@ void            FreePortals(node_t* node)
     portal_t*       p;
     portal_t*       nextp;
 
-#ifdef ZHLT_DETAILBRUSH
 	if (!node->isportalleaf)
-#else
-    if (node->planenum != -1)
-#endif
     {
         FreePortals(node->children[0]);
         FreePortals(node->children[1]);

@@ -174,7 +174,6 @@ static void ParseBrush(entity_t* mapent)
 	}
 	b->cliphull = 0;
 	b->bevel = false;
-#ifdef ZHLT_DETAILBRUSH
 	{
 		b->detaillevel = IntForKey (mapent, "zhlt_detaillevel");
 		b->chopdown = IntForKey (mapent, "zhlt_chopdown");
@@ -215,7 +214,6 @@ static void ParseBrush(entity_t* mapent)
 					);
 		}
 	}
-#endif
 #ifdef HLCSG_HULLBRUSH
 	for (int h = 0; h < NUM_HULLS; h++)
 	{
@@ -1021,9 +1019,7 @@ bool            ParseMapEntity()
     GetVectorForKey(mapent, "origin", mapent->origin);
 
 	if (!strcmp("func_group", ValueForKey(mapent, "classname"))
-#ifdef ZHLT_DETAILBRUSH
 		|| !strcmp("func_detail", ValueForKey (mapent, "classname"))
-#endif
 		)
     {
 #ifdef ZHLT_HIDDENSOUNDTEXTURE

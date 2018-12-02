@@ -68,7 +68,6 @@
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
 //#define HLBSP_SUBDIVIDE_INMID // this may contribute to 'AllocBlock: full' problem though it may generate fewer faces. --vluzacn
-#define ZHLT_DETAILBRUSH //--vluzacn
 #define HLBSP_VIEWPORTAL //--vluzacn
 #define HLBSP_EDGESHARE_SAMESIDE //--vluzacn
 #define HLBSP_MarkLeakTrail_FIX //--vluzacn
@@ -77,9 +76,7 @@
 #define HLCSG_ONLYENTS_NOWADCHANGE //--vluzacn
 #define HLCSG_NOFAKESPLITS //--vluzacn
 #define HLBSP_MAXNODESIZE_SKYBOX //--vluzacn
-	#ifdef ZHLT_DETAILBRUSH
 #define ZHLT_CLIPNODEDETAILLEVEL //--vluzacn
-	#endif
 #define HLBSP_HIDDENFACE //--vluzacn
 #define HLBSP_BRINKHACK //--vluzacn
 #define HLBSP_MERGECLIPNODE // Will this break the BSP file format? //--vluzacn
@@ -88,12 +85,8 @@
 #define HLBSP_BRINKNOTUSEDBYLEAF_FIX //--vluzacn
 	#endif
 #define HLBSP_FAST_SELECTPARTITION //--vluzacn
-	#ifdef ZHLT_DETAILBRUSH
 #define HLBSP_DETAILBRUSH_CULL //--vluzacn
-	#endif
-	#ifdef ZHLT_DETAILBRUSH
 #define HLBSP_SPLITFACE_FIX //--vluzacn
-	#endif
 	#ifdef HLCSG_ONLYENTS_NOWADCHANGE
 #define HLCSG_AUTOWAD_TEXTURELIST_FIX //--vluzacn
 	#endif
@@ -107,9 +100,7 @@
 	#ifdef HLBSP_BRINKHACK
 #define HLBSP_BRINKHACK_BUGFIX //--vluzacn
 	#endif
-	#ifdef ZHLT_DETAILBRUSH
 #define HLBSP_REMOVECOVEREDFACES //--vluzacn
-	#endif
 #define HLCSG_FILEREADFAILURE_FIX //--vluzacn
 #define HLBSP_DELETETEMPFILES //--vluzacn
 	#ifdef HLCSG_ONLYENTS_NOWADCHANGE
@@ -119,9 +110,7 @@
 	#endif
 #define HLCSG_WARNBADTEXINFO //--vluzacn
 #define HLBSP_HASH_FIX //--vluzacn
-	#ifdef ZHLT_DETAILBRUSH
 #define HLCSG_COPLANARPRIORITY //--vluzacn
-	#endif
 
 #define HLVIS_MAXDIST
 #define HLVIS_OVERVIEW //--vluzacn

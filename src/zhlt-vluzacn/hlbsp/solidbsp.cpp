@@ -397,9 +397,7 @@ void DeleteSurfaceTree (surfacetree_t *tree)
 //      to the middle.
 // =====================================================================================
 static surface_t* ChooseMidPlaneFromList(surface_t* surfaces, const vec3_t mins, const vec3_t maxs
-#ifdef ZHLT_DETAILBRUSH
 										 , int detaillevel
-#endif
 										 )
 {
     int             j, l;
@@ -433,12 +431,10 @@ static surface_t* ChooseMidPlaneFromList(surface_t* surfaces, const vec3_t mins,
         {
             continue;
         }
-#ifdef ZHLT_DETAILBRUSH
 		if (p->detaillevel != detaillevel)
 		{
 			continue;
 		}
-#endif
 
         plane = &g_dplanes[p->planenum];
 
@@ -546,10 +542,8 @@ static surface_t* ChooseMidPlaneFromList(surface_t* surfaces, const vec3_t mins,
 //      Choose the plane that splits the least faces
 // =====================================================================================
 static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, const vec3_t maxs
-#ifdef ZHLT_DETAILBRUSH
 									  // mins and maxs are invalid when detaillevel > 0
 									  , int detaillevel
-#endif
 									  )
 {
 	surface_t*      p;
@@ -585,12 +579,10 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 			{
 				continue;
 			}
-#ifdef ZHLT_DETAILBRUSH
 			if (p->detaillevel != detaillevel)
 			{
 				continue;
 			}
-#endif
 			planecount++;
 			plane = &g_dplanes[p->planenum];
 			for (p2 = surfaces; p2; p2 = p2->next)
@@ -627,12 +619,10 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 		{
 			continue;
 		}
-#ifdef ZHLT_DETAILBRUSH
 		if (p->detaillevel != detaillevel)
 		{
 			continue;
 		}
-#endif
 #ifdef HLBSP_FAST_SELECTPARTITION
 		planecount++;
 #endif
@@ -738,12 +728,10 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 		{
 			continue;
 		}
-#ifdef ZHLT_DETAILBRUSH
 		if (p->detaillevel != detaillevel)
 		{
 			continue;
 		}
-#endif
 		value = tmpvalue[p->planenum][0] + avesplit * tmpvalue[p->planenum][1];
 		if (value < bestvalue)
 		{
@@ -767,7 +755,6 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 //      Selects a surface from a linked list of surfaces to split the group on
 //      returns NULL if the surface list can not be divided any more (a leaf)
 // =====================================================================================
-#ifdef ZHLT_DETAILBRUSH
 int CalcSplitDetaillevel (const node_t *node)
 {
 	int bestdetaillevel = -1;
@@ -793,87 +780,18 @@ int CalcSplitDetaillevel (const node_t *node)
 	}
 	return bestdetaillevel;
 }
-#endif
 static surface_t* SelectPartition(surface_t* surfaces, const node_t* const node, const bool usemidsplit
-#ifdef ZHLT_DETAILBRUSH
 								  , int splitdetaillevel
-#endif
 #ifdef HLBSP_MAXNODESIZE_SKYBOX
 								  , vec3_t validmins, vec3_t validmaxs
 #endif
 								  )
 {
-#ifdef ZHLT_DETAILBRUSH
 	if (splitdetaillevel == -1)
 	{
 		return NULL;
 	}
 	// now we MUST choose a surface of this detail level
-#else
-    int             i;
-    surface_t*      p;
-    surface_t*      bestsurface;
-
-    //
-    // count surface choices
-    //
-    i = 0;
-    bestsurface = NULL;
-    for (p = surfaces; p; p = p->next)
-    {
-        if (!p->onnode)
-        {
-#ifdef ZHLT_DETAIL
-            if (g_bDetailBrushes)
-            {
-                // AJM: cycle though all faces, and make sure none of them are detail
-                // if any of them are, this surface isnt to cause a bsp split
-                for (face_t* f = p->faces; f; f = f->next)
-                {
-                    if (f->contents == CONTENTS_DETAIL)
-                    {
-                        //Log("SelectPartition::got a detial surface, skipping...\n");
-                        continue;
-                    }
-                }
-            }
-#endif
-			face_t *f;
-			for (f = p->faces; f; f = f->next)
-			{
-#ifdef ZHLT_DETAILBRUSH
-				if (f->detaillevel != splitdetaillevel)
-				{
-					continue;
-				}
-#endif
-				if (f->facestyle != face_discardable)
-				{
-					break;
-				}
-			}
-			if (!f)
-			{
-				continue; // this surface is discardable
-				// if all surfaces are discardable, this will become a leaf node
-			}
-#ifdef ZHLT_DETAILBRUSH
-			if (p->detaillevel != splitdetaillevel)
-			{
-				continue;
-			}
-#endif
-            i++;
-            bestsurface = p;
-        }
-    }
-
-    if (i == 0)
-    {
-        return NULL;                                       // this is a leafnode
-    }
-
-#endif
 
 	if (usemidsplit)
 	{
@@ -883,17 +801,13 @@ static surface_t* SelectPartition(surface_t* surfaces, const node_t* const node,
 #else
 			node->mins, node->maxs
 #endif
-#ifdef ZHLT_DETAILBRUSH
 			, splitdetaillevel
-#endif
 			);
 		if (s != NULL)
 			return s;
 	}
 	return ChoosePlaneFromList(surfaces, node->mins, node->maxs
-#ifdef ZHLT_DETAILBRUSH
 		, splitdetaillevel
-#endif
 		);
 }
 
@@ -918,9 +832,7 @@ static void     CalcSurfaceInfo(surface_t* surf)
         surf->maxs[i] = -99999;
     }
 
-#ifdef ZHLT_DETAILBRUSH
 	surf->detaillevel = -1;
-#endif
     for (f = surf->faces; f; f = f->next)
     {
         if (f->contents >= 0)
@@ -941,15 +853,12 @@ static void     CalcSurfaceInfo(surface_t* surf)
                 }
             }
         }
-#ifdef ZHLT_DETAILBRUSH
 		if (surf->detaillevel == -1 || f->detaillevel < surf->detaillevel)
 		{
 			surf->detaillevel = f->detaillevel;
 		}
-#endif
     }
 }
-#ifdef ZHLT_DETAILBRUSH
 void FixDetaillevelForDiscardable (node_t *node, int detaillevel)
 {
 	// when we move on to the next detaillevel, some discardable faces of previous detail level remain not on node (because they are discardable). remove them now
@@ -988,7 +897,6 @@ void FixDetaillevelForDiscardable (node_t *node, int detaillevel)
 		}
 	}
 }
-#endif
 
 // =====================================================================================
 //  DivideSurface
@@ -1150,7 +1058,6 @@ static void     SplitNodeSurfaces(surface_t* surfaces, const node_t* const node)
     node->children[0]->surfaces = frontlist;
     node->children[1]->surfaces = backlist;
 }
-#ifdef ZHLT_DETAILBRUSH
 static void SplitNodeBrushes (brush_t *brushes, const node_t *node)
 {
 	brush_t *frontlist, *frontfrag;
@@ -1178,7 +1085,6 @@ static void SplitNodeBrushes (brush_t *brushes, const node_t *node)
 	node->children[0]->detailbrushes = frontlist;
 	node->children[1]->detailbrushes = backlist;
 }
-#endif
 
 // =====================================================================================
 //  RankForContents
@@ -1314,7 +1220,6 @@ static void     FreeLeafSurfs(node_t* leaf)
 
     leaf->surfaces = NULL;
 }
-#ifdef ZHLT_DETAILBRUSH
 static void FreeLeafBrushes (node_t *leaf)
 {
 	brush_t *b, *next;
@@ -1325,7 +1230,6 @@ static void FreeLeafBrushes (node_t *leaf)
 	}
 	leaf->detailbrushes = NULL;
 }
-#endif
 
 // =====================================================================================
 //  LinkLeafFaces
@@ -1373,35 +1277,24 @@ static void     LinkLeafFaces(surface_t* planelist, node_t* leafnode)
     face_t*         f;
     surface_t*      surf;
     int             rank, r;
-#ifndef ZHLT_DETAILBRUSH
-    int             nummarkfaces;
-    face_t*         markfaces[MAX_LEAF_FACES];
-
-    leafnode->faces = NULL;
-    leafnode->planenum = -1;
-#endif
 
     rank = -1;
     for (surf = planelist; surf; surf = surf->next)
     {
-#ifdef ZHLT_DETAILBRUSH
 		if (!surf->onnode)
 		{
 			continue;
 		}
-#endif
         for (f = surf->faces; f; f = f->next)
         {
             if ((f->contents == CONTENTS_HINT))
             {
                 f->contents = CONTENTS_EMPTY;
             }
-#ifdef ZHLT_DETAILBRUSH
 			if (f->detaillevel)
 			{
 				continue;
 			}
-#endif
             r = RankForContents(f->contents);
             if (r > rank)
             {
@@ -1411,20 +1304,16 @@ static void     LinkLeafFaces(surface_t* planelist, node_t* leafnode)
     }
 	for (surf = planelist; surf; surf = surf->next)
 	{
-#ifdef ZHLT_DETAILBRUSH
 		if (!surf->onnode)
 		{
 			continue;
 		}
-#endif
 		for (f = surf->faces; f; f = f->next)
 		{
-#ifdef ZHLT_DETAILBRUSH
 			if (f->detaillevel)
 			{
 				continue;
 			}
-#endif
 			r = RankForContents(f->contents);
 			if (r != rank)
 				break;
@@ -1462,36 +1351,7 @@ static void     LinkLeafFaces(surface_t* planelist, node_t* leafnode)
 
     leafnode->contents = ContentsForRank(rank);
 
-#ifndef ZHLT_DETAILBRUSH
-    if (leafnode->contents != CONTENTS_SOLID)
-    {
-        nummarkfaces = 0;
-        for (surf = leafnode->surfaces; surf; surf = surf->next)
-        {
-            for (f = surf->faces; f; f = f->next)
-            {
-				if (f->original == NULL)
-				{
-					continue;
-				}
-                hlassume(nummarkfaces < MAX_LEAF_FACES, assume_MAX_LEAF_FACES);
-
-                markfaces[nummarkfaces++] = f->original;
-            }
-        }
-
-        markfaces[nummarkfaces] = NULL;                    // end marker
-        nummarkfaces++;
-
-        leafnode->markfaces = (face_t**)malloc(nummarkfaces * sizeof(*leafnode->markfaces));
-        memcpy(leafnode->markfaces, markfaces, nummarkfaces * sizeof(*leafnode->markfaces));
-    }
-
-    FreeLeafSurfs(leafnode);
-    leafnode->surfaces = NULL;
-#endif
 }
-#ifdef ZHLT_DETAILBRUSH
 static void MakeLeaf (node_t *leafnode)
 {
 	int				nummarkfaces;
@@ -1551,7 +1411,6 @@ static void MakeLeaf (node_t *leafnode)
 	leafnode->surfaces = NULL;
 
 }
-#endif
 
 // =====================================================================================
 //  MakeNodePortal
@@ -1722,12 +1581,10 @@ static bool     CalcNodeBounds(node_t* node
     portal_t*       next_portal;
     int             side = 0;
 
-#ifdef ZHLT_DETAILBRUSH
 	if (node->isdetail)
 	{
 		return false;
 	}
-#endif
     node->mins[0] = node->mins[1] = node->mins[2] = BOGUS_RANGE;
     node->maxs[0] = node->maxs[1] = node->maxs[2] = -BOGUS_RANGE;
 
@@ -1764,12 +1621,10 @@ static bool     CalcNodeBounds(node_t* node
         }
     }
 
-#ifdef ZHLT_DETAILBRUSH
 	if (node->isportalleaf)
 	{
 		return false;
 	}
-#endif
 #ifdef HLBSP_MAXNODESIZE_SKYBOX
 	for (i = 0; i < 3; i++)
 	{
@@ -1880,19 +1735,14 @@ static void     BuildBspTree_r(node_t* node)
 	}
 #endif
 
-#ifdef ZHLT_DETAILBRUSH
 	int splitdetaillevel = CalcSplitDetaillevel (node);
 	FixDetaillevelForDiscardable (node, splitdetaillevel);
-#endif
     split = SelectPartition(node->surfaces, node, midsplit
-#ifdef ZHLT_DETAILBRUSH
 		, splitdetaillevel
-#endif
 #ifdef HLBSP_MAXNODESIZE_SKYBOX
 		, validmins, validmaxs
 #endif
 		);
-#ifdef ZHLT_DETAILBRUSH
 	if (!node->isdetail && (!split || split->detaillevel > 0))
 	{
 		node->isportalleaf = true;
@@ -1906,15 +1756,9 @@ static void     BuildBspTree_r(node_t* node)
 	{
 		node->isportalleaf = false;
 	}
-#endif
     if (!split)
     {                                                      // this is a leaf node
-#ifdef ZHLT_DETAILBRUSH
 		MakeLeaf (node);
-#else
-        node->planenum = PLANENUM_LEAF;
-        LinkLeafFaces(node->surfaces, node);
-#endif
         return;
     }
 
@@ -1927,14 +1771,11 @@ static void     BuildBspTree_r(node_t* node)
 
     node->children[0] = AllocNode();
     node->children[1] = AllocNode();
-#ifdef ZHLT_DETAILBRUSH
 	node->children[0]->isdetail = split->detaillevel > 0;
 	node->children[1]->isdetail = split->detaillevel > 0;
-#endif
 
     // split all the polysurfaces into front and back lists
     SplitNodeSurfaces(allsurfs, node);
-#ifdef ZHLT_DETAILBRUSH
 	SplitNodeBrushes (node->detailbrushes, node);
 #ifdef HLBSP_DETAILBRUSH_CULL
 	if (node->boundsbrush)
@@ -1969,21 +1810,12 @@ static void     BuildBspTree_r(node_t* node)
 	}
 	node->boundsbrush = NULL;
 #endif
-#endif
 
-#ifdef ZHLT_DETAILBRUSH
 	if (!split->detaillevel)
 	{
 		MakeNodePortal (node);
 		SplitNodePortals (node);
 	}
-#else
-    // create the portal that seperates the two children
-    MakeNodePortal(node);
-
-    // carve the portals on the boundaries of the node
-    SplitNodePortals(node);
-#endif
 
     // recursively do the children
     BuildBspTree_r(node->children[0]);
@@ -1998,9 +1830,7 @@ static void     BuildBspTree_r(node_t* node)
 //      The original surface chain will be completely freed.
 // =====================================================================================
 node_t*         SolidBSP(const surfchain_t* const surfhead, 
-#ifdef ZHLT_DETAILBRUSH
 						 brush_t *detailbrushes, 
-#endif
 						 bool report_progress)
 {
     node_t*         headnode;
@@ -2018,7 +1848,6 @@ node_t*         SolidBSP(const surfchain_t* const surfhead,
 
     headnode = AllocNode();
     headnode->surfaces = surfhead->surfaces;
-#ifdef ZHLT_DETAILBRUSH
 	headnode->detailbrushes = detailbrushes;
 	headnode->isdetail = false;
 #ifdef HLBSP_DETAILBRUSH_CULL
@@ -2026,7 +1855,6 @@ node_t*         SolidBSP(const surfchain_t* const surfhead,
 	VectorAddVec (surfhead->mins, -SIDESPACE, brushmins);
 	VectorAddVec (surfhead->maxs, SIDESPACE, brushmaxs);
 	headnode->boundsbrush = BrushFromBox (brushmins, brushmaxs);
-#endif
 #endif
 
 

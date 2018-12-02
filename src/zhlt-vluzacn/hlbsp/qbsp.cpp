@@ -41,9 +41,7 @@ vec3_t          g_hull_size[NUM_HULLS][2] =
     }                                                     
 };
 static FILE*    polyfiles[NUM_HULLS];
-#ifdef ZHLT_DETAILBRUSH
 static FILE*    brushfiles[NUM_HULLS];
-#endif
 int             g_hullnum = 0;
 
 static face_t*  validfaces[MAX_INTERNAL_MAP_PLANES];
@@ -223,9 +221,7 @@ face_t*         NewFaceFromFace(const face_t* const in)
     newf->original = in->original;
     newf->contents = in->contents;
 	newf->facestyle = in->facestyle;
-#ifdef ZHLT_DETAILBRUSH
 	newf->detaillevel = in->detaillevel;
-#endif
 
     return newf;
 }
@@ -523,7 +519,6 @@ void            FreePortal(portal_t* p) // consider: inline
 }
 
 
-#ifdef ZHLT_DETAILBRUSH
 side_t *AllocSide ()
 {
 	side_t *s;
@@ -732,7 +727,6 @@ void CalcBrushBounds (const brush_t *b, vec3_t &mins, vec3_t &maxs)
 }
 #endif
 
-#endif
 // =====================================================================================
 //  AllocNode
 //      blah
@@ -818,9 +812,7 @@ static surfchain_t* SurflistFromValidFaces()
         n->next = sc->surfaces;
         sc->surfaces = n;
         ClearBounds(n->mins, n->maxs);
-#ifdef ZHLT_DETAILBRUSH
 		n->detaillevel = -1;
-#endif
         n->planenum = i;
 
         n->faces = NULL;
@@ -830,12 +822,10 @@ static surfchain_t* SurflistFromValidFaces()
             f->next = n->faces;
             n->faces = f;
             AddFaceToBounds(f, n->mins, n->maxs);
-#ifdef ZHLT_DETAILBRUSH
 			if (n->detaillevel == -1 || f->detaillevel < n->detaillevel)
 			{
 				n->detaillevel = f->detaillevel;
 			}
-#endif
         }
         for (f = validfaces[i + 1]; f; f = next)
         {
@@ -843,12 +833,10 @@ static surfchain_t* SurflistFromValidFaces()
             f->next = n->faces;
             n->faces = f;
             AddFaceToBounds(f, n->mins, n->maxs);
-#ifdef ZHLT_DETAILBRUSH
 			if (n->detaillevel == -1 || f->detaillevel < n->detaillevel)
 			{
 				n->detaillevel = f->detaillevel;
 			}
-#endif
         }
 
         AddPointToBounds(n->mins, sc->mins, sc->maxs);
@@ -1008,9 +996,7 @@ static          facestyle_e SetFaceType(face_t* f)
 static surfchain_t* ReadSurfs(FILE* file)
 {
     int             r;
-#ifdef ZHLT_DETAILBRUSH
 	int				detaillevel;
-#endif
     int             planenum, g_texinfo, contents, numpoints;
     face_t*         f;
     int             i;
@@ -1024,11 +1010,7 @@ static surfchain_t* ReadSurfs(FILE* file)
 		if (file == polyfiles[2] && g_nohull2)
 			break;
         line++;
-#ifdef ZHLT_DETAILBRUSH
         r = fscanf(file, "%i %i %i %i %i\n", &detaillevel, &planenum, &g_texinfo, &contents, &numpoints);
-#else
-        r = fscanf(file, "%i %i %i %i\n", &planenum, &g_texinfo, &contents, &numpoints);
-#endif
         if (r == 0 || r == -1)
         {
             return NULL;
@@ -1038,11 +1020,7 @@ static surfchain_t* ReadSurfs(FILE* file)
 			Developer (DEVELOPER_LEVEL_MEGASPAM, "inaccuracy: average %.8f max %.8f\n", inaccuracy_total / inaccuracy_count, inaccuracy_max);
             break;
         }
-#ifdef ZHLT_DETAILBRUSH
 		if (r != 5)
-#else
-        if (r != 4)
-#endif
         {
             Error("ReadSurfs (line %i): scanf failure", line);
         }
@@ -1058,12 +1036,10 @@ static surfchain_t* ReadSurfs(FILE* file)
         {
             Error("ReadSurfs (line %i): %i > g_numtexinfo", line, g_texinfo);
         }
-#ifdef ZHLT_DETAILBRUSH
 		if (detaillevel < 0)
 		{
 			Error("ReadSurfs (line %i): detaillevel %i < 0", line, detaillevel);
 		}
-#endif
 
         if (!strcasecmp(GetTextureByNumber(g_texinfo), "skip"))
         {
@@ -1084,9 +1060,7 @@ static surfchain_t* ReadSurfs(FILE* file)
         }
 
         f = AllocFace();
-#ifdef ZHLT_DETAILBRUSH
 		f->detaillevel = detaillevel;
-#endif
         f->planenum = planenum;
         f->texturenum = g_texinfo;
         f->contents = contents;
@@ -1119,7 +1093,6 @@ static surfchain_t* ReadSurfs(FILE* file)
 
     return SurflistFromValidFaces();
 }
-#ifdef ZHLT_DETAILBRUSH
 static brush_t *ReadBrushes (FILE *file)
 {
 	brush_t *brushes = NULL;
@@ -1186,7 +1159,6 @@ static brush_t *ReadBrushes (FILE *file)
 	}
 	return brushes;
 }
-#endif
 
 
 // =====================================================================================
@@ -1195,9 +1167,7 @@ static brush_t *ReadBrushes (FILE *file)
 static bool     ProcessModel()
 {
     surfchain_t*    surfs;
-#ifdef ZHLT_DETAILBRUSH
 	brush_t			*detailbrushes;
-#endif
     node_t*         nodes;
     dmodel_t*       model;
     int             startleafs;
@@ -1206,9 +1176,7 @@ static bool     ProcessModel()
 
     if (!surfs)
         return false;                                      // all models are done
-#ifdef ZHLT_DETAILBRUSH
 	detailbrushes = ReadBrushes (brushfiles[0]);
-#endif
 
     hlassume(g_nummodels < MAX_MAP_MODELS, assume_MAX_MAP_MODELS);
 
@@ -1253,9 +1221,7 @@ static bool     ProcessModel()
 
     // SolidBSP generates a node tree
     nodes = SolidBSP(surfs,
-#ifdef ZHLT_DETAILBRUSH
 		detailbrushes,
-#endif
 		modnum==0);
 
     // build all the portals in the bsp tree
@@ -1290,11 +1256,9 @@ static bool     ProcessModel()
 		nodes->children[0] = AllocNode ();
 		nodes->children[0]->planenum = -1;
 		nodes->children[0]->contents = CONTENTS_EMPTY;
-#ifdef ZHLT_DETAILBRUSH
 		nodes->children[0]->isdetail = false;
 		nodes->children[0]->isportalleaf = true;
 		nodes->children[0]->iscontentsdetail = false;
-#endif
 		nodes->children[0]->faces = NULL;
 		nodes->children[0]->markfaces = (face_t**)calloc (1, sizeof(face_t*));
 		VectorFill (nodes->children[0]->mins, 0);
@@ -1302,20 +1266,16 @@ static bool     ProcessModel()
 		nodes->children[1] = AllocNode ();
 		nodes->children[1]->planenum = -1;
 		nodes->children[1]->contents = CONTENTS_EMPTY;
-#ifdef ZHLT_DETAILBRUSH
 		nodes->children[1]->isdetail = false;
 		nodes->children[1]->isportalleaf = true;
 		nodes->children[1]->iscontentsdetail = false;
-#endif
 		nodes->children[1]->faces = NULL;
 		nodes->children[1]->markfaces = (face_t**)calloc (1, sizeof(face_t*));
 		VectorFill (nodes->children[1]->mins, 0);
 		VectorFill (nodes->children[1]->maxs, 0);
 		nodes->contents = 0;
-#ifdef ZHLT_DETAILBRUSH
 		nodes->isdetail = false;
 		nodes->isportalleaf = false;
-#endif
 		nodes->faces = NULL;
 		nodes->markfaces = NULL;
 		VectorFill (nodes->mins, 0);
@@ -1342,9 +1302,7 @@ static bool     ProcessModel()
     for (g_hullnum = 1; g_hullnum < NUM_HULLS; g_hullnum++)
     {
         surfs = ReadSurfs(polyfiles[g_hullnum]);
-#ifdef ZHLT_DETAILBRUSH
 		detailbrushes = ReadBrushes (brushfiles[g_hullnum]);
-#endif
 		{
 			int hullnum = g_hullnum;
 			if (surfs->mins[0] > surfs->maxs[0])
@@ -1375,9 +1333,7 @@ static bool     ProcessModel()
 			}
 		}
         nodes = SolidBSP(surfs,
-#ifdef ZHLT_DETAILBRUSH
 			detailbrushes, 
-#endif
 			modnum==0);
         if (g_nummodels == 1 && !g_nofill)                   // assume non-world bmodels are simple
         {
@@ -1614,12 +1570,10 @@ static void     ProcessFile(const char* const filename)
 
         if (!polyfiles[i])
             Error("Can't open %s", name);
-#ifdef ZHLT_DETAILBRUSH
 		sprintf(name, "%s.b%i", filename, i);
 		brushfiles[i] = fopen(name, "r");
 		if (!brushfiles[i])
 			Error("Can't open %s", name);
-#endif
     }
 	{
 		FILE			*f;
@@ -1708,12 +1662,10 @@ static void     ProcessFile(const char* const filename)
 		fclose (polyfiles[i]);
 		polyfiles[i] = NULL;
 		unlink (name);
-#ifdef ZHLT_DETAILBRUSH
 		sprintf(name, "%s.b%i", filename, i);
 		fclose (brushfiles[i]);
 		brushfiles[i] = NULL;
 		unlink (name);
-#endif
     }
 	safe_snprintf (name, _MAX_PATH, "%s.hsz", filename);
 	unlink (name);

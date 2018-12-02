@@ -97,10 +97,8 @@ typedef struct face_s                                      // This structure is 
     int             planenum;
     int             texturenum;
     int             contents;                              // contents in front of face
-#ifdef ZHLT_DETAILBRUSH
 	int				detaillevel; // defined by hlcsg
 	int				*outputedges; // used in WriteDrawNodes
-#endif
 
     struct face_s*  original;                              // face on node
     int             outputnumber;                          // only valid for original faces after write surfaces
@@ -124,9 +122,7 @@ typedef struct surface_s
     struct node_s*  onnode;                                // true if surface has already been used
     // as a splitting node
     face_t*         faces;                                 // links to all the faces on either side of the surf
-#ifdef ZHLT_DETAILBRUSH
 	int				detaillevel; // minimum detail level of its faces
-#endif
 }
 surface_t;
 
@@ -137,7 +133,6 @@ typedef struct
 }
 surfchain_t;
 
-#ifdef ZHLT_DETAILBRUSH
 typedef struct side_s
 {
 	struct side_s	*next;
@@ -153,7 +148,6 @@ typedef struct brush_s
 }
 brush_t;
 
-#endif
 //
 // there is a node_t structure for every node and leaf in the bsp tree
 //
@@ -165,19 +159,15 @@ brush_t;
 typedef struct node_s
 {
     surface_t*      surfaces;
-#ifdef ZHLT_DETAILBRUSH
 	brush_t			*detailbrushes;
 #ifdef HLBSP_DETAILBRUSH_CULL
 	brush_t			*boundsbrush;
 	vec3_t			loosemins, loosemaxs; // all leafs and nodes have this, while 'mins' and 'maxs' are only valid for nondetail leafs and nodes.
 #endif
-#endif
 
-#ifdef ZHLT_DETAILBRUSH
 	bool			isdetail; // is under a diskleaf
 	bool			isportalleaf; // not detail and children are detail; only visleafs have contents, portals, mins, maxs
 	bool			iscontentsdetail; // inside a detail brush
-#endif
     vec3_t          mins, maxs;                            // bounding volume of portals;
 
     // information for decision nodes
@@ -202,9 +192,7 @@ node_t;
 // solidbsp.c
 extern void     SubdivideFace(face_t* f, face_t** prevptr);
 extern node_t*  SolidBSP(const surfchain_t* const surfhead, 
-#ifdef ZHLT_DETAILBRUSH
 						 brush_t *detailbrushes, 
-#endif
 						 bool report_progress);
 
 //=============================================================================
@@ -270,7 +258,6 @@ extern void     FreePortal(struct portal_s* p);
 extern surface_t* AllocSurface();
 extern void     FreeSurface(surface_t* s);
 
-#ifdef ZHLT_DETAILBRUSH
 extern side_t *	AllocSide ();
 extern void		FreeSide (side_t *s);
 extern side_t *	NewSideFromSide (const side_t *s);
@@ -281,7 +268,6 @@ extern void		SplitBrush (brush_t *in, const dplane_t *split, brush_t **front, br
 #ifdef HLBSP_DETAILBRUSH_CULL
 extern brush_t *BrushFromBox (const vec3_t mins, const vec3_t maxs);
 extern void		CalcBrushBounds (const brush_t *b, vec3_t &mins, vec3_t &maxs);
-#endif
 #endif
 
 extern node_t*  AllocNode();

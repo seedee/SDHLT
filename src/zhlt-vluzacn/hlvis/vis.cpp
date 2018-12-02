@@ -31,11 +31,9 @@ unsigned        g_portalleafs = 0;
 portal_t*       g_portals;
 
 leaf_t*         g_leafs;
-#ifdef ZHLT_DETAILBRUSH
 int				*g_leafstarts;
 int				*g_leafcounts;
 int				g_leafcount_all;
-#endif
 
 // AJM: MVD
 #ifdef HLVIS_MAXDIST
@@ -412,60 +410,6 @@ static portal_t* GetNextPortal()
 
 #ifdef HLVIS_MAXDIST
 
-#ifndef ZHLT_DETAILBRUSH
-// AJM: MVD
-// =====================================================================================
-//  DecompressAll
-// =====================================================================================
-void			DecompressAll(void)
-{
-	int i;
-	byte *dest;
-
-	for(i = 0; i < g_portalleafs; i++)
-	{
-		dest = g_uncompressed + i * g_bitbytes;
-
-		DecompressVis((const unsigned char*)(g_dvisdata + (byte)g_dleafs[i + 1].visofs), dest, g_bitbytes);
-	}
-}
-
-// AJM: MVD
-// =====================================================================================
-//  CompressAll
-// =====================================================================================
-void			CompressAll(void)
-{
-	int i, x = 0;
-	byte *dest;
-	byte *src;
-	byte	compressed[MAX_MAP_LEAFS / 8];
-
-	vismap_p = vismap;
-	
-	for(i = 0; i < g_portalleafs; i++)
-	{
-		memset(&compressed, 0, sizeof(compressed));
-
-		src = g_uncompressed + i * g_bitbytes;
-		
-		// Compress all leafs into global compression buffer
-		x = CompressVis(src, g_bitbytes, compressed, sizeof(compressed));
-
-		dest = vismap_p;
-		vismap_p += x;
-
-		if (vismap_p > vismap_end)
-		{
-	        Error("Vismap expansion overflow");
-	    }
-	
-	    g_dleafs[i + 1].visofs = dest - vismap;            // leaf 0 is a common solid
-
-	    memcpy(dest, compressed, x);
-	}
-}
-#endif
 
 #endif // HLVIS_MAXDIST
 
@@ -668,7 +612,6 @@ static void     LeafFlow(const int leafnum)
     Verbose("leaf %4i : %4i visible\n", leafnum, numvis);
     totalvis += numvis;
 
-#ifdef ZHLT_DETAILBRUSH
 	byte buffer2[MAX_MAP_LEAFS / 8];
 	int diskbytes = (g_leafcount_all + 7) >> 3;
 	memset (buffer2, 0, diskbytes);
@@ -687,9 +630,6 @@ static void     LeafFlow(const int leafnum)
 		}
 	}
 	i = CompressVis (buffer2, diskbytes, compressed, sizeof (compressed));
-#else
-    i = CompressVis(outbuffer, g_bitbytes, compressed, sizeof(compressed));
-#endif
 
     dest = vismap_p;
     vismap_p += i;
@@ -699,14 +639,10 @@ static void     LeafFlow(const int leafnum)
         Error("Vismap expansion overflow");
     }
 
-#ifdef ZHLT_DETAILBRUSH
 	for (j = 0; j < g_leafcounts[leafnum]; j++)
 	{
 		g_dleafs[g_leafstarts[leafnum] + j + 1].visofs = dest - vismap;
 	}
-#else
-    g_dleafs[leafnum + 1].visofs = dest - vismap;            // leaf 0 is a common solid
-#endif
 
     memcpy(dest, compressed, i);
 }
@@ -1114,17 +1050,14 @@ static void     LoadPortals(char* portal_image)
 #ifdef HLVIS_OVERVIEW
 	g_leafinfos = (leafinfo_t*)calloc(g_portalleafs, sizeof(leafinfo_t));
 #endif
-#ifdef ZHLT_DETAILBRUSH
 	g_leafcounts = (int*)calloc(g_portalleafs, sizeof(int));
 	g_leafstarts = (int*)calloc(g_portalleafs, sizeof(int));
-#endif
 
     originalvismapsize = g_portalleafs * ((g_portalleafs + 7) / 8);
 
     vismap = vismap_p = g_dvisdata;
     vismap_end = vismap + MAX_MAP_VISIBILITY;
 
-#ifdef ZHLT_DETAILBRUSH
 	if (g_portalleafs > MAX_MAP_LEAFS)
 	{ // this may cause hlvis to overflow, because numportalleafs can be larger than g_numleafs in some special cases
 		Error ("Too many portalleafs (g_portalleafs(%d) > MAX_MAP_LEAFS(%d)).", g_portalleafs, MAX_MAP_LEAFS);
@@ -1147,18 +1080,13 @@ static void     LoadPortals(char* portal_image)
 	{ // internal error (this should never happen)
 		Error ("Corrupted leaf mapping (g_leafcount_all(%d) != g_dmodels[0].visleafs(%d)).", g_leafcount_all, g_dmodels[0].visleafs);
 	}
-#endif
 #ifdef HLVIS_OVERVIEW
 	for (i = 0; i < g_portalleafs; i++)
 	{
 		for (j = 0; j < g_overview_count; j++)
 		{
-#ifdef ZHLT_DETAILBRUSH
 			int d = g_overview[j].visleafnum - g_leafstarts[i];
 			if (0 <= d && d < g_leafcounts[i])
-#else
-			if (g_overview[j].visleafnum == i)
-#endif
 			{
 #ifdef HLVIS_SKYBOXMODEL
 				if (g_overview[j].reverse)

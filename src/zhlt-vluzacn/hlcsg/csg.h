@@ -173,7 +173,6 @@ typedef struct brush_s
     unsigned int    noclip; // !!!FIXME: this should be a flag bitfield so we can use it for other stuff (ie. is this a detail brush...)
 	unsigned int	cliphull;
 	bool			bevel;
-#ifdef ZHLT_DETAILBRUSH
 	int				detaillevel;
 	int				chopdown; // allow this brush to chop brushes of lower detail level
 	int				chopup; // allow this brush to be chopped by brushes of higher detail level
@@ -182,7 +181,6 @@ typedef struct brush_s
 #endif
 #ifdef HLCSG_COPLANARPRIORITY
 	int				coplanarpriority;
-#endif
 #endif
 #ifdef HLCSG_HULLBRUSH
 	char *			hullshapes[NUM_HULLS]; // might be NULL

@@ -55,12 +55,10 @@ static face_t*  TryMerge(face_t* f1, face_t* f2)
 	{
 		return NULL;
 	}
-#ifdef ZHLT_DETAILBRUSH
 	if (f1->detaillevel != f2->detaillevel)
 	{
 		return NULL;
 	}
-#endif
 
     //
     // find a common edge

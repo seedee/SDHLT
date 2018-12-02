@@ -27,9 +27,7 @@
 
 static FILE*    out[NUM_HULLS]; // pointer to each of the hull out files (.p0, .p1, ect.)  
 static FILE*    out_view[NUM_HULLS];
-#ifdef ZHLT_DETAILBRUSH
 static FILE*    out_detailbrush[NUM_HULLS];
-#endif
 static int      c_tiny;        
 static int      c_tiny_clip;
 static int      c_outfaces;
@@ -359,9 +357,7 @@ static bface_t* ClipFace(bface_t* f, bface_t** outside, const int splitplane, co
 //  WriteFace
 // =====================================================================================
 void            WriteFace(const int hull, const bface_t* const f
-#ifdef ZHLT_DETAILBRUSH
 						  , int detaillevel
-#endif
 						  )
 {
     unsigned int    i;
@@ -375,11 +371,7 @@ void            WriteFace(const int hull, const bface_t* const f
     w = f->w;
 
     // plane summary
-#ifdef ZHLT_DETAILBRUSH
 	fprintf (out[hull], "%i %i %i %i %u\n", detaillevel, f->planenum, f->texinfo, f->contents, w->m_NumPoints);
-#else
-    fprintf(out[hull], "%i %i %i %u\n", f->planenum, f->texinfo, f->contents, w->m_NumPoints);
-#endif
 
     // for each of the points on the face
     for (i = 0; i < w->m_NumPoints; i++)
@@ -416,7 +408,6 @@ void            WriteFace(const int hull, const bface_t* const f
 
     ThreadUnlock();
 }
-#ifdef ZHLT_DETAILBRUSH
 void WriteDetailBrush (int hull, const bface_t *faces)
 {
 	ThreadLock ();
@@ -433,7 +424,6 @@ void WriteDetailBrush (int hull, const bface_t *faces)
 	fprintf (out_detailbrush[hull], "-1 -1\n");
 	ThreadUnlock ();
 }
-#endif
 
 // =====================================================================================
 //  SaveOutside
@@ -584,13 +574,11 @@ static void     SaveOutside(const brush_t* const b, const int hull, bface_t* out
 
 #endif
         WriteFace(hull, f
-#ifdef ZHLT_DETAILBRUSH
 			, 
 #ifdef ZHLT_CLIPNODEDETAILLEVEL
 			(hull? b->clipnodedetaillevel: b->detaillevel)
 #else
 			b->detaillevel
-#endif
 #endif
 			);
 
@@ -609,13 +597,11 @@ static void     SaveOutside(const brush_t* const b, const int hull, bface_t* out
                 VectorCopy(temp, f->w->m_Points[f->w->m_NumPoints - 1 - i]);
             }
             WriteFace(hull, f
-#ifdef ZHLT_DETAILBRUSH
 				, 
 #ifdef ZHLT_CLIPNODEDETAILLEVEL
 				(hull? b->clipnodedetaillevel: b->detaillevel)
 #else
 				b->detaillevel
-#endif
 #endif
 				);
         }
@@ -713,9 +699,7 @@ static bface_t* CopyFacesToOutside(brushhull_t* bh)
 // =====================================================================================
 //  CSGBrush
 // =====================================================================================
-#ifdef ZHLT_DETAILBRUSH
 extern const char *ContentsToString (const contents_t type);
-#endif
 static void     CSGBrush(int brushnum)
 {
     int             hull;
@@ -746,7 +730,6 @@ static void     CSGBrush(int brushnum)
     for (hull = 0; hull < NUM_HULLS; hull++)
     {
         bh1 = &b1->hulls[hull];
-#ifdef ZHLT_DETAILBRUSH
 		if (bh1->faces && 
 #ifdef ZHLT_CLIPNODEDETAILLEVEL
 			(hull? b1->clipnodedetaillevel: b1->detaillevel)
@@ -772,7 +755,6 @@ static void     CSGBrush(int brushnum)
 				break;
 			}
 		}
-#endif
 
         // set outside to a copy of the brush's faces
         outside = CopyFacesToOutside(bh1);
@@ -800,7 +782,6 @@ static void     CSGBrush(int brushnum)
             bh2 = &b2->hulls[hull];
 			if (b2->contents == CONTENTS_TOEMPTY)
 				continue;
-#ifdef ZHLT_DETAILBRUSH
 			if (
 #ifdef ZHLT_CLIPNODEDETAILLEVEL
 				(hull? (b2->clipnodedetaillevel - 0 > b1->clipnodedetaillevel + 0): (b2->detaillevel - b2->chopdown > b1->detaillevel + b1->chopup))
@@ -825,7 +806,6 @@ static void     CSGBrush(int brushnum)
 #endif
 					;
 			}
-#endif
 #ifdef HLCSG_COPLANARPRIORITY
 			if (b2->contents == b1->contents
 				&& hull == 0 && b2->detaillevel == b1->detaillevel
@@ -861,7 +841,6 @@ static void     CSGBrush(int brushnum)
                     outside = f;
                     continue;
                 }
-#ifdef ZHLT_DETAILBRUSH
 				if (
 #ifdef ZHLT_CLIPNODEDETAILLEVEL
 					(hull? (b2->clipnodedetaillevel > b1->clipnodedetaillevel): (b2->detaillevel > b1->detaillevel))
@@ -881,7 +860,6 @@ static void     CSGBrush(int brushnum)
 						continue;
 					}
 				}
-#endif
 
 #ifndef HLCSG_NOFAKESPLITS
                 oldoutside = outside;
@@ -1009,7 +987,6 @@ static void     CSGBrush(int brushnum)
                     FreeFace(fcopy);
 #endif
 
-#ifdef ZHLT_DETAILBRUSH
 					if (
 #ifdef ZHLT_CLIPNODEDETAILLEVEL
 						(hull? (b2->clipnodedetaillevel > b1->clipnodedetaillevel): (b2->detaillevel > b1->detaillevel))
@@ -1034,7 +1011,6 @@ static void     CSGBrush(int brushnum)
 						FreeFace (f);
 						continue;
 					}
-#endif
 					if (b1->contents == CONTENTS_TOEMPTY)
 					{
 						bool onfront = true, onback = true;
@@ -1615,12 +1591,8 @@ static void     ProcessModels()
         // write end of model marker
         for (j = 0; j < NUM_HULLS; j++)
         {
-#ifdef ZHLT_DETAILBRUSH
 			fprintf (out[j], "-1 -1 -1 -1 -1\n");
 			fprintf (out_detailbrush[j], "-1\n");
-#else
-            fprintf(out[j], "-1 -1 -1 -1\n");
-#endif
         }
     }
 }
@@ -2563,12 +2535,10 @@ int             main(const int argc, char** argv)
 
         if (!out[i]) 
             Error("Couldn't open %s", name);
-#ifdef ZHLT_DETAILBRUSH
 		safe_snprintf(name, _MAX_PATH, "%s.b%i", g_Mapname, i);
 		out_detailbrush[i] = fopen(name, "w");
 		if (!out_detailbrush[i])
 			Error("Couldn't open %s", name);
-#endif
 		if (g_viewsurface)
 		{
 			safe_snprintf (name, _MAX_PATH, "%s_surface%i.pts", g_Mapname, i);
@@ -2610,9 +2580,7 @@ int             main(const int argc, char** argv)
     for (i = 0; i < NUM_HULLS; i++)
 	{
         fclose(out[i]);
-#ifdef ZHLT_DETAILBRUSH
 		fclose (out_detailbrush[i]);
-#endif
 		if (g_viewsurface)
 		{
 			fclose (out_view[i]);

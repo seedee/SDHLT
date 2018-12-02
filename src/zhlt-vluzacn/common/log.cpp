@@ -102,7 +102,6 @@ void            ResetTmpFiles()
 
         safe_snprintf(filename, _MAX_PATH, "%s.pln", g_Mapname);
         _unlink(filename);
-#ifdef ZHLT_DETAILBRUSH
 
 		safe_snprintf(filename, _MAX_PATH, "%s.b0", g_Mapname);
 		_unlink(filename);
@@ -115,7 +114,6 @@ void            ResetTmpFiles()
 
 		safe_snprintf(filename, _MAX_PATH, "%s.b3", g_Mapname);
 		_unlink(filename);
-#endif
 
 		safe_snprintf(filename, _MAX_PATH, "%s.wa_", g_Mapname);
 		_unlink(filename);
