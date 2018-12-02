@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_FinalLightFace_VL // Compensate for engine's bug of no gamma correction when adding dynamic light styles together. --vluzacn
 #define HLRAD_POINT_IN_EDGE_FIX	//--vluzacn
 #define HLRAD_MULTISKYLIGHT //--vluzacn
 #define HLRAD_ALLOWZEROBRIGHTNESS //--vluzacn
@@ -86,9 +85,7 @@
 #define HLRAD_STYLE_CORING //--vluzacn
 	#ifdef HLRAD_STYLE_CORING
 	#ifdef HLRAD_MULTISKYLIGHT
-	#ifdef HLRAD_FinalLightFace_VL
 #define HLRAD_OPAQUE_STYLE //--vluzacn
-	#endif
 	#endif
 	#endif
 #define HLRAD_CheckVisBitNoVismatrix_NOSWAP //--vluzacn
@@ -270,9 +267,7 @@
 	#ifdef HLRAD_BLUR_MINIMALSQUARE
 #define HLRAD_AVOIDWALLBLEED //--vluzacn
 	#endif
-	#ifdef HLRAD_FinalLightFace_VL
 #define HLRAD_PRESERVELIGHTMAPCOLOR //--vluzacn
-	#endif
 #define HLRAD_MORE_PATCHES //--vluzacn
 	#ifdef HLRAD_VISMATRIX_NOMARKSURFACES
 #define HLRAD_SPARSEVISMATRIX_FAST //--vluzacn
@@ -296,7 +291,7 @@
 #define HLRAD_TRANSPARENCY_FAST //--vluzacn
 
 #if defined (ZHLT_XASH) || defined (ZHLT_XASH2)
-#if !defined (HLRAD_LERP_VL) || !defined (HLRAD_AUTOCORING) || !defined (HLRAD_MULTISKYLIGHT) || !defined (HLRAD_FinalLightFace_VL) || !defined (HLRAD_AVOIDNORMALFLIP)
+#if !defined (HLRAD_LERP_VL) || !defined (HLRAD_AUTOCORING) || !defined (HLRAD_MULTISKYLIGHT) || !defined (HLRAD_AVOIDNORMALFLIP)
 #error "ZHLT_XASH has not been implemented for current configuration"
 #endif
 #endif

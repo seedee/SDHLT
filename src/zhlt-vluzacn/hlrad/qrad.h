@@ -65,9 +65,6 @@
 #define DEFAULT_AMBIENT_RED         0.0
 #define DEFAULT_AMBIENT_GREEN       0.0
 #define DEFAULT_AMBIENT_BLUE        0.0
-#ifndef HLRAD_FinalLightFace_VL
-#define DEFAULT_MAXLIGHT            256.0
-#endif
 #ifdef HLRAD_PRESERVELIGHTMAPCOLOR
 // 188 is the fullbright threshold for Goldsrc, regardless of the brightness and gamma settings in the graphic options.
 // However, hlrad can only control the light values of each single light style. So the final in-game brightness may exceed 188 if you have set a high value in the "custom appearance" of the light, or if the face receives light from different styles.
@@ -702,9 +699,6 @@ extern bool		g_fastmode;
 extern bool     g_extra;
 extern vec3_t   g_ambient;
 extern vec_t    g_direct_scale;
-#ifndef HLRAD_FinalLightFace_VL
-extern float    g_maxlight;
-#endif
 #ifdef HLRAD_PRESERVELIGHTMAPCOLOR
 extern vec_t	g_limitthreshold;
 extern bool		g_drawoverload;

@@ -8316,7 +8316,6 @@ void            FinalLightFace(const int facenum)
 #ifndef HLRAD_GROWSAMPLE
     lerpTriangulation_t* trian = NULL;
 #endif
-#ifdef HLRAD_FinalLightFace_VL
 	vec3_t			*original_basiclight;
 	int				(*final_basiclight)[3];
 	int				lbi[3];
@@ -8329,7 +8328,6 @@ void            FinalLightFace(const int facenum)
 	vec3_t			debug_final_light;
 	vec3_t			debug_original_direction;
 	vec3_t			debug_final_direction;
-#endif
 #endif
 
     // ------------------------------------------------------------------------
@@ -8381,7 +8379,6 @@ void            FinalLightFace(const int facenum)
     //
     minlight = FloatForKey(g_face_entity[facenum], "_minlight") * 128;
 
-#ifdef HLRAD_FinalLightFace_VL
 	original_basiclight = (vec3_t *)calloc (fl->numsamples, sizeof(vec3_t));
 	final_basiclight = (int (*)[3])calloc (fl->numsamples, sizeof(int [3]));
 	hlassume (original_basiclight != NULL, assume_NoMemory);
@@ -8391,7 +8388,6 @@ void            FinalLightFace(const int facenum)
 	final_basicdirection = (vec3_t *)calloc (fl->numsamples, sizeof (vec3_t));
 	hlassume (original_basicdirection != NULL, assume_NoMemory);
 	hlassume (final_basicdirection != NULL, assume_NoMemory);
-#endif
 #endif
     for (k = 0; k < lightstyles; k++)
     {
@@ -8495,7 +8491,6 @@ void            FinalLightFace(const int facenum)
 
             }
 #endif
-#ifdef HLRAD_FinalLightFace_VL
 			if (f->styles[0] != 0)
 			{
 				Warning ("wrong f->styles[0]");
@@ -8532,7 +8527,6 @@ void            FinalLightFace(const int facenum)
 				}
 			}
 	#endif
-#endif
             // ------------------------------------------------------------------------
 	        // Changes by Adam Foster - afoster@compsoc.man.ac.uk
 	        // colour lightscale:
@@ -8550,21 +8544,6 @@ void            FinalLightFace(const int facenum)
                 }
             }
 
-#ifndef HLRAD_FinalLightFace_VL
-            // clip from the top
-            {
-                vec_t           max = VectorMaximum(lb);
-
-                if (max > g_maxlight)
-                {
-                    vec_t           scale = g_maxlight / max;
-
-                    lb[0] *= scale;
-                    lb[1] *= scale;
-                    lb[2] *= scale;
-                }
-            }
-#endif
 
 	        // ------------------------------------------------------------------------
 	        // Changes by Adam Foster - afoster@compsoc.man.ac.uk
@@ -8590,40 +8569,6 @@ void            FinalLightFace(const int facenum)
 	        // Got really weird results when it was set to limit values to 256.0f - it
 	        // was as if r, g or b could wrap, going close to zero.
 
-	#ifndef HLRAD_FinalLightFace_VL
-	        if (g_colour_jitter_hack[0] || g_colour_jitter_hack[1] || g_colour_jitter_hack[2]) 
-            {
-		        for (i = 0; i < 3; i++) 
-                {
-		            lb[i] += g_colour_jitter_hack[i] * ((float)rand() / RAND_MAX - 0.5);
-		            if (lb[i] < 0.0f)
-                    {
-			            lb[i] = 0.0f;
-                    }
-		            else if (lb[i] > 255.0f)
-                    {
-			            lb[i] = 255.0f;
-                    }
-		        }
-	        }
-
-	        if (g_jitter_hack[0] || g_jitter_hack[1] || g_jitter_hack[2]) 
-            {
-		        temp_rand = (float)rand() / RAND_MAX - 0.5;
-		        for (i = 0; i < 3; i++) 
-                {
-		            lb[i] += g_jitter_hack[i] * temp_rand;
-		            if (lb[i] < 0.0f)
-                    {
-			            lb[i] = 0.0f;
-                    }
-		            else if (lb[i] > 255.0f)
-                    {
-			            lb[i] = 255.0f;
-                    }
-		        }
-	        }
-	#endif
 			
 #ifdef HLRAD_PRESERVELIGHTMAPCOLOR
 			// clip from the top
@@ -8649,7 +8594,6 @@ void            FinalLightFace(const int facenum)
 				if (lb[i] < g_minlight)
 					lb[i] = g_minlight;
 	        // ------------------------------------------------------------------------
-#ifdef HLRAD_FinalLightFace_VL
 			for (i = 0; i < 3; ++i)
 			{
 				lbi[i] = (int) floor (lb[i] + 0.5);
@@ -8743,24 +8687,13 @@ void            FinalLightFace(const int facenum)
 				}
 			}
 	#endif
-#else
-            {
-                unsigned char* colors = &g_dlightdata[f->lightofs + k * fl->numsamples * 3 + j * 3];
-
-                colors[0] = (unsigned char)lb[0];
-                colors[1] = (unsigned char)lb[1];
-                colors[2] = (unsigned char)lb[2];
-            }
-#endif
         }
     }
-#ifdef HLRAD_FinalLightFace_VL
 	free (original_basiclight);
 	free (final_basiclight);
 #ifdef ZHLT_XASH
 	free (original_basicdirection);
 	free (final_basicdirection);
-#endif
 #endif
 
 #ifndef HLRAD_GROWSAMPLE

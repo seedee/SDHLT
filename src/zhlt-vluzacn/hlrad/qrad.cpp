@@ -101,9 +101,6 @@ unsigned        g_numbounce = DEFAULT_BOUNCE;              // 3; /* Originally t
 static bool     g_dumppatches = DEFAULT_DUMPPATCHES;
 
 vec3_t          g_ambient = { DEFAULT_AMBIENT_RED, DEFAULT_AMBIENT_GREEN, DEFAULT_AMBIENT_BLUE };
-#ifndef HLRAD_FinalLightFace_VL
-float           g_maxlight = DEFAULT_MAXLIGHT;             // 196  /* Originally this was 196 */
-#endif
 #ifdef HLRAD_PRESERVELIGHTMAPCOLOR
 vec_t			g_limitthreshold = DEFAULT_LIMITTHRESHOLD;
 bool			g_drawoverload = false;
@@ -3915,9 +3912,6 @@ static void     Usage()
     Log("    -extra          : Improve lighting quality by doing 9 point oversampling\n");
     Log("    -bounce #       : Set number of radiosity bounces\n");
     Log("    -ambient r g b  : Set ambient world light (0.0 to 1.0, r g b)\n");
-#ifndef HLRAD_FinalLightFace_VL
-    Log("    -maxlight #     : Set maximum light intensity value\n");
-#endif
 #ifdef HLRAD_PRESERVELIGHTMAPCOLOR
     Log("    -limiter #      : Set light clipping threshold (-1=None)\n");
 #endif
@@ -4138,11 +4132,6 @@ static void     Settings()
     safe_snprintf(buf1, sizeof(buf1), "%1.3f %1.3f %1.3f", g_ambient[0], g_ambient[1], g_ambient[2]);
     safe_snprintf(buf2, sizeof(buf2), "%1.3f %1.3f %1.3f", DEFAULT_AMBIENT_RED, DEFAULT_AMBIENT_GREEN, DEFAULT_AMBIENT_BLUE);
     Log("ambient light        [ %17s ] [ %17s ]\n", buf1, buf2);
-#ifndef HLRAD_FinalLightFace_VL
-    safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_maxlight);
-    safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_MAXLIGHT);
-    Log("maximum light        [ %17s ] [ %17s ]\n", buf1, buf2);
-#endif
 #ifdef HLRAD_PRESERVELIGHTMAPCOLOR
     safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_limitthreshold);
     safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_LIMITTHRESHOLD);
@@ -4773,24 +4762,6 @@ int             main(const int argc, char** argv)
                 Error("expected three color values after '-ambient'\n");
             }
         }
-#ifndef HLRAD_FinalLightFace_VL
-        else if (!strcasecmp(argv[i], "-maxlight"))
-        {
-            if (i + 1 < argc)	//added "1" .--vluzacn
-            {
-                g_maxlight = (float)atof(argv[++i]) * 128;
-                if (g_maxlight <= 0)
-                {
-                    Log("expected positive value after '-maxlight'\n");
-                    Usage();
-                }
-            }
-            else
-            {
-                Usage();
-            }
-        }
-#endif
 #ifdef HLRAD_PRESERVELIGHTMAPCOLOR
         else if (!strcasecmp(argv[i], "-limiter"))
         {
@@ -5434,10 +5405,6 @@ int             main(const int argc, char** argv)
     start = I_FloatTime();
 
     // normalise maxlight
-#ifndef HLRAD_FinalLightFace_VL
-    if (g_maxlight > 255)
-        g_maxlight = 255;
-#endif
 
 	safe_snprintf(g_source, _MAX_PATH, "%s.bsp", g_Mapname);
     LoadBSPFile(g_source);
