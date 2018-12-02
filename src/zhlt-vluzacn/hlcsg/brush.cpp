@@ -1221,9 +1221,7 @@ contents_t      CheckBrushContents(const brush_t* const b)
 #ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 		case CONTENTS_BOUNDINGBOX:
 #endif
-#ifdef HLCSG_ALLOWHINTINENTITY
 		case CONTENTS_HINT:
-#endif
 #ifdef HLCSG_EMPTYBRUSH
 		case CONTENTS_TOEMPTY:
 #endif
