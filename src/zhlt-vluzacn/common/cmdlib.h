@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_SKYFIX_FIX //--vluzacn
 #define HLRAD_NUDGE_VL //--vluzacn
 #define HLRAD_WEIGHT_FIX //--vluzacn
 #define HLRAD_PATCHBLACK_FIX //--vluzacn

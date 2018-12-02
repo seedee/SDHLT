@@ -3449,7 +3449,6 @@ void            CreateDirectLights()
     Log("%i direct lights\n", numdlights);
 #endif
 	Log("%i light styles\n", numstyles);
-#ifdef HLRAD_SKYFIX_FIX
 	// move all emit_skylight to leaf 0 (the solid leaf)
 	if (g_sky_lighting_fix)
 	{
@@ -3484,7 +3483,6 @@ void            CreateDirectLights()
         }
 		directlights[0] = skylights;
 	}
-#endif
 	if (g_sky_lighting_fix)
 	{
 		int countlightenvironment = 0;
@@ -3789,36 +3787,19 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 	}
 #endif
 
-#ifdef HLRAD_SKYFIX_FIX
 #ifdef HLRAD_VIS_FIX
     for (i = 0; i < 1 + g_dmodels[0].visleafs; i++)
 #else
     for (i = 0; i < g_numleafs; i++)
 #endif
-#else
-#ifdef HLRAD_VIS_FIX
-    for (i = 1; i < 1 + g_dmodels[0].visleafs; i++)
-#else
-    for (i = 1; i < g_numleafs; i++)
-#endif
-#endif
     {
         l = directlights[i];
-#ifdef HLRAD_SKYFIX_FIX
         if (l)
 		{
             if (i == 0? g_sky_lighting_fix: pvs[(i - 1) >> 3] & (1 << ((i - 1) & 7)))
             {
                 for (; l; l = l->next)
                 {
-#else
-        if (l)
-        {
-            if (((l->type == emit_skylight) && (g_sky_lighting_fix)) || (pvs[(i - 1) >> 3] & (1 << ((i - 1) & 7))))
-            {
-                for (; l; l = l->next)
-                {
-#endif
                     // skylights work fundamentally differently than normal lights
                     if (l->type == emit_skylight)
                     {
