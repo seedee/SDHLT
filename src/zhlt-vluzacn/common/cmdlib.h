@@ -67,10 +67,7 @@
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
-#define HLBSP_ChooseMidPlane_FIX //--vluzacn
-	#ifdef HLBSP_ChooseMidPlane_FIX
 #define HLBSP_ChoosePlane_VL //--vluzacn
-	#endif
 #define HLBSP_DELETELEAKFILE //--vluzacn
 #define HLBSP_FILL //--vluzacn
 #define HLBSP_WARNMIXEDCONTENTS //--vluzacn

@@ -537,10 +537,8 @@ static surface_t* ChooseMidPlaneFromList(surface_t* surfaces, const vec3_t mins,
 		if (maxs[l] - dist < ON_EPSILON || dist - mins[l] < ON_EPSILON)
 			continue;
 #endif
-#ifdef HLBSP_ChooseMidPlane_FIX
 		if (maxs[l] - dist < g_maxnode_size/2.0 - ON_EPSILON || dist - mins[l] < g_maxnode_size/2.0 - ON_EPSILON)
 			continue;
-#endif
 #ifdef HLBSP_CHOOSEMIDPLANE
 		double crosscount = 0;
 		double frontcount = 0;
@@ -617,24 +615,7 @@ static surface_t* ChooseMidPlaneFromList(surface_t* surfaces, const vec3_t mins,
 #endif
     if (!bestsurface)
     {
-#ifdef HLBSP_ChooseMidPlane_FIX
 		return NULL;
-#else
-        for (p = surfaces; p; p = p->next)
-        {
-            if (!p->onnode)
-            {
-#ifdef ZHLT_DETAILBRUSH
-				if (p->detaillevel != detaillevel)
-				{
-					continue;
-				}
-#endif
-                return p;                                  // first valid surface
-            }
-        }
-        Error("ChooseMidPlaneFromList: no valid planes");
-#endif
     }
 
     return bestsurface;
@@ -1160,7 +1141,6 @@ static surface_t* SelectPartition(surface_t* surfaces, const node_t* const node,
 #endif
 #endif
 
-#ifdef HLBSP_ChooseMidPlane_FIX
 	if (usemidsplit)
 	{
 		surface_t *s = ChooseMidPlaneFromList(surfaces, 
@@ -1181,31 +1161,6 @@ static surface_t* SelectPartition(surface_t* surfaces, const node_t* const node,
 		, splitdetaillevel
 #endif
 		);
-#else
-    if (usemidsplit)
-    {
-        // do fast way for clipping hull
-        return ChooseMidPlaneFromList(surfaces, 
-#ifdef HLBSP_MAXNODESIZE_SKYBOX
-			validmins, validmaxs
-#else
-			node->mins, node->maxs
-#endif
-#ifdef ZHLT_DETAILBRUSH
-			, splitdetaillevel
-#endif
-			);
-    }
-    else
-    {
-        // do slow way to save poly splits for drawing hull
-        return ChoosePlaneFromList(surfaces, node->mins, node->maxs
-#ifdef ZHLT_DETAILBRUSH
-			, splitdetaillevel
-#endif
-			);
-    }
-#endif
 }
 
 // =====================================================================================
