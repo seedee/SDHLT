@@ -79,13 +79,8 @@ static void     MarkLeakTrail(portal_t* n2)
         return;
     }
 
-#ifdef HLBSP_MarkLeakTrail_FIX
     n1->winding->getCenter(p1);
     n2->winding->getCenter(p2);
-#else
-    n2->winding->getCenter(p1);
-    n1->winding->getCenter(p2);
-#endif
 
     // Linefile
     fprintf(linefile, "%f %f %f - %f %f %f\n", p1[0], p1[1], p1[2], p2[0], p2[1], p2[2]);
