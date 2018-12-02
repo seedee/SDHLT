@@ -592,7 +592,6 @@ static void ParseBrush(entity_t* mapent)
             SetKeyValue(&g_entities[b->entitynum], "origin", string);
         }
     }
-#ifdef HLCSG_COPYMODELKEYVALUE
 	if (*ValueForKey (&g_entities[b->entitynum], "zhlt_usemodel"))
 	{
 		memset (&g_brushsides[b->firstside], 0, b->numsides * sizeof (side_t));
@@ -611,7 +610,6 @@ static void ParseBrush(entity_t* mapent)
 		mapent->numbrushes--;
 		return;
 	}
-#endif
 #ifdef HLCSG_HULLBRUSH
 	if (!strcmp (ValueForKey (&g_entities[b->entitynum], "classname"), "info_hullshape"))
 	{
@@ -802,7 +800,6 @@ bool            ParseMapEntity()
 			}
 		}
 	}
-#ifdef HLCSG_COPYMODELKEYVALUE
 	if (*ValueForKey (mapent, "zhlt_usemodel"))
 	{
 		if (!*ValueForKey (mapent, "origin"))
@@ -815,7 +812,6 @@ bool            ParseMapEntity()
 				);
 		mapent->numbrushes = 0;
 	}
-#endif
 #ifdef HLCSG_HULLBRUSH
 	if (strcmp (ValueForKey (mapent, "classname"), "info_hullshape")) // info_hullshape is not affected by '-scale'
 #endif

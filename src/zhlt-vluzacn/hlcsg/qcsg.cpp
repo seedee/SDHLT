@@ -1245,7 +1245,6 @@ static void     SetModelNumbers()
     }
 }
 
-#ifdef HLCSG_COPYMODELKEYVALUE
 void     ReuseModel ()
 {
 	int i;
@@ -1289,7 +1288,6 @@ void     ReuseModel ()
 		}
 	}
 }
-#endif
 
 // =====================================================================================
 //  SetLightStyles
@@ -1461,9 +1459,7 @@ void WriteBSP(const char* const name)
 	safe_snprintf(path, _MAX_PATH, "%s.bsp", name);
 
     SetModelNumbers();
-#ifdef HLCSG_COPYMODELKEYVALUE
 	ReuseModel();
-#endif
     SetLightStyles();
 
     if (!g_onlyents)
