@@ -403,22 +403,16 @@ static surface_t* ChooseMidPlaneFromList(surface_t* surfaces, const vec3_t mins,
     vec_t           value;
     vec_t           dist;
     dplane_t*       plane;
-#ifdef HLBSP_CHOOSEMIDPLANE
 	surfacetree_t*	surfacetree;
 	std::vector< face_t * >::iterator it;
 	face_t*			f;
 
 	surfacetree = BuildSurfaceTree (surfaces, ON_EPSILON);
-#endif
 
     //
     // pick the plane that splits the least
     //
-#ifdef HLBSP_CHOOSEMIDPLANE
 	bestvalue = 9e30;
-#else
-	bestvalue = 6.0f * BOGUS_RANGE * BOGUS_RANGE;
-#endif
     bestsurface = NULL;
 
     for (p = surfaces; p; p = p->next)
@@ -451,7 +445,6 @@ static surface_t* ChooseMidPlaneFromList(surface_t* surfaces, const vec3_t mins,
 			continue;
 		if (maxs[l] - dist < g_maxnode_size/2.0 - ON_EPSILON || dist - mins[l] < g_maxnode_size/2.0 - ON_EPSILON)
 			continue;
-#ifdef HLBSP_CHOOSEMIDPLANE
 		double crosscount = 0;
 		double frontcount = 0;
 		double backcount = 0;
@@ -493,20 +486,6 @@ static surface_t* ChooseMidPlaneFromList(surface_t* surfaces, const vec3_t mins,
 		value = crosscount + 0.1 * (frontsize * (log (frontfrac) / log (2.0)) + backsize * (log (backfrac) / log (2.0)));
 		// the first part is how the split will increase the number of faces
 		// the second part is how the split will increase the average depth of the bsp tree
-#else
-        for (j = 0; j < 3; j++)
-        {
-            if (j == l)
-            {
-                value += (maxs[l] - dist) * (maxs[l] - dist);
-                value += (dist - mins[l]) * (dist - mins[l]);
-            }
-            else
-            {
-                value += 2 * (maxs[j] - mins[j]) * (maxs[j] - mins[j]);
-            }
-        }
-#endif
 
         if (value > bestvalue)
         {
@@ -520,9 +499,7 @@ static surface_t* ChooseMidPlaneFromList(surface_t* surfaces, const vec3_t mins,
         bestsurface = p;
     }
 
-#ifdef HLBSP_CHOOSEMIDPLANE
 	DeleteSurfaceTree (surfacetree);
-#endif
     if (!bestsurface)
     {
 		return NULL;
