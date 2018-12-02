@@ -3193,9 +3193,8 @@ static void     CreateWalls(lerpTriangulation_t* trian, const dface_t* const fac
 static lerpTriangulation_t* AllocTriangulation()
 {
     lerpTriangulation_t* trian = (lerpTriangulation_t*)calloc(1, sizeof(lerpTriangulation_t));
-#ifdef HLRAD_HLASSUMENOMEMORY
+
 	hlassume (trian != NULL, assume_NoMemory);
-#endif
 
     trian->maxpoints = DEFAULT_MAX_LERP_POINTS;
     trian->maxwalls = DEFAULT_MAX_LERP_WALLS;

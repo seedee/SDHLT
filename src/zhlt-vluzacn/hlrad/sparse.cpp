@@ -175,9 +175,9 @@ static void     InsertVisbitIntoArray(const unsigned x, const unsigned y)
     {
         column->count++;
         row = column->row = (sparse_row_t*)malloc(sizeof(sparse_row_t));
-#ifdef HLRAD_HLASSUMENOMEMORY
+
 		hlassume (row != NULL, assume_NoMemory);
-#endif
+
         row->offset = y_byte;
         row->values = 1 << (y & 7);
         return;
@@ -191,9 +191,8 @@ static void     InsertVisbitIntoArray(const unsigned x, const unsigned y)
         {
             unsigned        newsize = (column->count + 1) * sizeof(sparse_row_t);
             sparse_row_t*   newrow = (sparse_row_t*)malloc(newsize);
-#ifdef HLRAD_HLASSUMENOMEMORY
+
 			hlassume (newrow != NULL, assume_NoMemory);
-#endif
 
             memcpy(newrow, column->row, count * sizeof(sparse_row_t));
             memcpy(newrow + count + 1, column->row + count, (column->count - count) * sizeof(sparse_row_t));
@@ -216,9 +215,8 @@ static void     InsertVisbitIntoArray(const unsigned x, const unsigned y)
     {
         unsigned        newsize = (count + 1) * sizeof(sparse_row_t);
         sparse_row_t*   newrow = (sparse_row_t*)malloc(newsize);
-#ifdef HLRAD_HLASSUMENOMEMORY
+
 		hlassume (newrow != NULL, assume_NoMemory);
-#endif
 
         memcpy(newrow, column->row, column->count * sizeof(sparse_row_t));
 

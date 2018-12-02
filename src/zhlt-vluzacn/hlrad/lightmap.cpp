@@ -2877,9 +2877,8 @@ void            CreateDirectLights()
         {
             numdlights++;
             dl = (directlight_t*)calloc(1, sizeof(directlight_t));
-#ifdef HLRAD_HLASSUMENOMEMORY
+
 			hlassume (dl != NULL, assume_NoMemory);
-#endif
 
             VectorCopy(p->origin, dl->origin);
 
@@ -2998,9 +2997,8 @@ void            CreateDirectLights()
             {
 		        numdlights++;
 		        dl = (directlight_t *) calloc(1, sizeof(directlight_t));
-#ifdef HLRAD_HLASSUMENOMEMORY
+
 				hlassume (dl != NULL, assume_NoMemory);
-#endif
 
 		        VectorCopy(p->origin, dl->origin);
 
@@ -3141,9 +3139,8 @@ void            CreateDirectLights()
 
         numdlights++;
         dl = (directlight_t*)calloc(1, sizeof(directlight_t));
-#ifdef HLRAD_HLASSUMENOMEMORY
+
 		hlassume (dl != NULL, assume_NoMemory);
-#endif
 
         GetVectorForKey(e, "origin", dl->origin);
 
@@ -6138,9 +6135,8 @@ void            BuildFacelights(const int facenum)
     for (k = 0; k < MAXLIGHTMAPS; k++)
     {
         facelight[facenum].samples[k] = (sample_t*)calloc(l.numsurfpt, sizeof(sample_t));
-#ifdef HLRAD_HLASSUMENOMEMORY
+
 		hlassume (facelight[facenum].samples[k] != NULL, assume_NoMemory);
-#endif
     }
 #endif
 #ifdef HLRAD_AUTOCORING

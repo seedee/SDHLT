@@ -25,9 +25,8 @@ void*           AllocBlock(const unsigned long size)
     }
 
     h = GlobalAlloc(GMEM_FIXED | GMEM_ZEROINIT, size);
-#ifdef HLRAD_HLASSUMENOMEMORY
+
 	hlassume (h != NULL, assume_NoMemory);
-#endif
 
     if (h)
     {
