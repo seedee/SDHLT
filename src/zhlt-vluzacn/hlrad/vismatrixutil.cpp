@@ -339,18 +339,11 @@ void            MakeScales(const int threadnum)
 				dot1 = DotProduct (delta, backnormal);
 			}
             dot2 = -DotProduct(delta, normal2);
-#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 			bool light_behind_surface = false;
 			if (dot1 <= NORMAL_EPSILON)
 			{
 				light_behind_surface = true;
 			}
-#else
-			if (dot1 <= NORMAL_EPSILON)
-			{
-				continue;
-			}
-#endif
 			if (dot2 * dist <= MINIMUM_PATCH_DISTANCE)
 			{
 				continue;
@@ -358,9 +351,7 @@ void            MakeScales(const int threadnum)
 
 #ifdef HLRAD_DIVERSE_LIGHTING
 			if (lighting_diversify
-	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 				&& !light_behind_surface
-	#endif
 				)
 			{
 				dot1 = lighting_scale * pow (dot1, lighting_power);
@@ -371,12 +362,10 @@ void            MakeScales(const int threadnum)
 				trans = 0.8f / patch2->area;
 			if (dist < patch2->emitter_range - ON_EPSILON)
 			{
-	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 				if (light_behind_surface)
 				{
 					trans = 0.0;
 				}
-	#endif
 				vec_t sightarea;
 				const vec_t *receiver_origin;
 				const vec_t *receiver_normal;
@@ -401,7 +390,6 @@ void            MakeScales(const int threadnum)
 				frac = qmax (0, qmin (frac, 1));
 				trans = frac * trans + (1 - frac) * (sightarea / patch2->area); // because later we will multiply this back
 			}
-	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 			else
 			{
 				if (light_behind_surface)
@@ -409,7 +397,6 @@ void            MakeScales(const int threadnum)
 					continue;
 				}
 			}
-	#endif
 
 #ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 			trans *= patch2->exposure;
@@ -630,18 +617,11 @@ void            MakeRGBScales(const int threadnum)
 				dot1 = DotProduct (delta, backnormal);
 			}
             dot2 = -DotProduct(delta, normal2);
-#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 			bool light_behind_surface = false;
 			if (dot1 <= NORMAL_EPSILON)
 			{
 				light_behind_surface = true;
 			}
-#else
-			if (dot1 <= NORMAL_EPSILON)
-			{
-				continue;
-			}
-#endif
 			if (dot2 * dist <= MINIMUM_PATCH_DISTANCE)
 			{
 				continue;
@@ -649,9 +629,7 @@ void            MakeRGBScales(const int threadnum)
 			
 #ifdef HLRAD_DIVERSE_LIGHTING
 			if (lighting_diversify
-	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 				&& !light_behind_surface
-	#endif
 				)
 			{
 				dot1 = lighting_scale * pow (dot1, lighting_power);
@@ -665,12 +643,10 @@ void            MakeRGBScales(const int threadnum)
 			}
 			if (dist < patch2->emitter_range - ON_EPSILON)
 			{
-	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 				if (light_behind_surface)
 				{
 					trans_one = 0.0;
 				}
-	#endif
 				vec_t sightarea;
 				const vec_t *receiver_origin;
 				const vec_t *receiver_normal;
@@ -695,7 +671,6 @@ void            MakeRGBScales(const int threadnum)
 				frac = qmax (0, qmin (frac, 1));
 				trans_one = frac * trans_one + (1 - frac) * (sightarea / patch2->area); // because later we will multiply this back
 			}
-	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 			else
 			{
 				if (light_behind_surface)
@@ -703,7 +678,6 @@ void            MakeRGBScales(const int threadnum)
 					continue;
 				}
 			}
-	#endif
 #ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 			trans_one *= patch2->exposure;
 #endif

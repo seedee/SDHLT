@@ -2873,9 +2873,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
     int             style_index;
 	int				step_match;
 	bool			sky_used = false;
-#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 	vec3_t			testline_origin;
-#endif
 	vec3_t			adds[ALLSTYLES];
 #ifdef ZHLT_XASH
 	vec3_t			adds_direction[ALLSTYLES];
@@ -3111,9 +3109,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							continue;
 						if (!(l->intensity[0] || l->intensity[1] || l->intensity[2]))
 							continue;
-#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 						VectorCopy (l->origin, testline_origin);
-#endif
                         float           denominator;
 
                         VectorSubtract(l->origin, pos, delta);
@@ -3126,12 +3122,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                         dot = DotProduct(delta, normal);
                         //                        if (dot <= 0.0)
                         //                            continue;
-#ifndef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
-                        if (dot <= NORMAL_EPSILON) //ON_EPSILON / 10 //--vluzacn
-                        {
-                            continue;                      // behind sample surface
-                        }
-#endif
 
                         if (dist < 1.0)
                         {
@@ -3154,12 +3144,10 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                         {
                         case emit_point:
                         {
-#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 							if (dot <= NORMAL_EPSILON)
 							{
 								continue;
 							}
-#endif
 							vec_t denominator = dist * dist * l->fade;
 #ifdef HLRAD_DIVERSE_LIGHTING
 							if (lighting_diversify)
@@ -3174,18 +3162,14 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 
                         case emit_surface:
                         {
-#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 							bool light_behind_surface = false;
 							if (dot <= NORMAL_EPSILON)
 							{
 								light_behind_surface = true;
 							}
-#endif
 #ifdef HLRAD_DIVERSE_LIGHTING
 							if (lighting_diversify
-	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 								&& !light_behind_surface
-	#endif
 								)
 							{
 								dot = lighting_scale * pow (dot, lighting_power);
@@ -3251,14 +3235,12 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							}
 							if (dist < range - ON_EPSILON)
 							{ // do things slow
-		#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 								if (light_behind_surface)
 								{
 									dot = 0.0;
 									ratio = 0.0;
 								}
 								GetAlternateOrigin (pos, normal, l->patch, testline_origin);
-		#endif
 								vec_t sightarea;
 								int skylevel = l->patch->emitter_skylevel;
 								if (l->stopdot > 0.0) // stopdot2 > 0.0 or stopdot > 0.0
@@ -3290,7 +3272,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								vec_t ratio2 = (sightarea / l->patch_area); // because l->patch->area has been multiplied into l->intensity
 								ratio = frac * ratio + (1 - frac) * ratio2;
 							}
-		#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 							else
 							{
 								if (light_behind_surface)
@@ -3298,19 +3279,16 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 									continue;
 								}
 							}
-		#endif
                             VectorScale(l->intensity, ratio, add);
                             break;
                         }
 
                         case emit_spotlight:
                         {
-#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 							if (dot <= NORMAL_EPSILON)
 							{
 								continue;
 							}
-#endif
                             dot2 = -DotProduct(delta, l->normal);
                             if (dot2 <= l->stopdot2)
                             {
@@ -3345,11 +3323,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                         }
                         }
 						if (TestLine (pos, 
-	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 							testline_origin
-	#else
-							l->origin
-	#endif
 							) != CONTENTS_EMPTY)
 						{
 							continue;
@@ -3357,11 +3331,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 						vec3_t transparency;
 						int opaquestyle;
 						if (TestSegmentAgainstOpaqueList (pos, 
-	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 							testline_origin
-	#else
-							l->origin
-	#endif
 							, transparency
 							, opaquestyle))
 						{

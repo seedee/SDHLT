@@ -312,11 +312,7 @@ static void     TestPatchToFace(const unsigned patchnum, const int facenum, cons
     {
         const dplane_t* plane2 = getPlaneFromFaceNumber(facenum);
 
-#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 		if (DotProduct (patch->origin, plane2->normal) > PatchPlaneDist (patch2) + ON_EPSILON - patch->emitter_range)
-#else
-        if (DotProduct(patch->origin, plane2->normal) > (PatchPlaneDist(patch2) + MINIMUM_PATCH_DISTANCE))
-#endif
         {
             // we need to do a real test
             const dplane_t* plane = getPlaneFromFaceNumber(patch->faceNumber);
@@ -338,7 +334,6 @@ static void     TestPatchToFace(const unsigned patchnum, const int facenum, cons
 					{
 						continue;
 					}
-#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 					vec3_t origin1, origin2;
 					vec3_t delta;
 					vec_t dist;
@@ -368,28 +363,14 @@ static void     TestPatchToFace(const unsigned patchnum, const int facenum, cons
 					{
 						continue;
 					}
-#else
-					if (DotProduct(patch2->origin, plane->normal) <= (PatchPlaneDist(patch) + MINIMUM_PATCH_DISTANCE))
-					{
-						continue;
-					}
-#endif
                     if (TestLine(
-	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 						origin1, origin2
-	#else
-						patch->origin, patch2->origin
-	#endif
 						) != CONTENTS_EMPTY)
 					{
 						continue;
 					}
                     if (TestSegmentAgainstOpaqueList(
-	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 						origin1, origin2
-	#else
-						patch->origin, patch2->origin
-	#endif
 						, transparency
 						, opaquestyle
 					))

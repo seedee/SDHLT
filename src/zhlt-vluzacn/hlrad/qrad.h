@@ -747,8 +747,6 @@ extern vec_t	CalcSightArea_SpotLight (const vec3_t receiver_origin, const vec3_t
 					, vec_t lighting_power, vec_t lighting_scale
 	#endif
 					);
-#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 extern void		GetAlternateOrigin (const vec3_t pos, const vec3_t normal, const patch_t *patch, vec3_t &origin);
-#endif
 
 #endif //HLRAD_H__

@@ -481,7 +481,6 @@ vec_t CalcSightArea_SpotLight (const vec3_t receiver_origin, const vec3_t receiv
 	return area;
 }
 
-#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 // =====================================================================================
 //  GetAlternateOrigin
 // =====================================================================================
@@ -574,4 +573,3 @@ void GetAlternateOrigin (const vec3_t pos, const vec3_t normal, const patch_t *p
 	}
 }
 
-#endif

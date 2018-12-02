@@ -30,11 +30,7 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
     {
         const dplane_t* plane2 = getPlaneFromFaceNumber(patch2->faceNumber);
 
-#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 		if (DotProduct (patch->origin, plane2->normal) > PatchPlaneDist (patch2) + ON_EPSILON - patch->emitter_range)
-#else
-        if (DotProduct(patch->origin, plane2->normal) > (PatchPlaneDist(patch2) + MINIMUM_PATCH_DISTANCE))
-#endif
         {
             // we need to do a real test
 
@@ -46,7 +42,6 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
             // check vis between patch and patch2
             //  if v2 is not behind light plane
             //  && v2 is visible from v1
-#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 			vec3_t origin1, origin2;
 			vec3_t delta;
 			vec_t dist;
@@ -76,28 +71,14 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 			{
 				return false;
 			}
-#else
-            if (DotProduct(patch2->origin, plane->normal) <= (PatchPlaneDist(patch) + MINIMUM_PATCH_DISTANCE))
-			{
-				return false;
-			}
-#endif
             if (TestLine(
-	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 				origin1, origin2
-	#else
-				patch->origin, patch2->origin
-	#endif
 				) != CONTENTS_EMPTY)
 			{
 				return false;
 			}
             if (TestSegmentAgainstOpaqueList(
-#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 				origin1, origin2
-#else
-				patch->origin, patch2->origin
-#endif
 				, transparency
 				, opaquestyle
 				))
@@ -140,7 +121,6 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
             vec3_t transparency = {1.0,1.0,1.0};
 			int opaquestyle = -1;
 
-#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 			vec3_t emitorigin;
 			vec3_t delta;
 			vec_t dist;
@@ -158,28 +138,14 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 			{
 				return false;
 			}
-#else
-            if (DotProduct(emitpatch->origin, backnormal) <= (DotProduct(backorigin, backnormal) + MINIMUM_PATCH_DISTANCE))
-			{
-				return false;
-			}
-#endif
             if (TestLine(
-	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 				backorigin, emitorigin
-	#else
-				backorigin, emitpatch->origin
-	#endif
 				) != CONTENTS_EMPTY)
 			{
 				return false;
 			}
             if (TestSegmentAgainstOpaqueList(
-#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 				backorigin, emitorigin
-#else
-				backorigin, emitpatch->origin
-#endif
 				, transparency
 				, opaquestyle
 				))
