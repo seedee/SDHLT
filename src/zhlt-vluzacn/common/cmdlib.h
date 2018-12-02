@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_NEGATIVEDIVIDEND_MISCFIX //--vluzacn
 #define HLRAD_LERP_FIX //--vluzacn
 	#ifdef HLRAD_LERP_FIX
 #define HLRAD_LERP_VL //--vluzacn

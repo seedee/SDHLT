@@ -4125,11 +4125,7 @@ void            GetPhongNormal(int facenum, const vec3_t spot, vec3_t phongnorma
 
             if (j)
             {
-#ifdef HLRAD_NEGATIVEDIVIDEND_MISCFIX
                 prev_edge = f->firstedge + ((j + f->numedges - 1) % f->numedges);
-#else
-                prev_edge = f->firstedge + ((j - 1) % f->numedges);
-#endif
             }
             else
             {
