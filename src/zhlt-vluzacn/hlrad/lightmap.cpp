@@ -4462,7 +4462,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 #ifdef HLRAD_GROWSAMPLE
 			GetPhongNormal (surface, surfpt, pointnormal);
 #else
-	#ifdef HLRAD_PHONG_FROMORIGINAL
 			vec3_t pos_original;
 			SetSurfFromST (l, pos_original, s_vec, t_vec);
 			{
@@ -4472,9 +4471,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 				VectorMA (pos_original, - DEFAULT_HUNT_OFFSET / scale, l->texnormal, pos_original);
 			}
 			GetPhongNormal(facenum, pos_original, pointnormal);
-	#else
-			GetPhongNormal(facenum, spot, pointnormal);
-	#endif
 #endif
 	#ifdef HLRAD_TRANSLUCENT
 			if (l->translucent_b)
@@ -5227,7 +5223,6 @@ void            BuildFacelights(const int facenum)
 							}
 						}
 
-#ifdef HLRAD_PHONG_FROMORIGINAL
 						// this will generate smoother light for cylinders partially embedded in solid,
 						vec3_t pos_original;
 						SetSurfFromST (&l, pos_original, s_vec, t_vec);
@@ -5238,9 +5233,6 @@ void            BuildFacelights(const int facenum)
 							VectorMA (pos_original, - DEFAULT_HUNT_OFFSET / scale, l.texnormal, pos_original);
 						}
                         GetPhongNormal(facenum, pos_original, pointnormal);
-#else
-                        GetPhongNormal(facenum, pos, pointnormal);
-#endif
 						if (!blocked)
 						{
                         GatherSampleLight(pos, pvs, pointnormal, subsampled, 
@@ -5381,7 +5373,6 @@ void            BuildFacelights(const int facenum)
         }
         else
         {
-#ifdef HLRAD_PHONG_FROMORIGINAL
 			vec_t s_vec = l.texmins[0] * TEXTURE_STEP + (i % lightmapwidth) * TEXTURE_STEP;
 			vec_t t_vec = l.texmins[1] * TEXTURE_STEP + (i / lightmapwidth) * TEXTURE_STEP;
 			// this will generate smoother light for cylinders partially embedded in solid,
@@ -5394,9 +5385,6 @@ void            BuildFacelights(const int facenum)
 				VectorMA (pos_original, - DEFAULT_HUNT_OFFSET / scale, l.texnormal, pos_original);
 			}
 			GetPhongNormal(facenum, pos_original, pointnormal);
-#else
-            GetPhongNormal(facenum, spot, pointnormal);
-#endif
 			bool blocked = l.surfpt_lightoutside[i];
 			if (!blocked)
 			{
