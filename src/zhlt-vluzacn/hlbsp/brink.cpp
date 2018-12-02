@@ -279,9 +279,7 @@ typedef struct btreeedge_s
 
 	bool tmp_tested;
 	int tmp_side;
-#ifdef HLBSP_BRINKNOTUSEDBYLEAF_FIX
 	bool tmp_onleaf[2];
-#endif
 }
 btreeedge_t;
 
@@ -761,27 +759,8 @@ void SplitTreeLeaf (int &numobjects, btreeleaf_t *tl, const dplane_t *plane, int
 					te->tmp_side = SIDE_CROSS;
 				}
 			}
-#ifdef HLBSP_BRINKNOTUSEDBYLEAF_FIX
 			// The plane does not necessarily split the leaf into two, because of epsilon problem etc., and this will cause "Error: CollectBrinks_r: not leaf" on some maps.
 			// In addition, by the time of this step (split edges), the plane has not splitted the leaf yet, so splitting the brink leafs now will break the integrety of the entire geometry. (We want the four steps to be as independent on each other as possible, that is, the entire geometry remains valid after each step.)
-#else
-			if (!te->infinite)
-			{
-				if (te->tmp_side == SIDE_ON)
-				{
-					// since the plane splits the leaf into two, it must also split the brink into two
-					BrinkSplitClipnode (te->brink, plane, planenum, tl->clipnode, c0, c1);
-				}
-				else if (te->tmp_side == SIDE_FRONT)
-				{
-					BrinkReplaceClipnode (te->brink, tl->clipnode, c0);
-				}
-				else if (te->tmp_side == SIDE_BACK)
-				{
-					BrinkReplaceClipnode (te->brink, tl->clipnode, c1);
-				}
-			}
-#endif
 			if (te->tmp_side == SIDE_CROSS)
 			{
 				btreepoint_t *tp0 = GetPointFromEdge (te, false);
@@ -804,9 +783,6 @@ void SplitTreeLeaf (int &numobjects, btreeleaf_t *tl, const dplane_t *plane, int
 					te0->brink = CopyBrink (te->brink);
 					VectorCopy (tpmid->v, te0->brink->start);
 					VectorCopy (tp0->v, te0->brink->stop);
-#ifndef HLBSP_BRINKNOTUSEDBYLEAF_FIX
-					BrinkReplaceClipnode (te0->brink, tl->clipnode, (tp0->tmp_side == SIDE_BACK? c1: c0));
-#endif
 				}
 				btreeedge_t *te1 = AllocTreeedge (numobjects, te->infinite);
 				SetEdgePoints (te1, tpmid, tp1);
@@ -817,9 +793,6 @@ void SplitTreeLeaf (int &numobjects, btreeleaf_t *tl, const dplane_t *plane, int
 					te1->brink = CopyBrink (te->brink);
 					VectorCopy (tp1->v, te1->brink->start);
 					VectorCopy (tpmid->v, te1->brink->stop);
-#ifndef HLBSP_BRINKNOTUSEDBYLEAF_FIX
-					BrinkReplaceClipnode (te1->brink, tl->clipnode, (tp1->tmp_side == SIDE_BACK? c1: c0));
-#endif
 				}
 				btreeface_l::iterator fj;
 				while ((fj = te->faces->begin ()) != te->faces->end ())
@@ -956,9 +929,6 @@ void SplitTreeLeaf (int &numobjects, btreeleaf_t *tl, const dplane_t *plane, int
 						hlassume (false, assume_first);
 					}
 					BrinkSplitClipnode (te->brink, tf->plane, tf->planenum, NULL, GetLeafFromFace (tf, tf->planeside)->clipnode, GetLeafFromFace (tf, !tf->planeside)->clipnode);
-#ifndef HLBSP_BRINKNOTUSEDBYLEAF_FIX
-					BrinkSplitClipnode (te->brink, plane, planenum, tl->clipnode, c0, c1);
-#endif
 				}
 				te->tmp_tested = true;
 				te->tmp_side = SIDE_ON;
@@ -1072,7 +1042,6 @@ void SplitTreeLeaf (int &numobjects, btreeleaf_t *tl, const dplane_t *plane, int
 #ifndef HLBSP_BRINKHACK_BUGFIX
 		DeleteLeaf (numobjects, tl);
 #endif
-#ifdef HLBSP_BRINKNOTUSEDBYLEAF_FIX
 		btreeleaf_t *(frontback[2]) = {front, back};
 		for (int side = 0; side < 2; side++)
 		{
@@ -1139,7 +1108,6 @@ void SplitTreeLeaf (int &numobjects, btreeleaf_t *tl, const dplane_t *plane, int
 				}
 			}
 		}
-#endif
 #ifdef HLBSP_BRINKHACK_BUGFIX
 		DeleteLeaf (numobjects, tl);
 #endif
@@ -1550,7 +1518,6 @@ void AnalyzeBrinks (bbrinkinfo_t *info)
 		bbrink_t *b = info->brinks[i];
 		if (b->numnodes <= 5) // quickly reject the most trivial brinks
 		{
-#ifdef HLBSP_BRINKNOTUSEDBYLEAF_FIX
 			if (b->numnodes != 3 && b->numnodes != 5)
 			{
 				PrintOnce ("AnalyzeBrinks: internal error 1");
@@ -1571,11 +1538,6 @@ void AnalyzeBrinks (bbrinkinfo_t *info)
 				countgood++;
 			}
 			continue;
-#else
-			hlassume (b->numnodes == 5, assume_first);
-			countgood++;
-			continue;
-#endif
 		}
 		
 		if (b->numnodes > 2 * MAXBRINKWEDGES - 1)
