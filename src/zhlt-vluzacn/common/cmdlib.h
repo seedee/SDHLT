@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_ARG_MISC //--vluzacn
 #define HLRAD_PairEdges_FACESIDE_FIX //--vluzacn
 #define HLRAD_VISMATRIX_NOMARKSURFACES //--vluzacn
 #define HLRAD_WATERBLOCKLIGHT //--vluzacn

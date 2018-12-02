@@ -44,16 +44,9 @@ typedef enum
 }
 eVisMethods;
 
-#ifdef HLRAD_ARG_MISC
 eVisMethods		g_method = DEFAULT_METHOD;
-#else
-eVisMethods     g_method = eMethodVismatrix;
-#endif
 
 vec_t           g_fade = DEFAULT_FADE;
-#ifndef HLRAD_ARG_MISC
-int             g_falloff = DEFAULT_FALLOFF;
-#endif
 
 patch_t*        g_face_patches[MAX_MAP_FACES];
 entity_t*       g_face_entity[MAX_MAP_FACES];
@@ -132,10 +125,6 @@ vec3_t		g_colour_qgamma = { DEFAULT_COLOUR_GAMMA_RED, DEFAULT_COLOUR_GAMMA_GREEN
 vec3_t		g_colour_lightscale = { DEFAULT_COLOUR_LIGHTSCALE_RED, DEFAULT_COLOUR_LIGHTSCALE_GREEN, DEFAULT_COLOUR_LIGHTSCALE_BLUE };
 vec3_t		g_colour_jitter_hack = { DEFAULT_COLOUR_JITTER_HACK_RED, DEFAULT_COLOUR_JITTER_HACK_GREEN, DEFAULT_COLOUR_JITTER_HACK_BLUE };
 vec3_t		g_jitter_hack = { DEFAULT_JITTER_HACK_RED, DEFAULT_JITTER_HACK_GREEN, DEFAULT_JITTER_HACK_BLUE };
-#ifndef HLRAD_ARG_MISC
-bool		g_diffuse_hack = DEFAULT_DIFFUSE_HACK;
-bool		g_spotlight_hack = DEFAULT_SPOTLIGHT_HACK;
-#endif
 // --------------------------------------------------------------------------
 
 bool		g_customshadow_with_bouncelight = DEFAULT_CUSTOMSHADOW_WITH_BOUNCELIGHT;
@@ -3365,12 +3354,7 @@ static void     Usage()
 #ifdef HLRAD_FASTMODE
 	Log("    -fast           : Fast rad\n");
 #endif
-#ifdef HLRAD_ARG_MISC
 	Log("    -vismatrix value: Set vismatrix method to normal, sparse or off .\n");
-#else
-    Log("    -sparse         : Enable low memory vismatrix algorithm\n");
-    Log("    -nomatrix       : Disable usage of vismatrix entirely\n\n");
-#endif
     Log("    -extra          : Improve lighting quality by doing 9 point oversampling\n");
     Log("    -bounce #       : Set number of radiosity bounces\n");
     Log("    -ambient r g b  : Set ambient world light (0.0 to 1.0, r g b)\n");
@@ -3391,9 +3375,6 @@ static void     Usage()
     Log("    -dlight #       : Set direct lighting threshold\n");
     Log("    -nolerp         : Disable radiosity interpolation, nearest point instead\n\n");
     Log("    -fade #         : Set global fade (larger values = shorter lights)\n");
-#ifndef HLRAD_ARG_MISC
-    Log("    -falloff #      : Set global falloff mode (1 = inv linear, 2 = inv square)\n");
-#endif
 #ifdef HLRAD_TEXLIGHTGAP
 	Log("    -texlightgap #  : Set global gap distance for texlights\n");
 #endif
@@ -3432,10 +3413,6 @@ static void     Usage()
     Log("   -colourscale r g b  : Sets different lightscale values for r, g ,b\n" );
     Log("   -colourjitter r g b : Adds noise, independent colours, for dithering\n");
     Log("   -jitter r g b       : Adds noise, monochromatic, for dithering\n");
-#ifndef HLRAD_ARG_MISC
-    Log("   -nodiffuse          : Disables light_environment diffuse hack\n");
-    Log("   -nospotpoints       : Disables light_spot spherical point sources\n");
-#endif
     //Log("-= End of unofficial features! =-\n\n" );
 
     // ------------------------------------------------------------------------  
@@ -3541,31 +3518,10 @@ static void     Settings()
 #ifdef HLRAD_FASTMODE
 	Log("fast rad             [ %17s ] [ %17s ]\n", g_fastmode? "on": "off", DEFAULT_FASTMODE? "on": "off");
 #endif
-#ifdef HLRAD_ARG_MISC
 	Log("vismatrix algorithm  [ %17s ] [ %17s ]\n",
 		g_method == eMethodVismatrix? "Original": g_method == eMethodSparseVismatrix? "Sparse": g_method == eMethodNoVismatrix? "NoMatrix": "Unknown",
 		DEFAULT_METHOD == eMethodVismatrix? "Original": DEFAULT_METHOD == eMethodSparseVismatrix? "Sparse": DEFAULT_METHOD == eMethodNoVismatrix? "NoMatrix": "Unknown"
 		);
-#else
-    // HLRAD Specific Settings
-    switch (g_method)
-    {
-    default:
-        tmp = "Unknown";
-        break;
-    case eMethodVismatrix:
-        tmp = "Original";
-        break;
-    case eMethodSparseVismatrix:
-        tmp = "Sparse";
-        break;
-    case eMethodNoVismatrix:
-        tmp = "NoMatrix";
-        break;
-    }
-
-    Log("vismatrix algorithm  [ %17s ] [ %17s ]\n", tmp, "Original");
-#endif
     Log("oversampling (-extra)[ %17s ] [ %17s ]\n", g_extra ? "on" : "off", DEFAULT_EXTRA ? "on" : "off");
     Log("bounces              [ %17d ] [ %17d ]\n", g_numbounce, DEFAULT_BOUNCE);
 
@@ -3613,9 +3569,6 @@ static void     Settings()
     safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_fade);
     safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_FADE);
     Log("global fade          [ %17s ] [ %17s ]\n", buf1, buf2);
-#ifndef HLRAD_ARG_MISC
-    Log("global falloff       [ %17d ] [ %17d ]\n", g_falloff, DEFAULT_FALLOFF);
-#endif
 #ifdef HLRAD_TEXLIGHTGAP
     safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_texlightgap);
     safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_TEXLIGHTGAP);
@@ -3665,10 +3618,6 @@ static void     Settings()
     Log("monochromatic jitter [ %17s ] [ %17s ]\n", buf1, buf2);
 
 
-#ifndef HLRAD_ARG_MISC
-    Log("diffuse hack         [ %17s ] [ %17s ]\n", g_diffuse_hack ? "on" : "off", DEFAULT_DIFFUSE_HACK ? "on" : "off");
-    Log("spotlight points     [ %17s ] [ %17s ]\n", g_spotlight_hack ? "on" : "off", DEFAULT_SPOTLIGHT_HACK ? "on" : "off");
-#endif
 
     // ------------------------------------------------------------------------
 
@@ -4124,24 +4073,6 @@ int             main(const int argc, char** argv)
                 Usage();
             }
         }
-#ifndef HLRAD_ARG_MISC
-        else if (!strcasecmp(argv[i], "-falloff"))
-        {
-            if (i + 1 < argc)	//added "1" .--vluzacn
-            {
-                g_falloff = (float)atoi(argv[++i]);
-                if ((g_falloff != 1) && (g_falloff != 2))
-                {
-                    Log("-falloff must be 1 or 2\n");
-                    Usage();
-                }
-            }
-            else
-            {
-                Usage();
-            }
-        }
-#endif
         else if (!strcasecmp(argv[i], "-fade"))
         {
             if (i + 1 < argc)	//added "1" .--vluzacn
@@ -4336,7 +4267,6 @@ int             main(const int argc, char** argv)
                 Usage();
             }
         }
-#ifdef HLRAD_ARG_MISC
 		else if (!strcasecmp (argv[i], "-vismatrix"))
 		{
             if (i + 1 < argc)
@@ -4364,16 +4294,6 @@ int             main(const int argc, char** argv)
 				Usage ();
 			}
 		}
-#else
-        else if (!strcasecmp(argv[i], "-sparse"))
-        {
-            g_method = eMethodSparseVismatrix;
-        }
-        else if (!strcasecmp(argv[i], "-nomatrix"))
-        {
-            g_method = eMethodNoVismatrix;
-        }
-#endif
 #ifdef HLRAD_SUNSPREAD
 		else if (!strcasecmp (argv[i], "-nospread"))
 		{
@@ -4453,16 +4373,6 @@ int             main(const int argc, char** argv)
 			}
         }
 
-#ifndef HLRAD_ARG_MISC
-        else if (!strcasecmp(argv[i], "-nodiffuse"))
-        {
-        	g_diffuse_hack = false;
-        }
-        else if (!strcasecmp(argv[i], "-nospotpoints"))
-        {
-        	g_spotlight_hack = false;
-        }
-#endif
         // ------------------------------------------------------------------------
 
         else if (!strcasecmp(argv[i], "-customshadowwithbounce"))
@@ -4817,7 +4727,6 @@ int             main(const int argc, char** argv)
 			g_corings[style] = style? g_coring: 0;
 		}
 	}
-#ifdef HLRAD_ARG_MISC
 	if (g_direct_scale != 1.0)
 	{
 		Warning ("dscale value should be 1.0 for final compile.\nIf you need to adjust the bounced light, use the '-texreflectscale' and '-texreflectgamma' options instead.");
@@ -4826,7 +4735,6 @@ int             main(const int argc, char** argv)
 	{
 		Warning ("light scale value should be 2.0 for final compile.\nValues other than 2.0 will result in incorrect interpretation of light_environment's brightness when the engine loads the map.");
 	}
-#endif
 	if (g_drawlerp)
 	{
 		g_direct_scale = 0.0;

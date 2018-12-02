@@ -2312,13 +2312,6 @@ void            CreateDirectLights()
             dl->fade = g_fade;
         }
 
-#ifndef HLRAD_ARG_MISC
-        dl->falloff = IntForKey(e, "_falloff");
-        if (dl->falloff == 0)
-        {
-            dl->falloff = g_falloff;
-        }
-#endif
 
         target = ValueForKey(e, "target");
 
@@ -3250,16 +3243,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                             dist = 1.0;
                         }
 
-#ifdef HLRAD_ARG_MISC
 						denominator = dist * dist * l->fade;
-#else
-                        // Variable power falloff (1 = inverse linear, 2 = inverse square
-                        denominator = dist * l->fade;
-                        if (l->falloff == 2)
-                        {
-                            denominator *= dist;
-                        }
-#endif
 
 						vec3_t add;
 #ifdef ZHLT_XASH
@@ -3283,17 +3267,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								continue;
 							}
 #endif
-#ifdef HLRAD_ARG_MISC
 							vec_t denominator = dist * dist * l->fade;
-#else
-                            // Variable power falloff (1 = inverse linear, 2 = inverse square
-                            vec_t           denominator = dist * l->fade;
-
-                            if (l->falloff == 2)
-                            {
-                                denominator *= dist;
-                            }
-#endif
 #ifdef HLRAD_DIVERSE_LIGHTING
 							if (lighting_diversify)
 							{
@@ -3471,9 +3445,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 
                             // Variable power falloff (1 = inverse linear, 2 = inverse square
                             vec_t           denominator = dist * l->fade;
-#ifndef HLRAD_ARG_MISC
-                            if (l->falloff == 2)
-#endif
                             {
                                 denominator *= dist;
                             }

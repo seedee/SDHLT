@@ -46,14 +46,9 @@
 #ifdef HLRAD_FASTMODE
 #define DEFAULT_FASTMODE			false
 #endif
-#ifdef HLRAD_ARG_MISC
 #define DEFAULT_METHOD eMethodSparseVismatrix
-#endif
 #define DEFAULT_LERP_ENABLED        true
 #define DEFAULT_FADE                1.0
-#ifndef HLRAD_ARG_MISC
-#define DEFAULT_FALLOFF             2
-#endif
 #define DEFAULT_BOUNCE              8
 #define DEFAULT_DUMPPATCHES         false
 #define DEFAULT_AMBIENT_RED         0.0
@@ -122,10 +117,6 @@
 #define DEFAULT_JITTER_HACK_GREEN		0.0
 #define DEFAULT_JITTER_HACK_BLUE		0.0
 
-#ifndef HLRAD_ARG_MISC
-#define DEFAULT_DIFFUSE_HACK			true
-#define DEFAULT_SPOTLIGHT_HACK			true
-#endif
 
 
 // ------------------------------------------------------------------------
@@ -249,9 +240,6 @@ typedef struct directlight_s
 
     // 'Arghrad'-like features
     vec_t           fade;                                  // falloff scaling for linear and inverse square falloff 1.0 = normal, 0.5 = farther, 2.0 = shorter etc
-#ifndef HLRAD_ARG_MISC
-    unsigned char   falloff;                               // falloff style 0 = default (inverse square), 1 = inverse falloff, 2 = inverse square (arghrad compat)
-#endif
 
 	// -----------------------------------------------------------------------------------
 	// Changes by Adam Foster - afoster@compsoc.man.ac.uk
@@ -570,9 +558,6 @@ extern vec_t *g_smoothvalues; //[nummiptex]
 extern bool     g_estimate;
 extern char     g_source[_MAX_PATH];
 extern vec_t    g_fade;
-#ifndef HLRAD_ARG_MISC
-extern int      g_falloff;
-#endif
 extern bool     g_incremental;
 extern bool     g_circus;
 #ifdef HLRAD_SUNSPREAD
@@ -597,10 +582,6 @@ extern vec3_t	g_colour_lightscale;
 
 extern vec3_t	g_colour_jitter_hack;
 extern vec3_t	g_jitter_hack;
-#ifndef HLRAD_ARG_MISC
-extern bool	g_diffuse_hack;
-extern bool	g_spotlight_hack;
-#endif
 
 // ------------------------------------------------------------------------
 
