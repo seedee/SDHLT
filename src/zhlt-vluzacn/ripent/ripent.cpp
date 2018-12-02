@@ -1240,7 +1240,6 @@ int             main(int argc, char** argv)
     case hl_import:
 		ReadBSP(g_Mapname);
         ReadEntities(g_Mapname);
-#ifdef ZHLT_CHART_AllocBlock
 		// moved here because the bsp data should not be referenced again after WriteBSPFile
         if (g_chart)
 		{
@@ -1252,7 +1251,6 @@ int             main(int argc, char** argv)
 #endif
             PrintBSPFileSizes();
 		}
-#endif
         WriteBSP(g_Mapname);
         break;
     case hl_export:
@@ -1261,18 +1259,6 @@ int             main(int argc, char** argv)
         break;
     }
 
-#ifndef ZHLT_CHART_AllocBlock
-    if (g_chart)
-	{
-#ifdef PLATFORM_CAN_CALC_EXTENT
-		if (!CalcFaceExtents_test ())
-		{
-			Warning ("internal error: CalcFaceExtents_test failed.");
-		}
-#endif
-        PrintBSPFileSizes();
-	}
-#endif
 #endif
 
     end = I_FloatTime();

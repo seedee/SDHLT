@@ -847,7 +847,6 @@ void GetFaceExtents (int facenum, int mins_out[2], int maxs_out[2])
 //
 // =====================================================================================
 //
-#ifdef ZHLT_CHART_AllocBlock
 const int BLOCK_WIDTH = 128;
 const int BLOCK_HEIGHT = 128;
 typedef struct lightmapblock_s
@@ -979,7 +978,6 @@ int CountBlocks ()
 	}
 	return count;
 }
-#endif
 #ifdef ZHLT_CHART_WADFILES
 bool NoWadTextures ()
 {
@@ -1105,10 +1103,8 @@ void            PrintBSPFileSizes()
 {
     int             numtextures = g_texdatasize ? ((dmiptexlump_t*)g_dtexdata)->nummiptex : 0;
     int             totalmemory = 0;
-#ifdef ZHLT_CHART_AllocBlock
 	int numallocblocks = CountBlocks ();
 	int maxallocblocks = 64;
-#endif
 #ifdef ZHLT_CHART_WADFILES
 	bool nowadtextures = NoWadTextures (); // We don't have this check at hlcsg, because only legacy compile tools don't empty "wad" value in "-nowadtextures" compiles.
 	char *wadvalue = FindWadValue ();
@@ -1147,7 +1143,6 @@ void            PrintBSPFileSizes()
     totalmemory += GlobUsage("lightdata", g_lightdatasize, g_max_map_lightdata);
     totalmemory += GlobUsage("visdata", g_visdatasize, sizeof(g_dvisdata));
     totalmemory += GlobUsage("entdata", g_entdatasize, sizeof(g_dentdata));
-#ifdef ZHLT_CHART_AllocBlock
 	if (numallocblocks == -1)
 	{
 		Log ("* AllocBlock    [ not available to the " PLATFORM_VERSIONSTRING " version ]\n");
@@ -1156,7 +1151,6 @@ void            PrintBSPFileSizes()
 	{
 	totalmemory += ArrayUsage ("* AllocBlock", numallocblocks, maxallocblocks, 0);
 	}
-#endif
 
     Log("%i textures referenced\n", numtextures);
 
