@@ -283,13 +283,7 @@ void            MakeScalesNoVismatrix()
 
     hlassume(g_num_patches < MAX_PATCHES, assume_MAX_PATCHES);
 
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 	safe_snprintf(transferfile, _MAX_PATH, "%s.inc", g_Mapname);
-#else
-    safe_strncpy(transferfile, g_source, _MAX_PATH);
-    StripExtension(transferfile);
-    DefaultExtension(transferfile, ".inc");
-#endif
 
     if (!g_incremental || !readtransfers(transferfile, g_num_patches))
     {

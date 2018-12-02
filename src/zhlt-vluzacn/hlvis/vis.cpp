@@ -838,12 +838,7 @@ static void InitVisBlock(void)
 	int num_blocks;
 	int num_sides;
 
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 	safe_snprintf(visfile, _MAX_PATH, "%s.vis", g_Mapname);
-#else
-	strcpy(visfile, g_Mapname);
-	DefaultExtension(visfile, ".vis");
-#endif
 
 	if(!q_exists(visfile))
 		return;
@@ -985,12 +980,7 @@ static void     CalcVis()
     unsigned        i;
 	char visdatafile[_MAX_PATH];
 
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 	safe_snprintf(visdatafile, _MAX_PATH, "%s.vdt", g_Mapname);
-#else
-	strcpy(visdatafile, g_Mapname);
-	DefaultExtension(visdatafile, ".vdt");
-#endif
 
 	// Remove this file
 	unlink(visdatafile);

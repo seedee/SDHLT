@@ -4525,11 +4525,7 @@ void            LoadRadFiles(const char* const mapname, const char* const user_r
 
     // Get map directory
     ExtractFilePath(mapname, mapdir);
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 	ExtractFile(mapname, mapfile);
-#else
-    ExtractFileBase(mapname, mapfile);
-#endif
 
     // Look for lights.rad in mapdir
     safe_strncpy(global_lights, mapdir, _MAX_PATH);
@@ -4561,11 +4557,7 @@ void            LoadRadFiles(const char* const mapname, const char* const user_r
     // Look for mapname.rad in mapdir
     safe_strncpy(mapname_lights, mapdir, _MAX_PATH);
     safe_strncat(mapname_lights, mapfile, _MAX_PATH);
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 	safe_strncat(mapname_lights, ext_rad, _MAX_PATH);
-#else
-    DefaultExtension(mapname_lights, ext_rad);
-#endif
     if (q_exists(mapname_lights))
     {
         ReadLightFile(mapname_lights);
@@ -5586,13 +5578,7 @@ int             main(const int argc, char** argv)
         g_maxlight = 255;
 #endif
 
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 	safe_snprintf(g_source, _MAX_PATH, "%s.bsp", g_Mapname);
-#else
-    strcpy(g_source, mapname_from_arg);
-    StripExtension(g_source);
-    DefaultExtension(g_source, ".bsp");
-#endif
     LoadBSPFile(g_source);
 #ifndef PLATFORM_CAN_CALC_EXTENT
 	char extentfilename[_MAX_PATH];

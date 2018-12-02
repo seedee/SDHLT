@@ -1509,12 +1509,7 @@ void WriteBSP(const char* const name)
 {
     char path[_MAX_PATH];
 
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 	safe_snprintf(path, _MAX_PATH, "%s.bsp", name);
-#else
-    safe_strncpy(path, name, _MAX_PATH);
-    DefaultExtension(path, ".bsp");
-#endif
 
     SetModelNumbers();
 #ifdef HLCSG_COPYMODELKEYVALUE
@@ -2749,9 +2744,7 @@ int             main(const int argc, char** argv)
 	{ properties_initialize(g_nullfile); }
 #endif
     safe_strncpy(name, mapname_from_arg, _MAX_PATH); // make a copy of the nap name
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 	FlipSlashes(name);
-#endif
     DefaultExtension(name, ".map");                  // might be .reg
     
     LoadMapFile(name);

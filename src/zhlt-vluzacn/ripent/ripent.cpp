@@ -392,17 +392,9 @@ static void     ReadBSP(const char* const name)
 {
     char            filename[_MAX_PATH];
 
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 	safe_snprintf(filename, _MAX_PATH, "%s.bsp", name);
 
 	LoadBSPFile(filename);
-#else
-    safe_strncpy(filename, name, _MAX_PATH);
-    StripExtension(filename);
-    DefaultExtension(filename, ".bsp");
-
-    LoadBSPFile(name);
-#endif
 	if (g_writeextentfile)
 	{
 #ifdef PLATFORM_CAN_CALC_EXTENT
@@ -421,13 +413,7 @@ static void     WriteBSP(const char* const name)
 {
     char            filename[_MAX_PATH];
 
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 	safe_snprintf(filename, _MAX_PATH, "%s.bsp", name);
-#else
-    safe_strncpy(filename, name, _MAX_PATH);
-    StripExtension(filename);
-    DefaultExtension(filename, ".bsp");
-#endif
 	
 	Log ("\nUpdating %s.\n", filename); //--vluzacn
     WriteBSPFile(filename);
@@ -495,26 +481,14 @@ static void		WriteTextures(const char* const name)
 {
 	char wadfilename[_MAX_PATH];
 	FILE *wadfile;
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 	safe_snprintf(wadfilename, _MAX_PATH, "%s.wad", name);
-#else
-    safe_strncpy(wadfilename, name, _MAX_PATH);
-    StripExtension(wadfilename);
-    DefaultExtension(wadfilename, ".wad");
-#endif
     _unlink(wadfilename);
 	wadfile = SafeOpenWrite (wadfilename);
 	Log("\nWriting %s.\n", wadfilename);
 
     char texfilename[_MAX_PATH];
 	FILE *texfile;
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 	safe_snprintf(texfilename, _MAX_PATH, "%s.tex", name);
-#else
-    safe_strncpy(texfilename, name, _MAX_PATH);
-    StripExtension(texfilename);
-    DefaultExtension(texfilename, ".tex");
-#endif
     _unlink(texfilename);
 	if (!g_textureparse)
 	{
@@ -629,25 +603,13 @@ static void		ReadTextures(const char *name)
 {
 	char wadfilename[_MAX_PATH];
 	FILE *wadfile;
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 	safe_snprintf(wadfilename, _MAX_PATH, "%s.wad", name);
-#else
-    safe_strncpy(wadfilename, name, _MAX_PATH);
-    StripExtension(wadfilename);
-    DefaultExtension(wadfilename, ".wad");
-#endif
 	wadfile = SafeOpenRead (wadfilename);
 	Log("\nReading %s.\n", wadfilename);
 
     char texfilename[_MAX_PATH];
 	FILE *texfile;
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 	safe_snprintf(texfilename, _MAX_PATH, "%s.tex", name);
-#else
-    safe_strncpy(texfilename, name, _MAX_PATH);
-    StripExtension(texfilename);
-    DefaultExtension(texfilename, ".tex");
-#endif
 	if (!g_textureparse)
 	{
 		wadinfo_t header;
@@ -755,13 +717,7 @@ static void     WriteEntities(const char* const name)
 #endif
     char filename[_MAX_PATH];
 
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 	safe_snprintf(filename, _MAX_PATH, "%s.ent", name);
-#else
-    safe_strncpy(filename, name, _MAX_PATH);
-    StripExtension(filename);
-    DefaultExtension(filename, ".ent");
-#endif
     _unlink(filename);
 
     {
@@ -795,13 +751,7 @@ static void     ReadEntities(const char* const name)
 {
     char filename[_MAX_PATH];
 
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 	safe_snprintf(filename, _MAX_PATH, "%s.ent", name);
-#else
-    safe_strncpy(filename, name, _MAX_PATH);
-    StripExtension(filename);
-    DefaultExtension(filename, ".ent");
-#endif
 
     {
         FILE *f = SafeOpenRead(filename);
@@ -1125,13 +1075,8 @@ int             main(int argc, char** argv)
         else
         {
             safe_strncpy(g_Mapname, argv[i], _MAX_PATH);
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 			FlipSlashes(g_Mapname);
-#endif
             StripExtension(g_Mapname);
-#ifndef ZHLT_DEFAULTEXTENSION_FIX
-            DefaultExtension(g_Mapname, ".bsp");
-#endif
         }
     }
 
@@ -1143,7 +1088,6 @@ int             main(int argc, char** argv)
     }
 #endif
 
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 	char source[_MAX_PATH];
 	safe_snprintf(source, _MAX_PATH, "%s.bsp", g_Mapname);
     if (!q_exists(source))
@@ -1151,13 +1095,6 @@ int             main(int argc, char** argv)
         Log("bspfile '%s' does not exist\n", source); //--vluzacn
         Usage();
     }
-#else
-    if (!q_exists(g_Mapname))
-    {
-        Log("bspfile '%s' does not exist\n", g_Mapname); //--vluzacn
-        Usage();
-    }
-#endif
 
     LogStart(argcold, argvold);
 	{

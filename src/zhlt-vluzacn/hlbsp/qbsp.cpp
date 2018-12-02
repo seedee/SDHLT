@@ -2222,16 +2222,9 @@ int             main(const int argc, char** argv)
 
     // Load the .void files for allowable entities in the void
     {
-#ifndef ZHLT_DEFAULTEXTENSION_FIX
-        char            g_source[_MAX_PATH];
-#endif
         char            strSystemEntitiesVoidFile[_MAX_PATH];
         char            strMapEntitiesVoidFile[_MAX_PATH];
 
-#ifndef ZHLT_DEFAULTEXTENSION_FIX
-        safe_strncpy(g_source, mapname_from_arg, _MAX_PATH);
-        StripExtension(g_source);
-#endif
 
         // try looking in the current directory
         safe_strncpy(strSystemEntitiesVoidFile, ENTITIES_VOID, _MAX_PATH);
@@ -2249,12 +2242,7 @@ int             main(const int argc, char** argv)
         }
 
         // Set the optional level specific lights filename
-#ifdef ZHLT_DEFAULTEXTENSION_FIX
 		safe_snprintf(strMapEntitiesVoidFile, _MAX_PATH, "%s" ENTITIES_VOID_EXT, g_Mapname);
-#else
-        safe_strncpy(strMapEntitiesVoidFile, g_source, _MAX_PATH);
-        DefaultExtension(strMapEntitiesVoidFile, ENTITIES_VOID_EXT);
-#endif
 
         LoadAllowableOutsideList(strSystemEntitiesVoidFile);    // default entities.void
         if (*strMapEntitiesVoidFile)
