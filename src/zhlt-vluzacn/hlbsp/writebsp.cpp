@@ -309,9 +309,7 @@ static void     WriteFace(face_t* f)
         ||  CheckFaceForNull(f)  // AJM
 		|| CheckFaceForDiscardable (f)
 		|| f->texturenum == -1
-#ifdef HLBSP_REMOVECOVEREDFACES
 		|| f->referenced == 0 // this face is not referenced by any nonsolid leaf because it is completely covered by func_details
-#endif
 
 // =====================================================================================
 //Cpt_Andrew - Env_Sky Check
@@ -478,9 +476,7 @@ void OutputEdges_face (face_t *f)
         || CheckFaceForNull(f)  // AJM
 		|| CheckFaceForDiscardable (f)
 		|| f->texturenum == -1
-#ifdef HLBSP_REMOVECOVEREDFACES
 		|| f->referenced == 0
-#endif
 		|| CheckFaceForEnv_Sky(f)//Cpt_Andrew - Env_Sky Check
 		)
 	{
@@ -528,7 +524,6 @@ int OutputEdges_r (node_t *node, int detaillevel)
 	}
 	return next;
 }
-#ifdef HLBSP_REMOVECOVEREDFACES
 static void RemoveCoveredFaces_r (node_t *node)
 {
 	if (node->isportalleaf)
@@ -568,12 +563,9 @@ static void RemoveCoveredFaces_r (node_t *node)
 	RemoveCoveredFaces_r (node->children[0]);
 	RemoveCoveredFaces_r (node->children[1]);
 }
-#endif
 void            WriteDrawNodes(node_t* headnode)
 {
-#ifdef HLBSP_REMOVECOVEREDFACES
 	RemoveCoveredFaces_r (headnode); // fill "referenced" value
-#endif
 	// higher detail level should not compete for edge pairing with lower detail level.
 	int detaillevel, nextdetaillevel;
 	for (detaillevel = 0; detaillevel != -1; detaillevel = nextdetaillevel)

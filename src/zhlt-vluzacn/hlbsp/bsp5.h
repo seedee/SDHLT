@@ -100,9 +100,7 @@ typedef struct face_s                                      // This structure is 
     int             outputnumber;                          // only valid for original faces after write surfaces
     int             numpoints;
     facestyle_e     facestyle;
-#ifdef HLBSP_REMOVECOVEREDFACES
 	int				referenced;                            // only valid for original faces
-#endif
 
     // vector quad word aligned
     vec3_t          pts[MAXEDGES];                         // FIXME: change to use winding_t
