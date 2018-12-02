@@ -1633,7 +1633,6 @@ static void     ProcessFile(const char* const filename)
 
     // write the updated bsp file out
     FinishBSPFile();
-#ifdef HLBSP_DELETETEMPFILES
 
 	// Because the bsp file has been updated, these polyfiles are no longer valid.
     for (i = 0; i < NUM_HULLS; i++)
@@ -1651,7 +1650,6 @@ static void     ProcessFile(const char* const filename)
 	unlink (name);
 	safe_snprintf (name, _MAX_PATH, "%s.pln", filename);
 	unlink (name);
-#endif
 }
 
 // =====================================================================================
