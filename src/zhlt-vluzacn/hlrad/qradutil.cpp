@@ -181,12 +181,6 @@ dleaf_t*        HuntForWorld(vec_t* point, const vec_t* plane_offset, const dpla
 
     dplane_t        new_plane = *plane;
 
-#ifndef HLRAD_HuntForWorld_FIX
-    if (hunt_scale < 0.1)
-    {
-        hunt_scale = 0.1;
-    }
-#endif
 
     scales[0] = 0.0;
     scales[1] = -hunt_scale;
@@ -197,18 +191,8 @@ dleaf_t*        HuntForWorld(vec_t* point, const vec_t* plane_offset, const dpla
 
     TranslatePlane(&new_plane, plane_offset);
 
-#ifndef HLRAD_HuntForWorld_FIX
-    if (!hunt_size)
-    {
-        hunt_size = DEFAULT_HUNT_SIZE;
-    }
-#endif
 
-#ifdef HLRAD_HuntForWorld_FIX
 	for (a = 0; a < hunt_size; a++)
-#else
-    for (a = 1; a < hunt_size; a++)
-#endif
     {
         for (x = 0; x < 3; x++)
         {
@@ -218,13 +202,11 @@ dleaf_t*        HuntForWorld(vec_t* point, const vec_t* plane_offset, const dpla
                 current_point[1] = original_point[1] + (scales[y % 3] * a);
                 for (z = 0; z < 3; z++)
                 {
-#ifdef HLRAD_HuntForWorld_FIX
 					if (a == 0)
 					{
 						if (x || y || z)
 							continue;
 					}
-#endif
                     vec3_t          delta;
                     vec_t           dist;
 
@@ -255,9 +237,7 @@ dleaf_t*        HuntForWorld(vec_t* point, const vec_t* plane_offset, const dpla
                                 if (x || y || z)
                                 {
                                     //dist = best_dist;
-#ifdef HLRAD_HuntForWorld_FIX
 									best_dist = dist;
-#endif
                                     best_leaf = leaf;
                                     VectorCopy(current_point, best_point);
                                     continue;

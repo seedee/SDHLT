@@ -72,10 +72,7 @@
 
 
 
-#define HLRAD_HuntForWorld_FIX //--vluzacn
-	#ifdef HLRAD_HuntForWorld_FIX
 #define HLRAD_CalcPoints_NEW // --vluzacn
-	#endif
 #define HLRAD_DPLANEOFFSET_MISCFIX //--vluzacn
 #define HLRAD_NEGATIVEDIVIDEND_MISCFIX //--vluzacn
 #define HLRAD_LERP_FIX //--vluzacn
