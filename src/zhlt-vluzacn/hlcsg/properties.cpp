@@ -2,7 +2,6 @@
 
 #include "csg.h"
 
-#ifdef HLCSG_NULLIFY_INVISIBLE
 #include <fstream>
 #include <istream>
 using namespace std;
@@ -57,4 +56,3 @@ void properties_initialize(const char* filename)
 	file.close();
 }
 
-#endif

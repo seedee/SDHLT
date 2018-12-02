@@ -56,9 +56,7 @@ bool            g_bUseNullTex = DEFAULT_NULLTEX;        // "-nonulltex"
 
 cliptype		g_cliptype = DEFAULT_CLIPTYPE;			// "-cliptype <value>"
 
-#ifdef HLCSG_NULLIFY_INVISIBLE
 const char*			g_nullfile = NULL;
-#endif
 
 bool            g_bClipNazi = DEFAULT_CLIPNAZI;         // "-noclipeconomy"
 
@@ -1887,9 +1885,7 @@ static void     Usage()
 #endif
 
 	Log("    -cliptype value  : set to smallest, normalized, simple, precise, or legacy (default)\n");
-#ifdef HLCSG_NULLIFY_INVISIBLE // KGP
 	Log("    -nullfile file   : specify list of entities to retexture with NULL\n");
-#endif
 
     Log("    -onlyents        : do an entity update from .map to .bsp\n");
     Log("    -noskyclip       : disable automatic clipping of SKY brushes\n");
@@ -2036,9 +2032,7 @@ static void     Settings()
     Log("hullfile              [ %7s ] [ %7s ]\n", g_hullfile ? g_hullfile : "None", "None");
 	Log("wad configuration file[ %7s ] [ %7s ]\n", g_wadcfgfile? g_wadcfgfile: "None", "None");
 	Log("wad.cfg group name    [ %7s ] [ %7s ]\n", g_wadconfigname? g_wadconfigname: "None", "None");
-#ifdef HLCSG_NULLIFY_INVISIBLE // KGP
 	Log("nullfile              [ %7s ] [ %7s ]\n", g_nullfile ? g_nullfile : "None", "None");
-#endif
 #ifdef HLCSG_NULLIFYAAATRIGGER
 	Log("nullify trigger       [ %7s ] [ %7s ]\n", g_nullifytrigger? "on": "off", DEFAULT_NULLIFYTRIGGER? "on": "off");
 #endif
@@ -2270,7 +2264,6 @@ int             main(const int argc, char** argv)
             }
 		}
 
-#ifdef HLCSG_NULLIFY_INVISIBLE
 		else if (!strcasecmp(argv[i], "-nullfile"))
 		{
             if (i + 1 < argc)	//added "1" .--vluzacn
@@ -2283,7 +2276,6 @@ int             main(const int argc, char** argv)
                 Usage();
             }
 		}
-#endif
 
         else if (!strcasecmp(argv[i], "-wadautodetect"))
         { 
@@ -2626,10 +2618,8 @@ int             main(const int argc, char** argv)
 	}
     
     LoadHullfile(g_hullfile);               // if the user specified a hull file, load it now
-#ifdef HLCSG_NULLIFY_INVISIBLE
 	if(g_bUseNullTex)
 	{ properties_initialize(g_nullfile); }
-#endif
     safe_strncpy(name, mapname_from_arg, _MAX_PATH); // make a copy of the nap name
 	FlipSlashes(name);
     DefaultExtension(name, ".map");                  // might be .reg

@@ -228,7 +228,6 @@ static void     HandleSKYCLIP()
 //  CheckForInvisible
 //      see if a brush is part of an invisible entity (KGP)
 // =====================================================================================
-#ifdef HLCSG_NULLIFY_INVISIBLE
 static bool CheckForInvisible(entity_t* mapent)
 {
 	using namespace std;
@@ -247,7 +246,6 @@ static bool CheckForInvisible(entity_t* mapent)
 
 	return false;
 }
-#endif
 // =====================================================================================
 //  ParseBrush
 //      parse a brush from script
@@ -263,9 +261,7 @@ static contents_t ParseBrush(entity_t* mapent)
     side_t*         side;
     contents_t      contents;
     bool            ok;
-#ifdef HLCSG_NULLIFY_INVISIBLE // KGP
 	bool nullify = CheckForInvisible(mapent);
-#endif
     hlassume(g_nummapbrushes < MAX_MAP_BRUSHES, assume_MAX_MAP_BRUSHES);
 
     b = &g_mapbrushes[g_nummapbrushes];
@@ -605,7 +601,6 @@ static contents_t ParseBrush(entity_t* mapent)
 #endif
 
     b->contents = contents = CheckBrushContents(b);
-#ifdef HLCSG_NULLIFY_INVISIBLE //this part has been moved down from the next line after '_strupr(g_token);'. --vluzacn
 	for (j = 0; j < b->numsides; j++)
 	{
 		side = &g_brushsides[b->firstside + j];
@@ -630,7 +625,6 @@ static contents_t ParseBrush(entity_t* mapent)
 			safe_strncpy(side->td.name,"NULL",sizeof(side->td.name));
 		}
 	}
-#endif
 #ifdef HLCSG_NOSPLITBYHINT
 	for (j = 0; j < b->numsides; j++)
 	{

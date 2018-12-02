@@ -415,12 +415,10 @@ extern void     autowad_PushName(const char *texname);
 //=============================================================================
 // properties.cpp
 
-#ifdef HLCSG_NULLIFY_INVISIBLE // KGP
 #include <string>
 #include <set>
 extern void properties_initialize(const char* filename);
 extern std::set< std::string > g_invisible_items;
-#endif
 
 //============================================================================
 #endif//HLCSG_H__

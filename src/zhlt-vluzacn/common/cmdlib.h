@@ -63,7 +63,6 @@
 
 // tool specific settings below only mean a recompile of the tool affected
 
-        #define HLCSG_NULLIFY_INVISIBLE //requires null textures as prerequisite
 
 #define HLCSG_COPYBRUSH //--vluzacn
 	#ifdef HLCSG_COPYBRUSH
@@ -156,9 +155,7 @@
 #define HLBSP_VIEWPORTAL //--vluzacn
 #define HLBSP_EDGESHARE_SAMESIDE //--vluzacn
 #define HLBSP_MarkLeakTrail_FIX //--vluzacn
-	#ifdef HLCSG_NULLIFY_INVISIBLE
 #define HLCSG_NULLIFYAAATRIGGER //--vluzacn
-	#endif
 	#ifdef HLCSG_CUSTOMHULL
 	#ifdef HLCSG_CUSTOMCONTENT
 #define HLCSG_PASSBULLETSBRUSH //--vluzacn
