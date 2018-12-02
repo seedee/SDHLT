@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_SubdividePatch_NOTMIDDLE //--vluzacn
 #define HLRAD_PHONG_FROMORIGINAL //--vluzacn
 #define HLRAD_SMOOTH_FACELIST //--vluzacn
 #define HLRAD_SortPatches_FIX // Important!! --vluzacn

@@ -1160,7 +1160,6 @@ static void     cutWindingWithGrid(patch_t* patch, const dplane_t* const plA, co
     unsigned int    count;
     unsigned int    x;
 
-#ifdef HLRAD_SubdividePatch_NOTMIDDLE
 	dplane_t		plA_adjusted = *plA;
 	dplane_t		plB_adjusted = *plB;
 	vec_t			Amin, Amax, Bmin, Bmax;
@@ -1193,13 +1192,8 @@ static void     cutWindingWithGrid(patch_t* patch, const dplane_t* const plA, co
 	Bshift = Bshiftmin <= Bshiftmax + NORMAL_EPSILON? (Bshiftmin + Bshiftmax) / 2: 0;
 	if (Bshift > 0.5) Bshift -= 1;
 	plB_adjusted.dist += Bshift * patch->chop;
-#endif
     g_numwindings = 0;
-#ifdef HLRAD_SubdividePatch_NOTMIDDLE
     if (CreateStrips(patch->winding, &plA_adjusted, patch->chop))
-#else
-    if (CreateStrips(patch->winding, plA, patch->chop))
-#endif
     {
         delete patch->winding;
         patch->winding = NULL;                             // Invalidated by CreateStrips routine
@@ -1208,11 +1202,7 @@ static void     cutWindingWithGrid(patch_t* patch, const dplane_t* const plA, co
 
     for (x = 0, winding = windingArray; x < count; x++, winding++)
     {
-#ifdef HLRAD_SubdividePatch_NOTMIDDLE
         if (CreateStrips(*winding, &plB_adjusted, patch->chop))
-#else
-        if (CreateStrips(*winding, plB, patch->chop))
-#endif
         {
             delete *winding;
             *winding = NULL;
