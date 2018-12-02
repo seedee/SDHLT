@@ -399,7 +399,6 @@ extern void     LoadBSPImage(dheader_t* header);
 extern void     LoadBSPFile(const char* const filename);
 extern void     WriteBSPFile(const char* const filename);
 extern void     PrintBSPFileSizes();
-#ifdef ZHLT_64BIT_FIX
 #ifdef PLATFORM_CAN_CALC_EXTENT
 extern void		WriteExtentFile (const char *const filename);
 extern bool		CalcFaceExtents_test ();
@@ -407,7 +406,6 @@ extern bool		CalcFaceExtents_test ();
 extern void		LoadExtentFile (const char *const filename);
 #endif
 extern void		GetFaceExtents (int facenum, int mins_out[2], int maxs_out[2]);
-#endif
 #ifdef ZHLT_EMBEDLIGHTMAP
 extern int		ParseImplicitTexinfoFromTexture (int miptex);
 extern int		ParseTexinfoForFace (const dface_t *f);

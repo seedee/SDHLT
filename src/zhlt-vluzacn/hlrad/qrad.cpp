@@ -5759,10 +5759,8 @@ int             main(const int argc, char** argv)
 #ifdef HLRAD_TRANSFERDATA_COMPRESS
 	compress_compatability_test ();
 #endif
-#ifdef ZHLT_64BIT_FIX
 #ifdef PLATFORM_CAN_CALC_EXTENT
 	hlassume (CalcFaceExtents_test (), assume_first);
-#endif
 #endif
     dtexdata_init();
     atexit(dtexdata_free);
@@ -5791,7 +5789,6 @@ int             main(const int argc, char** argv)
     DefaultExtension(g_source, ".bsp");
 #endif
     LoadBSPFile(g_source);
-#ifdef ZHLT_64BIT_FIX
 #ifndef PLATFORM_CAN_CALC_EXTENT
 	char extentfilename[_MAX_PATH];
 	safe_snprintf (extentfilename, _MAX_PATH, "%s.ext", g_Mapname);
@@ -5801,7 +5798,6 @@ int             main(const int argc, char** argv)
 		hlassume (false, assume_NO_EXTENT_FILE);
 	}
 	LoadExtentFile (extentfilename);
-#endif
 #endif
     ParseEntities();
 #ifdef HLRAD_FASTMODE

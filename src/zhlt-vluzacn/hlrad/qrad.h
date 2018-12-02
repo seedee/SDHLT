@@ -1022,11 +1022,7 @@ extern void     MakeScalesSparseVismatrix();
 extern void     MakeScalesNoVismatrix();
 
 // transfers.c
-#ifdef ZHLT_64BIT_FIX
 extern size_t   g_total_transfer;
-#else
-extern unsigned g_total_transfer;
-#endif
 extern bool     readtransfers(const char* const transferfile, long numpatches);
 extern void     writetransfers(const char* const transferfile, long total_patches);
 

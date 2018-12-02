@@ -543,11 +543,7 @@ q_threadfunction q_entry;
 
 static void*    CDECL ThreadEntryStub(void* pParam)
 {
-#ifdef ZHLT_64BIT_FIX
     q_entry((int)(intptr_t)pParam);
-#else
-    q_entry((int)pParam);
-#endif
     return NULL;
 }
 

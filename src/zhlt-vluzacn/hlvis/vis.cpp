@@ -237,11 +237,7 @@ static winding_t* NewWinding(const int points)
         Error("NewWinding: %i points > MAX_POINTS_ON_WINDING", points);
     }
 
-#ifdef ZHLT_64BIT_FIX
     size = (int)(intptr_t)((winding_t*)0)->points[points];
-#else
-    size = (int)((winding_t*)0)->points[points];
-#endif
     w = (winding_t*)calloc(1, size);
 
     return w;
@@ -1892,10 +1888,8 @@ int             main(const int argc, char** argv)
 
     CheckForErrorLog();
 	
-#ifdef ZHLT_64BIT_FIX
 #ifdef PLATFORM_CAN_CALC_EXTENT
 	hlassume (CalcFaceExtents_test (), assume_first);
-#endif
 #endif
     dtexdata_init();
     atexit(dtexdata_free);

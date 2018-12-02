@@ -37,11 +37,7 @@ const vec3_t vec3_one = {1.0,1.0,1.0};
 static unsigned AddTransparencyToDataList(const vec3_t trans)
 {
 	//Check if this value is in list already
-#ifdef ZHLT_64BIT_FIX
 	for(unsigned int i = 0; i < s_trans_count; i++)
-#else
-	for(int i = 0; i < s_trans_count; i++)
-#endif
 	{
 		if( VectorCompare( trans, s_trans_list[i] ) )
 		{
@@ -58,12 +54,10 @@ static unsigned AddTransparencyToDataList(const vec3_t trans)
 #else
 		s_max_trans_count += TRANS_LIST_GROWTH;
 #endif
-#ifdef ZHLT_64BIT_FIX
 		if (s_max_trans_count >= (unsigned int)INT_MAX)
 		{
 			Error ("AddTransparencyToDataList: array size exceeded INT_MAX");
 		}
-#endif
 		
 		s_trans_list = (vec3_t *)realloc( s_trans_list, sizeof(vec3_t) * s_max_trans_count );
 
@@ -106,12 +100,10 @@ void	AddTransparencyToRawArray(const unsigned p1, const unsigned p2, const vec3_
 #else
 		s_max_raw_count += RAW_LIST_GROWTH;
 #endif
-#ifdef ZHLT_64BIT_FIX
 		if (s_max_raw_count >= (unsigned int)INT_MAX)
 		{
 			Error ("AddTransparencyToRawArray: array size exceeded INT_MAX");
 		}
-#endif
 		
 		s_raw_list = (transList_t *)realloc( s_raw_list, sizeof(transList_t) * s_max_raw_count );
 
@@ -188,11 +180,7 @@ void	CreateFinalTransparencyArrays(const char *print_name)
 	//need to sorted for fast search function
 	qsort( s_sorted_list, s_sorted_count, sizeof(transList_t), SortList );
 	
-#ifdef ZHLT_64BIT_FIX
 	size_t size = s_sorted_count * sizeof(transList_t) + s_max_trans_count * sizeof(vec3_t);
-#else
-	unsigned size = s_sorted_count * sizeof(transList_t) + s_max_trans_count * sizeof(vec3_t);
-#endif
 	if ( size > 1024 * 1024 )
         	Log("%-20s: %5.1f megs \n", print_name, (double)size / (1024.0 * 1024.0));
         else if ( size > 1024 )
@@ -335,12 +323,10 @@ void	AddStyleToStyleArray(const unsigned p1, const unsigned p2, const int style)
 #else
 		s_max_style_count += STYLE_LIST_GROWTH;
 #endif
-#ifdef ZHLT_64BIT_FIX
 		if (s_max_style_count >= (unsigned int)INT_MAX)
 		{
 			Error ("AddStyleToStyleArray: array size exceeded INT_MAX");
 		}
-#endif
 		
 		s_style_list = (styleList_t *)realloc( s_style_list, sizeof(styleList_t) * s_max_style_count );
 
@@ -385,11 +371,7 @@ void	CreateFinalStyleArrays(const char *print_name)
 	//need to sorted for fast search function
 	qsort( s_style_list, s_style_count, sizeof(styleList_t), SortStyleList );
 	
-#ifdef ZHLT_64BIT_FIX
 	size_t size = s_max_style_count * sizeof(styleList_t);
-#else
-	unsigned size = s_max_style_count * sizeof(styleList_t);
-#endif
 	if ( size > 1024 * 1024 )
         	Log("%-20s: %5.1f megs \n", print_name, (double)size / (1024.0 * 1024.0));
         else if ( size > 1024 )

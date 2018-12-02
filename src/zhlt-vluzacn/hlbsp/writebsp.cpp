@@ -1130,12 +1130,10 @@ void            FinishBSPFile()
 		g_texinfo[i].flags &= ~TEX_SHOULDHIDE;
 	}
 #endif
-#ifdef ZHLT_64BIT_FIX
 #ifdef PLATFORM_CAN_CALC_EXTENT
 	WriteExtentFile (g_extentfilename);
 #else
 	Warning ("The " PLATFORM_VERSIONSTRING " version of hlbsp couldn't create extent file. The lack of extent file may cause hlrad error.");
-#endif
 #endif
 	if (g_chart)
     {

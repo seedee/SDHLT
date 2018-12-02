@@ -93,9 +93,7 @@ typedef enum
 #ifdef HLRAD_TEXTURE
 	assume_COULD_NOT_LOCATE_WAD,
 #endif
-#ifdef ZHLT_64BIT_FIX
 	assume_NO_EXTENT_FILE,
-#endif
 
     assume_last
 }

@@ -51,9 +51,7 @@ bool g_info = DEFAULT_INFO;
 bool g_pause = false;
 #endif
 
-#ifdef ZHLT_64BIT_FIX
 bool g_writeextentfile = DEFAULT_WRITEEXTENTFILE;
-#endif
 
 #ifdef ZHLT_EMBEDLIGHTMAP
 #ifdef RIPENT_TEXTURE
@@ -215,11 +213,7 @@ void ParseEntityData(const char *cTab, int iTabLength, const char *cNewLine, int
 			}
 		}
 
-#ifdef ZHLT_64BIT_FIX
 		Log("%d entities parsed.\n", (int)EntityList.size());
-#else
-		Log("%d entities parsed.\n", EntityList.size());
-#endif
 
 		//
 		// Calculate new data length.
@@ -411,7 +405,6 @@ static void     ReadBSP(const char* const name)
 
     LoadBSPFile(name);
 #endif
-#ifdef ZHLT_64BIT_FIX
 	if (g_writeextentfile)
 	{
 #ifdef PLATFORM_CAN_CALC_EXTENT
@@ -424,7 +417,6 @@ static void     ReadBSP(const char* const name)
 		Error ("-writeextentfile is not allowed in the " PLATFORM_VERSIONSTRING " version. Please use the 32-bit version of ripent.");
 #endif
 	}
-#endif
 }
 
 static void     WriteBSP(const char* const name)
@@ -618,11 +610,7 @@ static void		WriteTextures(const char* const name)
 					strcpy (info[header.numlumps].name, tex->name);
 					header.numlumps++;
 				}
-#ifdef ZHLT_64BIT_FIX
 				fprintf (texfile, "[%d]", (int)strlen(tex->name));
-#else
-				fprintf (texfile, "[%d]", strlen(tex->name));
-#endif
 				SafeWrite (texfile, tex->name, strlen(tex->name));
 				fprintf (texfile, " %d %d\r\n", tex->width, tex->height);
 			}
@@ -877,9 +865,7 @@ static void     Usage(void)
 	Log("    -textureimport  : Import texture data\n");
 	Log("    -textureparse   : Parse and format texture data\n\n");
 #endif
-#ifdef ZHLT_64BIT_FIX
 	Log("    -writeextentfile : Create extent file for the map\n");
-#endif
 #ifdef ZHLT_EMBEDLIGHTMAP
 #ifdef RIPENT_TEXTURE
 	Log("    -deleteembeddedlightmaps : Delete textures created by hlrad\n");
@@ -983,9 +969,7 @@ static void     Settings()
 	Log("texture mode        [ %7s ] [ %7s ]\n", tmp, "N/A");
 	Log("texture parse       [ %7s ] [ %7s ]\n", g_textureparse ? "on" : "off", DEFAULT_TEXTUREPARSE ? "on" : "off");
 #endif
-#ifdef ZHLT_64BIT_FIX
 	Log("write extent file   [ %7s ] [ %7s ]\n", g_writeextentfile ? "on" : "off", DEFAULT_WRITEEXTENTFILE ? "on" : "off");
-#endif
 #ifdef ZHLT_EMBEDLIGHTMAP
 #ifdef RIPENT_TEXTURE
 	Log("delete rad textures [ %7s ] [ %7s ]\n", g_deleteembeddedlightmaps ? "on" : "off", DEFAULT_DELETEEMBEDDEDLIGHTMAPS ? "on" : "off");
@@ -1116,12 +1100,10 @@ int             main(int argc, char** argv)
 			g_textureparse = true;
 		}
 #endif
-#ifdef ZHLT_64BIT_FIX
 		else if (!strcasecmp(argv[i], "-writeextentfile"))
 		{
 			g_writeextentfile = true;
 		}
-#endif
 #ifdef ZHLT_EMBEDLIGHTMAP
 #ifdef RIPENT_TEXTURE
 		else if (!strcasecmp(argv[i], "-deleteembeddedlightmaps"))
@@ -1258,13 +1240,11 @@ int             main(int argc, char** argv)
 	}
     if (g_chart)
 	{
-#ifdef ZHLT_64BIT_FIX
 #ifdef PLATFORM_CAN_CALC_EXTENT
 		if (!CalcFaceExtents_test ())
 		{
 			Warning ("internal error: CalcFaceExtents_test failed.");
 		}
-#endif
 #endif
         PrintBSPFileSizes();
 	}
@@ -1282,13 +1262,11 @@ int             main(int argc, char** argv)
 		// moved here because the bsp data should not be referenced again after WriteBSPFile
         if (g_chart)
 		{
-#ifdef ZHLT_64BIT_FIX
 #ifdef PLATFORM_CAN_CALC_EXTENT
 			if (!CalcFaceExtents_test ())
 			{
 				Warning ("internal error: CalcFaceExtents_test failed.");
 			}
-#endif
 #endif
             PrintBSPFileSizes();
 		}
@@ -1304,13 +1282,11 @@ int             main(int argc, char** argv)
 #ifndef ZHLT_CHART_AllocBlock
     if (g_chart)
 	{
-#ifdef ZHLT_64BIT_FIX
 #ifdef PLATFORM_CAN_CALC_EXTENT
 		if (!CalcFaceExtents_test ())
 		{
 			Warning ("internal error: CalcFaceExtents_test failed.");
 		}
-#endif
 #endif
         PrintBSPFileSizes();
 	}

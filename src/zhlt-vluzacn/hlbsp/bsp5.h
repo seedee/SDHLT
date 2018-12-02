@@ -377,9 +377,7 @@ extern char     g_portfilename[_MAX_PATH];
 extern char     g_pointfilename[_MAX_PATH];
 extern char     g_linefilename[_MAX_PATH];
 extern char     g_bspfilename[_MAX_PATH];
-#ifdef ZHLT_64BIT_FIX
 extern char		g_extentfilename[_MAX_PATH];
-#endif
 
 
 #ifdef ZHLT_DETAIL // AJM

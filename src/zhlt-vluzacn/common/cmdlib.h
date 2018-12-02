@@ -87,10 +87,7 @@
 	#ifdef ZHLT_ENTITY_LIGHTSHADOW
 #define ZHLT_ENTITY_LIGHTBOUNCE //--vluzacn
 	#endif
-#define ZHLT_64BIT_FIX //--vluzacn
-	#ifdef ZHLT_64BIT_FIX
 #define ZHLT_EMBEDLIGHTMAP // this feature requires HLRAD_TEXTURE and RIPENT_TEXTURE //--vluzacn
-	#endif
 //#define ZHLT_HIDDENSOUNDTEXTURE //--vluzacn
 
 #define COMMON_HULLU // winding optimisations by hullu

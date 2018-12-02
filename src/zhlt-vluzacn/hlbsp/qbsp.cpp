@@ -54,9 +54,7 @@ char            g_bspfilename[_MAX_PATH];
 char            g_pointfilename[_MAX_PATH];
 char            g_linefilename[_MAX_PATH];
 char            g_portfilename[_MAX_PATH];
-#ifdef ZHLT_64BIT_FIX
 char			g_extentfilename[_MAX_PATH];
-#endif
 
 // command line flags
 bool			g_noopt = DEFAULT_NOOPT;		// don't optimize BSP on write
@@ -1751,10 +1749,8 @@ static void     ProcessFile(const char* const filename)
     safe_snprintf(g_linefilename, _MAX_PATH, "%s.lin", filename);
     unlink(g_linefilename);
 
-#ifdef ZHLT_64BIT_FIX
 	safe_snprintf (g_extentfilename, _MAX_PATH, "%s.ext", filename);
 	unlink (g_extentfilename);
-#endif
     // open the hull files
     for (i = 0; i < NUM_HULLS; i++)
     {
@@ -2246,10 +2242,8 @@ int             main(const int argc, char** argv)
 
     CheckForErrorLog();
 
-#ifdef ZHLT_64BIT_FIX
 #ifdef PLATFORM_CAN_CALC_EXTENT
 	hlassume (CalcFaceExtents_test (), assume_first);
-#endif
 #endif
     dtexdata_init();
     atexit(dtexdata_free);

@@ -133,11 +133,9 @@ void            ResetTmpFiles()
 		safe_snprintf(filename, _MAX_PATH, "%s.wa_", g_Mapname);
 		_unlink(filename);
 #endif
-#ifdef ZHLT_64BIT_FIX
 
 		safe_snprintf(filename, _MAX_PATH, "%s.ext", g_Mapname);
 		_unlink(filename);
-#endif
 #ifdef ZHLT_XASH
 
 		safe_snprintf(filename, _MAX_PATH, "%s.dlit", g_Mapname);
@@ -663,10 +661,8 @@ static void     LogArgs(int argc, char** argv)
 void            Banner()
 {
     Log("%s " ZHLT_VERSIONSTRING " " HACK_VERSIONSTRING
-#ifdef ZHLT_64BIT_FIX
 #ifndef VERSION_32BIT
 		" " PLATFORM_VERSIONSTRING
-#endif
 #endif
 		" (%s)\n", g_Program, __DATE__);
     //Log("BUGGY %s (built: %s)\nUse at own risk.\n", g_Program, __DATE__);

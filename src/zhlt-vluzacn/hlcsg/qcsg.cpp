@@ -2680,10 +2680,8 @@ int             main(const int argc, char** argv)
 #else
     LogStart(argc, argv);
 #endif
-#ifdef ZHLT_64BIT_FIX
 #ifdef PLATFORM_CAN_CALC_EXTENT
 	hlassume (CalcFaceExtents_test (), assume_first);
-#endif
 #endif
     atexit(CSGCleanup); // AJM
     dtexdata_init();                        

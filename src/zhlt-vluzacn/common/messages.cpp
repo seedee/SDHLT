@@ -21,16 +21,12 @@ static const MessageTable_t assumes[assume_last] = {
 
     // generic
     {"Memory allocation failure", "The program failled to allocate a block of memory.",
-#ifdef ZHLT_64BIT_FIX
 	#ifdef HLRAD
 	 sizeof (intptr_t) <= 4? "The map is too complex for the compile tools to handle. Switch to the 64-bit version of hlrad if possible." :
      "Likely causes are (in order of likeliness) : the partition holding the swapfile is full; swapfile size is smaller than required; memory fragmentation; heap corruption"
 	#else
 	 contact
 	#endif
-#else
-     "Likely causes are (in order of likeliness) : the partition holding the swapfile is full; swapfile size is smaller than required; memory fragmentation; heap corruption"
-#endif
 	},
     {"NULL Pointer", internalerror, contact},
     {"Bad Thread Workcount", internalerror, contact},
@@ -118,9 +114,7 @@ static const MessageTable_t assumes[assume_last] = {
 #endif
 	},
 #endif
-#ifdef ZHLT_64BIT_FIX
 	{"Couldn't open extent file", "<mapname>.ext doesn't exist. This file is required by the " PLATFORM_VERSIONSTRING " version of hlrad.", "Make sure hlbsp has run correctly. Alternatively, run 'ripent.exe -writeextentfile <mapname>' to create the extent file."},
-#endif
 }; 
 
 const MessageTable_t* GetAssume(assume_msgs id)

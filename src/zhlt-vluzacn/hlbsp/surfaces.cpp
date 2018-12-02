@@ -95,13 +95,8 @@ void            SubdivideFace(face_t* f, face_t** prevptr)
 				break;
 			}
 #else
-#ifdef ZHLT_64BIT_FIX
 			mins = 99999999;
 			maxs = -99999999;
-#else
-            mins = 999999;
-            maxs = -999999;
-#endif
 
             for (i = 0; i < f->numpoints; i++)
             {

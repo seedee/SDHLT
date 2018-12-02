@@ -593,7 +593,6 @@ void            WriteBSPFile(const char* const filename)
     fclose(bspfile);
 }
 
-#ifdef ZHLT_64BIT_FIX
 
 #ifdef PLATFORM_CAN_CALC_EXTENT
 // =====================================================================================
@@ -845,7 +844,6 @@ void GetFaceExtents (int facenum, int mins_out[2], int maxs_out[2])
 }
 #endif
 
-#endif
 //
 // =====================================================================================
 //
@@ -913,10 +911,8 @@ void DoAllocBlock (lightmapblock_t *blocks, int w, int h)
 }
 int CountBlocks ()
 {
-#ifdef ZHLT_64BIT_FIX
 #if !defined (PLATFORM_CAN_CALC_EXTENT) && !defined (HLRAD)
 	return -1; // otherwise GetFaceExtents will error
-#endif
 #endif
 	lightmapblock_t *blocks;
 	blocks = (lightmapblock_t *)malloc (sizeof (lightmapblock_t));
@@ -945,7 +941,6 @@ int CountBlocks ()
 		int extents[2];
 		vec3_t point;
 		{
-#ifdef ZHLT_64BIT_FIX
 			int bmins[2];
 			int bmaxs[2];
 			int i;
@@ -962,54 +957,6 @@ int CountBlocks ()
 				dvertex_t *v = &g_dvertexes[g_dedges[abs (e)].v[e >= 0? 0: 1]];
 				VectorCopy (v->point, point);
 			}
-#else
-			float mins[2], maxs[2];
-			int bmins[2], bmaxs[2];
-			texinfo_t *tex;
-			tex = &g_texinfo[f->texinfo];
-			mins[0] = mins[1] = 999999;
-			maxs[0] = maxs[1] = -99999;
-			VectorClear (point);
-			int i;
-			for (i = 0; i < f->numedges; i++)
-			{
-				int e;
-				dvertex_t *v;
-				int j;
-				e = g_dsurfedges[f->firstedge + i];
-				if (e >= 0)
-				{
-					v = &g_dvertexes[g_dedges[e].v[0]];
-				}
-				else
-				{
-					v = &g_dvertexes[g_dedges[-e].v[1]];
-				}
-				if (i == 0)
-				{
-					VectorCopy (v->point, point);
-				}
-				for (j = 0; j < 2; j++)
-				{
-					float val = v->point[0] * tex->vecs[j][0] + v->point[1] * tex->vecs[j][1]
-						+ v->point[2] * tex->vecs[j][2] + tex->vecs[j][3];
-					if (val < mins[j])
-					{
-						mins[j] = val;
-					}
-					if (val > maxs[j])
-					{
-						maxs[j] = val;
-					}
-				}
-			}
-			for (i = 0; i < 2; i++)
-			{
-				bmins[i] = floor (mins[i] / TEXTURE_STEP);
-				bmaxs[i] = ceil (maxs[i] / TEXTURE_STEP);
-				extents[i] = (bmaxs[i] - bmins[i]) * TEXTURE_STEP;
-			}
-#endif
 		}
 		if (extents[0] < 0 || extents[1] < 0 || extents[0] > qmax (512, MAX_SURFACE_EXTENT * TEXTURE_STEP) || extents[1] > qmax (512, MAX_SURFACE_EXTENT * TEXTURE_STEP))
 			// the default restriction from the engine is 512, but place 'max (512, MAX_SURFACE_EXTENT * TEXTURE_STEP)' here in case someone raise the limit
@@ -1213,18 +1160,14 @@ void            PrintBSPFileSizes()
     totalmemory += GlobUsage("visdata", g_visdatasize, sizeof(g_dvisdata));
     totalmemory += GlobUsage("entdata", g_entdatasize, sizeof(g_dentdata));
 #ifdef ZHLT_CHART_AllocBlock
-#ifdef ZHLT_64BIT_FIX
 	if (numallocblocks == -1)
 	{
 		Log ("* AllocBlock    [ not available to the " PLATFORM_VERSIONSTRING " version ]\n");
 	}
 	else
 	{
-#endif
 	totalmemory += ArrayUsage ("* AllocBlock", numallocblocks, maxallocblocks, 0);
-#ifdef ZHLT_64BIT_FIX
 	}
-#endif
 #endif
 
     Log("%i textures referenced\n", numtextures);

@@ -2,15 +2,9 @@
 
 funcCheckVisBit g_CheckVisBit = NULL;
 
-#ifdef ZHLT_64BIT_FIX
 size_t          g_total_transfer = 0;
 size_t          g_transfer_index_bytes = 0;
 size_t          g_transfer_data_bytes = 0;
-#else
-unsigned        g_total_transfer = 0;
-unsigned        g_transfer_index_bytes = 0;
-unsigned        g_transfer_data_bytes = 0;
-#endif
 
 #define COMPRESSED_TRANSFERS
 //#undef  COMPRESSED_TRANSFERS
@@ -1270,13 +1264,8 @@ void            SwapRGBTransfers(const int patchnum)
 
 void            DumpTransfersMemoryUsage()
 {
-#ifdef ZHLT_64BIT_FIX
     Log("Transfer Lists : %.0f transfers\n       Indices : %.0f bytes\n          Data : %.0f bytes\n",
         (double)g_total_transfer, (double)g_transfer_index_bytes, (double)g_transfer_data_bytes);
-#else
-    Log("Transfer Lists : %u transfers\n       Indices : %u bytes\n          Data : %u bytes\n",
-        g_total_transfer, g_transfer_index_bytes, g_transfer_data_bytes);
-#endif
 }
 
 #else
@@ -1284,7 +1273,6 @@ void            DumpTransfersMemoryUsage()
 //More human readable numbers
 void            DumpTransfersMemoryUsage()
 {
-#ifdef ZHLT_64BIT_FIX
 	if(g_total_transfer > 1000*1000)
 		Log("Transfer Lists : %11.0f : %8.2fM transfers\n", (double)g_total_transfer, (double)g_total_transfer/(1000.0f*1000.0f));
 	else if(g_total_transfer > 1000)
@@ -1305,28 +1293,6 @@ void            DumpTransfersMemoryUsage()
 		Log("          Data : %11.0f : %8.2fk bytes\n", (double)g_transfer_data_bytes, (double)g_transfer_data_bytes/1024.0f);
 	else
 		Log("          Data : %11.0f bytes\n", (double)g_transfer_data_bytes);
-#else
-	if(g_total_transfer > 1000*1000)
-		Log("Transfer Lists : %11u : %7.2fM transfers\n", g_total_transfer, g_total_transfer/(1000.0f*1000.0f));
-	else if(g_total_transfer > 1000)
-		Log("Transfer Lists : %11u : %7.2fk transfers\n", g_total_transfer, g_total_transfer/1000.0f);
-	else
-		Log("Transfer Lists : %11u transfers\n", g_total_transfer);
-	
-	if(g_transfer_index_bytes > 1024*1024)
-		Log("       Indices : %11u : %7.2fM bytes\n", g_transfer_index_bytes, g_transfer_index_bytes/(1024.0f * 1024.0f));
-	else if(g_transfer_index_bytes > 1024)
-		Log("       Indices : %11u : %7.2fk bytes\n", g_transfer_index_bytes, g_transfer_index_bytes/1024.0f);
-	else
-		Log("       Indices : %11u bytes\n", g_transfer_index_bytes);
-	
-	if(g_transfer_data_bytes > 1024*1024)
-		Log("          Data : %11u : %7.2fM bytes\n", g_transfer_data_bytes, g_transfer_data_bytes/(1024.0f * 1024.0f));
-	else if(g_transfer_data_bytes > 1024)
-		Log("          Data : %11u : %7.2fk bytes\n", g_transfer_data_bytes, g_transfer_data_bytes/1024.0f);
-	else
-		Log("          Data : %11u bytes\n", g_transfer_data_bytes); //--vluzacn
-#endif
 }
 
 #endif

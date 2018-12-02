@@ -732,13 +732,8 @@ static void     CalcFaceExtents(lightinfo_t* l)
 
     s = l->face;
 
-#ifdef ZHLT_64BIT_FIX
 	mins[0] = mins[1] = 99999999;
 	maxs[0] = maxs[1] = -99999999;
-#else
-    mins[0] = mins[1] = 999999;
-    maxs[0] = maxs[1] = -99999; // a little small, but same with Goldsrc. --vluzacn
-#endif
 
     tex = &g_texinfo[s->texinfo];
 
@@ -774,15 +769,7 @@ static void     CalcFaceExtents(lightinfo_t* l)
         l->exactmins[i] = mins[i];
         l->exactmaxs[i] = maxs[i];
 
-#ifndef ZHLT_64BIT_FIX
-        mins[i] = floor(mins[i] / TEXTURE_STEP); //mins[i] = floor(mins[i] / 16.0); //--vluzacn
-        maxs[i] = ceil(maxs[i] / TEXTURE_STEP); //maxs[i] = ceil(maxs[i] / 16.0); //--vluzacn
-
-		l->texmins[i] = mins[i];
-        l->texsize[i] = maxs[i] - mins[i];
-#endif
 	}
-#ifdef ZHLT_64BIT_FIX
 	int bmins[2];
 	int bmaxs[2];
 	GetFaceExtents (l->surfnum, bmins, bmaxs);
@@ -793,7 +780,6 @@ static void     CalcFaceExtents(lightinfo_t* l)
 		l->texmins[i] = bmins[i];
 		l->texsize[i] = bmaxs[i] - bmins[i];
 	}
-#endif
 
 	if (!(tex->flags & TEX_SPECIAL))
 	{
@@ -7975,7 +7961,6 @@ void MLH_AddSample (mdllight_t *ml, int facenum, int w, int h, int s, int t, con
 }
 void MLH_CalcExtents (const dface_t *f, int *texturemins, int *extents)
 {
-#ifdef ZHLT_64BIT_FIX
 	int bmins[2];
 	int bmaxs[2];
 	int i;
@@ -7986,50 +7971,6 @@ void MLH_CalcExtents (const dface_t *f, int *texturemins, int *extents)
 		texturemins[i] = bmins[i] * TEXTURE_STEP;
 		extents[i] = (bmaxs[i] - bmins[i]) * TEXTURE_STEP;
 	}
-#else
-	float mins[2], maxs[2];
-	int bmins[2], bmaxs[2];
-	texinfo_t *tex;
-	tex = &g_texinfo[f->texinfo];
-	mins[0] = mins[1] = 999999;
-	maxs[0] = maxs[1] = -99999;
-	int i;
-	for (i = 0; i < f->numedges; i++)
-	{
-		int e;
-		dvertex_t *v;
-		int j;
-		e = g_dsurfedges[f->firstedge + i];
-		if (e >= 0)
-		{
-			v = &g_dvertexes[g_dedges[e].v[0]];
-		}
-		else
-		{
-			v = &g_dvertexes[g_dedges[-e].v[1]];
-		}
-		for (j = 0; j < 2; j++)
-		{
-			float val = v->point[0] * tex->vecs[j][0] + v->point[1] * tex->vecs[j][1]
-				+ v->point[2] * tex->vecs[j][2] + tex->vecs[j][3];
-			if (val < mins[j])
-			{
-				mins[j] = val;
-			}
-			if (val > maxs[j])
-			{
-				maxs[j] = val;
-			}
-		}
-	}
-	for (i = 0; i < 2; i++)
-	{
-		bmins[i] = floor (mins[i] / TEXTURE_STEP);
-		bmaxs[i] = ceil (maxs[i] / TEXTURE_STEP);
-		texturemins[i] = bmins[i] * TEXTURE_STEP;
-		extents[i] = (bmaxs[i] - bmins[i]) * TEXTURE_STEP;
-	}
-#endif
 }
 void MLH_GetSamples_r (mdllight_t *ml, int nodenum, const float *start, const float *end)
 {

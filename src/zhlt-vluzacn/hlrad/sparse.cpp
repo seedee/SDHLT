@@ -838,11 +838,7 @@ static void     FreeVisMatrix()
 static void     DumpVismatrixInfo()
 {
     unsigned        totals[8];
-#ifdef ZHLT_64BIT_FIX
     size_t          total_vismatrix_memory;
-#else
-    unsigned        total_vismatrix_memory;
-#endif
 	total_vismatrix_memory = sizeof(sparse_column_t) * g_num_patches;
 
     sparse_column_t* column_end = s_vismatrix + g_num_patches;

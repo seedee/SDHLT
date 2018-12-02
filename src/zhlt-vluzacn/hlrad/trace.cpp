@@ -302,12 +302,8 @@ void            MakeTnodes(dmodel_t* /*bm*/)
     tnodes = (tnode_t*)calloc((g_numnodes + 1), sizeof(tnode_t));
 
 	// The alignment doesn't have any effect at all. --vluzacn
-#ifdef ZHLT_64BIT_FIX
 	int ofs = 31 - (int)(((uintptr_t)tnodes + (uintptr_t)31) & (uintptr_t)31);
 	tnodes = (tnode_t *)((byte *)tnodes + ofs);
-#else
-    tnodes = (tnode_t*)(((int)tnodes + 31) & ~31);
-#endif
     tnode_p = tnodes;
 
     MakeTnode(0);
