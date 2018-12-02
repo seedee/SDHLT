@@ -36,11 +36,6 @@ int				*g_leafcounts;
 int				g_leafcount_all;
 
 // AJM: MVD
-#ifndef HLVIS_MAXDIST_NEW
-byte*			g_mightsee;
-visblocker_t    g_visblockers[MAX_VISBLOCKERS];
-int		        g_numvisblockers = 0;
-#endif
 //
 
 static byte*    vismap;
@@ -732,121 +727,6 @@ static void     CalcVis()
 
 #ifndef ZHLT_NETVIS
 
-#ifndef HLVIS_MAXDIST_NEW
-// AJM: MVD
-// =====================================================================================
-//  GetVisBlock
-// =====================================================================================
-visblocker_t *GetVisBlock(char *name)
-{
-	int i;
-	visblocker_t *v;
-
-	for(i = 0, v = &g_visblockers[0]; i < g_numvisblockers; i++, v++)
-	{
-		if(!strcmp(name, v->name))
-			return v;
-	}
-
-	return NULL;
-}
-
-// AJM: MVD
-// =====================================================================================
-//  InitVisBlock
-// =====================================================================================
-static void InitVisBlock(void)
-{
-	char visfile[_MAX_PATH];
-	int i;
-	int x = 0;
-	int num_blocks;
-	int num_sides;
-
-	safe_snprintf(visfile, _MAX_PATH, "%s.vis", g_Mapname);
-
-	if(!q_exists(visfile))
-		return;
-
-	FILE *fp = fopen(visfile, "r");
-
-	if(!fp)
-		return;
-
-	while(!feof(fp))
-	{
-		fscanf(fp, "%s\n", g_visblockers[x].name);
-
-		fscanf(fp, "%d\n", &num_blocks);
-		
-		for(i = 0; i < num_blocks; i++)
-		{
-			fscanf(fp, "%s\n", g_visblockers[x].blocknames[i]);
-		}
-
-		g_visblockers[x].numnames = num_blocks;
-
-		fscanf(fp, "%d\n", &num_sides);
-
-		for(i = 0; i < num_sides; i++)
-		{
-			fscanf(fp, "%f %f %f %f\n", &g_visblockers[x].planes[i].normal[0],
-										&g_visblockers[x].planes[i].normal[1],
-										&g_visblockers[x].planes[i].normal[2],
-										&g_visblockers[x].planes[i].dist);
-		}
-
-		g_visblockers[x].numplanes = num_sides;
-		g_visblockers[x].numleafs = 0;
-
-		x++;
-	}
-
-	g_numvisblockers = x;
-}
-
-// AJM: MVD
-// =====================================================================================
-//  SetupVisBlockLeafs
-//      Set up the leafs for the visblocker
-// =====================================================================================
-static void		SetupVisBlockLeafs(void)
-{
-	int i, j, k, l, q;
-	visblocker_t *v;
-	leaf_t *leaf;
-	portal_t *p;
-	plane_t *plane;
-	float dist;
-
-	for(i = 0, v = &g_visblockers[0]; i < g_numvisblockers; i++, v++)
-	{
-		for(j = 0, leaf = &g_leafs[0]; j < g_portalleafs; j++, leaf++)
-		{
-			for(q = 0, p = leaf->portals[0]; q < leaf->numportals; q++, p++)
-			{
-				for(k = 0; k < p->winding->numpoints; k++)
-				{
-					for(l = 0, plane = &v->planes[0]; l < v->numplanes; l++, plane++)
-					{
-						dist = DotProduct(p->winding->points[k], plane->normal) - plane->dist;
-	
-						if(dist > ON_EPSILON)
-							goto PostLoop;
-					}
-				}
-			}
-
-PostLoop:
-			if(q != leaf->numportals)
-				continue;
-
-			// If we reach this point, then the portal is completely inside the visblocker
-			v->blockleafs[v->numleafs++] = j;
-		}
-	}
-}
-#endif
 
 // AJM: MVD
 // =====================================================================================
@@ -872,24 +752,6 @@ void		SaveVisData(const char *filename)
 	fclose(fp);
 }
 
-#ifndef HLVIS_MAXDIST_NEW
-// AJM: MVD
-// =====================================================================================
-//  ResetPortalStatus
-//      FIX: Used to reset p->status to stat_none; now it justs frees p->visbits
-// =====================================================================================
-void		ResetPortalStatus(void)
-{
-	int i;
-	portal_t* p = g_portals;
-
-	for(i = 0; i < g_numportals * 2; i++, p++)
-	{
-		//p->status = stat_none;
-		free(p->visbits);
-	}
-}
-#endif
 
 
 
@@ -972,10 +834,6 @@ static void     CalcVis()
 			    LeafFlow(i);
 			}
 
-#ifndef HLVIS_MAXDIST_NEW
-			// FIX: Used to reset p->status to stat_none; now it justs frees p->visbits
-			ResetPortalStatus();
-#endif
 
 			Log("average maxdistance leafs visible: %i\n", totalvis / g_portalleafs);
 		}

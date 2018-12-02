@@ -19,10 +19,6 @@
 #include "cmdlinecfg.h"
 
 #define DEFAULT_MAXDISTANCE_RANGE   0
-#ifndef HLVIS_MAXDIST_NEW
-//#define DEFAULT_POST_COMPILE      0
-#define MAX_VISBLOCKERS 512
-#endif
 
 #ifdef ZHLT_PROGRESSFILE // AJM
 #define DEFAULT_PROGRESSFILE NULL // progress file is only used if g_progressfile is non-null
@@ -140,20 +136,6 @@ typedef struct
     pstack_t        pstack_head;
 } threaddata_t;
 
-#ifndef HLVIS_MAXDIST_NEW
-// AJM: MVD
-// Special VISBLOCKER entity structure
-typedef struct
-{
-	char			name[64];
-	int				numplanes;
-	plane_t			planes[MAX_PORTALS_ON_LEAF];
-	int				numnames;
-	int				numleafs;
-	int				blockleafs[MAX_PORTALS];
-	char			blocknames[MAX_VISBLOCKERS][64];
-} visblocker_t;
-#endif
 
 extern bool     g_fastvis;
 extern bool     g_fullvis;
@@ -187,12 +169,6 @@ extern leafinfo_t *g_leafinfos;
 extern portal_t*g_portals;
 extern leaf_t*  g_leafs;
 
-#ifndef HLVIS_MAXDIST_NEW
-// Visblockers
-extern visblocker_t g_visblockers[MAX_VISBLOCKERS];
-extern int		g_numvisblockers;
-extern byte*	g_mightsee; 
-#endif
 
 extern byte*    g_uncompressed;
 extern unsigned g_bitbytes;
@@ -205,10 +181,6 @@ extern Zones*          g_Zones;
 extern void     BasePortalVis(int threadnum);
 
 
-#ifndef HLVIS_MAXDIST_NEW
-extern visblocker_t *GetVisBlock(char *name);
-extern void		BlockVis(int unused);
-#endif
 extern void		MaxDistVis(int threadnum);
 //extern void		PostMaxDistVis(int threadnum);
 
