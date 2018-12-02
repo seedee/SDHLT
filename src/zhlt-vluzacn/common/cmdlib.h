@@ -50,7 +50,6 @@
 //#define ZHLT_DETAIL                         // HLCSG, HLBSP - detail brushes     //should never turn on
 //#define ZHLT_PROGRESSFILE                   // ALL TOOLS - estimate progress reporting to -progressfile //should never turn on
 //#define ZHLT_NSBOB //should never turn on
-#define ZHLT_ENTITY_LIGHTSHADOW //--vluzacn
 #define ZHLT_ENTITY_INFOSUNLIGHT //--vluzacn
 #define ZHLT_PLANETYPE_FIX // Very Important !! --vluzacn
 #define ZHLT_WINDING_FIX // Very Important !! --vluzacn
@@ -71,9 +70,7 @@
 #define ZHLT_DEFAULTEXTENSION_FIX //--vluzacn
 #define ZHLT_FREETEXTUREAXIS //--vluzacn
 #define ZHLT_WARNWORLDFACES //--vluzacn
-	#ifdef ZHLT_ENTITY_LIGHTSHADOW
 #define ZHLT_ENTITY_LIGHTBOUNCE //--vluzacn
-	#endif
 #define ZHLT_EMBEDLIGHTMAP // this feature requires HLRAD_TEXTURE and RIPENT_TEXTURE //--vluzacn
 //#define ZHLT_HIDDENSOUNDTEXTURE //--vluzacn
 

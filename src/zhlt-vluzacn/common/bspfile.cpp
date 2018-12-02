@@ -1475,7 +1475,6 @@ bool            ParseEntity()
 		SetKeyValue (mapent, "classname", "light_surface");
 	}
 #endif
-#ifdef ZHLT_ENTITY_LIGHTSHADOW
 	if (!strcmp (ValueForKey (mapent, "convertfrom"), "light_shadow")
 	#ifdef ZHLT_ENTITY_LIGHTBOUNCE
 		|| !strcmp (ValueForKey (mapent, "convertfrom"), "light_bounce")
@@ -1486,7 +1485,6 @@ bool            ParseEntity()
 		SetKeyValue (mapent, "classname", ValueForKey (mapent, "convertfrom"));
 		SetKeyValue (mapent, "convertfrom", "");
 	}
-#endif
 #ifdef ZHLT_ENTITY_INFOSUNLIGHT
 	if (!strcmp (ValueForKey (mapent, "classname"), "light_environment") &&
 		!strcmp (ValueForKey (mapent, "convertfrom"), "info_sunlight"))
@@ -1638,7 +1636,6 @@ void            UnparseEntities()
 		}
 	}
 #endif
-#ifdef ZHLT_ENTITY_LIGHTSHADOW
     for (i = 0; i < g_numentities; i++)
 	{
 		entity_t *mapent = &g_entities[i];
@@ -1653,7 +1650,6 @@ void            UnparseEntities()
 			SetKeyValue (mapent, "convertto", "");
 		}
 	}
-#endif
 #ifdef ZHLT_ENTITY_LIGHTSURFACE
 	// ugly code
 	for (i = 0; i < g_numentities; i++)
