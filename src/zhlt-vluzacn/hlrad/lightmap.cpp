@@ -5301,7 +5301,6 @@ void            FinalLightFace(const int facenum)
 	        // was as if r, g or b could wrap, going close to zero.
 
 			
-#ifdef HLRAD_PRESERVELIGHTMAPCOLOR
 			// clip from the top
 			{
 				vec_t max = VectorMaximum (lb);
@@ -5320,7 +5319,6 @@ void            FinalLightFace(const int facenum)
 					}
 				}
 			}
-#endif
 			for (i = 0; i < 3; ++i)
 				if (lb[i] < g_minlight)
 					lb[i] = g_minlight;

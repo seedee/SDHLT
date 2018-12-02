@@ -88,10 +88,8 @@ unsigned        g_numbounce = DEFAULT_BOUNCE;              // 3; /* Originally t
 static bool     g_dumppatches = DEFAULT_DUMPPATCHES;
 
 vec3_t          g_ambient = { DEFAULT_AMBIENT_RED, DEFAULT_AMBIENT_GREEN, DEFAULT_AMBIENT_BLUE };
-#ifdef HLRAD_PRESERVELIGHTMAPCOLOR
 vec_t			g_limitthreshold = DEFAULT_LIMITTHRESHOLD;
 bool			g_drawoverload = false;
-#endif
 
 float           g_lightscale = DEFAULT_LIGHTSCALE;
 float           g_dlight_threshold = DEFAULT_DLIGHT_THRESHOLD;  // was DIRECT_LIGHT constant
@@ -2936,9 +2934,7 @@ static void     Usage()
     Log("    -extra          : Improve lighting quality by doing 9 point oversampling\n");
     Log("    -bounce #       : Set number of radiosity bounces\n");
     Log("    -ambient r g b  : Set ambient world light (0.0 to 1.0, r g b)\n");
-#ifdef HLRAD_PRESERVELIGHTMAPCOLOR
     Log("    -limiter #      : Set light clipping threshold (-1=None)\n");
-#endif
     Log("    -circus         : Enable 'circus' mode for locating unlit lightmaps\n");
 	Log("    -nospread       : Disable sunlight spread angles for this compile\n");
     Log("    -nopaque        : Disable the opaque zhlt_lightflags for this compile\n\n");
@@ -3022,9 +3018,7 @@ static void     Usage()
 	Log("   -drawedge      : Export smooth edge positions to file 'mapname_edge.pts'.\n");
 	Log("   -drawlerp      : Show bounce light triangulation status.\n");
 	Log("   -drawnudge     : Show nudged samples.\n");
-#ifdef HLRAD_PRESERVELIGHTMAPCOLOR
 	Log("   -drawoverload  : Highlight fullbright spots\n");
-#endif
 
     Log("    mapfile       : The mapfile to compile\n\n");
 
@@ -3094,11 +3088,9 @@ static void     Settings()
     safe_snprintf(buf1, sizeof(buf1), "%1.3f %1.3f %1.3f", g_ambient[0], g_ambient[1], g_ambient[2]);
     safe_snprintf(buf2, sizeof(buf2), "%1.3f %1.3f %1.3f", DEFAULT_AMBIENT_RED, DEFAULT_AMBIENT_GREEN, DEFAULT_AMBIENT_BLUE);
     Log("ambient light        [ %17s ] [ %17s ]\n", buf1, buf2);
-#ifdef HLRAD_PRESERVELIGHTMAPCOLOR
     safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_limitthreshold);
     safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_LIMITTHRESHOLD);
     Log("light limit threshold[ %17s ] [ %17s ]\n", g_limitthreshold >= 0 ? buf1 : "None", buf2);
-#endif
     Log("circus mode          [ %17s ] [ %17s ]\n", g_circus ? "on" : "off", DEFAULT_CIRCUS ? "on" : "off");
 
     Log("\n");
@@ -3658,7 +3650,6 @@ int             main(const int argc, char** argv)
                 Error("expected three color values after '-ambient'\n");
             }
         }
-#ifdef HLRAD_PRESERVELIGHTMAPCOLOR
         else if (!strcasecmp(argv[i], "-limiter"))
         {
             if (i + 1 < argc)	//added "1" .--vluzacn
@@ -3674,7 +3665,6 @@ int             main(const int argc, char** argv)
 		{
 			g_drawoverload = true;
 		}
-#endif
         else if (!strcasecmp(argv[i], "-lights"))
         {
             if (i + 1 < argc)	//added "1" .--vluzacn
