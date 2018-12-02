@@ -3063,11 +3063,7 @@ static void     CreateWalls(lerpTriangulation_t* trian, const dface_t* const fac
             const dplane_t* plane = getPlaneFromFace(f2);
 
             // if plane isn't facing us, ignore it
-	#ifdef HLRAD_DPLANEOFFSET_MISCFIX
             if (DotProduct(plane->normal, g_face_centroids[facenum]) < plane->dist + DotProduct(plane->normal, g_face_offset[facenum]))
-	#else
-            if (DotProduct(plane->normal, g_face_centroids[facenum]) < plane->dist)
-	#endif
             {
                 continue;
             }
