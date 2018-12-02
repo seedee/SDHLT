@@ -102,7 +102,6 @@ dplane_t g_dplanes[MAX_INTERNAL_MAP_PLANES];
 #endif
 
 
-#ifdef ZHLT_INFO_COMPILE_PARAMETERS// AJM
 // =====================================================================================
 //  GetParamsFromEnt
 //      this function is called from parseentity when it encounters the
@@ -207,7 +206,6 @@ void            GetParamsFromEnt(entity_t* mapent)
     //////////////////
     Verbose("\n");
 }
-#endif
 
 // =====================================================================================
 //  Extract File stuff (ExtractFile | ExtractFilePath | ExtractFileBase)

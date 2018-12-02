@@ -119,7 +119,6 @@ unsigned long   g_bsp_size = 0;             // Server variable
 unsigned long   g_prt_size = 0;             // Server variable
 #endif
 
-#ifdef ZHLT_INFO_COMPILE_PARAMETERS
 // AJM: addded in
 // =====================================================================================
 //  GetParamsFromEnt
@@ -206,7 +205,6 @@ void            GetParamsFromEnt(entity_t* mapent)
     ///////////////////
     Log("\n");
 }
-#endif
 
 // =====================================================================================
 //  PlaneFromWinding

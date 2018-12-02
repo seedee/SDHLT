@@ -105,7 +105,6 @@ bool g_nullifytrigger = DEFAULT_NULLIFYTRIGGER;
 bool g_viewsurface = false;
 #endif
 
-#ifdef ZHLT_INFO_COMPILE_PARAMETERS
 // =====================================================================================
 //  GetParamsFromEnt
 //      parses entity keyvalues for setting information
@@ -304,7 +303,6 @@ void            GetParamsFromEnt(entity_t* mapent)
     ///////////////
     Log("\n");
 }
-#endif
 
 #ifndef HLCSG_CUSTOMHULL
 #ifdef HLCSG_PRECISIONCLIP

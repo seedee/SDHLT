@@ -261,7 +261,6 @@ vec_t g_maxdiscardedlight = 0;
 vec3_t g_maxdiscardedpos = {0, 0, 0};
 #endif
 
-#ifdef ZHLT_INFO_COMPILE_PARAMETERS
 // =====================================================================================
 //  GetParamsFromEnt
 //      this function is called from parseentity when it encounters the 
@@ -486,7 +485,6 @@ void            GetParamsFromEnt(entity_t* mapent)
     ////////////////////
     Log("\n");
 }
-#endif
 
 // =====================================================================================
 //  MakeParents

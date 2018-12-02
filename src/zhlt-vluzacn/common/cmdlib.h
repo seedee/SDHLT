@@ -47,7 +47,6 @@
 
 // ZHLT_* features are spread across more than one tool. Hence, changing
 //      one of these settings probably means recompiling the whole set
-#define ZHLT_INFO_COMPILE_PARAMETERS        // ALL TOOLS
 #define ZHLT_NULLTEX                        // HLCSG, HLBSP
 #define ZHLT_TEXLIGHT                       // HLCSG, HLRAD - triggerable texlights by LRC
 #define ZHLT_GENERAL                        // ALL TOOLS - general changes

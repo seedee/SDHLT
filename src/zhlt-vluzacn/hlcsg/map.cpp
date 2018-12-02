@@ -1275,12 +1275,10 @@ bool            ParseMapEntity()
 #endif
 
 
-#ifdef ZHLT_INFO_COMPILE_PARAMETERS // AJM
     if (!strcmp(ValueForKey(mapent, "classname"), "info_compile_parameters"))
     {
         GetParamsFromEnt(mapent);
     }
-#endif
 
 #ifndef HLCSG_CUSTOMHULL
     // if its the worldspawn entity and we need to skyclip, then do it
