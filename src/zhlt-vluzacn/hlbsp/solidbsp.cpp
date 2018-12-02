@@ -1451,7 +1451,6 @@ static void FreeLeafBrushes (node_t *leaf)
 // =====================================================================================
 #define	MAX_LEAF_FACES	16384
 
-#ifdef HLBSP_WARNMIXEDCONTENTS
 const char*     ContentsToString(int contents)
 {
     switch (contents)
@@ -1486,7 +1485,6 @@ const char*     ContentsToString(int contents)
         return "UNKNOWN";
     }
 }
-#endif
 static void     LinkLeafFaces(surface_t* planelist, node_t* leafnode)
 {
     face_t*         f;
@@ -1528,7 +1526,6 @@ static void     LinkLeafFaces(surface_t* planelist, node_t* leafnode)
             }
         }
     }
-#ifdef HLBSP_WARNMIXEDCONTENTS
 	for (surf = planelist; surf; surf = surf->next)
 	{
 #ifdef ZHLT_DETAILBRUSH
@@ -1579,7 +1576,6 @@ static void     LinkLeafFaces(surface_t* planelist, node_t* leafnode)
 			}
 		}
 	}
-#endif
 
     leafnode->contents = ContentsForRank(rank);
 
