@@ -173,11 +173,7 @@ static void     BuildVisRow(const int patchnum, byte* pvs, const int head, const
     memset(face_tested, 0, g_numfaces);
 
     // leaf 0 is the solid leaf (skipped)
-#ifdef HLRAD_VIS_FIX
     for (j = 1, leaf = g_dleafs + 1; j < 1 + g_dmodels[0].visleafs; j++, leaf++)
-#else
-    for (j = 1, leaf = g_dleafs + 1; j < g_numleafs; j++, leaf++)
-#endif
     {
         if (!(pvs[(j - 1) >> 3] & (1 << ((j - 1) & 7))))
             continue;                                      // not in pvs
@@ -238,13 +234,11 @@ static void     BuildVisLeafs(int threadnum)
 		}
 		else
 		{
-#ifdef HLRAD_VIS_FIX
 		if (srcleaf->visofs == -1)
 		{
 			Developer (DEVELOPER_LEVEL_ERROR, "Error: No visdata for leaf %d\n", i);
 			continue;
 		}
-#endif
         DecompressVis(&g_dvisdata[srcleaf->visofs], pvs, sizeof(pvs));
 		}
         head = 0;
@@ -362,11 +356,7 @@ static void     BuildVisMatrix()
         hlassume(s_vismatrix != NULL, assume_NoMemory);
     }
 
-#ifdef HLRAD_VIS_FIX
     NamedRunThreadsOn(g_dmodels[0].visleafs, g_estimate, BuildVisLeafs);
-#else
-    NamedRunThreadsOn(g_numleafs - 1, g_estimate, BuildVisLeafs);
-#endif
 }
 
 static void     FreeVisMatrix()

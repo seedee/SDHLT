@@ -2679,11 +2679,7 @@ void            CreateDirectLights()
 	int countnormallights = 0, countfastlights = 0;
 	{
 		int l;
-	#ifdef HLRAD_VIS_FIX
 		for (l = 0; l < 1 + g_dmodels[0].visleafs; l++)
-	#else
-	    for (l = 0; l < g_numleafs; l++)
-	#endif
 		{
 			for (dl = directlights[l]; dl; dl = dl->next)
 			{
@@ -2760,11 +2756,7 @@ void            CreateDirectLights()
 	{
 		directlight_t *skylights = NULL;
 		int l;
-	#ifdef HLRAD_VIS_FIX
 		for (l = 0; l < 1 + g_dmodels[0].visleafs; l++)
-	#else
-	    for (l = 0; l < g_numleafs; l++)
-	#endif
 		{
 			directlight_t **pdl;
 			for (dl = directlights[l], pdl = &directlights[l]; dl; dl = *pdl)
@@ -2822,11 +2814,7 @@ void            DeleteDirectLights()
     int             l;
     directlight_t*  dl;
 
-#ifdef HLRAD_VIS_FIX
 	for (l = 0; l < 1 + g_dmodels[0].visleafs; l++)
-#else
-    for (l = 0; l < g_numleafs; l++)
-#endif
     {
         dl = directlights[l];
         while (dl)
@@ -3080,11 +3068,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 	}
 #endif
 
-#ifdef HLRAD_VIS_FIX
     for (i = 0; i < 1 + g_dmodels[0].visleafs; i++)
-#else
-    for (i = 0; i < g_numleafs; i++)
-#endif
     {
         l = directlights[i];
         if (l)
@@ -4358,7 +4342,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 				int thisoffset = leaf->visofs;
 				if (i == 0 || thisoffset != lastoffset)
 				{
-		#ifdef HLRAD_VIS_FIX
 					if (thisoffset == -1)
 					{
 						memset (pvs, 0, (g_dmodels[0].visleafs + 7) / 8);
@@ -4367,10 +4350,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 					{
 						DecompressVis(&g_dvisdata[leaf->visofs], pvs, sizeof(pvs));
 					}
-		#else
-					hlassert(thisoffset != -1);
-					DecompressVis(&g_dvisdata[leaf->visofs], pvs, sizeof(pvs));
-		#endif
 				}
 				lastoffset = thisoffset;
 			}
@@ -4389,7 +4368,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 					int thisoffset2 = leaf2->visofs;
 					if (i == 0 || thisoffset2 != lastoffset2)
 					{
-		#ifdef HLRAD_VIS_FIX
 						if (thisoffset2 == -1)
 						{
 							memset (pvs2, 0, (g_dmodels[0].visleafs + 7) / 8);
@@ -4398,10 +4376,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 						{
 							DecompressVis(&g_dvisdata[leaf2->visofs], pvs2, sizeof(pvs2));
 						}
-		#else
-						hlassert(thisoffset2 != -1);
-						DecompressVis(&g_dvisdata[leaf2->visofs], pvs2, sizeof(pvs2));
-		#endif
 					}
 					lastoffset2 = thisoffset2;
 				}
@@ -4962,7 +4936,6 @@ void            BuildFacelights(const int facenum)
             thisoffset = leaf->visofs;
             if (i == 0 || thisoffset != lastoffset)
             {
-	#ifdef HLRAD_VIS_FIX
 				if (thisoffset == -1)
 				{
 					memset (pvs, 0, (g_dmodels[0].visleafs + 7) / 8);
@@ -4971,10 +4944,6 @@ void            BuildFacelights(const int facenum)
 				{
 					DecompressVis(&g_dvisdata[leaf->visofs], pvs, sizeof(pvs));
 				}
-	#else
-                hlassert(thisoffset != -1);
-                DecompressVis(&g_dvisdata[leaf->visofs], pvs, sizeof(pvs));
-	#endif
             }
             lastoffset = thisoffset;
         }
@@ -4996,7 +4965,6 @@ void            BuildFacelights(const int facenum)
 				thisoffset2 = leaf2->visofs;
 				if (i == 0 || thisoffset2 != lastoffset2)
 				{
-	#ifdef HLRAD_VIS_FIX
 					if (thisoffset2 == -1)
 					{
 						memset (pvs2, 0, (g_dmodels[0].visleafs + 7) / 8);
@@ -5005,10 +4973,6 @@ void            BuildFacelights(const int facenum)
 					{
 						DecompressVis(&g_dvisdata[leaf2->visofs], pvs2, sizeof(pvs2));
 					}
-	#else
-					hlassert(thisoffset2 != -1);
-					DecompressVis(&g_dvisdata[leaf2->visofs], pvs2, sizeof(pvs2));
-	#endif
 				}
 				lastoffset2 = thisoffset2;
 			}
@@ -5413,7 +5377,6 @@ void            BuildFacelights(const int facenum)
 			if (l.numsurfpt == 0 || thisoffset != lastoffset)
 #endif
 			{
-	#ifdef HLRAD_VIS_FIX
 				if (thisoffset == -1)
 				{
 					memset (pvs, 0, (g_dmodels[0].visleafs + 7) / 8);
@@ -5422,10 +5385,6 @@ void            BuildFacelights(const int facenum)
 				{
 					DecompressVis(&g_dvisdata[leaf->visofs], pvs, sizeof(pvs));
 				}
-	#else
-				hlassert(thisoffset != -1);
-				DecompressVis(&g_dvisdata[leaf->visofs], pvs, sizeof(pvs));
-	#endif
 			}
 			lastoffset = thisoffset;
 		}
@@ -5444,7 +5403,6 @@ void            BuildFacelights(const int facenum)
 				thisoffset2 = leaf2->visofs;
 				if (l.numsurfpt == 0 || thisoffset2 != lastoffset2)
 				{
-	#ifdef HLRAD_VIS_FIX
 					if (thisoffset2 == -1)
 					{
 						memset (pvs2, 0, (g_dmodels[0].visleafs + 7) / 8);
@@ -5453,10 +5411,6 @@ void            BuildFacelights(const int facenum)
 					{
 						DecompressVis(&g_dvisdata[leaf2->visofs], pvs2, sizeof(pvs2));
 					}
-	#else
-					hlassert(thisoffset2 != -1);
-					DecompressVis(&g_dvisdata[leaf2->visofs], pvs2, sizeof(pvs2));
-	#endif
 				}
 				lastoffset2 = thisoffset2;
 			}

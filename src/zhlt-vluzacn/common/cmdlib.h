@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_VIS_FIX //--vluzacn
 #define HLRAD_ENTITYBOUNCE_FIX //--vluzacn
 #define HLRAD_OPAQUE_ALPHATEST //--vluzacn
 #define HLRAD_TEXLIGHTTHRESHOLD_FIX //--vluzacn
