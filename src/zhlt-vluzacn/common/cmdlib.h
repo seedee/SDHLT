@@ -56,7 +56,6 @@
 	#endif
 //#define ZHLT_HIDDENSOUNDTEXTURE //--vluzacn
 
-#define COMMON_HULLU // winding optimisations by hullu
 
 	#ifdef SYSTEM_WIN32
 #define RIPENT_PAUSE //--vluzacn
