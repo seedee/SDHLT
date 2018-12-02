@@ -998,10 +998,8 @@ static contents_t TextureContents(const char* const name)
 
     if (!strncasecmp(name, "origin", 6))
         return CONTENTS_ORIGIN;
-#ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 	if (!strncasecmp(name, "boundingbox", 11))
 		return CONTENTS_BOUNDINGBOX;
-#endif
 
 
 #ifdef HLCSG_HLBSP_SOLIDHINT
@@ -1057,10 +1055,8 @@ const char*     ContentsToString(const contents_t type)
         return "SKY";
     case CONTENTS_ORIGIN:
         return "ORIGIN";
-#ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 	case CONTENTS_BOUNDINGBOX:
 		return "BOUNDINGBOX";
-#endif
     case CONTENTS_CURRENT_0:
         return "CURRENT_0";
     case CONTENTS_CURRENT_90:
@@ -1163,9 +1159,7 @@ contents_t      CheckBrushContents(const brush_t* const b)
 			&& strncasecmp (s->td.name, "skip", 4)
 			&& contents2 != CONTENTS_ORIGIN
 			&& contents2 != CONTENTS_HINT
-#ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 			&& contents2 != CONTENTS_BOUNDINGBOX
-#endif
 			)
 		{
 			continue; // overwrite content for this texture
@@ -1195,9 +1189,7 @@ contents_t      CheckBrushContents(const brush_t* const b)
     {
         if (contents == CONTENTS_ORIGIN
 				&& b->entitynum == 0
-#ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 			|| contents == CONTENTS_BOUNDINGBOX
-#endif
 			)
         {
             Fatal(assume_BRUSH_NOT_ALLOWED_IN_WORLD, "Entity %i, Brush %i: %s brushes not allowed in world\n(did you forget to tie this origin brush to a rotating entity?)", 
@@ -1216,9 +1208,7 @@ contents_t      CheckBrushContents(const brush_t* const b)
         case CONTENTS_SLIME:
         case CONTENTS_LAVA:
         case CONTENTS_ORIGIN:
-#ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 		case CONTENTS_BOUNDINGBOX:
-#endif
 		case CONTENTS_HINT:
 #ifdef HLCSG_EMPTYBRUSH
 		case CONTENTS_TOEMPTY:
@@ -1252,10 +1242,8 @@ void CreateBrush(const int brushnum) //--vluzacn
 
 	if (contents == CONTENTS_ORIGIN)
 		return;
-#ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 	if (contents == CONTENTS_BOUNDINGBOX)
 		return;
-#endif
 
 	//  HULL 0
 	MakeBrushPlanes(b);

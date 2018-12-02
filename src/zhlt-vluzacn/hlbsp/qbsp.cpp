@@ -1490,7 +1490,6 @@ static bool     ProcessModel()
     }
 	skipclip:
 
-#ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 	{
 		entity_t *ent;
 		ent = EntityForModel (modnum);
@@ -1506,7 +1505,6 @@ static bool     ProcessModel()
 			}
 		}
 	}
-#endif
 	Developer (DEVELOPER_LEVEL_MESSAGE, "model %d - mins=(%g,%g,%g) maxs=(%g,%g,%g)\n", modnum,
 		model->mins[0], model->mins[1], model->mins[2], model->maxs[0], model->maxs[1], model->maxs[2]);
 	if (model->mins[0] > model->maxs[0])

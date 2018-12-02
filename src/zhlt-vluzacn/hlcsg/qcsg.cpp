@@ -784,9 +784,7 @@ static void     CSGBrush(int brushnum)
 			switch (b1->contents)
 			{
 			case CONTENTS_ORIGIN:
-	#ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 			case CONTENTS_BOUNDINGBOX:
-	#endif
 			case CONTENTS_HINT:
 	#ifdef HLCSG_EMPTYBRUSH
 			case CONTENTS_TOEMPTY:
@@ -1728,9 +1726,7 @@ static void     SetModelCenters(int entitynum)
     for (i = e->firstbrush, last = e->firstbrush + e->numbrushes; i < last; i++)
     {
         if (g_mapbrushes[i].contents != CONTENTS_ORIGIN
-#ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 			&& g_mapbrushes[i].contents != CONTENTS_BOUNDINGBOX
-#endif
 			)
         {
             bounds.add(g_mapbrushes[i].hulls->bounds);

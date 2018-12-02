@@ -479,9 +479,7 @@ static void ParseBrush(entity_t* mapent)
 #ifdef HLCSG_NOSPLITBYHINT
 			&& strncasecmp(side->td.name,"SPLITFACE",9)
 #endif
-#ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 			&& strncasecmp(side->td.name,"BOUNDINGBOX",11)
-#endif
 #ifdef HLCSG_CUSTOMCONTENT
 			&& strncasecmp(side->td.name,"CONTENT",7) && strncasecmp(side->td.name,"SKY",3)
 #endif
@@ -533,14 +531,12 @@ static void ParseBrush(entity_t* mapent)
 
     if (contents == CONTENTS_ORIGIN)
     {
-#ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 		if (*ValueForKey (mapent, "origin"))
 		{
 			Error ("Entity %i, Brush %i: Only one ORIGIN brush allowed.",
 					b->originalentitynum, b->originalbrushnum
 					);
 		}
-#endif
         char            string[MAXTOKEN];
         vec3_t          origin;
 
@@ -587,7 +583,6 @@ static void ParseBrush(entity_t* mapent)
 		return;
 	}
 #endif
-#ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
     if (contents == CONTENTS_BOUNDINGBOX)
     {
 		if (*ValueForKey (mapent, "zhlt_minsmaxs"))
@@ -629,7 +624,6 @@ static void ParseBrush(entity_t* mapent)
 			free (origin);
 		}
     }
-#endif
 	if (g_skyclip && b->contents == CONTENTS_SKY && !b->noclip)
 	{
 		brush_t *newb = CopyCurrentBrush (mapent, b);
@@ -744,9 +738,7 @@ bool            ParseMapEntity()
 			if (
 				brush->cliphull == 0
 				&& brush->contents != CONTENTS_ORIGIN
-	#ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 				&& brush->contents != CONTENTS_BOUNDINGBOX
-	#endif
 				)
 			{
 				all_clip = false;
@@ -934,7 +926,6 @@ bool            ParseMapEntity()
 						SetKeyValue (mapent, "origin", string);
 					}
 				}
-#ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 				{
 					double b[2][3];
 					if (sscanf (ValueForKey (mapent, "zhlt_minsmaxs"), "%lf %lf %lf %lf %lf %lf", &b[0][0], &b[0][1], &b[0][2], &b[1][0], &b[1][1], &b[1][2]) == 6)
@@ -963,7 +954,6 @@ bool            ParseMapEntity()
 						SetKeyValue (mapent, "zhlt_minsmaxs", string);
 					}
 				}
-#endif
 			}
 		}
 	}
