@@ -148,18 +148,14 @@ brush_t;
 // there is a node_t structure for every node and leaf in the bsp tree
 //
 #define	PLANENUM_LEAF		-1
-#ifdef HLBSP_DETAILBRUSH_CULL
 #define BOUNDS_EXPANSION 1.0 // expand the bounds of detail leafs when clipping its boundsbrush, to prevent some strange brushes in the func_detail from clipping away the entire boundsbrush making the func_detail invisible.
-#endif
 
 typedef struct node_s
 {
     surface_t*      surfaces;
 	brush_t			*detailbrushes;
-#ifdef HLBSP_DETAILBRUSH_CULL
 	brush_t			*boundsbrush;
 	vec3_t			loosemins, loosemaxs; // all leafs and nodes have this, while 'mins' and 'maxs' are only valid for nondetail leafs and nodes.
-#endif
 
 	bool			isdetail; // is under a diskleaf
 	bool			isportalleaf; // not detail and children are detail; only visleafs have contents, portals, mins, maxs
@@ -261,10 +257,8 @@ extern brush_t *AllocBrush ();
 extern void		FreeBrush (brush_t *b);
 extern brush_t *NewBrushFromBrush (const brush_t *b);
 extern void		SplitBrush (brush_t *in, const dplane_t *split, brush_t **front, brush_t **back);
-#ifdef HLBSP_DETAILBRUSH_CULL
 extern brush_t *BrushFromBox (const vec3_t mins, const vec3_t maxs);
 extern void		CalcBrushBounds (const brush_t *b, vec3_t &mins, vec3_t &maxs);
-#endif
 
 extern node_t*  AllocNode();
 

@@ -679,7 +679,6 @@ void SplitBrush (brush_t *in, const dplane_t *split, brush_t **front, brush_t **
 	return;
 }
 
-#ifdef HLBSP_DETAILBRUSH_CULL
 brush_t *BrushFromBox (const vec3_t mins, const vec3_t maxs)
 {
 	brush_t *b = AllocBrush ();
@@ -719,7 +718,6 @@ void CalcBrushBounds (const brush_t *b, vec3_t &mins, vec3_t &maxs)
 		VectorCompareMaximum (maxs, windingmaxs, maxs);
 	}
 }
-#endif
 
 // =====================================================================================
 //  AllocNode

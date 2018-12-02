@@ -1276,13 +1276,11 @@ static void MakeLeaf (node_t *leafnode)
 	leafnode->iscontentsdetail = leafnode->detailbrushes != NULL;
 	FreeLeafBrushes (leafnode);
 	leafnode->detailbrushes = NULL;
-#ifdef HLBSP_DETAILBRUSH_CULL
 	if (leafnode->boundsbrush)
 	{
 		FreeBrush (leafnode->boundsbrush);
 	}
 	leafnode->boundsbrush = NULL;
-#endif
 
 	if (!(leafnode->isportalleaf && leafnode->contents == CONTENTS_SOLID))
 	{
@@ -1619,7 +1617,6 @@ static void     BuildBspTree_r(node_t* node)
     midsplit = CalcNodeBounds(node
 		, validmins, validmaxs
 		);
-#ifdef HLBSP_DETAILBRUSH_CULL
 	if (node->boundsbrush)
 	{
 		CalcBrushBounds (node->boundsbrush, node->loosemins, node->loosemaxs);
@@ -1629,7 +1626,6 @@ static void     BuildBspTree_r(node_t* node)
 		VectorFill (node->loosemins, BOGUS_RANGE);
 		VectorFill (node->loosemaxs, -BOGUS_RANGE);
 	}
-#endif
 
 	int splitdetaillevel = CalcSplitDetaillevel (node);
 	FixDetaillevelForDiscardable (node, splitdetaillevel);
@@ -1671,7 +1667,6 @@ static void     BuildBspTree_r(node_t* node)
     // split all the polysurfaces into front and back lists
     SplitNodeSurfaces(allsurfs, node);
 	SplitNodeBrushes (node->detailbrushes, node);
-#ifdef HLBSP_DETAILBRUSH_CULL
 	if (node->boundsbrush)
 	{
 		for (int k = 0; k < 2; k++)
@@ -1703,7 +1698,6 @@ static void     BuildBspTree_r(node_t* node)
 		FreeBrush (node->boundsbrush);
 	}
 	node->boundsbrush = NULL;
-#endif
 
 	if (!split->detaillevel)
 	{
@@ -1744,12 +1738,10 @@ node_t*         SolidBSP(const surfchain_t* const surfhead,
     headnode->surfaces = surfhead->surfaces;
 	headnode->detailbrushes = detailbrushes;
 	headnode->isdetail = false;
-#ifdef HLBSP_DETAILBRUSH_CULL
 	vec3_t brushmins, brushmaxs;
 	VectorAddVec (surfhead->mins, -SIDESPACE, brushmins);
 	VectorAddVec (surfhead->maxs, SIDESPACE, brushmaxs);
 	headnode->boundsbrush = BrushFromBox (brushmins, brushmaxs);
-#endif
 
 
     // generate six portals that enclose the entire world

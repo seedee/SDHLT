@@ -219,7 +219,6 @@ static int		WriteDrawLeaf (node_t *node, const node_t *portalleaf)
     //
     // write bounding box info
     //
-#ifdef HLBSP_DETAILBRUSH_CULL
 	vec3_t mins, maxs;
 #if 0
 	printf ("leaf isdetail = %d loosebound = (%f,%f,%f)-(%f,%f,%f) portalleaf = (%f,%f,%f)-(%f,%f,%f)\n", node->isdetail,
@@ -242,13 +241,6 @@ static int		WriteDrawLeaf (node_t *node, const node_t *portalleaf)
 		leaf_p->mins[k] = (short)qmax (-32767, qmin ((int)mins[k], 32767));
 		leaf_p->maxs[k] = (short)qmax (-32767, qmin ((int)maxs[k], 32767));
 	}
-#else
-	for (int k = 0; k < 3; k++)
-	{
-		leaf_p->mins[k] = (short)qmax (-32767, qmin ((int)portalleaf->mins[k], 32767));
-		leaf_p->maxs[k] = (short)qmax (-32767, qmin ((int)portalleaf->maxs[k], 32767));
-	}
-#endif
 
     leaf_p->visofs = -1;                                   // no vis info yet
 
@@ -406,14 +398,9 @@ static int WriteDrawNodes_r (node_t *node, const node_t *portalleaf)
 #endif
 	if (node->isdetail)
 	{
-#ifdef HLBSP_DETAILBRUSH_CULL
 		// intersect its loose bounds with the strict bounds of its parent portalleaf
 		VectorCompareMaximum (portalleaf->mins, node->loosemins, mins);
 		VectorCompareMinimum (portalleaf->maxs, node->loosemaxs, maxs);
-#else
-		VectorCopy (portalleaf->mins, mins);
-		VectorCopy (portalleaf->maxs, maxs);
-#endif
 	}
 	else
 	{
