@@ -2377,7 +2377,6 @@ void            SampleTriangulation(const lerpTriangulation_t* const trian, cons
 	#endif
 			return;
 		}
-#ifdef HLRAD_LERP_TRY5POINTS
 		if (trian->numpoints >= 4 && trian->dists[3].invalid <= 0)
 		{
 			int pt4 = trian->dists[3].patch;
@@ -2446,7 +2445,6 @@ void            SampleTriangulation(const lerpTriangulation_t* const trian, cons
 				}
 			}
 		}
-#endif
 	}
 	if (trian->numpoints >= 2 && trian->dists[1].invalid <= 0  && g_lerp_enabled)
 	{

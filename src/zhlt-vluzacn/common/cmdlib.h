@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_LERP_TRY5POINTS //--vluzacn
 #define HLRAD_DEBUG_DRAWPOINTS //--vluzacn
 #define HLRAD_SubdividePatch_NOTMIDDLE //--vluzacn
 #define HLRAD_PHONG_FROMORIGINAL //--vluzacn
