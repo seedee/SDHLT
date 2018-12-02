@@ -1517,7 +1517,6 @@ static vec_t    getScale(const patch_t* const patch)
 // =====================================================================================
 //  getChop
 // =====================================================================================
-#ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
 static bool		getEmitMode (const patch_t *patch)
 {
 	bool emitmode = false;
@@ -1557,7 +1556,6 @@ static bool		getEmitMode (const patch_t *patch)
 #endif
 	return emitmode;
 }
-#endif
 static vec_t    getChop(const patch_t* const patch)
 {
     vec_t           rval;
@@ -1576,11 +1574,7 @@ static vec_t    getChop(const patch_t* const patch)
 		}
 	}
 #endif
-#ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
 	if (!patch->emitmode)
-#else
-    if (VectorCompare(patch->baselight, vec3_origin))
-#endif
     {
         rval = g_chop * getScale(patch);
     }
@@ -1779,9 +1773,7 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 			patch->bouncestyle = -1; // reflects light normally
 		}
 	#endif
-#ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
 		patch->emitmode = getEmitMode (patch);
-#endif
         patch->scale = getScale(patch);
         patch->chop = getChop(patch);
 		VectorCopy (g_translucenttextures[g_texinfo[f->texinfo].miptex], patch->translucent_v);

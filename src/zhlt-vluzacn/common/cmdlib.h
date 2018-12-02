@@ -72,10 +72,7 @@
 
 
 
-#define HLRAD_TEXLIGHTTHRESHOLD_FIX //--vluzacn
-	#ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
 #define HLRAD_CUSTOMTEXLIGHT //--vluzacn
-	#endif
 #define HLRAD_ARG_MISC //--vluzacn
 #define HLRAD_PairEdges_FACESIDE_FIX //--vluzacn
 #define HLRAD_VISMATRIX_NOMARKSURFACES //--vluzacn

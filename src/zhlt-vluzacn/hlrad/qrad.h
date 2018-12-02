@@ -368,9 +368,7 @@ typedef struct patch_s
 #endif
 	unsigned char	emitstyle;
     vec3_t          baselight;                             // emissivity only, uses emitstyle
-#ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
 	bool			emitmode;								// texlight emit mode. 1 for normal, 0 for fast.
-#endif
 #ifdef HLRAD_AUTOCORING
 #ifdef HLRAD_ACCURATEBOUNCE_SAMPLELIGHT
 	vec_t			samples;

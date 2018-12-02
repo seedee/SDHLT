@@ -2083,11 +2083,7 @@ void            CreateDirectLights()
 		}
         if (
 			DotProduct (p->baselight, p->texturereflectivity) / 3
-	#ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
 			> 0.0
-	#else
-			>= g_dlight_threshold
-	#endif
 	#ifdef HLRAD_CUSTOMTEXLIGHT
 			&& !(g_face_texlights[p->faceNumber]
 				&& *ValueForKey (g_face_texlights[p->faceNumber], "_scale")
@@ -2109,12 +2105,10 @@ void            CreateDirectLights()
             directlights[leafnum] = dl;
             dl->style = p->emitstyle; //LRC
 			dl->topatch = false;
-	#ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
 			if (!p->emitmode)
 			{
 				dl->topatch = true;
 			}
-	#endif
 #ifdef HLRAD_FASTMODE
 			if (g_fastmode)
 			{
@@ -2216,12 +2210,10 @@ void            CreateDirectLights()
 		        directlights[leafnum] = dl;
 
 				dl->topatch = false;
-	#ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
 				if (!p->emitmode)
 				{
 					dl->topatch = true;
 				}
-	#endif
 #ifdef HLRAD_FASTMODE
 				if (g_fastmode)
 				{
