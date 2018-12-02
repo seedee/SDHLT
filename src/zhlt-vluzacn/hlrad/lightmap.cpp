@@ -7310,13 +7310,11 @@ void            PrecompLightmapOffsets()
             continue;                                      // non-lit texture
         }
 
-#ifdef HLRAD_ENTSTRIPRAD
 #ifndef HLRAD_REDUCELIGHTMAP
 		if (IntForKey (g_face_entity[facenum], "zhlt_striprad"))
 		{
 			continue;
 		}
-#endif
 #endif
 
 #ifdef HLRAD_AUTOCORING
@@ -7534,7 +7532,6 @@ void ReduceLightmap ()
 		{
 			continue;                                      // non-lit texture
 		}
-#ifdef HLRAD_ENTSTRIPRAD
 		// just need to zero the lightmap so that it won't contribute to lightdata size
 		if (IntForKey (g_face_entity[facenum], "zhlt_striprad"))
 		{
@@ -7545,7 +7542,6 @@ void ReduceLightmap ()
 			}
 			continue;
 		}
-#endif
 #if 0 //debug. --vluzacn
 		const char *lightmapcolor = ValueForKey (g_face_entity[facenum], "zhlt_rad");
 		if (*lightmapcolor)
@@ -8355,13 +8351,11 @@ void            FinalLightFace(const int facenum)
         return;                                            // non-lit texture
     }
 
-#ifdef HLRAD_ENTSTRIPRAD
 #ifndef HLRAD_REDUCELIGHTMAP
 	if (IntForKey (g_face_entity[facenum], "zhlt_striprad"))
 	{
 		return;
 	}
-#endif
 #endif
 
     for (lightstyles = 0; lightstyles < MAXLIGHTMAPS; lightstyles++)

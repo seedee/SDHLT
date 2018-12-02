@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_ENTSTRIPRAD //--vluzacn
 #define HLRAD_CHOP_FIX //--vluzacn
 #define HLRAD_CUSTOMCHOP // don't use this --vluzacn
 #define HLRAD_RGBTRANSFIX //--vluzacn
