@@ -399,7 +399,6 @@ extern void LoadWadcfgfile (const char *filename);
 extern void LoadWadconfig (const char *filename, const char *configname);
 #endif
 #ifndef HLCSG_WADCFG_NEW
-#ifdef HLCSG_WADCFG // AJM: 
 //============================================================================
 // wadcfg.cpp
 
@@ -419,7 +418,6 @@ extern char *g_apppath;
 //JK: 
 extern char *g_wadcfgfile;
 
-#endif // HLCSG_WADCFG
 #endif
 
 #ifdef HLCSG_AUTOWAD

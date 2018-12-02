@@ -39,9 +39,7 @@ static int      c_csgfaces;
 BoundingBox     world_bounds;
 
 #ifndef HLCSG_WADCFG_NEW
-#ifdef HLCSG_WADCFG
 char            wadconfigname[MAX_WAD_CFG_NAME];
-#endif
 #endif
 
 vec_t           g_tiny_threshold = DEFAULT_TINY_THRESHOLD;
@@ -178,14 +176,12 @@ void            GetParamsFromEnt(entity_t* mapent)
 #endif
 	
 #ifndef HLCSG_WADCFG_NEW
-#ifdef HLCSG_WADCFG
 	// wadconfig(string) : "Custom Wad Configuration" : ""
     if (strlen(ValueForKey(mapent, "wadconfig")) > 0)
     { 
         safe_strncpy(wadconfigname, ValueForKey(mapent, "wadconfig"), MAX_WAD_CFG_NAME);
         Log("%30s [ %-9s ]\n", "Custom Wad Configuration", wadconfigname);
     }
-#endif
 #endif
 #ifdef HLCSG_WADCFG_NEW
 	// wadconfig(string) : "Custom Wad Configuration" : ""
@@ -1972,10 +1968,8 @@ static void     Usage()
     Log("    -dev #           : compile with developer message\n\n");
 
 #ifndef HLCSG_WADCFG_NEW
-#ifdef HLCSG_WADCFG // AJM
     Log("    -wadconfig name  : Specify a configuration to use from wad.cfg\n");
     Log("    -wadcfgfile path : Manually specify a path to the wad.cfg file\n"); //JK:
-#endif
 #endif
 
 #ifdef HLCSG_AUTOWAD // AJM:
@@ -2145,9 +2139,7 @@ void            CSGCleanup()
 #endif
 #endif
 #ifndef HLCSG_WADCFG_NEW
-#ifdef HLCSG_WADCFG
     WadCfg_cleanup();
-#endif
 #endif
     FreeWadPaths();
 }
@@ -2183,9 +2175,7 @@ int             main(const int argc, char** argv)
     g_WadInclude.push_back("zhlt.wad");
 
 #ifndef HLCSG_WADCFG_NEW
-#ifdef HLCSG_WADCFG
     memset(wadconfigname, 0, sizeof(wadconfigname));//AJM
-#endif
 #endif
 #ifdef HLCSG_HULLBRUSH
 	InitDefaultHulls ();
@@ -2330,7 +2320,6 @@ int             main(const int argc, char** argv)
 #endif
 
 #ifndef HLCSG_WADCFG_NEW
-#ifdef HLCSG_WADCFG
         // AJM: added in -wadconfig
         else if (!strcasecmp(argv[i], "-wadconfig"))
         { 
@@ -2363,7 +2352,6 @@ int             main(const int argc, char** argv)
                 Usage();
             }
         }
-#endif
 #endif
 #ifdef HLCSG_NULLIFY_INVISIBLE
 		else if (!strcasecmp(argv[i], "-nullfile"))
@@ -2815,7 +2803,6 @@ int             main(const int argc, char** argv)
 	}
 #endif
 #ifndef HLCSG_WADCFG_NEW
-#ifdef HLCSG_WADCFG // AJM
     // figure out what to do with the texture settings
     if (wadconfigname[0])           // custom wad configuations will take precedence
     {
@@ -2827,7 +2814,6 @@ int             main(const int argc, char** argv)
         Log("Using mapfile wad configuration\n");
     }
     if (!g_bWadConfigsLoaded)  // dont try and override wad.cfg
-#endif
     {
         GetUsedWads(); 
     }

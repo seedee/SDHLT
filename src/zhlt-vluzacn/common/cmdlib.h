@@ -62,7 +62,6 @@
 	#endif
 
 // tool specific settings below only mean a recompile of the tool affected
-#define HLCSG_WADCFG
 #define HLCSG_WADCFG_NEW // rewritten HLCSG_WADCFG. --vluzacn
 #define HLCSG_AUTOWAD
 

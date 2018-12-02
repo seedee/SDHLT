@@ -131,7 +131,6 @@ void LoadWadcfgfile (const char *filename)
 	//Log ("Using custom wadfile configuration: '%s' (with %i wad%s)\n", filename, count, count > 1 ? "s" : "");
 }
 #else
-#ifdef HLCSG_WADCFG
 
 //#ifdef SYSTEM_WIN32
 #if defined(SYSTEM_WIN32) && !defined( __GNUC__ )
@@ -586,5 +585,4 @@ void        WadCfg_cleanup()
 
 
 
-#endif // HLCSG_WADCFG
 #endif
