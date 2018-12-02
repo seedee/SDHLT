@@ -507,12 +507,10 @@ static void     SaveOutside(const brush_t* const b, const int hull, bface_t* out
 			}
 		}
 	#endif
-	#ifdef HLCSG_WATERBACKFACE_FIX
 		if (b->entitynum != 0 && !strncasecmp (texname, "!", 1))
 		{
 			backnull = true; // strip water face on one side
 		}
-	#endif
 
 		f->contents = frontcontents;
 		f->texinfo = frontnull? -1: texinfo;
