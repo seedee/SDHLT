@@ -71,9 +71,7 @@ bool g_nolightopt = DEFAULT_NOLIGHTOPT;
 #ifdef HLCSG_GAMETEXTMESSAGE_UTF8
 bool g_noutf8 = DEFAULT_NOUTF8;
 #endif
-#ifdef HLCSG_NULLIFYAAATRIGGER
 bool g_nullifytrigger = DEFAULT_NULLIFYTRIGGER;
-#endif
 bool g_viewsurface = false;
 
 // =====================================================================================
@@ -1708,9 +1706,7 @@ static void     Usage()
     Log("    -noinfo          : Do not show tool configuration information\n");
 
     Log("    -nonulltex       : Turns off null texture stripping\n");
-#ifdef HLCSG_NULLIFYAAATRIGGER
 	Log("    -nonullifytrigger: don't remove 'aaatrigger' texture\n");
-#endif
 
 #ifdef ZHLT_DETAIL // AJM
     Log("    -nodetail        : dont handle detail brushes\n");
@@ -1819,9 +1815,7 @@ static void     Settings()
 	Log("wad configuration file[ %7s ] [ %7s ]\n", g_wadcfgfile? g_wadcfgfile: "None", "None");
 	Log("wad.cfg group name    [ %7s ] [ %7s ]\n", g_wadconfigname? g_wadconfigname: "None", "None");
 	Log("nullfile              [ %7s ] [ %7s ]\n", g_nullfile ? g_nullfile : "None", "None");
-#ifdef HLCSG_NULLIFYAAATRIGGER
 	Log("nullify trigger       [ %7s ] [ %7s ]\n", g_nullifytrigger? "on": "off", DEFAULT_NULLIFYTRIGGER? "on": "off");
-#endif
     // calc min surface area
     {
         char            tiny_penetration[10];
@@ -2227,12 +2221,10 @@ int             main(const int argc, char** argv)
 		{
 			g_viewsurface = true;
 		}
-#ifdef HLCSG_NULLIFYAAATRIGGER
 		else if (!strcasecmp (argv[i], "-nonullifytrigger"))
 		{
 			g_nullifytrigger = false;
 		}
-#endif
         else if (argv[i][0] == '-')
         {
             Log("Unknown option \"%s\"\n", argv[i]);

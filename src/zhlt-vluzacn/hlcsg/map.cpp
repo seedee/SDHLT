@@ -497,7 +497,6 @@ static void ParseBrush(entity_t* mapent)
 			strcpy (side->td.name, "NULL");
 		}
 	}
-#ifdef HLCSG_NULLIFYAAATRIGGER
 	if (g_nullifytrigger)
 	{
 		for (j = 0; j < b->numsides; j++)
@@ -509,7 +508,6 @@ static void ParseBrush(entity_t* mapent)
 			}
 		}
 	}
-#endif
 
     //
     // origin brushes are removed, but they set
