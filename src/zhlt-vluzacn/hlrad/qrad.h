@@ -169,9 +169,7 @@
 #ifdef HLRAD_OPAQUE_BLOCK
 	#define DEFAULT_BLOCKOPAQUE 1
 #endif
-#ifdef HLRAD_TRANSLUCENT
 	#define DEFAULT_TRANSLUCENTDEPTH 2.0f
-#endif
 #ifdef HLRAD_TEXTURE
 	#define DEFAULT_NOTEXTURES false
 #endif
@@ -366,10 +364,8 @@ typedef struct patch_s
 
     int             faceNumber;
     ePatchFlags     flags;
-#ifdef HLRAD_TRANSLUCENT
 	bool			translucent_b;                           // gather light from behind
 	vec3_t			translucent_v;
-#endif
 #ifdef HLRAD_REFLECTIVITY
 	vec3_t			texturereflectivity;
 	vec3_t			bouncereflectivity;
@@ -683,10 +679,8 @@ extern float	g_softlight_hack_distance;
 	extern float g_corings[ALLSTYLES];
 	extern int stylewarningcount; // not thread safe
 	extern int stylewarningnext; // not thread safe
-#ifdef HLRAD_TRANSLUCENT
 	extern vec3_t *g_translucenttextures;
 	extern vec_t g_translucentdepth;
-#endif
 #ifdef HLRAD_DIVERSE_LIGHTING
 	extern vec3_t *g_lightingconeinfo; //[nummiptex]; X component = power, Y component = scale, Z component = nothing
 #endif
@@ -795,11 +789,9 @@ typedef bool (*funcCheckVisBit) (unsigned, unsigned
 								 , unsigned int&
 								 );
 extern funcCheckVisBit g_CheckVisBit;
-#ifdef HLRAD_TRANSLUCENT
 extern bool CheckVisBitBackwards(unsigned receiver, unsigned emitter, const vec3_t &backorigin, const vec3_t &backnormal
 								, vec3_t &transparency_out
 								);
-#endif
 extern void	    MdlLightHack(void);
 
 // qradutil.c

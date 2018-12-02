@@ -384,13 +384,11 @@ void            PairEdges()
                         }
                     }
                 }
-#ifdef HLRAD_TRANSLUCENT
 				if (!VectorCompare (g_translucenttextures[g_texinfo[e->faces[0]->texinfo].miptex], g_translucenttextures[g_texinfo[e->faces[1]->texinfo].miptex]))
 				{
 					e->coplanar = false;
 					VectorClear (e->interface_normal);
 				}
-#endif
 #ifdef HLRAD_DIVERSE_LIGHTING
 				{
 					int miptex0, miptex1;
@@ -593,10 +591,8 @@ typedef struct
     vec_t*          light;
     vec_t           facedist;
     vec3_t          facenormal;
-#ifdef HLRAD_TRANSLUCENT
 	bool			translucent_b;
 	vec3_t			translucent_v;
-#endif
 #ifdef HLRAD_DIVERSE_LIGHTING
 	int				miptex;
 #endif
@@ -1824,9 +1820,7 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 						, opaquestyle
 						) == true
 					|| opaquestyle != -1
-	#ifdef HLRAD_TRANSLUCENT
 					|| l->translucent_b
-	#endif
 					)
 				{
 					blocked_direct = true;
@@ -4163,10 +4157,8 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 	int i, j;
 	byte pvs[(MAX_MAP_LEAFS + 7) / 8];
 	int lastoffset;
-#ifdef HLRAD_TRANSLUCENT
 	byte pvs2[(MAX_MAP_LEAFS + 7) / 8];
 	int lastoffset2;
-#endif
 
 	facenum = l->surfnum;
 #ifdef HLRAD_AUTOCORING
@@ -4196,10 +4188,8 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 	#endif
 		vec3_t pointnormal;
 		bool blocked;
-	#ifdef HLRAD_TRANSLUCENT
 		vec3_t spot2;
 		vec3_t pointnormal2;
-	#endif
 		vec3_t *sampled;
 	#ifdef ZHLT_XASH
 		vec3_t *sampled_direction;
@@ -4329,7 +4319,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 					}
 				}
 			}
-	#ifdef HLRAD_TRANSLUCENT
 			if (l->translucent_b)
 			{
 #ifdef HLRAD_GROWSAMPLE
@@ -4356,7 +4345,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 				VectorMA (spot2, -(g_translucentdepth + 2*DEFAULT_HUNT_OFFSET), l->facenormal, spot2);
 #endif
 			}
-	#endif
 	#ifdef HLRAD_AVOIDWALLBLEED
 			*wallflags_out = WALLFLAG_NONE;
 			if (blocked)
@@ -4384,12 +4372,10 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 			}
 			GetPhongNormal(facenum, pos_original, pointnormal);
 #endif
-	#ifdef HLRAD_TRANSLUCENT
 			if (l->translucent_b)
 			{
 				VectorSubtract (vec3_origin, pointnormal, pointnormal2);
 			}
-	#endif
 #ifdef HLRAD_AVOIDNORMALFLIP
 			VectorCopy (pointnormal, *normal_out);
 #endif
@@ -4425,7 +4411,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 				}
 				lastoffset = thisoffset;
 			}
-	#ifdef HLRAD_TRANSLUCENT
 			if (l->translucent_b)
 			{
 				if (!g_visdatasize)
@@ -4458,7 +4443,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 					lastoffset2 = thisoffset2;
 				}
 			}
-	#endif
 		}
 		// gather light
 		{
@@ -4482,7 +4466,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 	#endif
 					);
 			}
-	#ifdef HLRAD_TRANSLUCENT
 			if (l->translucent_b)
 			{
 	#ifdef HLRAD_AUTOCORING
@@ -4546,7 +4529,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 					}
 				}
 			}
-	#endif
 	#ifdef HLRAD_AVOIDWALLBLEED
 			if (g_drawnudge)
 			{
@@ -4608,12 +4590,10 @@ void            BuildFacelights(const int facenum)
     int             lightmapwidth;
     int             lightmapheight;
     int             size;
-#ifdef HLRAD_TRANSLUCENT
 	vec3_t			spot2, normal2;
 	vec3_t			delta;
 	byte			pvs2[(MAX_MAP_LEAFS + 7) / 8];
 	int				thisoffset2 = -1, lastoffset2 = -1;
-#endif
 
 #ifdef HLRAD_AVOIDWALLBLEED
 	int				*sample_wallflags;
@@ -4667,10 +4647,8 @@ void            BuildFacelights(const int facenum)
     l.surfnum = facenum;
     l.face = f;
 
-#ifdef HLRAD_TRANSLUCENT
 	VectorCopy (g_translucenttextures[g_texinfo[f->texinfo].miptex], l.translucent_v);
 	l.translucent_b = !VectorCompare (l.translucent_v, vec3_origin);
-#endif
 #ifdef HLRAD_DIVERSE_LIGHTING
 	l.miptex = g_texinfo[f->texinfo].miptex;
 #endif
@@ -5037,7 +5015,6 @@ void            BuildFacelights(const int facenum)
             }
             lastoffset = thisoffset;
         }
-#ifdef HLRAD_TRANSLUCENT
 		if (l.translucent_b)
 		{
 			VectorSubtract (g_face_centroids[facenum], spot, delta);
@@ -5073,7 +5050,6 @@ void            BuildFacelights(const int facenum)
 				lastoffset2 = thisoffset2;
 			}
 		}
-#endif
 
         memset(sampled, 0, sizeof(sampled));
 #ifdef ZHLT_XASH
@@ -5161,7 +5137,6 @@ void            BuildFacelights(const int facenum)
 #endif
 							);
 						}
-#ifdef HLRAD_TRANSLUCENT
 						if (l.translucent_b)
 						{
 #ifdef HLRAD_AUTOCORING
@@ -5235,7 +5210,6 @@ void            BuildFacelights(const int facenum)
 								}
 							}
 						}
-#endif
 #ifdef HLRAD_AUTOCORING
 						for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
 #else
@@ -5310,7 +5284,6 @@ void            BuildFacelights(const int facenum)
 #endif
 				);
 			}
-#ifdef HLRAD_TRANSLUCENT
 			if (l.translucent_b)
 			{
 #ifdef HLRAD_AUTOCORING
@@ -5374,7 +5347,6 @@ void            BuildFacelights(const int facenum)
 					}
 				}
 			}
-#endif
 #ifdef ZHLT_XASH
 			VectorCopy (pointnormal, sampled_normal);
 #endif
@@ -5494,7 +5466,6 @@ void            BuildFacelights(const int facenum)
 			}
 			lastoffset = thisoffset;
 		}
-#ifdef HLRAD_TRANSLUCENT
 		if (l.translucent_b)
 		{
 			if (!g_visdatasize)
@@ -5631,26 +5602,6 @@ void            BuildFacelights(const int facenum)
 	#endif
 				);
 		}
-#else
-		GatherSampleLight (patch->origin, pvs, l.facenormal, 
-	#ifdef HLRAD_AUTOCORING
-			patch->totallight_all, 
-	#ifdef ZHLT_XASH
-				patch->totallight_all_direction, 
-	#endif
-				patch->totalstyle_all
-	#else
-			patch->totallight, patch->totalstyle
-	#endif
-			, 1
-	#ifdef HLRAD_DIVERSE_LIGHTING
-			, l.miptex
-	#endif
-	#ifdef HLRAD_TEXLIGHTGAP
-			, facenum
-	#endif
-			);
-#endif
 	}
 
     // add an ambient term if desired

@@ -269,7 +269,6 @@ void            MakeScales(const int threadnum)
         normal1 = getPlaneFromFaceNumber(patch->faceNumber)->normal;
 
         area = patch->area;
-#ifdef HLRAD_TRANSLUCENT
 		vec3_t backorigin;
 		vec3_t backnormal;
 		if (patch->translucent_b)
@@ -277,7 +276,6 @@ void            MakeScales(const int threadnum)
 			VectorMA (patch->origin, -(g_translucentdepth + 2*PATCH_HUNT_OFFSET), normal1, backorigin);
 			VectorSubtract (vec3_origin, normal1, backnormal);
 		}
-#endif
 #ifdef HLRAD_DIVERSE_LIGHTING
 		bool lighting_diversify;
 		vec_t lighting_power;
@@ -298,17 +296,14 @@ void            MakeScales(const int threadnum)
             vec_t           dot2;
 
             vec3_t          transparency = {1.0,1.0,1.0};
-#ifdef HLRAD_TRANSLUCENT
 			bool useback;
 			useback = false;
-#endif
 
             if (!g_CheckVisBit(i, j
 				, transparency
 				, fastfind_index
 				) || (i == j))
             {
-#ifdef HLRAD_TRANSLUCENT
 				if (patch->translucent_b)
 				{
 					if ((i == j) ||
@@ -324,21 +319,16 @@ void            MakeScales(const int threadnum)
 				{
 					continue;
 				}
-#else
-                continue;
-#endif
             }
 
             normal2 = getPlaneFromFaceNumber(patch2->faceNumber)->normal;
 
             // calculate transferemnce
             VectorSubtract(patch2->origin, origin, delta);
-#ifdef HLRAD_TRANSLUCENT
 			if (useback)
 			{
 				VectorSubtract (patch2->origin, backorigin, delta);
 			}
-#endif
 #ifdef HLRAD_ACCURATEBOUNCE
 			// move emitter back to its plane
 			VectorMA (delta, -PATCH_HUNT_OFFSET, normal2, delta);
@@ -346,12 +336,10 @@ void            MakeScales(const int threadnum)
 
             dist = VectorNormalize(delta);
             dot1 = DotProduct(delta, normal1);
-#ifdef HLRAD_TRANSLUCENT
 			if (useback)
 			{
 				dot1 = DotProduct (delta, backnormal);
 			}
-#endif
             dot2 = -DotProduct(delta, normal2);
 #ifdef HLRAD_ACCURATEBOUNCE
 #ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
@@ -400,13 +388,11 @@ void            MakeScales(const int threadnum)
 				const Winding *emitter_winding;
 				receiver_origin = origin;
 				receiver_normal = normal1;
-	#ifdef HLRAD_TRANSLUCENT
 				if (useback)
 				{
 					receiver_origin = backorigin;
 					receiver_normal = backnormal;
 				}
-	#endif
 				emitter_winding = patch2->winding;
 				sightarea = CalcSightArea (receiver_origin, receiver_normal, emitter_winding, patch2->emitter_skylevel
 	#ifdef HLRAD_DIVERSE_LIGHTING
@@ -435,7 +421,6 @@ void            MakeScales(const int threadnum)
 			trans *= patch2->exposure;
 #endif
             trans = trans * VectorAvg(transparency); //hullu: add transparency effect
-#ifdef HLRAD_TRANSLUCENT
 			if (patch->translucent_b)
 			{
 				if (useback)
@@ -447,7 +432,6 @@ void            MakeScales(const int threadnum)
 					trans *= 1 - VectorAvg (patch->translucent_v);
 				}
 			}
-#endif
 
 #ifndef HLRAD_ACCURATEBOUNCE
             if (trans >= 0)
@@ -608,7 +592,6 @@ void            MakeRGBScales(const int threadnum)
         normal1 = getPlaneFromFaceNumber(patch->faceNumber)->normal;
 
         area = patch->area;
-#ifdef HLRAD_TRANSLUCENT
 		vec3_t backorigin;
 		vec3_t backnormal;
 		if (patch->translucent_b)
@@ -616,7 +599,6 @@ void            MakeRGBScales(const int threadnum)
 			VectorMA (patch->origin, -(g_translucentdepth + 2*PATCH_HUNT_OFFSET), normal1, backorigin);
 			VectorSubtract (vec3_origin, normal1, backnormal);
 		}
-#endif
 #ifdef HLRAD_DIVERSE_LIGHTING
 		bool lighting_diversify;
 		vec_t lighting_power;
@@ -636,17 +618,14 @@ void            MakeRGBScales(const int threadnum)
             vec_t           dot1;
             vec_t           dot2;
             vec3_t          transparency = {1.0,1.0,1.0};
-#ifdef HLRAD_TRANSLUCENT
 			bool useback;
 			useback = false;
-#endif
 
             if (!g_CheckVisBit(i, j
 				, transparency
 				, fastfind_index
 				) || (i == j))
             {
-#ifdef HLRAD_TRANSLUCENT
 				if (patch->translucent_b)
 				{
 					if (!CheckVisBitBackwards(i, j, backorigin, backnormal
@@ -661,21 +640,16 @@ void            MakeRGBScales(const int threadnum)
 				{
 					continue;
 				}
-#else
-                continue;
-#endif
             }
 
             normal2 = getPlaneFromFaceNumber(patch2->faceNumber)->normal;
 
             // calculate transferemnce
             VectorSubtract(patch2->origin, origin, delta);
-#ifdef HLRAD_TRANSLUCENT
 			if (useback)
 			{
 				VectorSubtract (patch2->origin, backorigin, delta);
 			}
-#endif
 #ifdef HLRAD_ACCURATEBOUNCE
 			// move emitter back to its plane
 			VectorMA (delta, -PATCH_HUNT_OFFSET, normal2, delta);
@@ -683,12 +657,10 @@ void            MakeRGBScales(const int threadnum)
 
             dist = VectorNormalize(delta);
             dot1 = DotProduct(delta, normal1);
-#ifdef HLRAD_TRANSLUCENT
 			if (useback)
 			{
 				dot1 = DotProduct (delta, backnormal);
 			}
-#endif
             dot2 = -DotProduct(delta, normal2);
 #ifdef HLRAD_ACCURATEBOUNCE
 #ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
@@ -740,13 +712,11 @@ void            MakeRGBScales(const int threadnum)
 				const Winding *emitter_winding;
 				receiver_origin = origin;
 				receiver_normal = normal1;
-	#ifdef HLRAD_TRANSLUCENT
 				if (useback)
 				{
 					receiver_origin = backorigin;
 					receiver_normal = backnormal;
 				}
-	#endif
 				emitter_winding = patch2->winding;
 				sightarea = CalcSightArea (receiver_origin, receiver_normal, emitter_winding, patch2->emitter_skylevel
 	#ifdef HLRAD_DIVERSE_LIGHTING
@@ -775,7 +745,6 @@ void            MakeRGBScales(const int threadnum)
 #endif
             VectorFill(trans, trans_one);
             VectorMultiply(trans, transparency, trans); //hullu: add transparency effect
-#ifdef HLRAD_TRANSLUCENT
 			if (patch->translucent_b)
 			{
 				if (useback)
@@ -793,7 +762,6 @@ void            MakeRGBScales(const int threadnum)
 					}
 				}
 			}
-#endif
 
 #ifdef HLRAD_ACCURATEBOUNCE
 			if (trans_one <= 0.0)

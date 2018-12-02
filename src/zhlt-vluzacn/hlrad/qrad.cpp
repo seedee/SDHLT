@@ -195,10 +195,8 @@ opaqueList_t*   g_opaque_face_list = NULL;
 unsigned        g_opaque_face_count = 0;
 unsigned        g_max_opaque_face_count = 0;               // Current array maximum (used for reallocs)
 vec_t			g_corings[ALLSTYLES];
-#ifdef HLRAD_TRANSLUCENT
 vec3_t*			g_translucenttextures = NULL;
 vec_t			g_translucentdepth = DEFAULT_TRANSLUCENTDEPTH;
-#endif
 #ifdef HLRAD_BLUR
 vec_t			g_blur = DEFAULT_BLUR;
 #endif
@@ -1372,7 +1370,6 @@ void ReadCustomSmoothValue()
 		}
 	}
 }
-#ifdef HLRAD_TRANSLUCENT
 void ReadTranslucentTextures()
 {
 	int num;
@@ -1426,7 +1423,6 @@ void ReadTranslucentTextures()
 		}
 	}
 }
-#endif
 #ifdef HLRAD_DIVERSE_LIGHTING
 vec3_t *g_lightingconeinfo;//[nummiptex]
 static vec_t DefaultScaleForPower (vec_t power)
@@ -1800,10 +1796,8 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 #endif
         patch->scale = getScale(patch);
         patch->chop = getChop(patch);
-#ifdef HLRAD_TRANSLUCENT
 		VectorCopy (g_translucenttextures[g_texinfo[f->texinfo].miptex], patch->translucent_v);
 		patch->translucent_b = !VectorCompare (patch->translucent_v, vec3_origin);
-#endif
         PlacePatchInside(patch);
 #ifdef HLRAD_ACCURATEBOUNCE
 		UpdateEmitterInfo (patch);
@@ -2535,9 +2529,7 @@ static void     GatherLight(int threadnum)
 		}
 #endif
 #ifdef ZHLT_XASH
-#ifdef HLRAD_TRANSLUCENT
 		const vec3_t &patchnormal = getPlaneFromFaceNumber (patch->faceNumber)->normal;
-#endif
 #endif
 
         for (k = 0; k < iIndex; k++, tIndex++)
@@ -2559,14 +2551,12 @@ static void     GatherLight(int threadnum)
 				vec3_t direction;
 				VectorSubtract (patch->origin, emitpatch->origin, direction);
 				VectorNormalize (direction);
-#ifdef HLRAD_TRANSLUCENT
 				vec_t dot = DotProduct (direction, patchnormal);
 				if (dot > 0)
 				{
 					// reflect the direction back
 					VectorMA (direction, -dot * 2, patchnormal, direction);
 				}
-#endif
 #endif
 
 				// for each style on the emitting patch
@@ -2792,9 +2782,7 @@ static void     GatherRGBLight(int threadnum)
 		}
 #endif
 #ifdef ZHLT_XASH
-#ifdef HLRAD_TRANSLUCENT
 		const vec3_t &patchnormal = getPlaneFromFaceNumber (patch->faceNumber)->normal;
-#endif
 #endif
 
         for (k = 0; k < iIndex; k++, tIndex++)
@@ -2815,14 +2803,12 @@ static void     GatherRGBLight(int threadnum)
 				vec3_t direction;
 				VectorSubtract (patch->origin, emitpatch->origin, direction);
 				VectorNormalize (direction);
-#ifdef HLRAD_TRANSLUCENT
 				vec_t dot = DotProduct (direction, patchnormal);
 				if (dot > 0)
 				{
 					// reflect the direction back
 					VectorMA (direction, -dot * 2, patchnormal, direction);
 				}
-#endif
 #endif
 
 				// for each style on the emitting patch
@@ -3543,9 +3529,7 @@ static void     Usage()
 		Log(" )\n");
 	}
 	Log("   -softsky #     : Smooth skylight.(0=off 1=on)\n");
-#ifdef HLRAD_TRANSLUCENT
 	Log("   -depth #       : Thickness of translucent objects.\n");
-#endif
 #ifdef HLRAD_OPAQUE_BLOCK
 	Log("   -blockopaque # : Remove the black areas around opaque entities.(0=off 1=on)\n");
 #endif
@@ -3790,11 +3774,9 @@ static void     Settings()
 	sprintf (buf2, "%d (%s)", DEFAULT_RGBTRANSFER_COMPRESS_TYPE, vector_type_string[DEFAULT_RGBTRANSFER_COMPRESS_TYPE]);
 	Log("size of rgbtransfer  [ %17s ] [ %17s ]\n", buf1, buf2);
 	Log("soft sky             [ %17s ] [ %17s ]\n", g_softsky ? "on" : "off", DEFAULT_SOFTSKY ? "on" : "off");
-#ifdef HLRAD_TRANSLUCENT
 	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_translucentdepth);
 	safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_TRANSLUCENTDEPTH);
 	Log("translucent depth    [ %17s ] [ %17s ]\n", buf1, buf2);
-#endif
 #ifdef HLRAD_OPAQUE_BLOCK
 	Log("block opaque         [ %17s ] [ %17s ]\n", g_blockopaque ? "on" : "off", DEFAULT_BLOCKOPAQUE ? "on" : "off");
 #endif
@@ -4732,7 +4714,6 @@ int             main(const int argc, char** argv)
 				Usage();
 			}
 		}
-#ifdef HLRAD_TRANSLUCENT
 		else if (!strcasecmp (argv[i], "-depth"))
 		{
 			if (i + 1 < argc)
@@ -4744,7 +4725,6 @@ int             main(const int argc, char** argv)
 				Usage ();
 			}
 		}
-#endif
 #ifdef HLRAD_OPAQUE_BLOCK
 		else if (!strcasecmp (argv[i], "-blockopaque"))
 		{
@@ -4953,9 +4933,7 @@ int             main(const int argc, char** argv)
     LoadRadFiles(g_Mapname, user_lights, argv[0]);
 	ReadCustomChopValue ();
 	ReadCustomSmoothValue ();
-#ifdef HLRAD_TRANSLUCENT
 	ReadTranslucentTextures ();
-#endif
 #ifdef HLRAD_DIVERSE_LIGHTING
 	ReadLightingCone ();
 #endif

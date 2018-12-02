@@ -131,7 +131,6 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 
     return false;
 }
-#ifdef HLRAD_TRANSLUCENT
        bool     CheckVisBitBackwards(unsigned receiver, unsigned emitter, const vec3_t &backorigin, const vec3_t &backnormal
 									   , vec3_t &transparency_out
 									   )
@@ -224,7 +223,6 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 
     return false;
 }
-#endif
 
 //
 // end old vismat.c
