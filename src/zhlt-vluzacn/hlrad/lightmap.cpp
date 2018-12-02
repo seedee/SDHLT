@@ -2145,7 +2145,6 @@ void            CreateDirectLights()
 			VectorScale (dl->intensity, 1.0 / Q_PI, dl->intensity);
 			VectorMultiply (dl->intensity, p->texturereflectivity, dl->intensity);
         
-#ifdef HLRAD_WATERBACKFACE_FIX
 			dface_t *f = &g_dfaces[p->faceNumber];
 			if (g_face_entity[p->faceNumber] - g_entities != 0 && !strncasecmp (GetTextureByNumber (f->texinfo), "!", 1))
 			{
@@ -2161,7 +2160,6 @@ void            CreateDirectLights()
 				dl2->next = directlights[leafnum];
 				directlights[leafnum] = dl2;
 			}
-#endif
         }
 
         //LRC        VectorClear(p->totallight[0]);

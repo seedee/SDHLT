@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_WATERBACKFACE_FIX // remove this if you have fixed the engine's bug of drawing water backface. --vluzacn
 #define HLRAD_LERP_TEXNORMAL //--vluzacn
 #define HLRAD_REDUCELIGHTMAP //--vluzacn
 	#ifdef HLRAD_REDUCELIGHTMAP
