@@ -5152,13 +5152,7 @@ int             main(const int argc, char** argv)
     
     if (!g_visdatasize)
     {
-#ifdef HLRAD_WITHOUTVIS
 		Warning("No vis information.");
-#else
-        Warning("No vis information, direct lighting only.");
-        g_numbounce = 0;
-        g_ambient[0] = g_ambient[1] = g_ambient[2] = 0.1f;
-#endif
     }
 #ifdef HLRAD_BLUR
 	if (g_blur < 1.0)

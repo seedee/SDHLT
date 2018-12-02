@@ -232,14 +232,12 @@ static void     BuildVisLeafs(int threadnum)
             break;
         i++;                                               // skip leaf 0
         srcleaf = &g_dleafs[i];
-#ifdef HLRAD_WITHOUTVIS
         if (!g_visdatasize)
 		{
 			memset (pvs, 255, (g_dmodels[0].visleafs + 7) / 8);
 		}
 		else
 		{
-#endif
 #ifdef HLRAD_VIS_FIX
 		if (srcleaf->visofs == -1)
 		{
@@ -248,9 +246,7 @@ static void     BuildVisLeafs(int threadnum)
 		}
 #endif
         DecompressVis(&g_dvisdata[srcleaf->visofs], pvs, sizeof(pvs));
-#ifdef HLRAD_WITHOUTVIS
 		}
-#endif
         head = 0;
 
         //

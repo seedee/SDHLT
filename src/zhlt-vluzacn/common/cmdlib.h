@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_WITHOUTVIS //--vluzacn
 #define HLRAD_SNAPTOWINDING //--vluzacn
 #define HLRAD_HuntForWorld_FIX //--vluzacn
 	#ifdef HLRAD_HuntForWorld_FIX
