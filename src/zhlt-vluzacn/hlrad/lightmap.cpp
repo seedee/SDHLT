@@ -4114,7 +4114,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 									continue;                                  // occluded
 								}
 
-					#ifdef HLRAD_OPAQUE_DIFFUSE_FIX
 								vec3_t transparency;
 					#ifdef HLRAD_OPAQUE_STYLE
 								int opaquestyle;
@@ -4133,7 +4132,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								{
 									continue;
 								}
-					#endif /*HLRAD_OPAQUE_DIFFUSE_FIX*/
 
 						#ifdef ZHLT_XASH
 								vec3_t direction;
@@ -4169,9 +4167,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								}
 					#endif
 								VectorScale(sky_intensity, dot, add_one);
-					#ifdef HLRAD_OPAQUE_DIFFUSE_FIX
 								VectorMultiply(add_one, transparency, add_one);
-					#endif /*HLRAD_OPAQUE_DIFFUSE_FIX*/
 					#ifdef HLRAD_OPAQUE_STYLE
 								// add to the total brightness of this sample
 								style = l->style;
@@ -4768,7 +4764,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                 continue;                                  // occluded
             }
 
-#ifdef HLRAD_OPAQUE_DIFFUSE_FIX
 			vec3_t transparency = {1.0,1.0,1.0};
 			if (TestSegmentAgainstOpaqueList(pos, 
 #ifdef HLRAD_OPAQUEINSKY_FIX
@@ -4781,7 +4776,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 			{
 				continue;
 			}
-#endif /*HLRAD_OPAQUE_DIFFUSE_FIX*/
 #ifdef HLRAD_DIVERSE_LIGHTING
 			if (lighting_diversify)
 			{
@@ -4789,9 +4783,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 			}
 #endif
             VectorScale(sky_intensity, dot, add);
-#ifdef HLRAD_OPAQUE_DIFFUSE_FIX
                         VectorMultiply(add, transparency, add);
-#endif /*HLRAD_OPAQUE_DIFFUSE_FIX*/
             VectorAdd(total, add, total);
         }
         if (VectorMaximum(total) > 0)

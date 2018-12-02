@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_OPAQUE_DIFFUSE_FIX //--vluzacn
 #define HLRAD_NOSWAP //--vluzacn
 #define HLRAD_TRANSTOTAL_HACK //--vluzacn
 #define HLRAD_TRANSPARENCY_CPP //--vluzacn
