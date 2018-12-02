@@ -574,11 +574,6 @@ void ExpandBrush(brush_t* brush, const int hullnum)
 		for(current_face = brush->hulls[0].faces; current_face; current_face = current_face->next)
 		{
 			current_plane = current_face->plane;
-#ifndef HLCSG_BEVELMISSINGFIX
-			// for example, (0, 0.707, 0.707) -edge- (0.707, 0, -0.707). --vluzacn
-			if(current_plane->type <= last_axial || !current_plane->normal[0] || !current_plane->normal[1] || !current_plane->normal[2])
-			{ continue; } //only add bevels to completely non-axial planes
-#endif
 
 			//test to see if the plane is completely non-axial (if it is, need to add bevels to any
 			//existing "inflection edges" where there's a sign change with a neighboring plane's normal for
@@ -643,11 +638,7 @@ void ExpandBrush(brush_t* brush, const int hullnum)
 				//check each direction for sign change in normal -- zero can be safely ignored
 				for(dir = 0; dir < 3; dir++)
 				{
-#ifdef HLCSG_BEVELMISSINGFIX
 					if(current_plane->normal[dir]*other_plane->normal[dir] < -NORMAL_EPSILON) //sign changed, add bevel
-#else
-					if(current_plane->normal[dir]*other_plane->normal[dir] < 0) //sign changed, add bevel
-#endif
 					{
 						//pick direction of bevel edge by looking at normal of existing planes
 						VectorClear(bevel_edge);
@@ -658,12 +649,10 @@ void ExpandBrush(brush_t* brush, const int hullnum)
 
 						//normalize to length 1
 						VectorNormalize(normal);
-#ifdef HLCSG_BEVELMISSINGFIX
 						if (fabs (normal[(dir+1)%3]) <= NORMAL_EPSILON || fabs (normal[(dir+2)%3]) <= NORMAL_EPSILON)
 						{ // coincide with axial plane
 							continue;
 						}
-#endif
 
 						//get the origin
 						VectorCopy(edge_start,origin);
