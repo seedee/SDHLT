@@ -450,7 +450,6 @@ static void     SaveOutside(const brush_t* const b, const int hull, bface_t* out
             }
         }
 
-#ifdef HLCSG_WARNBADTEXINFO
 		// check the texture alignment of this face
 		if (!hull)
 		{
@@ -504,7 +503,6 @@ static void     SaveOutside(const brush_t* const b, const int hull, bface_t* out
 			}
 		}
 
-#endif
         WriteFace(hull, f
 			, 
 			(hull? b->clipnodedetaillevel: b->detaillevel)
