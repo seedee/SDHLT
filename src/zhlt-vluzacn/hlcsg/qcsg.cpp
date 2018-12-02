@@ -59,9 +59,7 @@ const char*		g_wadcfgfile = NULL;
 const char*		g_wadconfigname = NULL;
 #endif
 
-#ifdef ZHLT_NULLTEX // AJM
 bool            g_bUseNullTex = DEFAULT_NULLTEX;        // "-nonulltex"
-#endif
 
 #ifdef HLCSG_PRECISIONCLIP // KGP
 cliptype		g_cliptype = DEFAULT_CLIPTYPE;			// "-cliptype <value>"
@@ -1977,9 +1975,7 @@ static void     Usage()
     Log("    -verbose         : compile with verbose messages\n");
     Log("    -noinfo          : Do not show tool configuration information\n");
 
-#ifdef ZHLT_NULLTEX // AJM
     Log("    -nonulltex       : Turns off null texture stripping\n");
-#endif
 #ifdef HLCSG_NULLIFYAAATRIGGER
 	Log("    -nonullifytrigger: don't remove 'aaatrigger' texture\n");
 #endif
@@ -2088,9 +2084,7 @@ static void     Settings()
 
     Log("noclip                [ %7s ] [ %7s ]\n", g_noclip          ? "on" : "off", DEFAULT_NOCLIP       ? "on" : "off");
 
-#ifdef ZHLT_NULLTEX // AJM:
     Log("null texture stripping[ %7s ] [ %7s ]\n", g_bUseNullTex     ? "on" : "off", DEFAULT_NULLTEX      ? "on" : "off");
-#endif
 
 #ifdef ZHLT_DETAIL // AJM
     Log("detail brushes        [ %7s ] [ %7s ]\n", g_bDetailBrushes  ? "on" : "off", DEFAULT_DETAIL       ? "on" : "off");
@@ -2324,12 +2318,10 @@ int             main(const int argc, char** argv)
             g_onlyents = true;
         }
 
-#ifdef ZHLT_NULLTEX  // AJM: added in -nonulltex
         else if (!strcasecmp(argv[i], "-nonulltex"))
         {
             g_bUseNullTex = false;
         }
-#endif
 
 #ifdef HLCSG_CLIPECONOMY    // AJM: added in -noclipeconomy
 #ifdef HLCSG_CUSTOMHULL // default clip economy off

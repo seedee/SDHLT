@@ -1475,14 +1475,12 @@ static contents_t TextureContents(const char* const name)
     if (name[0] == '@')
         return CONTENTS_TRANSLUCENT;
 
-#ifdef ZHLT_NULLTEX // AJM:
 	if (!strncasecmp(name, "null", 4))
         return CONTENTS_NULL;
 #ifdef HLCSG_PRECISIONCLIP // KGP
 	if(!strncasecmp(name,"bevel",5))
 		return CONTENTS_NULL;
 #endif //precisionclip
-#endif //nulltex
 
     return CONTENTS_SOLID;
 }
@@ -1533,10 +1531,8 @@ const char*     ContentsToString(const contents_t type)
     case CONTENTS_HINT:
         return "HINT";
 
-#ifdef ZHLT_NULLTEX // AJM
     case CONTENTS_NULL:
         return "NULL";
-#endif
 
 #ifdef ZHLT_DETAIL // AJM
     case CONTENTS_DETAIL:
@@ -1648,10 +1644,8 @@ contents_t      CheckBrushContents(const brush_t* const b)
         if (contents2 == CONTENTS_SKY)
             continue;
 
-#ifdef ZHLT_NULLTEX
         if (contents2 == CONTENTS_NULL)
             continue;
-#endif
 
         if (contents2 != best_contents)
         {
@@ -1718,12 +1712,10 @@ contents_t      CheckBrushContents(const brush_t* const b)
 #ifdef HLCSG_EMPTYBRUSH
 		case CONTENTS_TOEMPTY:
 #endif
-#ifdef ZHLT_NULLTEX // AJM
 #ifndef HLCSG_HLBSP_CONTENTSNULL_FIX
         case CONTENTS_NULL:
 #endif
             break;
-#endif
         default:
             Fatal(assume_BRUSH_NOT_ALLOWED_IN_ENTITY, "Entity %i, Brush %i: %s brushes not allowed in entity", 
 #ifdef HLCSG_COUNT_NEW

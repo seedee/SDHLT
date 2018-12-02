@@ -55,9 +55,7 @@
 #define DEFAULT_CLIPTYPE clip_simple //clip_legacy //--vluzacn
 #endif
 
-#ifdef ZHLT_NULLTEX // AJM
 #define DEFAULT_NULLTEX     true
-#endif
 
 #ifdef HLCSG_CLIPECONOMY // AJM
 #ifdef HLCSG_CUSTOMHULL // default clip economy off
@@ -336,9 +334,7 @@ extern bool     g_skyclip;
 extern bool     g_estimate;         
 extern const char* g_hullfile;        
 
-#ifdef ZHLT_NULLTEX // AJM:
 extern bool     g_bUseNullTex; 
-#endif
 
 #ifdef ZHLT_DETAIL // AJM
 extern bool g_bDetailBrushes;

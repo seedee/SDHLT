@@ -71,9 +71,7 @@
 #define DEFAULT_CHART           false
 #define DEFAULT_INFO            true
 
-#ifdef ZHLT_NULLTEX // AJM
 #define DEFAULT_NULLTEX             true
-#endif
 
 #ifdef ZHLT_PROGRESSFILE // AJM
 #define DEFAULT_PROGRESSFILE NULL // progress file is only used if g_progressfile is non-null
@@ -101,9 +99,7 @@ typedef enum
     face_normal = 0,
     face_hint,
     face_skip,
-#ifdef ZHLT_NULLTEX // AJM
     face_null,
-#endif
 #ifdef ZHLT_DETAIL // AJM
     face_detail
 #endif
@@ -314,9 +310,7 @@ extern node_t*  AllocNode();
 
 extern bool     CheckFaceForHint(const face_t* const f);
 extern bool     CheckFaceForSkip(const face_t* const f);
-#ifdef ZHLT_NULLTEX// AJM
 extern bool     CheckFaceForNull(const face_t* const f);
-#endif
 #ifdef HLCSG_HLBSP_SOLIDHINT
 extern bool		CheckFaceForDiscardable (const face_t *f);
 #endif
@@ -384,9 +378,7 @@ extern char		g_extentfilename[_MAX_PATH];
 extern bool g_bDetailBrushes;
 #endif
 
-#ifdef ZHLT_NULLTEX // AJM
 extern bool     g_bUseNullTex;
-#endif
 
 #ifdef HLBSP_REMOVEHULL2
 extern bool		g_nohull2;

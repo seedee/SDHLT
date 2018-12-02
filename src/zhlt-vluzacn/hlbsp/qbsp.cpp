@@ -77,9 +77,7 @@ bool            g_bLeakOnly = DEFAULT_LEAKONLY; // leakonly mode "-leakonly"
 bool            g_bLeaked = false;
 int             g_subdivide_size = DEFAULT_SUBDIVIDE_SIZE;
 
-#ifdef ZHLT_NULLTEX // AJM
 bool            g_bUseNullTex = DEFAULT_NULLTEX; // "-nonulltex"
-#endif
 
 #ifdef ZHLT_DETAIL // AJM
 bool            g_bDetailBrushes = DEFAULT_DETAIL; // "-nodetail"
@@ -879,7 +877,6 @@ static surfchain_t* SurflistFromValidFaces()
     return sc;
 }
 
-#ifdef ZHLT_NULLTEX// AJM
 // =====================================================================================
 //  CheckFaceForNull
 //      Returns true if the passed face is facetype null
@@ -957,7 +954,6 @@ bool            CheckFaceForEnv_Sky(const face_t* const f)
 
 
 
-#endif
 
 #ifdef ZHLT_DETAIL
 // =====================================================================================
@@ -1061,12 +1057,10 @@ static          facestyle_e SetFaceType(face_t* f)
     {
         f->facestyle = face_skip;
     }
-#ifdef ZHLT_NULLTEX         // AJM
     else if (CheckFaceForNull(f))
     {
         f->facestyle = face_null;
     }
-#endif
 #ifdef HLCSG_HLBSP_SOLIDHINT
 	else if (CheckFaceForDiscardable (f))
 	{
@@ -1629,9 +1623,7 @@ static void     Usage()
     Log("    -noestimate    : do not display continuous compile time estimates\n");
 #endif
 
-#ifdef ZHLT_NULLTEX         // AJM
     Log("    -nonulltex     : Don't strip NULL faces\n");
-#endif
 
 #ifdef ZHLT_DETAIL // AJM
     Log("    -nodetail      : don't handle detail brushes\n");
@@ -1709,9 +1701,7 @@ static void     Settings()
 #ifdef HLBSP_MERGECLIPNODE
 	Log("no clipnode merging [ %7s ] [ %7s ]\n", g_noclipnodemerge? "on": "off", DEFAULT_NOCLIPNODEMERGE? "on": "off");
 #endif
-#ifdef ZHLT_NULLTEX // AJM
     Log("null tex. stripping [ %7s ] [ %7s ]\n", g_bUseNullTex ? "on" : "off", DEFAULT_NULLTEX ? "on" : "off" );
-#endif
 #ifdef ZHLT_DETAIL // AJM
     Log("detail brushes      [ %7s ] [ %7s ]\n", g_bDetailBrushes ? "on" : "off", DEFAULT_DETAIL ? "on" : "off" );
 #endif
@@ -2042,12 +2032,10 @@ int             main(const int argc, char** argv)
             g_log = false;
         }
 
-#ifdef ZHLT_NULLTEX // AJM
         else if (!strcasecmp(argv[i], "-nonulltex"))
         {
             g_bUseNullTex = false;
         }
-#endif
 
 #ifdef ZHLT_DETAIL // AJM
         else if (!strcasecmp(argv[i], "-nodetail"))

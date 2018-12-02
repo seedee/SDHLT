@@ -1043,9 +1043,7 @@ int             TexinfoForBrushTexture(const plane_t* const plane, brush_texture
         || !strncasecmp(bt->name, "clip", 4)
 #endif
         || !strncasecmp(bt->name, "origin", 6)
-#ifdef ZHLT_NULLTEX // AJM
         || !strncasecmp(bt->name, "null", 4)
-#endif
         || !strncasecmp(bt->name, "aaatrigger", 10)
        )
     {

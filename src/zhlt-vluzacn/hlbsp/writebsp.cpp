@@ -401,9 +401,7 @@ static void     WriteFace(face_t* f)
 
     if (    CheckFaceForHint(f)
         ||  CheckFaceForSkip(f)
-#ifdef ZHLT_NULLTEX
         ||  CheckFaceForNull(f)  // AJM
-#endif
 #ifdef HLCSG_HLBSP_SOLIDHINT
 		|| CheckFaceForDiscardable (f)
 #endif
@@ -638,9 +636,7 @@ void OutputEdges_face (face_t *f)
 {
 	if (CheckFaceForHint(f)
 		|| CheckFaceForSkip(f)
-#ifdef ZHLT_NULLTEX
         || CheckFaceForNull(f)  // AJM
-#endif
 #ifdef HLCSG_HLBSP_SOLIDHINT
 		|| CheckFaceForDiscardable (f)
 #endif

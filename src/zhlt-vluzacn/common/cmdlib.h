@@ -47,7 +47,6 @@
 
 // ZHLT_* features are spread across more than one tool. Hence, changing
 //      one of these settings probably means recompiling the whole set
-#define ZHLT_NULLTEX                        // HLCSG, HLBSP
 #define ZHLT_TEXLIGHT                       // HLCSG, HLRAD - triggerable texlights by LRC
 #define ZHLT_GENERAL                        // ALL TOOLS - general changes
 #define ZHLT_NEW_FILE_FUNCTIONS             // ALL TOOLS - file path/extension extraction functions
@@ -104,9 +103,7 @@
 
 #define HLCSG_PRECISIONCLIP
 #define HLCSG_FASTFIND
-#ifdef ZHLT_NULLTEX
         #define HLCSG_NULLIFY_INVISIBLE //requires null textures as prerequisite
-#endif
 
 #define HLCSG_COPYBRUSH //--vluzacn
 	#ifdef HLCSG_COPYBRUSH
@@ -138,10 +135,8 @@
 #define HLCSG_ALLOWHINTINENTITY //--vluzacn
 #define HLCSG_PRICISION_FIX // Important!! --vluzacn
 #define HLBSP_MAX_LEAF_FACES //--vluzacn
-	#ifdef ZHLT_NULLTEX
 #define HLBSP_SKY_SOLID //--vluzacn
 #define HLCSG_HLBSP_CONTENTSNULL_FIX //--vluzacn
-	#endif
 #define HLCSG_HLBSP_ALLOWEMPTYENTITY // needs more testing --vluzacn
 #define HLBSP_ChooseMidPlane_FIX //--vluzacn
 	#ifdef HLBSP_ChooseMidPlane_FIX

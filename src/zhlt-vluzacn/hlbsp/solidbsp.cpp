@@ -1507,13 +1507,11 @@ static int      RankForContents(const int contents)
     //Log("SolidBSP::RankForContents - contents type is %i ",contents);
     switch (contents)
     {
-#ifdef ZHLT_NULLTEX    // AJM
 #ifndef HLCSG_HLBSP_CONTENTSNULL_FIX
     case CONTENTS_NULL:
         //Log("(null)\n");
         //return 13;
         return -2;
-#endif
 #endif
 
     case CONTENTS_EMPTY:
@@ -1576,11 +1574,9 @@ static int      ContentsForRank(const int rank)
 {
     switch (rank)
     {
-#ifdef ZHLT_NULLTEX // AJM
 #ifndef HLCSG_HLBSP_CONTENTSNULL_FIX
     case -2:
         return CONTENTS_NULL;        // has at leat one face with null
-#endif
 #endif
 
     case -1:

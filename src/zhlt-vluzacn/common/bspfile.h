@@ -219,9 +219,7 @@ typedef enum
     CONTENTS_TRANSLUCENT = -15,
     CONTENTS_HINT = -16,     // Filters down to CONTENTS_EMPTY by bsp, ENGINE SHOULD NEVER SEE THIS
 
-#ifdef ZHLT_NULLTEX
     CONTENTS_NULL = -17,     // AJM  // removed in csg and bsp, VIS or RAD shouldnt have to deal with this, only clip planes!
-#endif
 
 #ifdef ZHLT_DETAIL   // AJM
     CONTENTS_DETAIL = -18,  
