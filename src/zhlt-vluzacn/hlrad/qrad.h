@@ -453,9 +453,7 @@ typedef struct
     unsigned        facenum;
     const dface_t*  face;
     const dplane_t* plane;
-#ifdef HLRAD_LERP_FACELIST
 	facelist_t*		allfaces;
-#endif
 }
 lerpTriangulation_t;
 

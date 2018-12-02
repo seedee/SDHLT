@@ -2576,61 +2576,6 @@ static void		AddWall (lerpTriangulation_t *trian, const vec_t *v1, const vec_t *
 	VectorCopy (p0, wall->vertex0);
 	VectorCopy (p1, wall->vertex1);
 }
-#ifndef HLRAD_LERP_FACELIST
-static void     CreateWalls(lerpTriangulation_t* trian, const dface_t* const face)
-{
-    const dplane_t* p = getPlaneFromFace(face);
-    int             facenum = face - g_dfaces;
-    int             x;
-
-    for (x = 0; x < face->numedges; x++)
-    {
-        edgeshare_t*    es;
-        dface_t*        f2;
-        int             edgenum = g_dsurfedges[face->firstedge + x];
-
-        if (edgenum > 0)
-        {
-            es = &g_edgeshare[edgenum];
-            f2 = es->faces[1];
-        }
-        else
-        {
-            es = &g_edgeshare[-edgenum];
-            f2 = es->faces[0];
-        }
-		if (!es->smooth)
-		{
-			AddWall (trian, g_dvertexes[g_dedges[abs(edgenum)].v[0]].point, g_dvertexes[g_dedges[abs(edgenum)].v[1]].point);
-		}
-		else
-		{
-			int facenum2 = f2 - g_dfaces;
-			int x2;
-			for (x2 = 0; x2 < f2->numedges; x2++)
-			{
-				edgeshare_t *es2;
-				dface_t *f3;
-				int edgenum2 = g_dsurfedges[f2->firstedge + x2];
-				if (edgenum2 > 0)
-				{
-					es2 = &g_edgeshare[edgenum2];
-					f3 = es2->faces[1];
-				}
-				else
-				{
-					es2 = &g_edgeshare[-edgenum2];
-					f3 = es2->faces[0];
-				}
-				if (!es2->smooth)
-				{
-					AddWall (trian, g_dvertexes[g_dedges[abs(edgenum2)].v[0]].point, g_dvertexes[g_dedges[abs(edgenum2)].v[1]].point);
-				}
-			}
-		}
-	}
-}
-#endif
 
 // =====================================================================================
 //  AllocTriangulation
@@ -2669,17 +2614,14 @@ void            FreeTriangulation(lerpTriangulation_t* trian)
 	free(trian->points_pos);
 #endif
     free(trian->walls);
-#ifdef HLRAD_LERP_FACELIST
 	for (facelist_t *next; trian->allfaces; trian->allfaces = next)
 	{
 		next = trian->allfaces->next;
 		free (trian->allfaces);
 	}
-#endif
     free(trian);
 }
 
-#ifdef HLRAD_LERP_FACELIST
 void AddFaceToTrian (facelist_t **faces, dface_t *face)
 {
 	for (; *faces; faces = &(*faces)->next)
@@ -2736,7 +2678,6 @@ void FindFaces (lerpTriangulation_t *trian)
 		}
 	}
 }
-#endif
 // =====================================================================================
 //  CreateTriangulation
 // =====================================================================================
@@ -2753,7 +2694,6 @@ lerpTriangulation_t* CreateTriangulation(const unsigned int facenum)
     trian->plane = p;
     trian->face = f;
 
-#ifdef HLRAD_LERP_FACELIST
 	FindFaces (trian);
 	facelist_t *fl;
 	for (fl = trian->allfaces; fl; fl = fl->next)
@@ -2774,41 +2714,6 @@ lerpTriangulation_t* CreateTriangulation(const unsigned int facenum)
 			}
 		}
 	}
-#else
-    for (patch = g_face_patches[facenum]; patch; patch = patch->next)
-    {
-        AddPatchToTriangulation(trian, patch);
-    }
-
-    CreateWalls(trian, f);
-
-    for (j = 0; j < f->numedges; j++)
-    {
-        edgeshare_t*    es;
-        int             edgenum = g_dsurfedges[f->firstedge + j];
-
-        if (edgenum > 0)
-        {
-            es = &g_edgeshare[edgenum];
-            f2 = es->faces[1];
-        }
-        else
-        {
-            es = &g_edgeshare[-edgenum];
-            f2 = es->faces[0];
-        }
-
-		if (!es->smooth)
-        {
-            continue;
-        }
-
-        for (patch = g_face_patches[f2 - g_dfaces]; patch; patch = patch->next)
-        {
-            AddPatchToTriangulation(trian, patch);
-        }
-    }
-#endif
 
     trian->dists = (lerpDist_t*)calloc(trian->numpoints, sizeof(lerpDist_t));
     //Get rid off error that seems to happen with some opaque faces (when opaque face have all edges 'out' of map)
