@@ -56,9 +56,7 @@ bool TestFaceIntersect (intersecttest_t *t, int facenum)
 	for (k = 0; k < t->numclipplanes; k++)
 	{
 		if (!w->Clip (t->clipplanes[k], false
-#ifdef ZHLT_WINDING_EPSILON
 			, ON_EPSILON*4
-#endif
 			))
 		{
 			break;
@@ -1613,9 +1611,7 @@ static samplefrag_t *GrowSingleFrag (const samplefraginfo_t *info, samplefrag_t 
 		for (int x = 0; x < numclipplanes && w->m_NumPoints > 0; x++)
 		{
 			w->Clip (clipplanes[x], false
-#ifdef ZHLT_WINDING_EPSILON
 					, 4 * ON_EPSILON
-#endif
 					);
 		}
 		if (w->m_NumPoints > 0)

@@ -50,7 +50,6 @@
 //#define ZHLT_DETAIL                         // HLCSG, HLBSP - detail brushes     //should never turn on
 //#define ZHLT_PROGRESSFILE                   // ALL TOOLS - estimate progress reporting to -progressfile //should never turn on
 //#define ZHLT_NSBOB //should never turn on
-#define ZHLT_WINDING_EPSILON //--vluzacn
 #define ZHLT_BOUNDINGBOX_PRECISION_FIX //--vluzacn
 #define ZHLT_ENTITY_LIGHTSURFACE //--vluzacn
 #define ZHLT_CHART_AllocBlock //--vluzacn
@@ -149,9 +148,7 @@
 #define HLBSP_TryMerge_PLANENUM_FIX //--vluzacn
 #define HLCSG_SORTBRUSH_KEEPORDER //--vluzacn
 #define HLCSG_FACENORMALEPSILON //--vluzacn
-	#ifdef ZHLT_WINDING_EPSILON
 #define HLCSG_MakeHullFaces_PRECISE //--vluzacn
-	#endif
 #define HLCSG_VIEWSURFACE //--vluzacn
 #define HLBSP_TryMerge_PRECISION_FIX //--vluzacn
 #define HLBSP_REMOVECOLINEARPOINTS //--vluzacn
@@ -172,9 +169,7 @@
 	#ifdef HLCSG_FUNCGROUP_FIX
 	#ifdef HLCSG_CSGBrush_BRUSHNUM_FIX
 	#ifdef HLCSG_HLBSP_VOIDTEXINFO
-	#ifdef ZHLT_WINDING_EPSILON
 #define ZHLT_DETAILBRUSH //--vluzacn
-	#endif
 	#endif
 	#endif
 	#endif
@@ -197,9 +192,7 @@
 #define ZHLT_CLIPNODEDETAILLEVEL //--vluzacn
 	#endif
 #define HLBSP_HIDDENFACE //--vluzacn
-	#ifdef ZHLT_WINDING_EPSILON
 #define HLBSP_BRINKHACK //--vluzacn
-	#endif
 #define HLBSP_MERGECLIPNODE // Will this break the BSP file format? //--vluzacn
 #define HLCSG_CLIPTYPEPRECISE_EPSILON_FIX //--vluzacn
 	#ifdef HLBSP_BRINKHACK
@@ -490,9 +483,7 @@
 	#ifdef HLRAD_CUSTOMTEXLIGHT
 #define HLRAD_CUSTOMTEXLIGHT_COLOR //--vluzacn
 	#endif
-	#ifdef ZHLT_WINDING_EPSILON
 #define HLRAD_SUBDIVIDEPATCH_NEW //--vluzacn
-	#endif
 	#ifdef HLRAD_NOSWAP
 #define HLRAD_DIVERSE_LIGHTING //--vluzacn
 	#endif

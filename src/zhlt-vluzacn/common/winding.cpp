@@ -11,11 +11,7 @@
 #undef ON_EPSILON
 
 #define	BOGUS_RANGE	80000.0
-#ifdef ZHLT_WINDING_EPSILON
 #define ON_EPSILON epsilon
-#else
-#define ON_EPSILON 0.04
-#endif
 
 //
 // Winding Public Methods
@@ -151,9 +147,7 @@ Winding*        Winding::Copy() const
 }
 
 void            Winding::Check(
-#ifdef ZHLT_WINDING_EPSILON
 							   vec_t epsilon
-#endif
 							   ) const
 {
     unsigned int    i, j;
@@ -378,9 +372,7 @@ Winding::Winding(const vec3_t normal, const vec_t dist)
 }
 
 Winding::Winding(const dface_t& face
-#ifdef ZHLT_WINDING_EPSILON
 				 , vec_t epsilon
-#endif
 				 )
 {
     int             se;
@@ -408,9 +400,7 @@ Winding::Winding(const dface_t& face
     }
 
     RemoveColinearPoints(
-#ifdef ZHLT_WINDING_EPSILON
 		epsilon
-#endif
 		);
 }
 
@@ -430,9 +420,7 @@ Winding::Winding(const dplane_t& plane)
 
 // Remove the colinear point of any three points that forms a triangle which is thinner than ON_EPSILON
 void			Winding::RemoveColinearPoints(
-#ifdef ZHLT_WINDING_EPSILON
 											  vec_t epsilon
-#endif
 											  )
 {
 	unsigned int	i;
@@ -463,9 +451,7 @@ void			Winding::RemoveColinearPoints(
 
 
 void            Winding::Clip(const dplane_t& plane, Winding** front, Winding** back
-#ifdef ZHLT_WINDING_EPSILON
 							  , vec_t epsilon
-#endif
 							  )
 {
     vec3_t normal;
@@ -473,17 +459,13 @@ void            Winding::Clip(const dplane_t& plane, Winding** front, Winding** 
     VectorCopy(plane.normal, normal);
     dist = plane.dist;
     Clip(normal, dist, front, back
-#ifdef ZHLT_WINDING_EPSILON
 		, epsilon
-#endif
 		);
 }
 
 
 void            Winding::Clip(const vec3_t normal, const vec_t dist, Winding** front, Winding** back
-#ifdef ZHLT_WINDING_EPSILON
 							  , vec_t epsilon
-#endif
 							  )
 {
     vec_t           dists[MAX_POINTS_ON_WINDING + 4];
@@ -626,14 +608,10 @@ void            Winding::Clip(const vec3_t normal, const vec_t dist, Winding** f
         Error("Winding::Clip : MAX_POINTS_ON_WINDING");
     }
     f->RemoveColinearPoints(
-#ifdef ZHLT_WINDING_EPSILON
 		epsilon
-#endif
 		);
     b->RemoveColinearPoints(
-#ifdef ZHLT_WINDING_EPSILON
 		epsilon
-#endif
 		);
 	if (f->m_NumPoints == 0)
 	{
@@ -648,18 +626,14 @@ void            Winding::Clip(const vec3_t normal, const vec_t dist, Winding** f
 }
 
 bool          Winding::Chop(const vec3_t normal, const vec_t dist
-#ifdef ZHLT_WINDING_EPSILON
 							, vec_t epsilon
-#endif
 							)
 {
     Winding*      f;
     Winding*      b;
 
     Clip(normal, dist, &f, &b
-#ifdef ZHLT_WINDING_EPSILON
 		, epsilon
-#endif
 		);
     if (b)
     {
@@ -685,9 +659,7 @@ bool          Winding::Chop(const vec3_t normal, const vec_t dist
 }
 
 int             Winding::WindingOnPlaneSide(const vec3_t normal, const vec_t dist
-#ifdef ZHLT_WINDING_EPSILON
 											, vec_t epsilon
-#endif
 											)
 {
     bool            front, back;
@@ -732,9 +704,7 @@ int             Winding::WindingOnPlaneSide(const vec3_t normal, const vec_t dis
 
 
 bool Winding::Clip(const dplane_t& split, bool keepon
-#ifdef ZHLT_WINDING_EPSILON
 				   , vec_t epsilon
-#endif
 				   )
 {
     vec_t           dists[MAX_POINTS_ON_WINDING];
@@ -846,9 +816,7 @@ bool Winding::Clip(const dplane_t& split, bool keepon
     m_NumPoints = newNumPoints;
 
     RemoveColinearPoints(
-#ifdef ZHLT_WINDING_EPSILON
 		epsilon
-#endif
 		);
 	if (m_NumPoints == 0)
 	{
@@ -872,9 +840,7 @@ bool Winding::Clip(const dplane_t& split, bool keepon
  */
 
 void Winding::Divide(const dplane_t& split, Winding** front, Winding** back
-#ifdef ZHLT_WINDING_EPSILON
 					 , vec_t epsilon
-#endif
 					 )
 {
     vec_t           dists[MAX_POINTS_ON_WINDING];
@@ -1014,14 +980,10 @@ void Winding::Divide(const dplane_t& split, Winding** front, Winding** back
     }
 
     f->RemoveColinearPoints(
-#ifdef ZHLT_WINDING_EPSILON
 		epsilon
-#endif
 		);
     b->RemoveColinearPoints(
-#ifdef ZHLT_WINDING_EPSILON
 		epsilon
-#endif
 		);
 	if (f->m_NumPoints == 0)
 	{
