@@ -155,4 +155,4 @@ public:
     vec3_t m_Maxs;
 };
 
-#endif//BOUNDINGBOX_H__
+#endif

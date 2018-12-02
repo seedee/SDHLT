@@ -46,4 +46,4 @@ protected:
     double accum;
 };
 
-#endif//TIMECOUNTER_H__
+#endif

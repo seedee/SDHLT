@@ -27,4 +27,4 @@ extern bool        IsListedWadPath(const char* const path);
 extern void        FreeWadPaths();
 extern void        GetUsedWads();
 
-#endif // WADPATH_H__
+#endif
