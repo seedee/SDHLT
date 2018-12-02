@@ -67,7 +67,6 @@
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
-#define HLCSG_CUSTOMCONTENT //--vluzacn
 #define HLBSP_NewFaceFromFace_FIX //--vluzacn
 #define HLCSG_OPTIMIZELIGHTENTITY //--vluzacn
 #define HLCSG_STYLEHACK //--vluzacn
@@ -95,9 +94,7 @@
 #define HLBSP_EDGESHARE_SAMESIDE //--vluzacn
 #define HLBSP_MarkLeakTrail_FIX //--vluzacn
 #define HLCSG_NULLIFYAAATRIGGER //--vluzacn
-	#ifdef HLCSG_CUSTOMCONTENT
 #define HLCSG_PASSBULLETSBRUSH //--vluzacn
-	#endif
 #define HLCSG_ONLYENTS_NOWADCHANGE //--vluzacn
 #define HLCSG_NOFAKESPLITS //--vluzacn
 #define HLBSP_MAXNODESIZE_SKYBOX //--vluzacn

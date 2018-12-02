@@ -944,7 +944,6 @@ bool            MakeBrushPlanes(brush_t* b)
 // =====================================================================================
 static contents_t TextureContents(const char* const name)
 {
-#ifdef HLCSG_CUSTOMCONTENT
 	if (!strncasecmp(name, "contentsolid", 12))
 		return CONTENTS_SOLID;
 	if (!strncasecmp(name, "contentwater", 12))
@@ -953,7 +952,6 @@ static contents_t TextureContents(const char* const name)
 		return CONTENTS_TOEMPTY;
 	if (!strncasecmp(name, "contentsky", 10))
 		return CONTENTS_SKY;
-#endif
     if (!strncasecmp(name, "sky", 3))
         return CONTENTS_SKY;
 
@@ -1090,9 +1088,7 @@ contents_t      CheckBrushContents(const brush_t* const b)
     side_t*         s;
     int             i;
 	int				best_i;
-#ifdef HLCSG_CUSTOMCONTENT
 	bool			assigned = false;
-#endif
 
     s = &g_brushsides[b->firstside];
 
@@ -1106,17 +1102,14 @@ contents_t      CheckBrushContents(const brush_t* const b)
 	}
 	best_i = 0;
     best_contents = TextureContents(s->td.name);
-#ifdef HLCSG_CUSTOMCONTENT
 	// Difference between SKIP, ContentEmpty:
 	// SKIP doesn't split space in bsp process, ContentEmpty splits space normally.
 	if (!(strncasecmp (s->td.name, "content", 7) && strncasecmp (s->td.name, "skip", 4)))
 		assigned = true;
-#endif
     s++;
 	for (i = 1; i < b->numsides; i++, s++)
     {
         contents_t contents_consider = TextureContents(s->td.name);
-#ifdef HLCSG_CUSTOMCONTENT
 		if (assigned)
 			continue;
 		if (!(strncasecmp (s->td.name, "content", 7) && strncasecmp (s->td.name, "skip", 4)))
@@ -1125,7 +1118,6 @@ contents_t      CheckBrushContents(const brush_t* const b)
 			best_contents = contents_consider;
 			assigned = true;
 		}
-#endif
         if (contents_consider > best_contents)
         {
 			best_i = i;
@@ -1140,7 +1132,6 @@ contents_t      CheckBrushContents(const brush_t* const b)
 	for (i = 0; i < b->numsides; i++, s++)
     {
         contents_t contents2 = TextureContents(s->td.name);
-#ifdef HLCSG_CUSTOMCONTENT
 		if (assigned
 			&& strncasecmp (s->td.name, "content", 7)
 			&& strncasecmp (s->td.name, "skip", 4)
@@ -1151,7 +1142,6 @@ contents_t      CheckBrushContents(const brush_t* const b)
 		{
 			continue; // overwrite content for this texture
 		}
-#endif
 
         // AJM: sky and null types are not to cause mixed face contents
         if (contents2 == CONTENTS_SKY)
