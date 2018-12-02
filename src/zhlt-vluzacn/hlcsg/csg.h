@@ -392,33 +392,10 @@ void            CalculateBrushUnions(int brushnum);
 extern vec3_t   g_hull_size[NUM_HULLS][2];
 extern void     LoadHullfile(const char* filename);
 
-#ifdef HLCSG_WADCFG_NEW
 extern const char *g_wadcfgfile;
 extern const char *g_wadconfigname;
 extern void LoadWadcfgfile (const char *filename);
 extern void LoadWadconfig (const char *filename, const char *configname);
-#endif
-#ifndef HLCSG_WADCFG_NEW
-//============================================================================
-// wadcfg.cpp
-
-extern void     LoadWadConfigFile();
-extern void     ProcessWadConfiguration();
-extern bool     g_bWadConfigsLoaded;
-extern void     WadCfg_cleanup();
-
-#define MAX_WAD_CFG_NAME 32
-extern char     wadconfigname[MAX_WAD_CFG_NAME];
-
-//JK: needed in wadcfg.cpp for *nix..
-#ifndef SYSTEM_WIN32
-extern char *g_apppath;
-#endif
-
-//JK: 
-extern char *g_wadcfgfile;
-
-#endif
 
 #ifdef HLCSG_AUTOWAD
 //============================================================================

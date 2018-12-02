@@ -38,9 +38,6 @@ static int      c_outfaces;
 static int      c_csgfaces;
 BoundingBox     world_bounds;
 
-#ifndef HLCSG_WADCFG_NEW
-char            wadconfigname[MAX_WAD_CFG_NAME];
-#endif
 
 vec_t           g_tiny_threshold = DEFAULT_TINY_THRESHOLD;
      
@@ -52,10 +49,8 @@ bool            g_skyclip = DEFAULT_SKYCLIP;            // no sky clipping "-nos
 bool            g_estimate = DEFAULT_ESTIMATE;          // progress estimates "-estimate"
 bool            g_info = DEFAULT_INFO;                  // "-info" ?
 const char*     g_hullfile = NULL;                      // external hullfile "-hullfie sdfsd"
-#ifdef HLCSG_WADCFG_NEW
 const char*		g_wadcfgfile = NULL;
 const char*		g_wadconfigname = NULL;
-#endif
 
 bool            g_bUseNullTex = DEFAULT_NULLTEX;        // "-nonulltex"
 
@@ -175,15 +170,6 @@ void            GetParamsFromEnt(entity_t* mapent)
     Log("%30s [ %-9s ]\n", "Wad Auto Detect", g_bWadAutoDetect ? "on" : "off");
 #endif
 	
-#ifndef HLCSG_WADCFG_NEW
-	// wadconfig(string) : "Custom Wad Configuration" : ""
-    if (strlen(ValueForKey(mapent, "wadconfig")) > 0)
-    { 
-        safe_strncpy(wadconfigname, ValueForKey(mapent, "wadconfig"), MAX_WAD_CFG_NAME);
-        Log("%30s [ %-9s ]\n", "Custom Wad Configuration", wadconfigname);
-    }
-#endif
-#ifdef HLCSG_WADCFG_NEW
 	// wadconfig(string) : "Custom Wad Configuration" : ""
     if (*ValueForKey(mapent, "wadconfig"))
     {
@@ -196,7 +182,6 @@ void            GetParamsFromEnt(entity_t* mapent)
         g_wadcfgfile = _strdup (ValueForKey(mapent, "wadcfgfile"));
         Log("%30s [ %-9s ]\n", "Custom Wad Configuration File", g_wadcfgfile);
     }
-#endif
 
     // noclipeconomy(choices) : "Strip Uneeded Clipnodes?" : 1 = [ 1 : "Yes" 0 : "No" ]
     iTmp = IntForKey(mapent, "noclipeconomy");
@@ -1923,10 +1908,8 @@ static void     Usage()
     Log("    -tiny #          : minmum brush face surface area before it is discarded\n");
     Log("    -brushunion #    : threshold to warn about overlapping brushes\n\n");
     Log("    -hullfile file   : Reads in custom collision hull dimensions\n");
-#ifdef HLCSG_WADCFG_NEW
 	Log("    -wadcfgfile file : wad configuration file\n");
 	Log("    -wadconfig name  : use the old wad configuration approach (select a group from wad.cfg)\n");
-#endif
     Log("    -texdata #       : Alter maximum texture memory limit (in kb)\n");
     Log("    -lightdata #     : Alter maximum lighting memory limit (in kb)\n");
     Log("    -chart           : display bsp statitics\n");
@@ -1967,10 +1950,6 @@ static void     Usage()
 
     Log("    -dev #           : compile with developer message\n\n");
 
-#ifndef HLCSG_WADCFG_NEW
-    Log("    -wadconfig name  : Specify a configuration to use from wad.cfg\n");
-    Log("    -wadcfgfile path : Manually specify a path to the wad.cfg file\n"); //JK:
-#endif
 
 #ifdef HLCSG_AUTOWAD // AJM:
     Log("    -wadautodetect   : Force auto-detection of wadfiles\n");
@@ -2071,10 +2050,8 @@ static void     Settings()
     Log("wadtextures           [ %7s ] [ %7s ]\n", g_wadtextures     ? "on" : "off", DEFAULT_WADTEXTURES  ? "on" : "off");
     Log("skyclip               [ %7s ] [ %7s ]\n", g_skyclip         ? "on" : "off", DEFAULT_SKYCLIP      ? "on" : "off");
     Log("hullfile              [ %7s ] [ %7s ]\n", g_hullfile ? g_hullfile : "None", "None");
-#ifdef HLCSG_WADCFG_NEW
 	Log("wad configuration file[ %7s ] [ %7s ]\n", g_wadcfgfile? g_wadcfgfile: "None", "None");
 	Log("wad.cfg group name    [ %7s ] [ %7s ]\n", g_wadconfigname? g_wadconfigname: "None", "None");
-#endif
 #ifdef HLCSG_NULLIFY_INVISIBLE // KGP
 	Log("nullfile              [ %7s ] [ %7s ]\n", g_nullfile ? g_nullfile : "None", "None");
 #endif
@@ -2138,9 +2115,6 @@ void            CSGCleanup()
     autowad_cleanup();
 #endif
 #endif
-#ifndef HLCSG_WADCFG_NEW
-    WadCfg_cleanup();
-#endif
     FreeWadPaths();
 }
 
@@ -2174,9 +2148,6 @@ int             main(const int argc, char** argv)
     // error on zhlt.wad etc
     g_WadInclude.push_back("zhlt.wad");
 
-#ifndef HLCSG_WADCFG_NEW
-    memset(wadconfigname, 0, sizeof(wadconfigname));//AJM
-#endif
 #ifdef HLCSG_HULLBRUSH
 	InitDefaultHulls ();
 #endif
@@ -2319,40 +2290,6 @@ int             main(const int argc, char** argv)
 		}
 #endif
 
-#ifndef HLCSG_WADCFG_NEW
-        // AJM: added in -wadconfig
-        else if (!strcasecmp(argv[i], "-wadconfig"))
-        { 
-            if (i + 1 < argc)	//added "1" .--vluzacn
-            {
-                safe_strncpy(wadconfigname, argv[++i], MAX_WAD_CFG_NAME);
-                if (strlen(argv[i]) > MAX_WAD_CFG_NAME)
-                {
-                    Warning("wad configuration name was truncated to %i chars", MAX_WAD_CFG_NAME);
-                    wadconfigname[MAX_WAD_CFG_NAME] = 0;
-                }
-            }
-            else
-            {
-                Log("Error: -wadconfig: incorrect usage of parameter\n");
-                Usage();
-            }
-        }
-
-        //JK: added in -wadcfgfile
-        else if (!strcasecmp(argv[i], "-wadcfgfile"))
-        {
-            if (i + 1 < argc)	//added "1" .--vluzacn
-            {
-                g_wadcfgfile = argv[++i];
-            }
-            else
-            {
-            	Log("Error: -wadcfgfile: incorrect usage of parameter\n");
-                Usage();
-            }
-        }
-#endif
 #ifdef HLCSG_NULLIFY_INVISIBLE
 		else if (!strcasecmp(argv[i], "-nullfile"))
 		{
@@ -2477,7 +2414,6 @@ int             main(const int argc, char** argv)
                 Usage();
             }
         }
-#ifdef HLCSG_WADCFG_NEW
 		else if (!strcasecmp (argv[i], "-wadcfgfile"))
 		{
 			if (i + 1 < argc)
@@ -2500,7 +2436,6 @@ int             main(const int argc, char** argv)
 				Usage ();
 			}
 		}
-#endif
 #ifdef HLCSG_SCALESIZE
         else if (!strcasecmp(argv[i], "-scale"))
         {
@@ -2685,7 +2620,6 @@ int             main(const int argc, char** argv)
 		}
 	}
 #endif
-#ifdef HLCSG_WADCFG_NEW
 	if (g_wadcfgfile)
 	{
 		char temp[_MAX_PATH];
@@ -2712,7 +2646,6 @@ int             main(const int argc, char** argv)
 			}
 		}
 	}
-#endif
     
     LoadHullfile(g_hullfile);               // if the user specified a hull file, load it now
 #ifdef HLCSG_NULLIFY_INVISIBLE
@@ -2768,7 +2701,6 @@ int             main(const int argc, char** argv)
   if (!g_onlyents)
   {
 #endif
-#ifdef HLCSG_WADCFG_NEW
 	if (g_wadconfigname)
 	{
 		char temp[_MAX_PATH];
@@ -2801,23 +2733,6 @@ int             main(const int argc, char** argv)
 		Log("Using mapfile wad configuration\n");
 		GetUsedWads();
 	}
-#endif
-#ifndef HLCSG_WADCFG_NEW
-    // figure out what to do with the texture settings
-    if (wadconfigname[0])           // custom wad configuations will take precedence
-    {
-        LoadWadConfigFile();
-        ProcessWadConfiguration();
-    }
-    else
-    {
-        Log("Using mapfile wad configuration\n");
-    }
-    if (!g_bWadConfigsLoaded)  // dont try and override wad.cfg
-    {
-        GetUsedWads(); 
-    }
-#endif
 
 #ifdef HLCSG_AUTOWAD
     if (g_bWadAutoDetect)

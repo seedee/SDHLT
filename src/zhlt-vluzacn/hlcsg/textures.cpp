@@ -352,9 +352,7 @@ bool            TEX_InitFromWad()
             continue;
         }
 
-#ifdef HLCSG_WADCFG_NEW
 		pszWadFile = currentwad->path; // correct it back
-#endif
 #ifndef HLCSG_AUTOWAD_NEW
         // look and see if we're supposed to include the textures from this WAD in the bsp.
         WadInclude_i it;

@@ -62,7 +62,6 @@
 	#endif
 
 // tool specific settings below only mean a recompile of the tool affected
-#define HLCSG_WADCFG_NEW // rewritten HLCSG_WADCFG. --vluzacn
 #define HLCSG_AUTOWAD
 
 #define HLCSG_PRECISIONCLIP
@@ -216,10 +215,8 @@
 #define HLBSP_DELETETEMPFILES //--vluzacn
 	#ifdef HLCSG_ONLYENTS_NOWADCHANGE
 	#ifdef HLCSG_AUTOWAD
-	#ifdef HLCSG_WADCFG_NEW
 	#ifdef HLCSG_TEXMAP64_FIX
 #define HLCSG_AUTOWAD_NEW //--vluzacn
-	#endif
 	#endif
 	#endif
 	#endif
