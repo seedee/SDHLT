@@ -151,9 +151,7 @@ float		g_transtotal_hack = DEFAULT_TRANSTOTAL_HACK;
 unsigned char g_minlight = DEFAULT_MINLIGHT;
 float_type g_transfer_compress_type = DEFAULT_TRANSFER_COMPRESS_TYPE;
 vector_type g_rgbtransfer_compress_type = DEFAULT_RGBTRANSFER_COMPRESS_TYPE;
-#ifdef HLRAD_SOFTSKY
 bool g_softsky = DEFAULT_SOFTSKY;
-#endif
 #ifdef HLRAD_OPAQUE_BLOCK
 int g_blockopaque = DEFAULT_BLOCKOPAQUE;
 #endif
@@ -3423,9 +3421,7 @@ static void     RadWorld()
 			Log ("Error.\n");
 	}
 
-#ifdef HLRAD_SOFTSKY
 	BuildDiffuseNormals ();
-#endif
     // create directlights out of g_patches and lights
     CreateDirectLights();
 
@@ -3671,9 +3667,7 @@ static void     Usage()
 			Log (" %d=%s", i, vector_type_string[i]);
 		Log(" )\n");
 	}
-#ifdef HLRAD_SOFTSKY
 	Log("   -softsky #     : Smooth skylight.(0=off 1=on)\n");
-#endif
 #ifdef HLRAD_TRANSLUCENT
 	Log("   -depth #       : Thickness of translucent objects.\n");
 #endif
@@ -3920,9 +3914,7 @@ static void     Settings()
 	sprintf (buf1, "%d (%s)", g_rgbtransfer_compress_type, vector_type_string[g_rgbtransfer_compress_type]);
 	sprintf (buf2, "%d (%s)", DEFAULT_RGBTRANSFER_COMPRESS_TYPE, vector_type_string[DEFAULT_RGBTRANSFER_COMPRESS_TYPE]);
 	Log("size of rgbtransfer  [ %17s ] [ %17s ]\n", buf1, buf2);
-#ifdef HLRAD_SOFTSKY
 	Log("soft sky             [ %17s ] [ %17s ]\n", g_softsky ? "on" : "off", DEFAULT_SOFTSKY ? "on" : "off");
-#endif
 #ifdef HLRAD_TRANSLUCENT
 	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_translucentdepth);
 	safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_TRANSLUCENTDEPTH);
@@ -4787,7 +4779,6 @@ int             main(const int argc, char** argv)
 			}
 		}
 
-#ifdef HLRAD_SOFTSKY
 		else if (!strcasecmp(argv[i], "-softsky"))
 		{
 			if (i + 1 < argc)
@@ -4799,7 +4790,6 @@ int             main(const int argc, char** argv)
 				Usage();
 			}
 		}
-#endif
 
 		else if (!strcasecmp(argv[i], "-drawpatch"))
 		{
@@ -5077,9 +5067,7 @@ int             main(const int argc, char** argv)
 	if (g_fastmode)
 	{
 		g_numbounce = 0;
-#ifdef HLRAD_SOFTSKY
 		g_softsky = false;
-#endif
 	}
 #endif
     Settings();

@@ -165,9 +165,7 @@
 	#define DEFAULT_MINLIGHT 0
 	#define DEFAULT_TRANSFER_COMPRESS_TYPE FLOAT16
 	#define DEFAULT_RGBTRANSFER_COMPRESS_TYPE VECTOR32
-#ifdef HLRAD_SOFTSKY
 	#define DEFAULT_SOFTSKY true
-#endif
 #ifdef HLRAD_OPAQUE_BLOCK
 	#define DEFAULT_BLOCKOPAQUE 1
 #endif
@@ -691,9 +689,7 @@ extern float	g_softlight_hack_distance;
 	extern unsigned char g_minlight;
 	extern float_type g_transfer_compress_type;
 	extern vector_type g_rgbtransfer_compress_type;
-#ifdef HLRAD_SOFTSKY
 	extern bool g_softsky;
-#endif
 #ifdef HLRAD_OPAQUE_BLOCK
 	extern int g_blockopaque;
 #endif
@@ -742,7 +738,6 @@ extern float	g_softlight_hack_distance;
 
 extern void     MakeTnodes(dmodel_t* bm);
 extern void     PairEdges();
-#ifdef HLRAD_SOFTSKY
 #define SKYLEVELMAX 8
 #define SKYLEVEL_SOFTSKYON 7
 #define SKYLEVEL_SOFTSKYOFF 4
@@ -754,7 +749,6 @@ extern int		g_numskynormals[SKYLEVELMAX+1]; // 0, 6, 18, 66, 258, 1026, 4098, 16
 extern vec3_t*	g_skynormals[SKYLEVELMAX+1]; //[numskynormals]
 extern vec_t*	g_skynormalsizes[SKYLEVELMAX+1]; // the weight of each normal
 extern void     BuildDiffuseNormals ();
-#endif
 extern void     BuildFacelights(int facenum);
 extern void     PrecompLightmapOffsets();
 #ifdef HLRAD_REDUCELIGHTMAP

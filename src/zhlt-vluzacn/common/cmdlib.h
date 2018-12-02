@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_SOFTSKY //--vluzacn
 #define HLRAD_OPAQUE_NODE //--vluzacn
 #define HLRAD_TRANSLUCENT //--vluzacn
 	#ifdef HLRAD_OPAQUE_NODE
@@ -114,9 +113,7 @@
 #define HLRAD_AUTOCORING //--vluzacn
 	#endif
 #define HLRAD_OPAQUEINSKY_FIX //--vluzacn
-	#ifdef HLRAD_SOFTSKY
 #define HLRAD_SUNSPREAD //--vluzacn
-	#endif
 #define HLRAD_SUNDIFFUSE //--vluzacn
 #define HLRAD_FASTMODE //--vluzacn
 #define HLRAD_OVERWRITEVERTEX_FIX //--vluzacn
@@ -127,9 +124,7 @@
 #define HLRAD_BOUNCE_STYLE //--vluzacn
 	#endif
 #define HLRAD_BLUR //--vluzacn
-	#ifdef HLRAD_SOFTSKY
 #define HLRAD_ACCURATEBOUNCE //--vluzacn
-	#endif
 	#ifdef HLRAD_TEXLIGHT_SPOTS_FIX
 	#ifdef HLRAD_ACCURATEBOUNCE
 #define HLRAD_ACCURATEBOUNCE_TEXLIGHT // note: this reduces the compile time in '-extra' mode //--vluzacn

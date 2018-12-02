@@ -2775,7 +2775,6 @@ void            CreateDirectLights()
 					}
 					if (g_indirect_sun > 0 && !VectorCompare (dl->diffuse_intensity, vec3_origin))
 					{
-			#ifdef HLRAD_SOFTSKY
 						if (g_softsky)
 						{
 							countfastlights += g_numskynormals[SKYLEVEL_SOFTSKYON];
@@ -2788,9 +2787,6 @@ void            CreateDirectLights()
 							countnormallights += g_numskynormals[SKYLEVEL_SOFTSKYOFF];
 			#endif
 						}
-			#else
-						countnormallights += 162; //NUMVERTEXNORMALS
-			#endif
 					}
 					break;
 				default:
@@ -2894,14 +2890,6 @@ void            DeleteDirectLights()
 // =====================================================================================
 //  GatherSampleLight
 // =====================================================================================
-#ifndef HLRAD_SOFTSKY
-#define NUMVERTEXNORMALS	162
-double          r_avertexnormals[NUMVERTEXNORMALS][3] = {
-//#include "../common/anorms.h"
-	#include "anorms.h" //--vluzacn
-};
-#endif
-#ifdef HLRAD_SOFTSKY
 int		g_numskynormals[SKYLEVELMAX+1];
 vec3_t	*g_skynormals[SKYLEVELMAX+1];
 vec_t	*g_skynormalsizes[SKYLEVELMAX+1];
@@ -3063,7 +3051,6 @@ void BuildDiffuseNormals ()
 	free (edges);
 	free (triangles);
 }
-#endif
 static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const vec3_t normal, vec3_t* sample
 #ifdef ZHLT_XASH
 								  , vec3_t* sample_direction
@@ -3264,10 +3251,8 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 						{
 							// check step
 							step_match = 0;
-	#ifdef HLRAD_SOFTSKY
 							if (g_softsky)
 								step_match = 1;
-	#endif
 	#ifdef HLRAD_FASTMODE
 							if (g_fastmode)
 								step_match = 1;
@@ -3287,37 +3272,22 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 
 							vec3_t sky_intensity;
 	#ifndef HLRAD_SUNDIFFUSE
-	#ifndef HLRAD_SOFTSKY
-							VectorScale (l->diffuse_intensity, g_indirect_sun / (NUMVERTEXNORMALS * 2), sky_intensity);
-	#endif
 	#endif
 
 							// loop over the normals
-	#ifdef HLRAD_SOFTSKY
 							vec3_t *skynormals = g_skynormals[g_softsky?SKYLEVEL_SOFTSKYON:SKYLEVEL_SOFTSKYOFF];
 							vec_t *skyweights = g_skynormalsizes[g_softsky?SKYLEVEL_SOFTSKYON:SKYLEVEL_SOFTSKYOFF];
 							for (int j = 0; j < g_numskynormals[g_softsky?SKYLEVEL_SOFTSKYON:SKYLEVEL_SOFTSKYOFF]; j++)
-	#else
-							for (int j = 0; j < NUMVERTEXNORMALS; j++)
-	#endif
 							{
 								// make sure the angle is okay
-					#ifdef HLRAD_SOFTSKY
 								dot = -DotProduct (normal, skynormals[j]);
-					#else
-								dot = -DotProduct (normal, r_avertexnormals[j]);
-					#endif
 								if (dot <= NORMAL_EPSILON) //ON_EPSILON / 10 //--vluzacn
 								{
 									continue;
 								}
 
 								// search back to see if we can hit a sky brush
-					#ifdef HLRAD_SOFTSKY
 								VectorScale (skynormals[j], -BOGUS_RANGE, delta);
-					#else
-								VectorScale (r_avertexnormals[j], -BOGUS_RANGE, delta);
-					#endif
 								VectorAdd(pos, delta, delta);
 					#ifdef HLRAD_OPAQUEINSKY_FIX
 								vec3_t skyhit;
@@ -3349,29 +3319,15 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 
 						#ifdef ZHLT_XASH
 								vec3_t direction;
-							#ifdef HLRAD_SOFTSKY
 								VectorCopy (skynormals[j], direction);
-							#else
-								VectorCopy (r_avertexnormals[j], direction);
-							#endif
 						#endif
 				#ifdef HLRAD_SUNDIFFUSE
-					#ifdef HLRAD_SOFTSKY
 								vec_t factor = qmin (qmax (0.0, (1 - DotProduct (l->normal, skynormals[j])) / 2), 1.0); // how far this piece of sky has deviated from the sun
-					#else
-								vec_t factor = qmin (qmax (0.0, (1 - DotProduct (l->normal, r_avertexnormals[j])) / 2), 1.0); // how far this piece of sky has deviated from the sun
-					#endif
 								VectorScale (l->diffuse_intensity, 1 - factor, sky_intensity);
 								VectorMA (sky_intensity, factor, l->diffuse_intensity2, sky_intensity);
-					#ifdef HLRAD_SOFTSKY
 								VectorScale (sky_intensity, skyweights[j] * g_indirect_sun / 2, sky_intensity);
-					#else
-								VectorScale (sky_intensity, g_indirect_sun / (NUMVERTEXNORMALS * 2), sky_intensity);
-					#endif
 				#else
-					#ifdef HLRAD_SOFTSKY
 								VectorScale (l->diffuse_intensity, skyweights[j] * g_indirect_sun / 2, sky_intensity);
-					#endif
 				#endif
 								vec3_t add_one;
 					#ifdef HLRAD_DIVERSE_LIGHTING
