@@ -663,13 +663,6 @@ extern int      TestLine(const vec3_t start, const vec3_t stop
 						 , vec_t *skyhitout = NULL
 #endif
 						 );
-#ifndef HLRAD_WATERBLOCKLIGHT
-extern int      TestLine_r(int node, const vec3_t start, const vec3_t stop
-#ifdef HLRAD_OPAQUEINSKY_FIX
-						   , vec_t *skyhitout = NULL
-#endif
-						   );
-#endif
 #define OPAQUE_NODE_INLINECALL
 #ifdef OPAQUE_NODE_INLINECALL
 typedef struct

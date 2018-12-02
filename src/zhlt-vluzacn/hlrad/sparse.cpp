@@ -374,7 +374,6 @@ static void     TestPatchToFace(const unsigned patchnum, const int facenum, cons
 						continue;
 					}
 #endif
-#ifdef HLRAD_WATERBLOCKLIGHT
                     if (TestLine(
 	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 						origin1, origin2
@@ -382,15 +381,6 @@ static void     TestPatchToFace(const unsigned patchnum, const int facenum, cons
 						patch->origin, patch2->origin
 	#endif
 						) != CONTENTS_EMPTY)
-#else
-                    if (TestLine_r(head, 
-	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
-						origin1, origin2
-	#else
-						patch->origin, patch2->origin
-	#endif
-						) != CONTENTS_EMPTY)
-#endif
 					{
 						continue;
 					}

@@ -34,13 +34,9 @@ dleaf_t*		PointInLeaf_Worst_r(int nodenum, const vec3_t point)
 				return result[0];
 			if (result[1]->contents == CONTENTS_SKY)
 				return result[1];
-#ifdef HLRAD_WATERBLOCKLIGHT
 			if (result[0]->contents == result[1]->contents)
 				return result[0];
 			return g_dleafs;
-#else
-			return result[0];
-#endif
 		}
 	}
 

@@ -82,7 +82,6 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 				return false;
 			}
 #endif
-#ifdef HLRAD_WATERBLOCKLIGHT
             if (TestLine(
 	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 				origin1, origin2
@@ -90,15 +89,6 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 				patch->origin, patch2->origin
 	#endif
 				) != CONTENTS_EMPTY)
-#else
-            if (TestLine_r(0, 
-	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
-				origin1, origin2
-	#else
-				patch->origin, patch2->origin
-	#endif
-				) != CONTENTS_EMPTY)
-#endif
 			{
 				return false;
 			}
@@ -174,7 +164,6 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 				return false;
 			}
 #endif
-#ifdef HLRAD_WATERBLOCKLIGHT
             if (TestLine(
 	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 				backorigin, emitorigin
@@ -182,15 +171,6 @@ static bool     CheckVisBitNoVismatrix(unsigned patchnum1, unsigned patchnum2
 				backorigin, emitpatch->origin
 	#endif
 				) != CONTENTS_EMPTY)
-#else
-            if (TestLine_r(0, 
-	#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
-				backorigin, emitorigin
-	#else
-				backorigin, emitpatch->origin
-	#endif
-				) != CONTENTS_EMPTY)
-#endif
 			{
 				return false;
 			}
