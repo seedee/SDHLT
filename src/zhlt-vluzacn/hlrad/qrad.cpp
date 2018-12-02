@@ -1583,7 +1583,6 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 		patch->emitstyle = style;
 
 		VectorCopy (g_textures[g_texinfo[f->texinfo].miptex].reflectivity, patch->texturereflectivity);
-#ifdef HLRAD_CUSTOMTEXLIGHT_COLOR
 		if (g_face_texlights[fn] && *ValueForKey (g_face_texlights[fn], "_texcolor"))
 		{
 			vec3_t texturecolor;
@@ -1611,7 +1610,6 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 			}
 			VectorCopy (texturereflectivity, patch->texturereflectivity);
 		}
-#endif
 		{
 			vec_t opacity = 0.0;
 			if (g_face_entity[fn] - g_entities == 0)

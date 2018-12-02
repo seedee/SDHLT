@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_CUSTOMTEXLIGHT_COLOR //--vluzacn
 #define HLRAD_SUBDIVIDEPATCH_NEW //--vluzacn
 #define HLRAD_DIVERSE_LIGHTING //--vluzacn
 #define HLRAD_GROWSAMPLE //--vluzacn
