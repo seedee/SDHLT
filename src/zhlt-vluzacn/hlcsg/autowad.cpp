@@ -308,7 +308,6 @@ void        autowad_UpdateUsedWads()
             #endif
         }
 
-		#ifdef HLCSG_SEARCHWADPATH_VL
         #ifdef SYSTEM_WIN32
 		if (!texfile && pszWadFile[0] == '\\')
 		{
@@ -325,13 +324,10 @@ void        autowad_UpdateUsedWads()
 			}
 		}
 		#endif
-		#endif
 
         if (!texfile) // still cant find it, skip this one
 		{
-#ifdef HLCSG_SEARCHWADPATH_VL
 			pszWadFile = currentwad->path; // correct it back
-#endif
 			if(pszWadroot)
 			{
 				Warning("Wad file '%s' not found, also tried '%s'",pszWadFile,szTmp);

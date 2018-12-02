@@ -64,7 +64,6 @@
 // tool specific settings below only mean a recompile of the tool affected
 
 
-#define HLCSG_SEARCHWADPATH_VL //--vluzacn
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif

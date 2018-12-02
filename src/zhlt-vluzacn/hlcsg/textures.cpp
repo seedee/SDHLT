@@ -318,7 +318,6 @@ bool            TEX_InitFromWad()
             #endif
         }
 
-		#ifdef HLCSG_SEARCHWADPATH_VL
         #ifdef SYSTEM_WIN32
 		if (!texfiles[nTexFiles] && pszWadFile[0] == '\\')
 		{
@@ -336,13 +335,10 @@ bool            TEX_InitFromWad()
 			}
 		}
 		#endif
-		#endif
 
         if (!texfiles[nTexFiles])
         {
-#ifdef HLCSG_SEARCHWADPATH_VL
 			pszWadFile = currentwad->path; // correct it back
-#endif
             // still cant find it, error out
             Fatal(assume_COULD_NOT_FIND_WAD, "Could not open wad file %s", pszWadFile);
             continue;
