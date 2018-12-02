@@ -50,7 +50,6 @@
 //#define ZHLT_DETAIL                         // HLCSG, HLBSP - detail brushes     //should never turn on
 //#define ZHLT_PROGRESSFILE                   // ALL TOOLS - estimate progress reporting to -progressfile //should never turn on
 //#define ZHLT_NSBOB //should never turn on
-#define ZHLT_LARGERANGE //--vluzacn
 #define ZHLT_CONSOLE //--vluzacn
 #define ZHLT_PARAMFILE //--vluzacn
 #define ZHLT_LANGFILE //--vluzacn
@@ -214,9 +213,7 @@
 	#endif
 #define HLCSG_ONLYENTS_NOWADCHANGE //--vluzacn
 #define HLCSG_NOFAKESPLITS //--vluzacn
-	#ifdef ZHLT_LARGERANGE
 #define HLBSP_MAXNODESIZE_SKYBOX //--vluzacn
-	#endif
 	#ifdef ZHLT_DETAILBRUSH
 #define ZHLT_CLIPNODEDETAILLEVEL //--vluzacn
 	#endif

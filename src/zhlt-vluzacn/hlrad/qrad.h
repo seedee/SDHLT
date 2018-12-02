@@ -271,11 +271,7 @@
 
 #define ALLSTYLES 64 // HL limit. //--vluzacn
 
-#ifdef ZHLT_LARGERANGE
 #define BOGUS_RANGE 131072
-#else
-#define BOGUS_RANGE 16384 //--vluzacn
-#endif
 
 #ifdef HLRAD_GROWSAMPLE
 typedef struct

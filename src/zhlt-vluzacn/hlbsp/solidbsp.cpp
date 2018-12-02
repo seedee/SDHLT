@@ -501,11 +501,7 @@ static surface_t* ChooseMidPlaneFromList(surface_t* surfaces, const vec3_t mins,
 #ifdef HLBSP_CHOOSEMIDPLANE
 	bestvalue = 9e30;
 #else
-#ifdef ZHLT_LARGERANGE
 	bestvalue = 6.0f * BOGUS_RANGE * BOGUS_RANGE;
-#else
-    bestvalue = 6 * 8192 * 8192;
-#endif
 #endif
     bestsurface = NULL;
 
@@ -2085,13 +2081,8 @@ static bool     CalcNodeBounds(node_t* node
 		return false;
 	}
 #endif
-#ifdef ZHLT_LARGERANGE
     node->mins[0] = node->mins[1] = node->mins[2] = BOGUS_RANGE;
     node->maxs[0] = node->maxs[1] = node->maxs[2] = -BOGUS_RANGE;
-#else
-    node->mins[0] = node->mins[1] = node->mins[2] = 9999;
-    node->maxs[0] = node->maxs[1] = node->maxs[2] = -9999;
-#endif
 
     for (p = node->portals; p; p = next_portal)
     {

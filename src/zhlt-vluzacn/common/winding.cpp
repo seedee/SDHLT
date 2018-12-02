@@ -10,19 +10,11 @@
 #undef BOGUS_RANGE
 #undef ON_EPSILON
 
-#ifdef ZHLT_LARGERANGE
 #define	BOGUS_RANGE	80000.0
-#else
-#define	BOGUS_RANGE	10000.0
-#endif
 #ifdef ZHLT_WINDING_EPSILON
 #define ON_EPSILON epsilon
 #else
-#ifdef ZHLT_LARGERANGE
 #define ON_EPSILON 0.04
-#else
-#define ON_EPSILON 0.01
-#endif
 #endif
 
 //

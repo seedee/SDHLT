@@ -8,11 +8,7 @@ int				g_numhullshapes;
 hullshape_t		g_hullshapes[MAX_HULLSHAPES];
 #endif
 
-#ifdef ZHLT_LARGERANGE
 #define DIST_EPSILON   0.04
-#else
-#define DIST_EPSILON   0.01
-#endif
 
 #if !defined HLCSG_FASTFIND
 

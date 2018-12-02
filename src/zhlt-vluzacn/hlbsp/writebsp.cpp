@@ -296,39 +296,24 @@ static void     WriteDrawLeaf(const node_t* const node)
 		VectorCopy (node->mins, mins);
 		VectorCopy (node->maxs, maxs);
 	}
-#ifdef ZHLT_LARGERANGE
 	for (int k = 0; k < 3; k++)
 	{
 		leaf_p->mins[k] = (short)qmax (-32767, qmin ((int)mins[k], 32767));
 		leaf_p->maxs[k] = (short)qmax (-32767, qmin ((int)maxs[k], 32767));
 	}
 #else
-	VectorCopy (mins, leaf_p->mins);
-	VectorCopy (maxs, leaf_p->maxs);
-#endif
-#else
-#ifdef ZHLT_LARGERANGE
 	for (int k = 0; k < 3; k++)
 	{
 		leaf_p->mins[k] = (short)qmax (-32767, qmin ((int)portalleaf->mins[k], 32767));
 		leaf_p->maxs[k] = (short)qmax (-32767, qmin ((int)portalleaf->maxs[k], 32767));
 	}
-#else
-	VectorCopy (portalleaf->mins, leaf_p->mins);
-	VectorCopy (portalleaf->maxs, leaf_p->maxs);
-#endif
 #endif
 #else
-#ifdef ZHLT_LARGERANGE
 	for (int k = 0; k < 3; k++)
 	{
 		leaf_p->mins[k] = (short)qmax (-32767, qmin ((int)node->mins[k], 32767));
 		leaf_p->maxs[k] = (short)qmax (-32767, qmin ((int)node->maxs[k], 32767));
 	}
-#else
-    VectorCopy(node->mins, leaf_p->mins);
-    VectorCopy(node->maxs, leaf_p->maxs);
-#endif
 #endif
 
     leaf_p->visofs = -1;                                   // no vis info yet
@@ -528,27 +513,17 @@ static void     WriteDrawNodes_r(const node_t* const node)
 		VectorCopy (node->mins, mins);
 		VectorCopy (node->maxs, maxs);
 	}
-#ifdef ZHLT_LARGERANGE
 	for (int k = 0; k < 3; k++)
 	{
 		n->mins[k] = (short)qmax (-32767, qmin ((int)mins[k], 32767));
 		n->maxs[k] = (short)qmax (-32767, qmin ((int)maxs[k], 32767));
 	}
 #else
-	VectorCopy (mins, n->mins);
-	VectorCopy (maxs, n->maxs);
-#endif
-#else
-#ifdef ZHLT_LARGERANGE
 	for (int k = 0; k < 3; k++)
 	{
 		n->mins[k] = (short)qmax (-32767, qmin ((int)node->mins[k], 32767));
 		n->maxs[k] = (short)qmax (-32767, qmin ((int)node->maxs[k], 32767));
 	}
-#else
-    VectorCopy(node->mins, n->mins);
-    VectorCopy(node->maxs, n->maxs);
-#endif
 #endif
 
     if (node->planenum & 1)

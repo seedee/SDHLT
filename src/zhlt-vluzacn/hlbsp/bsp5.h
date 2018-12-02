@@ -23,11 +23,7 @@
 #define ENTITIES_VOID "entities.void"
 #define ENTITIES_VOID_EXT ".void"
 
-#ifdef ZHLT_LARGERANGE
 #define	BOGUS_RANGE	144000
-#else
-#define	BOGUS_RANGE	18000
-#endif
 
 // the exact bounding box of the brushes is expanded some for the headnode
 // volume.  is this still needed?
@@ -42,11 +38,7 @@
 #define DEFAULT_SUBDIVIDE_SIZE  ((MAX_SURFACE_EXTENT-1)*TEXTURE_STEP) //#define DEFAULT_SUBDIVIDE_SIZE  240 //--vluzacn
 
 #define MIN_MAXNODE_SIZE        64
-#ifdef ZHLT_LARGERANGE
 #define MAX_MAXNODE_SIZE        65536
-#else
-#define MAX_MAXNODE_SIZE        8192
-#endif
 #define DEFAULT_MAXNODE_SIZE    1024
 
 #define DEFAULT_NOFILL          false

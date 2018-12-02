@@ -103,11 +103,7 @@
 #define DEFAULT_ESTIMATE    true
 #endif
 
-#ifdef ZHLT_LARGERANGE
 #define BOGUS_RANGE    65534
-#else
-#define BOGUS_RANGE    8192
-#endif
 
 #ifdef HLCSG_HULLBRUSH
 #define MAX_HULLSHAPES 128 // arbitrary

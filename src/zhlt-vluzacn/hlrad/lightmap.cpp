@@ -3993,17 +3993,9 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 
 							// search back to see if we can hit a sky brush
 	#ifdef HLRAD_SUNSPREAD
-	#ifdef ZHLT_LARGERANGE
 							VectorScale (l->sunnormals[j], -BOGUS_RANGE, delta);
 	#else
-							VectorScale (l->sunnormals[j], -10000, delta);
-	#endif
-	#else
-	#ifdef ZHLT_LARGERANGE
 							VectorScale (l->normal, -BOGUS_RANGE, delta);
-	#else
-							VectorScale (l->normal, -10000, delta);
-	#endif
 	#endif
 							VectorAdd(pos, delta, delta);
 	#ifdef HLRAD_OPAQUEINSKY_FIX
@@ -4157,17 +4149,9 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 
 								// search back to see if we can hit a sky brush
 					#ifdef HLRAD_SOFTSKY
-					#ifdef ZHLT_LARGERANGE
 								VectorScale (skynormals[j], -BOGUS_RANGE, delta);
 					#else
-								VectorScale (skynormals[j], -10000, delta);
-					#endif
-					#else
-					#ifdef ZHLT_LARGERANGE
 								VectorScale (r_avertexnormals[j], -BOGUS_RANGE, delta);
-					#else
-								VectorScale (r_avertexnormals[j], -10000, delta);
-					#endif
 					#endif
 								VectorAdd(pos, delta, delta);
 					#ifdef HLRAD_OPAQUEINSKY_FIX
@@ -4295,11 +4279,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                         }
 
                         // search back to see if we can hit a sky brush
-#ifdef ZHLT_LARGERANGE
                         VectorScale(l->normal, -BOGUS_RANGE, delta);
-#else
-                        VectorScale(l->normal, -10000, delta);
-#endif
                         VectorAdd(pos, delta, delta);
 #ifdef HLRAD_OPAQUEINSKY_FIX
 						vec3_t skyhit;
@@ -4860,11 +4840,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
             }
 
             // search back to see if we can hit a sky brush
-#ifdef ZHLT_LARGERANGE
             VectorScale(r_avertexnormals[j], -BOGUS_RANGE, delta);
-#else
-            VectorScale(r_avertexnormals[j], -10000, delta);
-#endif
             VectorAdd(pos, delta, delta);
 #ifdef HLRAD_OPAQUEINSKY_FIX
 			vec3_t skyhit;

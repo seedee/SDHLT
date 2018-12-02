@@ -1388,7 +1388,6 @@ bool            ParseMapEntity()
 		return true;
 	}
 #endif
-#ifdef ZHLT_LARGERANGE
 	if (fabs (mapent->origin[0]) > ENGINE_ENTITY_RANGE + ON_EPSILON ||
 		fabs (mapent->origin[1]) > ENGINE_ENTITY_RANGE + ON_EPSILON ||
 		fabs (mapent->origin[2]) > ENGINE_ENTITY_RANGE + ON_EPSILON )
@@ -1405,7 +1404,6 @@ bool            ParseMapEntity()
 				classname, (double)ENGINE_ENTITY_RANGE, mapent->origin[0], mapent->origin[1], mapent->origin[2]);
 		}
 	}
-#endif
     return true;
 }
 
