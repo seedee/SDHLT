@@ -78,7 +78,6 @@ static face_t*  TryMerge(face_t* f1, face_t* f2)
             p4 = f2->pts[(j + 1) % f2->numpoints];
             for (k = 0; k < 3; k++)
             {
-#ifdef HLBSP_TryMerge_PRECISION_FIX
                 if (fabs(p1[k] - p4[k]) > ON_EPSILON)
                 {
                     break;
@@ -87,16 +86,6 @@ static face_t*  TryMerge(face_t* f1, face_t* f2)
                 {
                     break;
                 }
-#else
-                if (fabs(p1[k] - p4[k]) > EQUAL_EPSILON)
-                {
-                    break;
-                }
-                if (fabs(p2[k] - p3[k]) > EQUAL_EPSILON)
-                {
-                    break;
-                }
-#endif
             }
             if (k == 3)
             {
