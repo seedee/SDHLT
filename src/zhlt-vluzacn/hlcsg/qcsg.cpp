@@ -69,9 +69,7 @@ cliptype		g_cliptype = DEFAULT_CLIPTYPE;			// "-cliptype <value>"
 const char*			g_nullfile = NULL;
 #endif
 
-#ifdef HLCSG_CLIPECONOMY // AJM
 bool            g_bClipNazi = DEFAULT_CLIPNAZI;         // "-noclipeconomy"
-#endif
 
 #ifdef HLCSG_AUTOWAD // AJM
 bool            g_bWadAutoDetect = DEFAULT_WADAUTODETECT; // "-wadautodetect"
@@ -204,7 +202,6 @@ void            GetParamsFromEnt(entity_t* mapent)
     }
 #endif
 
-#ifdef HLCSG_CLIPECONOMY
     // noclipeconomy(choices) : "Strip Uneeded Clipnodes?" : 1 = [ 1 : "Yes" 0 : "No" ]
     iTmp = IntForKey(mapent, "noclipeconomy");
     if (iTmp == 1)
@@ -216,7 +213,6 @@ void            GetParamsFromEnt(entity_t* mapent)
         g_bClipNazi = false;
     }        
     Log("%30s [ %-9s ]\n", "Clipnode Economy Mode", g_bClipNazi ? "on" : "off");
-#endif
 
     /*
     hlcsg(choices) : "HLCSG" : 1 =
@@ -1590,7 +1586,6 @@ void WriteBSP(const char* const name)
     hlassume(g_nummapbrushes < MAX_MAP_BRUSHES, assume_MAX_MAP_BRUSHES);
 }*/
 
-#ifdef HLCSG_CLIPECONOMY
 // AJM: added in 
 unsigned int    BrushClipHullsDiscarded = 0; 
 unsigned int    ClipNodesDiscarded = 0;
@@ -1698,7 +1693,6 @@ static void     CheckForNoClip()
     Log("%i brushes (totalling %i sides) discarded from clipping hulls\n", BrushClipHullsDiscarded, ClipNodesDiscarded);
 #endif
 }
-#endif
 
 // =====================================================================================
 //  ProcessModels
@@ -1915,12 +1909,10 @@ static void     Usage()
     Log("    -wadinclude file : place textures used from wad specified into bsp\n");
     Log("    -noclip          : don't create clipping hull\n");
     
-#ifdef HLCSG_CLIPECONOMY    // AJM
 #ifdef HLCSG_CUSTOMHULL // default clip economy off
     Log("    -clipeconomy     : turn clipnode economy mode on\n");
 #else
     Log("    -noclipeconomy   : turn clipnode economy mode off\n");
-#endif
 #endif
 
 #ifdef HLCSG_PRECISIONCLIP // KGP
@@ -2075,9 +2067,7 @@ static void     Settings()
     Log("detail brushes        [ %7s ] [ %7s ]\n", g_bDetailBrushes  ? "on" : "off", DEFAULT_DETAIL       ? "on" : "off");
 #endif
 
-#ifdef HLCSG_CLIPECONOMY // AJM
     Log("clipnode economy mode [ %7s ] [ %7s ]\n", g_bClipNazi       ? "on" : "off", DEFAULT_CLIPNAZI     ? "on" : "off");
-#endif
 
 #ifdef HLCSG_PRECISIONCLIP // KGP
 	Log("clip hull type        [ %7s ] [ %7s ]\n", GetClipTypeString(g_cliptype), GetClipTypeString(DEFAULT_CLIPTYPE));
@@ -2302,7 +2292,6 @@ int             main(const int argc, char** argv)
             g_bUseNullTex = false;
         }
 
-#ifdef HLCSG_CLIPECONOMY    // AJM: added in -noclipeconomy
 #ifdef HLCSG_CUSTOMHULL // default clip economy off
         else if (!strcasecmp(argv[i], "-clipeconomy"))
         {
@@ -2313,7 +2302,6 @@ int             main(const int argc, char** argv)
         {
             g_bClipNazi = false;
         }
-#endif
 #endif
 
 #ifdef HLCSG_PRECISIONCLIP	// KGP: added in -cliptype
@@ -2891,9 +2879,7 @@ int             main(const int argc, char** argv)
     }
 #endif
 
-#ifdef HLCSG_CLIPECONOMY // AJM
     CheckForNoClip(); 
-#endif
 
     // createbrush
     NamedRunThreadsOnIndividual(g_nummapbrushes, g_estimate, CreateBrush);

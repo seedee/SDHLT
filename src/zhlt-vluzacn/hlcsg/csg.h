@@ -51,12 +51,10 @@
 
 #define DEFAULT_NULLTEX     true
 
-#ifdef HLCSG_CLIPECONOMY // AJM
 #ifdef HLCSG_CUSTOMHULL // default clip economy off
 #define DEFAULT_CLIPNAZI    false
 #else
 #define DEFAULT_CLIPNAZI    true
-#endif
 #endif
 
 #ifdef HLCSG_AUTOWAD //  AJM
@@ -192,9 +190,7 @@ typedef struct brush_s
     int             firstside;
     int             numsides;
 
-#ifdef HLCSG_CLIPECONOMY // AJM
     unsigned int    noclip; // !!!FIXME: this should be a flag bitfield so we can use it for other stuff (ie. is this a detail brush...)
-#endif
 #ifdef HLCSG_CUSTOMHULL
 	unsigned int	cliphull;
 	bool			bevel;
@@ -330,9 +326,7 @@ extern bool     g_bUseNullTex;
 extern bool g_bDetailBrushes;
 #endif
 
-#ifdef HLCSG_CLIPECONOMY // AJM:
 extern bool     g_bClipNazi; 
-#endif
 
 #ifdef HLCSG_PRECISIONCLIP // KGP
 #define EnumPrint(a) #a

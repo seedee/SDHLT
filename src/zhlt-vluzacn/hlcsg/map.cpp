@@ -160,9 +160,7 @@ static void     CopySKYtoCLIP(const brush_t* const b)
     newbrush->firstside = g_numbrushsides;
     newbrush->numsides = b->numsides;
     newbrush->contents = CONTENTS_CLIP;
-#ifdef HLCSG_CLIPECONOMY
     newbrush->noclip = 0;
-#endif
 #ifdef ZHLT_DETAILBRUSH
 	newbrush->detaillevel = b->detaillevel;
 	newbrush->chopdown = b->chopdown;
@@ -280,9 +278,7 @@ static contents_t ParseBrush(entity_t* mapent)
     b->entitynum = g_numentities - 1;
     b->brushnum = g_nummapbrushes - mapent->firstbrush - 1;
 
-#ifdef HLCSG_CLIPECONOMY // AJM
     b->noclip = 0;
-#endif
 #ifdef HLCSG_CUSTOMHULL
 	if (IntForKey(mapent, "zhlt_noclip"))
 	{

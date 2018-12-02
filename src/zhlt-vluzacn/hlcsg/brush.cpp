@@ -1823,10 +1823,8 @@ void CreateBrush(const int brushnum)
 		return;
 #endif
 
-#ifdef HLCSG_CLIPECONOMY // AJM
     if (b->noclip)
         return;
-#endif
 
     // HULLS 1-3
     if (!g_noclip)
