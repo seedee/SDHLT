@@ -88,9 +88,7 @@ typedef enum
 	// KGP: added
 	assume_MAX_MAP_LIGHTING,
 	assume_MAX_INTERNAL_MAP_PLANES,
-#ifdef HLRAD_TEXTURE
 	assume_COULD_NOT_LOCATE_WAD,
-#endif
 	assume_NO_EXTENT_FILE,
 
     assume_last

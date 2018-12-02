@@ -153,9 +153,7 @@ float_type g_transfer_compress_type = DEFAULT_TRANSFER_COMPRESS_TYPE;
 vector_type g_rgbtransfer_compress_type = DEFAULT_RGBTRANSFER_COMPRESS_TYPE;
 bool g_softsky = DEFAULT_SOFTSKY;
 int g_blockopaque = DEFAULT_BLOCKOPAQUE;
-#ifdef HLRAD_TEXTURE
 bool g_notextures = DEFAULT_NOTEXTURES;
-#endif
 #ifdef HLRAD_REFLECTIVITY
 vec_t g_texreflectgamma = DEFAULT_TEXREFLECTGAMMA;
 vec_t g_texreflectscale = DEFAULT_TEXREFLECTSCALE;
@@ -3416,9 +3414,7 @@ static void     Usage()
     Log("\n-= %s Options =-\n\n", g_Program);
 	Log("    -console #      : Set to 0 to turn off the pop-up console (default is 1)\n");
 	Log("    -lang file      : localization file\n");
-#ifdef HLRAD_TEXTURE
 	Log("    -waddir folder  : Search this folder for wad files.\n");
-#endif
 #ifdef HLRAD_FASTMODE
 	Log("    -fast           : Fast rad\n");
 #endif
@@ -3521,9 +3517,7 @@ static void     Usage()
 	Log("   -softsky #     : Smooth skylight.(0=off 1=on)\n");
 	Log("   -depth #       : Thickness of translucent objects.\n");
 	Log("   -blockopaque # : Remove the black areas around opaque entities.(0=off 1=on)\n");
-#ifdef HLRAD_TEXTURE
 	Log("   -notextures    : Don't load textures.\n");
-#endif
 #ifdef HLRAD_REFLECTIVITY
 	Log("   -texreflectgamma # : Gamma that relates reflectivity to texture color bits.\n");
 	Log("   -texreflectscale # : Reflectivity for 255-white texture.\n");
@@ -3766,9 +3760,7 @@ static void     Settings()
 	safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_TRANSLUCENTDEPTH);
 	Log("translucent depth    [ %17s ] [ %17s ]\n", buf1, buf2);
 	Log("block opaque         [ %17s ] [ %17s ]\n", g_blockopaque ? "on" : "off", DEFAULT_BLOCKOPAQUE ? "on" : "off");
-#ifdef HLRAD_TEXTURE
 	Log("ignore textures      [ %17s ] [ %17s ]\n", g_notextures ? "on" : "off", DEFAULT_NOTEXTURES ? "on" : "off");
-#endif
 #ifdef HLRAD_REFLECTIVITY
 	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_texreflectgamma);
 	safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_TEXREFLECTGAMMA);
@@ -4722,7 +4714,6 @@ int             main(const int argc, char** argv)
 				Usage ();
 			}
 		}
-#ifdef HLRAD_TEXTURE
 		else if (!strcasecmp (argv[i], "-waddir"))
 		{
 			if (i + 1 < argc)
@@ -4738,7 +4729,6 @@ int             main(const int argc, char** argv)
 		{
 			g_notextures = true;
 		}
-#endif
 #ifdef HLRAD_REFLECTIVITY
 		else if (!strcasecmp (argv[i], "-texreflectgamma"))
 		{
@@ -4911,9 +4901,7 @@ int             main(const int argc, char** argv)
 #endif
     Settings();
 	DeleteEmbeddedLightmaps ();
-#ifdef HLRAD_TEXTURE
 	LoadTextures ();
-#endif
     LoadRadFiles(g_Mapname, user_lights, argv[0]);
 	ReadCustomChopValue ();
 	ReadCustomSmoothValue ();
@@ -4961,9 +4949,7 @@ int             main(const int argc, char** argv)
     FreePatches();
 	DeleteOpaqueNodes ();
 
-#ifdef HLRAD_TEXTURE
 	EmbedLightmapInTextures ();
-#endif
     if (g_chart)
         PrintBSPFileSizes();
 

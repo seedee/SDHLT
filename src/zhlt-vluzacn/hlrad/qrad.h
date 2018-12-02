@@ -168,9 +168,7 @@
 	#define DEFAULT_SOFTSKY true
 	#define DEFAULT_BLOCKOPAQUE 1
 	#define DEFAULT_TRANSLUCENTDEPTH 2.0f
-#ifdef HLRAD_TEXTURE
 	#define DEFAULT_NOTEXTURES false
-#endif
 #ifdef HLRAD_REFLECTIVITY
 	#define DEFAULT_TEXREFLECTGAMMA 1.76f // 2.0(texgamma cvar) / 2.5 (gamma cvar) * 2.2 (screen gamma) = 1.76
 	#define DEFAULT_TEXREFLECTSCALE 0.7f // arbitrary (This is lower than 1.0, because textures are usually brightened in order to look better in Goldsrc. Textures are made brightened because Goldsrc is only able to darken the texture when combining the texture with the lightmap.)
@@ -528,7 +526,6 @@ typedef struct
 
 #define OPAQUE_ARRAY_GROWTH_SIZE 1024
 
-#ifdef HLRAD_TEXTURE
 typedef struct
 {
 	char name[16]; // not always same with the name in texdata
@@ -543,10 +540,7 @@ extern int g_numtextures;
 extern radtexture_t *g_textures;
 extern void AddWadFolder (const char *path);
 extern void LoadTextures ();
-#ifdef HLRAD_TEXTURE
 extern void EmbedLightmapInTextures ();
-#endif
-#endif
 
 //
 // qrad globals
@@ -674,9 +668,7 @@ extern float	g_softlight_hack_distance;
 #ifdef HLRAD_DIVERSE_LIGHTING
 	extern vec3_t *g_lightingconeinfo; //[nummiptex]; X component = power, Y component = scale, Z component = nothing
 #endif
-#ifdef HLRAD_TEXTURE
 	extern bool g_notextures;
-#endif
 #ifdef HLRAD_REFLECTIVITY
 	extern vec_t g_texreflectgamma;
 	extern vec_t g_texreflectscale;

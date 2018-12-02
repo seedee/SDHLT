@@ -72,15 +72,10 @@
 
 
 
-#define HLRAD_TEXTURE //--vluzacn
-	#ifdef HLRAD_TEXTURE
 #define HLRAD_REFLECTIVITY //--vluzacn
-	#endif
 #define HLRAD_VIS_FIX //--vluzacn
 #define HLRAD_ENTITYBOUNCE_FIX //--vluzacn
-	#ifdef HLRAD_TEXTURE
 #define HLRAD_OPAQUE_ALPHATEST //--vluzacn
-	#endif
 #define HLRAD_TEXLIGHTTHRESHOLD_FIX //--vluzacn
 	#ifdef HLRAD_REFLECTIVITY
 	#ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX

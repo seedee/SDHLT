@@ -1,5 +1,4 @@
 #include "qrad.h"
-#ifdef HLRAD_TEXTURE
 
 #ifdef WORDS_BIGENDIAN
 #error "HLRAD_TEXTURE doesn't support WORDS_BIGENDIAN, because I have no big endian machine to test it"
@@ -1492,4 +1491,3 @@ void EmbedLightmapInTextures ()
 	}
 }
 
-#endif
