@@ -58,26 +58,16 @@ static void UpdateStatus(void)
 //      For BSP hueristic
 // =====================================================================================
 static int      FaceSide(face_t* in, const dplane_t* const split
-#ifdef HLBSP_AVOIDEPSILONSPLIT
 						 , double *epsilonsplit = NULL
-#endif
 						 )
 {
-#ifdef HLBSP_AVOIDEPSILONSPLIT
 	const vec_t		epsilonmin = 0.002, epsilonmax = 0.2;
 	vec_t			d_front, d_back;
-#else
-    int             frontcount, backcount;
-#endif
     vec_t           dot;
     int             i;
     vec_t*          p;
 
-#ifdef HLBSP_AVOIDEPSILONSPLIT
 	d_front = d_back = 0;
-#else
-    frontcount = backcount = 0;
-#endif
 
     // axial planes are fast
     if (split->type <= last_axial)
@@ -87,30 +77,11 @@ static int      FaceSide(face_t* in, const dplane_t* const split
 
         for (i = 0, p = in->pts[0] + split->type; i < in->numpoints; i++, p += 3)
         {
-#ifdef HLBSP_AVOIDEPSILONSPLIT
 			dot = *p - split->dist;
 			if (dot > d_front)
 				d_front = dot;
 			if (dot < d_back)
 				d_back = dot;
-#else
-            if (*p > splitGtEp)
-            {
-                if (backcount)
-                {
-                    return SIDE_ON;
-                }
-                frontcount = 1;
-            }
-            else if (*p < splitLtEp)
-            {
-                if (frontcount)
-                {
-                    return SIDE_ON;
-                }
-                backcount = 1;
-            }
-#endif
         }
     }
     else
@@ -120,32 +91,12 @@ static int      FaceSide(face_t* in, const dplane_t* const split
         {
             dot = DotProduct(p, split->normal);
             dot -= split->dist;
-#ifdef HLBSP_AVOIDEPSILONSPLIT
 			if (dot > d_front)
 				d_front = dot;
 			if (dot < d_back)
 				d_back = dot;
-#else
-            if (dot > ON_EPSILON)
-            {
-                if (backcount)
-                {
-                    return SIDE_ON;
-                }
-                frontcount = 1;
-            }
-            else if (dot < -ON_EPSILON)
-            {
-                if (frontcount)
-                {
-                    return SIDE_ON;
-                }
-                backcount = 1;
-            }
-#endif
         }
     }
-#ifdef HLBSP_AVOIDEPSILONSPLIT
 	if (d_front <= ON_EPSILON)
 	{
 		if (d_front > epsilonmin || d_back > -epsilonmax)
@@ -170,19 +121,6 @@ static int      FaceSide(face_t* in, const dplane_t* const split
 			(*epsilonsplit)++;
 	}
 	return SIDE_ON;
-#else
-
-    if (!frontcount)
-    {
-        return SIDE_BACK;
-    }
-    if (!backcount)
-    {
-        return SIDE_FRONT;
-    }
-
-    return SIDE_ON;
-#endif
 }
 
 #ifdef HLBSP_FAST_SELECTPARTITION
@@ -723,9 +661,7 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 		double frontcount = 0;
 		double backcount = 0;
 		double coplanarcount = 0;
-#ifdef HLBSP_AVOIDEPSILONSPLIT
 		double epsilonsplit = 0;
-#endif
 
 		plane = &g_dplanes[p->planenum];
 
@@ -764,16 +700,12 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 #ifdef HLCSG_HLBSP_SOLIDHINT
 				if (f->facestyle == face_discardable)
 				{
-#ifdef HLBSP_AVOIDEPSILONSPLIT
 					FaceSide (f, plane, &epsilonsplit);
-#endif
 					continue;
 				}
 #endif
 				switch (FaceSide(f, plane
-#ifdef HLBSP_AVOIDEPSILONSPLIT
 					, &epsilonsplit
-#endif
 					))
 				{
 				case SIDE_FRONT:
@@ -809,9 +741,7 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 #else
 		value += crosscount * avesplit * (1 - ent);
 #endif
-#ifdef HLBSP_AVOIDEPSILONSPLIT
 		value += epsilonsplit * 10000;
-#endif
 
 #ifdef HLBSP_FAST_SELECTPARTITION
 		tmpvalue[p->planenum][0] = value;
