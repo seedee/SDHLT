@@ -162,19 +162,15 @@ void            DecompressVis(const byte* src, byte* const dest, const unsigned 
     byte*           out;
     int             row;
 
-#ifdef ZHLT_DecompressVis_FIX
 	row = (g_dmodels[0].visleafs + 7) >> 3; // same as the length used by VIS program in CompressVis
 	// The wrong size will cause DecompressVis to spend extremely long time once the source pointer runs into the invalid area in g_dvisdata (for example, in BuildFaceLights, some faces could hang for a few seconds), and sometimes to crash.
-#else
-    row = (g_numleafs + 7) >> 3;
-#endif
+
     out = dest;
 
     do
-    {
-#ifdef ZHLT_DecompressVis_FIX
+	{
 		hlassume (src - g_dvisdata < g_visdatasize, assume_DECOMPRESSVIS_OVERFLOW);
-#endif
+
         if (*src)
         {
             current_length++;
@@ -186,9 +182,8 @@ void            DecompressVis(const byte* src, byte* const dest, const unsigned 
             continue;
         }
 		
-#ifdef ZHLT_DecompressVis_FIX
 		hlassume (&src[1] - g_dvisdata < g_visdatasize, assume_DECOMPRESSVIS_OVERFLOW);
-#endif
+
         c = src[1];
         src += 2;
         while (c)

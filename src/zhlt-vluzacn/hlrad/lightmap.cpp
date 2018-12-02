@@ -5754,11 +5754,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 			{
 				if (i == 0)
 				{
-	#ifdef ZHLT_DecompressVis_FIX
 					memset (pvs, 255, (g_dmodels[0].visleafs + 7) / 8);
-	#else
-					memset(pvs, 255, (g_numleafs + 7) / 8);
-	#endif
 				}
 			}
 			else
@@ -5770,11 +5766,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 		#ifdef HLRAD_VIS_FIX
 					if (thisoffset == -1)
 					{
-			#ifdef ZHLT_DecompressVis_FIX
 						memset (pvs, 0, (g_dmodels[0].visleafs + 7) / 8);
-			#else
-						memset (pvs, 0, (g_numleafs + 7) / 8);
-			#endif
 					}
 					else
 					{
@@ -5794,11 +5786,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 				{
 					if (i == 0)
 					{
-		#ifdef ZHLT_DecompressVis_FIX
 						memset (pvs2, 255, (g_dmodels[0].visleafs + 7) / 8);
-		#else
-						memset(pvs2, 255, (g_numleafs + 7) / 8);
-		#endif
 					}
 				}
 				else
@@ -5810,11 +5798,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 		#ifdef HLRAD_VIS_FIX
 						if (thisoffset2 == -1)
 						{
-			#ifdef ZHLT_DecompressVis_FIX
 							memset (pvs2, 0, (g_dmodels[0].visleafs + 7) / 8);
-			#else
-							memset(pvs2, 0, (g_numleafs + 7) / 8);
-			#endif
 						}
 						else
 						{
@@ -6429,11 +6413,7 @@ void            BuildFacelights(const int facenum)
         // get the PVS for the pos to limit the number of checks
         if (!g_visdatasize)
         {
-	#ifdef ZHLT_DecompressVis_FIX
 			memset (pvs, 255, (g_dmodels[0].visleafs + 7) / 8);
-	#else
-            memset(pvs, 255, (g_numleafs + 7) / 8);
-	#endif
             lastoffset = -1;
         }
         else
@@ -6446,11 +6426,7 @@ void            BuildFacelights(const int facenum)
 	#ifdef HLRAD_VIS_FIX
 				if (thisoffset == -1)
 				{
-		#ifdef ZHLT_DecompressVis_FIX
 					memset (pvs, 0, (g_dmodels[0].visleafs + 7) / 8);
-		#else
-					memset (pvs, 0, (g_numleafs + 7) / 8);
-		#endif
 				}
 				else
 				{
@@ -6472,11 +6448,7 @@ void            BuildFacelights(const int facenum)
 			VectorMA (spot2, -(g_translucentdepth + 2*DEFAULT_HUNT_OFFSET), l.facenormal, spot2);
 			if (!g_visdatasize)
 			{
-	#ifdef ZHLT_DecompressVis_FIX
 				memset (pvs2, 255, (g_dmodels[0].visleafs + 7) / 8);
-	#else
-				memset(pvs2, 255, (g_numleafs + 7) / 8);
-	#endif
 				lastoffset2 = -1;
 			}
 			else
@@ -6489,11 +6461,7 @@ void            BuildFacelights(const int facenum)
 	#ifdef HLRAD_VIS_FIX
 					if (thisoffset2 == -1)
 					{
-		#ifdef ZHLT_DecompressVis_FIX
 						memset (pvs2, 0, (g_dmodels[0].visleafs + 7) / 8);
-		#else
-						memset(pvs2, 0, (g_numleafs + 7) / 8);
-		#endif
 					}
 					else
 					{
@@ -6983,11 +6951,7 @@ void            BuildFacelights(const int facenum)
 		// get the PVS for the pos to limit the number of checks
 		if (!g_visdatasize)
 		{
-	#ifdef ZHLT_DecompressVis_FIX
 			memset (pvs, 255, (g_dmodels[0].visleafs + 7) / 8);
-	#else
-			memset(pvs, 255, (g_numleafs + 7) / 8);
-	#endif
 			lastoffset = -1;
 		}
 		else
@@ -7004,11 +6968,7 @@ void            BuildFacelights(const int facenum)
 	#ifdef HLRAD_VIS_FIX
 				if (thisoffset == -1)
 				{
-		#ifdef ZHLT_DecompressVis_FIX
 					memset (pvs, 0, (g_dmodels[0].visleafs + 7) / 8);
-		#else
-					memset(pvs, 0, (g_numleafs + 7) / 8);
-		#endif
 				}
 				else
 				{
@@ -7026,11 +6986,7 @@ void            BuildFacelights(const int facenum)
 		{
 			if (!g_visdatasize)
 			{
-	#ifdef ZHLT_DecompressVis_FIX
 				memset (pvs2, 255, (g_dmodels[0].visleafs + 7) / 8);
-	#else
-				memset(pvs2, 255, (g_numleafs + 7) / 8);
-	#endif
 				lastoffset2 = -1;
 			}
 			else
@@ -7044,11 +7000,7 @@ void            BuildFacelights(const int facenum)
 	#ifdef HLRAD_VIS_FIX
 					if (thisoffset2 == -1)
 					{
-		#ifdef ZHLT_DecompressVis_FIX
 						memset (pvs2, 0, (g_dmodels[0].visleafs + 7) / 8);
-		#else
-						memset(pvs2, 0, (g_numleafs + 7) / 8);
-		#endif
 					}
 					else
 					{

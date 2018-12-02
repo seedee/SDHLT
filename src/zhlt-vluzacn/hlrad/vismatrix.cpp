@@ -304,11 +304,7 @@ static void     BuildVisLeafs(int threadnum)
 #ifdef HLRAD_WITHOUTVIS
         if (!g_visdatasize)
 		{
-	#ifdef ZHLT_DecompressVis_FIX
 			memset (pvs, 255, (g_dmodels[0].visleafs + 7) / 8);
-	#else
-            memset(pvs, 255, (g_numleafs + 7) / 8);
-	#endif
 		}
 		else
 		{
