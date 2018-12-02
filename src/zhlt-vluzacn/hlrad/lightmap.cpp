@@ -314,13 +314,11 @@ void            PairEdges()
 		}
 #endif
 #endif
-#ifdef HLRAD_EDGESHARE_NOSPECIAL
 		if (g_texinfo[f->texinfo].flags & TEX_SPECIAL)
 		{
 			// special textures don't have lightmaps
 			continue;
 		}
-#endif
         for (j = 0; j < f->numedges; j++)
         {
             k = g_dsurfedges[f->firstedge + j];

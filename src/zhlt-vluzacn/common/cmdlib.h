@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_EDGESHARE_NOSPECIAL //--vluzacn
 #define HLRAD_SMOOTH_TEXNORMAL //--vluzacn
 #define HLRAD_TEXTURE //--vluzacn
 	#ifdef HLRAD_TEXTURE
