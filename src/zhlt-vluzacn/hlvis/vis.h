@@ -16,9 +16,7 @@
 #include "filelib.h"
 
 #include "zones.h"
-#ifdef ZHLT_PARAMFILE
 #include "cmdlinecfg.h"
-#endif
 
 #ifdef HLVIS_MAXDIST    // AJM: MVD
 #define DEFAULT_MAXDISTANCE_RANGE   0

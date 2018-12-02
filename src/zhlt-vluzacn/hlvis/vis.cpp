@@ -1518,7 +1518,6 @@ int             main(const int argc, char** argv)
     g_Program = "hlvis";
 #endif
 
-#ifdef ZHLT_PARAMFILE
 	int argcold = argc;
 	char ** argvold = argv;
 	{
@@ -1526,7 +1525,6 @@ int             main(const int argc, char** argv)
 		char ** argv;
 		ParseParamFile (argcold, argvold, argc, argv);
 		{
-#endif
 	if (InitConsole (argc, argv) < 0)
 		Usage();
     if (argc == 1)
@@ -1836,7 +1834,6 @@ int             main(const int argc, char** argv)
     atexit(CloseLog);
     ThreadSetDefault();
     ThreadSetPriority(g_threadpriority);
-#ifdef ZHLT_PARAMFILE
     LogStart(argcold, argvold);
 	{
 		int			 i;
@@ -1854,9 +1851,6 @@ int             main(const int argc, char** argv)
 		}
 		Log("\n");
 	}
-#else
-    LogStart(argc, argv);
-#endif
 
 #ifdef ZHLT_NETVIS
     if (g_vismode == VIS_MODE_CLIENT)
@@ -2051,10 +2045,8 @@ int             main(const int argc, char** argv)
     // END VIS
 
 #endif // ZHLT_NETVIS
-#ifdef ZHLT_PARAMFILE
 		}
 	}
-#endif
 
     return 0;
 }

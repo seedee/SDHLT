@@ -25,9 +25,7 @@
 #include "boundingbox.h"
 // AJM: added in
 #include "wadpath.h"
-#ifdef ZHLT_PARAMFILE
 #include "cmdlinecfg.h"
-#endif
 
 #ifndef DOUBLEVEC_T
 #error you must add -dDOUBLEVEC_T to the project!

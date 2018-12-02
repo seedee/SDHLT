@@ -1873,7 +1873,6 @@ int             main(const int argc, char** argv)
 
     g_Program = "hlbsp";
 
-#ifdef ZHLT_PARAMFILE
 	int argcold = argc;
 	char ** argvold = argv;
 	{
@@ -1881,7 +1880,6 @@ int             main(const int argc, char** argv)
 		char ** argv;
 		ParseParamFile (argcold, argvold, argc, argv);
 		{
-#endif
 	if (InitConsole (argc, argv) < 0)
 		Usage();
     // if we dont have any command line argvars, print out usage and die
@@ -2198,7 +2196,6 @@ int             main(const int argc, char** argv)
     atexit(CloseLog);
     ThreadSetDefault();
     ThreadSetPriority(g_threadpriority);
-#ifdef ZHLT_PARAMFILE
     LogStart(argcold, argvold);
 	{
 		int			 i;
@@ -2216,9 +2213,6 @@ int             main(const int argc, char** argv)
 		}
 		Log("\n");
 	}
-#else
-    LogStart(argc, argv);
-#endif
 
     CheckForErrorLog();
 
@@ -2284,9 +2278,7 @@ int             main(const int argc, char** argv)
 
     FreeAllowableOutsideList();
 
-#ifdef ZHLT_PARAMFILE
 		}
 	}
-#endif
     return 0;
 }

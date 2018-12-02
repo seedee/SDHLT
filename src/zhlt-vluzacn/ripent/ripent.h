@@ -10,9 +10,7 @@
 #include "bspfile.h"
 #include "blockmem.h"
 #include "filelib.h"
-#ifdef ZHLT_PARAMFILE
 #include "cmdlinecfg.h"
-#endif
 
 #define DEFAULT_PARSE false
 #ifdef RIPENT_TEXTURE

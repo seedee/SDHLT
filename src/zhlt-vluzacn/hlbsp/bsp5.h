@@ -16,9 +16,7 @@
 #include "filelib.h"
 #include "threads.h"
 #include "winding.h"
-#ifdef ZHLT_PARAMFILE
 #include "cmdlinecfg.h"
-#endif
 
 #define ENTITIES_VOID "entities.void"
 #define ENTITIES_VOID_EXT ".void"

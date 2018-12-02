@@ -21,9 +21,7 @@
 #ifdef HLRAD_TRANSFERDATA_COMPRESS
 #include "compress.h"
 #endif
-#ifdef ZHLT_PARAMFILE
 #include "cmdlinecfg.h"
-#endif
 
 #ifdef SYSTEM_WIN32
 #pragma warning(disable: 4142 4028)

@@ -2182,7 +2182,6 @@ int             main(const int argc, char** argv)
 
     g_Program = "hlcsg";
 
-#ifdef ZHLT_PARAMFILE
 	int argcold = argc;
 	char ** argvold = argv;
 	{
@@ -2190,7 +2189,6 @@ int             main(const int argc, char** argv)
 		char ** argv;
 		ParseParamFile (argcold, argvold, argc, argv);
 		{
-#endif
 	if (InitConsole (argc, argv) < 0)
 		Usage();
     if (argc == 1)
@@ -2637,7 +2635,6 @@ int             main(const int argc, char** argv)
 		ResetLog();                          
     OpenLog(g_clientid);                  
     atexit(CloseLog);                       
-#ifdef ZHLT_PARAMFILE
     LogStart(argcold, argvold);
 	{
 		int			 i;
@@ -2655,9 +2652,6 @@ int             main(const int argc, char** argv)
 		}
 		Log("\n");
 	}
-#else
-    LogStart(argc, argv);
-#endif
 #ifdef PLATFORM_CAN_CALC_EXTENT
 	hlassume (CalcFaceExtents_test (), assume_first);
 #endif
@@ -3045,9 +3039,7 @@ int             main(const int argc, char** argv)
     end = I_FloatTime();
     LogTimeElapsed(end - start);
 
-#ifdef ZHLT_PARAMFILE
 		}
 	}
-#endif
     return 0;
 }

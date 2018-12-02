@@ -992,7 +992,6 @@ int             main(int argc, char** argv)
 #ifdef RIPENT_PAUSE
 	atexit (&pause);
 #endif
-#ifdef ZHLT_PARAMFILE
 	int argcold = argc;
 	char ** argvold = argv;
 	{
@@ -1000,7 +999,6 @@ int             main(int argc, char** argv)
 		char ** argv;
 		ParseParamFile (argcold, argvold, argc, argv);
 		{
-#endif
 	if (InitConsole (argc, argv) < 0)
 		Usage();
     if (argc == 1)
@@ -1167,7 +1165,6 @@ int             main(int argc, char** argv)
     }
 #endif
 
-#ifdef ZHLT_PARAMFILE
     LogStart(argcold, argvold);
 	{
 		int			 i;
@@ -1185,9 +1182,6 @@ int             main(int argc, char** argv)
 		}
 		Log("\n");
 	}
-#else
-    LogStart(argc, argv);
-#endif
 	atexit(LogEnd);
 
 	Settings();
@@ -1290,10 +1284,8 @@ int             main(int argc, char** argv)
     end = I_FloatTime();
     LogTimeElapsed(end - start);
     // END RipEnt
-#ifdef ZHLT_PARAMFILE
 		}
 	}
-#endif
 
     return 0;
 }

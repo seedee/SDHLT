@@ -11,7 +11,6 @@
 #include <windows.h>
 #endif
 
-#ifdef ZHLT_PARAMFILE
 const char paramfilename[_MAX_PATH] = "settings.txt";
 const char sepchr = '\n';
 bool error = false;
@@ -349,4 +348,3 @@ void ParseParamFile (const int argc, char ** const argv, int &argcnew, char **&a
 		argcnew = argc;
 	}
 }
-#endif
