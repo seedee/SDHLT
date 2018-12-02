@@ -395,7 +395,6 @@ int             TestLine_r(const int node, const vec3_t start, const vec3_t stop
         break;
     }
 
-#ifdef HLRAD_TestLine_EDGE_FIX
 	if (front > ON_EPSILON/2 && back > ON_EPSILON/2)
 	{
 		return TestLine_r(tnode->children[0], start, stop
@@ -469,54 +468,6 @@ int             TestLine_r(const int node, const vec3_t start, const vec3_t stop
 		, skyhit
 #endif
 		);
-#else //bug: light can go through edges of solid brushes
-    if (front >= -ON_EPSILON && back >= -ON_EPSILON)
-        return TestLine_r(tnode->children[0], start, stop
-#ifdef HLRAD_WATERBLOCKLIGHT
-		, linecontent
-#endif
-#ifdef HLRAD_OPAQUEINSKY_FIX
-		, skyhit
-#endif
-		);
-
-    if (front < ON_EPSILON && back < ON_EPSILON)
-        return TestLine_r(tnode->children[1], start, stop
-#ifdef HLRAD_WATERBLOCKLIGHT
-		, linecontent
-#endif
-#ifdef HLRAD_OPAQUEINSKY_FIX
-		, skyhit
-#endif
-		);
-
-    side = front < 0;
-
-    frac = front / (front - back);
-
-    mid[0] = start[0] + (stop[0] - start[0]) * frac;
-    mid[1] = start[1] + (stop[1] - start[1]) * frac;
-    mid[2] = start[2] + (stop[2] - start[2]) * frac;
-
-    r = TestLine_r(tnode->children[side], start, mid
-#ifdef HLRAD_WATERBLOCKLIGHT
-		, linecontent
-#endif
-#ifdef HLRAD_OPAQUEINSKY_FIX
-		, skyhit
-#endif
-		);
-    if (r != CONTENTS_EMPTY)
-        return r;
-    return TestLine_r(tnode->children[!side], mid, stop
-#ifdef HLRAD_WATERBLOCKLIGHT
-		, linecontent
-#endif
-#ifdef HLRAD_OPAQUEINSKY_FIX
-		, skyhit
-#endif
-		);
-#endif
 }
 
 int             TestLine(const vec3_t start, const vec3_t stop
