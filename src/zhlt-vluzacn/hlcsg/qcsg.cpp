@@ -507,11 +507,7 @@ static void     SaveOutside(const brush_t* const b, const int hull, bface_t* out
 #endif
         WriteFace(hull, f
 			, 
-#ifdef ZHLT_CLIPNODEDETAILLEVEL
 			(hull? b->clipnodedetaillevel: b->detaillevel)
-#else
-			b->detaillevel
-#endif
 			);
 
         //              if (mirrorcontents != CONTENTS_SOLID)
@@ -530,11 +526,7 @@ static void     SaveOutside(const brush_t* const b, const int hull, bface_t* out
             }
             WriteFace(hull, f
 				, 
-#ifdef ZHLT_CLIPNODEDETAILLEVEL
 				(hull? b->clipnodedetaillevel: b->detaillevel)
-#else
-				b->detaillevel
-#endif
 				);
         }
 
@@ -657,11 +649,7 @@ static void     CSGBrush(int brushnum)
     {
         bh1 = &b1->hulls[hull];
 		if (bh1->faces && 
-#ifdef ZHLT_CLIPNODEDETAILLEVEL
 			(hull? b1->clipnodedetaillevel: b1->detaillevel)
-#else
-			b1->detaillevel
-#endif
 			)
 		{
 			switch (b1->contents)
@@ -709,27 +697,15 @@ static void     CSGBrush(int brushnum)
 			if (b2->contents == CONTENTS_TOEMPTY)
 				continue;
 			if (
-#ifdef ZHLT_CLIPNODEDETAILLEVEL
 				(hull? (b2->clipnodedetaillevel - 0 > b1->clipnodedetaillevel + 0): (b2->detaillevel - b2->chopdown > b1->detaillevel + b1->chopup))
-#else
-				b2->detaillevel - b2->chopdown > b1->detaillevel + b1->chopup
-#endif
 				)
 				continue; // you can't chop
 			if (b2->contents == b1->contents && 
-#ifdef ZHLT_CLIPNODEDETAILLEVEL
 				(hull? (b2->clipnodedetaillevel != b1->clipnodedetaillevel): (b2->detaillevel != b1->detaillevel))
-#else
-				b2->detaillevel != b1->detaillevel
-#endif
 				)
 			{
 				overwrite = 
-#ifdef ZHLT_CLIPNODEDETAILLEVEL
 					(hull? (b2->clipnodedetaillevel < b1->clipnodedetaillevel): (b2->detaillevel < b1->detaillevel))
-#else
-					b2->detaillevel < b1->detaillevel
-#endif
 					;
 			}
 #ifdef HLCSG_COPLANARPRIORITY
@@ -768,11 +744,7 @@ static void     CSGBrush(int brushnum)
                     continue;
                 }
 				if (
-#ifdef ZHLT_CLIPNODEDETAILLEVEL
 					(hull? (b2->clipnodedetaillevel > b1->clipnodedetaillevel): (b2->detaillevel > b1->detaillevel))
-#else
-					b2->detaillevel > b1->detaillevel
-#endif
 					)
 				{
 					const char *texname = GetTextureByNumber_CSG (f->texinfo);
@@ -900,11 +872,7 @@ static void     CSGBrush(int brushnum)
                     // face left inside brush2
 
 					if (
-#ifdef ZHLT_CLIPNODEDETAILLEVEL
 						(hull? (b2->clipnodedetaillevel > b1->clipnodedetaillevel): (b2->detaillevel > b1->detaillevel))
-#else
-						b2->detaillevel > b1->detaillevel
-#endif
 						)
 					{ // don't chop or set contents, only nullify
 						f->next = outside;
@@ -913,11 +881,7 @@ static void     CSGBrush(int brushnum)
 						continue;
 					}
 					if (
-#ifdef ZHLT_CLIPNODEDETAILLEVEL
 						(hull? b2->clipnodedetaillevel < b1->clipnodedetaillevel: b2->detaillevel < b1->detaillevel)
-#else
-						b2->detaillevel < b1->detaillevel
-#endif
 						&& b2->contents == CONTENTS_SOLID)
 					{ // real solid
 						FreeFace (f);

@@ -174,9 +174,7 @@ typedef struct brush_s
 	int				detaillevel;
 	int				chopdown; // allow this brush to chop brushes of lower detail level
 	int				chopup; // allow this brush to be chopped by brushes of higher detail level
-#ifdef ZHLT_CLIPNODEDETAILLEVEL
 	int				clipnodedetaillevel;
-#endif
 #ifdef HLCSG_COPLANARPRIORITY
 	int				coplanarpriority;
 #endif

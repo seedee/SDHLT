@@ -178,9 +178,7 @@ static void ParseBrush(entity_t* mapent)
 		b->detaillevel = IntForKey (mapent, "zhlt_detaillevel");
 		b->chopdown = IntForKey (mapent, "zhlt_chopdown");
 		b->chopup = IntForKey (mapent, "zhlt_chopup");
-#ifdef ZHLT_CLIPNODEDETAILLEVEL
 		b->clipnodedetaillevel = IntForKey (mapent, "zhlt_clipnodedetaillevel");
-#endif
 #ifdef HLCSG_COPLANARPRIORITY
 		b->coplanarpriority = IntForKey (mapent, "zhlt_coplanarpriority");
 #endif
@@ -200,13 +198,11 @@ static void ParseBrush(entity_t* mapent)
 			wrong = true;
 			b->chopup = 0;
 		}
-#ifdef ZHLT_CLIPNODEDETAILLEVEL
 		if (b->clipnodedetaillevel < 0)
 		{
 			wrong = true;
 			b->clipnodedetaillevel = 0;
 		}
-#endif
 		if (wrong)
 		{
 			Warning ("Entity %i, Brush %i: incorrect settings for detail brush.",
