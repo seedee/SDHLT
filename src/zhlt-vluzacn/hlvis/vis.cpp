@@ -63,12 +63,10 @@ bool            g_info = DEFAULT_INFO;
 unsigned int	g_maxdistance = DEFAULT_MAXDISTANCE_RANGE;
 //bool			g_postcompile = DEFAULT_POST_COMPILE;
 //
-#ifdef HLVIS_OVERVIEW
 const int		g_overview_max = MAX_MAP_ENTITIES;
 overview_t		g_overview[g_overview_max];
 int				g_overview_count = 0;
 leafinfo_t*		g_leafinfos = NULL;
-#endif
 
 #ifdef ZHLT_PROGRESSFILE // AJM
 char*           g_progressfile = DEFAULT_PROGRESSFILE; // "-progressfile path"
@@ -573,7 +571,6 @@ static void     LeafFlow(const int leafnum)
 
     outbuffer[offset] |= bit;
 
-#ifdef HLVIS_OVERVIEW
 	if (g_leafinfos[leafnum].isoverviewpoint)
 	{
 		for (i = 0; i < g_portalleafs; i++)
@@ -589,7 +586,6 @@ static void     LeafFlow(const int leafnum)
 			outbuffer[i >> 3] |= (1 << (i & 7));
 		}
 	}
-#endif
 #endif
     numvis = 0;
     for (i = 0; i < g_portalleafs; i++)
@@ -1039,9 +1035,7 @@ static void     LoadPortals(char* portal_image)
     // each file portal is split into two memory portals
     g_portals = (portal_t*)calloc(2 * g_numportals, sizeof(portal_t));
     g_leafs = (leaf_t*)calloc(g_portalleafs, sizeof(leaf_t));
-#ifdef HLVIS_OVERVIEW
 	g_leafinfos = (leafinfo_t*)calloc(g_portalleafs, sizeof(leafinfo_t));
-#endif
 	g_leafcounts = (int*)calloc(g_portalleafs, sizeof(int));
 	g_leafstarts = (int*)calloc(g_portalleafs, sizeof(int));
 
@@ -1072,7 +1066,6 @@ static void     LoadPortals(char* portal_image)
 	{ // internal error (this should never happen)
 		Error ("Corrupted leaf mapping (g_leafcount_all(%d) != g_dmodels[0].visleafs(%d)).", g_leafcount_all, g_dmodels[0].visleafs);
 	}
-#ifdef HLVIS_OVERVIEW
 	for (i = 0; i < g_portalleafs; i++)
 	{
 		for (j = 0; j < g_overview_count; j++)
@@ -1095,7 +1088,6 @@ static void     LoadPortals(char* portal_image)
 			}
 		}
 	}
-#endif
     for (i = 0, p = g_portals; i < g_numportals; i++)
     {
         unsigned rval = 0;
@@ -1376,7 +1368,6 @@ static void     Settings()
     Log("\n\n");
 }
 
-#ifdef HLVIS_OVERVIEW
 int        VisLeafnumForPoint(const vec3_t point)
 {
     int             nodenum;
@@ -1402,7 +1393,6 @@ int        VisLeafnumForPoint(const vec3_t point)
 
     return -nodenum - 2;
 }
-#endif
 // =====================================================================================
 //  main
 // =====================================================================================
@@ -1846,7 +1836,6 @@ int             main(const int argc, char** argv)
 
     LoadBSPFile(source);
     ParseEntities();
-#ifdef HLVIS_OVERVIEW
 	{
 		int i;
 		for (i = 0; i < g_numentities; i++)
@@ -1867,7 +1856,6 @@ int             main(const int argc, char** argv)
 			}
 		}
 	}
-#endif
     LoadPortalsByFilename(portalfile);
 
 #   if ZHLT_ZONES

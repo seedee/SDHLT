@@ -163,7 +163,6 @@ extern unsigned g_portalleafs;
 
 extern unsigned int g_maxdistance;
 //extern bool		g_postcompile;
-#ifdef HLVIS_OVERVIEW
 typedef struct
 {
 	vec3_t origin;
@@ -180,13 +179,10 @@ extern int g_overview_count;
 typedef struct
 {
 	bool isoverviewpoint;
-#ifdef HLVIS_OVERVIEW
 	bool isskyboxpoint;
-#endif
 }
 leafinfo_t;
 extern leafinfo_t *g_leafinfos;
-#endif
 
 extern portal_t*g_portals;
 extern leaf_t*  g_leafs;
