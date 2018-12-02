@@ -30,16 +30,12 @@ typedef enum
 hl_types;
 
 static hl_types g_mode = hl_undefined;
-#ifdef RIPENT_TEXTURE
 static hl_types g_texturemode = hl_undefined;
-#endif
 
 // g_parse: command line switch (-parse).
 // Added by: Ryan Gregg aka Nem
 bool g_parse = DEFAULT_PARSE;
-#ifdef RIPENT_TEXTURE
 bool g_textureparse = DEFAULT_TEXTUREPARSE;
-#endif
 
 bool g_chart = DEFAULT_CHART;
 
@@ -51,9 +47,7 @@ bool g_pause = false;
 
 bool g_writeextentfile = DEFAULT_WRITEEXTENTFILE;
 
-#ifdef RIPENT_TEXTURE
 bool g_deleteembeddedlightmaps = DEFAULT_DELETEEMBEDDEDLIGHTMAPS;
-#endif
 
 
 // ScanForToken()
@@ -416,7 +410,6 @@ static void     WriteBSP(const char* const name)
 	Log ("\nUpdating %s.\n", filename); //--vluzacn
     WriteBSPFile(filename);
 }
-#ifdef RIPENT_TEXTURE
 #ifdef WORDS_BIGENDIAN
 #error "I haven't added support for bigendian. Please disable RIPENT_TEXTURE in cmdlib.h ."
 #endif
@@ -705,14 +698,11 @@ static void		ReadTextures(const char *name)
 	}
 	fclose (wadfile);
 }
-#endif /*RIPENT_TEXTURE*/
 
 static void     WriteEntities(const char* const name)
 {
-#ifdef RIPENT_TEXTURE
 	char *bak_dentdata;
 	int bak_entdatasize;
-#endif
     char filename[_MAX_PATH];
 
 	safe_snprintf(filename, _MAX_PATH, "%s.ent", name);
@@ -721,12 +711,10 @@ static void     WriteEntities(const char* const name)
     {
 		if(g_parse)  // Added by Nem.
 		{
-#ifdef RIPENT_TEXTURE
 			bak_entdatasize = g_entdatasize;
 			bak_dentdata = (char *)malloc (g_entdatasize);
 			hlassume (bak_dentdata != NULL, assume_NoMemory);
 			memcpy (bak_dentdata, g_dentdata, g_entdatasize);
-#endif
 			ParseEntityData("  ", 2, "\r\n", 2, "", 0);
 		}
 
@@ -734,14 +722,12 @@ static void     WriteEntities(const char* const name)
 		Log("\nWriting %s.\n", filename);  // Added by Nem.
         SafeWrite(f, g_dentdata, g_entdatasize);
         fclose(f);
-#ifdef RIPENT_TEXTURE
 		if (g_parse)
 		{
 			g_entdatasize = bak_entdatasize;
 			memcpy (g_dentdata, bak_dentdata, bak_entdatasize);
 			free (bak_dentdata);
 		}
-#endif
     }
 }
 
@@ -802,15 +788,11 @@ static void     Usage(void)
 	Log("    -import         : Import entity data\n\n");
 
 	Log("    -parse          : Parse and format entity data\n\n");
-#ifdef RIPENT_TEXTURE
 	Log("    -textureexport  : Export texture data\n");
 	Log("    -textureimport  : Import texture data\n");
 	Log("    -textureparse   : Parse and format texture data\n\n");
-#endif
 	Log("    -writeextentfile : Create extent file for the map\n");
-#ifdef RIPENT_TEXTURE
 	Log("    -deleteembeddedlightmaps : Delete textures created by hlrad\n");
-#endif
 
     Log("    -texdata #      : Alter maximum texture memory limit (in kb)\n");
     Log("    -lightdata #    : Alter maximum lighting memory limit (in kb)\n");
@@ -860,7 +842,6 @@ static void     Settings()
     Log("max texture memory  [ %7d ] [ %7d ]\n", g_max_map_miptex, DEFAULT_MAX_MAP_MIPTEX);
 	Log("max lighting memory [ %7d ] [ %7d ]\n", g_max_map_lightdata, DEFAULT_MAX_MAP_LIGHTDATA);
 
-#ifdef RIPENT_TEXTURE
 	switch (g_mode)
 	{
 	case hl_import:
@@ -874,25 +855,12 @@ static void     Settings()
 		tmp = "N/A";
 		break;
 	}
-#else
-    switch (g_mode)
-    {
-    case hl_import:
-    default:
-        tmp = "Import";
-        break;
-    case hl_export:
-        tmp = "Export";
-        break;
-    }
-#endif
 
 	Log("\n");
 
     // RipEnt Specific Settings
 	Log("mode                [ %7s ] [ %7s ]\n", tmp, "N/A");
     Log("parse               [ %7s ] [ %7s ]\n", g_parse ? "on" : "off", DEFAULT_PARSE ? "on" : "off");
-#ifdef RIPENT_TEXTURE
 	switch (g_texturemode)
 	{
 	case hl_import:
@@ -908,11 +876,8 @@ static void     Settings()
 	}
 	Log("texture mode        [ %7s ] [ %7s ]\n", tmp, "N/A");
 	Log("texture parse       [ %7s ] [ %7s ]\n", g_textureparse ? "on" : "off", DEFAULT_TEXTUREPARSE ? "on" : "off");
-#endif
 	Log("write extent file   [ %7s ] [ %7s ]\n", g_writeextentfile ? "on" : "off", DEFAULT_WRITEEXTENTFILE ? "on" : "off");
-#ifdef RIPENT_TEXTURE
 	Log("delete rad textures [ %7s ] [ %7s ]\n", g_deleteembeddedlightmaps ? "on" : "off", DEFAULT_DELETEEMBEDDEDLIGHTMAPS ? "on" : "off");
-#endif
 
     Log("\n\n");
 }
@@ -1018,7 +983,6 @@ int             main(int argc, char** argv)
 			g_pause = true;
 		}
 #endif
-#ifdef RIPENT_TEXTURE
 		else if (!strcasecmp(argv[i], "-textureimport"))
 		{
 			g_texturemode = hl_import;
@@ -1031,17 +995,14 @@ int             main(int argc, char** argv)
 		{
 			g_textureparse = true;
 		}
-#endif
 		else if (!strcasecmp(argv[i], "-writeextentfile"))
 		{
 			g_writeextentfile = true;
 		}
-#ifdef RIPENT_TEXTURE
 		else if (!strcasecmp(argv[i], "-deleteembeddedlightmaps"))
 		{
 			g_deleteembeddedlightmaps = true;
 		}
-#endif
 		else if (!strcasecmp (argv[i], "-lang"))
 		{
 			if (i + 1 < argc)
@@ -1072,13 +1033,6 @@ int             main(int argc, char** argv)
         }
     }
 
-#ifndef RIPENT_TEXTURE
-    if (g_mode == hl_undefined)
-    {
-        Log("Must specify either -import or -export\n"); //--vluzacn
-        Usage();
-    }
-#endif
 
 	char source[_MAX_PATH];
 	safe_snprintf(source, _MAX_PATH, "%s.bsp", g_Mapname);
@@ -1115,7 +1069,6 @@ int             main(int argc, char** argv)
     // BEGIN RipEnt
     start = I_FloatTime();
 
-#ifdef RIPENT_TEXTURE
 	ReadBSP(g_Mapname);
 	bool updatebsp = false;
 	if (g_deleteembeddedlightmaps)
@@ -1161,32 +1114,6 @@ int             main(int argc, char** argv)
 	{
 		WriteBSP(g_Mapname);
 	}
-#else
-    switch (g_mode)
-    {
-    case hl_import:
-		ReadBSP(g_Mapname);
-        ReadEntities(g_Mapname);
-		// moved here because the bsp data should not be referenced again after WriteBSPFile
-        if (g_chart)
-		{
-#ifdef PLATFORM_CAN_CALC_EXTENT
-			if (!CalcFaceExtents_test ())
-			{
-				Warning ("internal error: CalcFaceExtents_test failed.");
-			}
-#endif
-            PrintBSPFileSizes();
-		}
-        WriteBSP(g_Mapname);
-        break;
-    case hl_export:
-		ReadBSP(g_Mapname);
-        WriteEntities(g_Mapname);
-        break;
-    }
-
-#endif
 
     end = I_FloatTime();
     LogTimeElapsed(end - start);

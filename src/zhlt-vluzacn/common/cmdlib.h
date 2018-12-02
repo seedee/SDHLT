@@ -60,7 +60,6 @@
 	#ifdef SYSTEM_WIN32
 #define RIPENT_PAUSE //--vluzacn
 	#endif
-#define RIPENT_TEXTURE //--vluzacn
 
 // tool specific settings below only mean a recompile of the tool affected
 #define HLCSG_CLIPECONOMY
