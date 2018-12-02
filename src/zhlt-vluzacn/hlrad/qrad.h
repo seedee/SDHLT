@@ -169,9 +169,7 @@
 // o_O ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 	#define DEFAULT_TRANSTOTAL_HACK 0.2 //0.5 //vluzacn
-#ifdef HLRAD_MINLIGHT
 	#define DEFAULT_MINLIGHT 0
-#endif
 #ifdef HLRAD_TRANSFERDATA_COMPRESS
 	#define DEFAULT_TRANSFER_COMPRESS_TYPE FLOAT16
 	#define DEFAULT_RGBTRANSFER_COMPRESS_TYPE VECTOR32
@@ -774,9 +772,7 @@ extern float	g_softlight_hack_distance;
 	extern const vec3_t vec3_one;
 
 	extern float g_transtotal_hack;
-#ifdef HLRAD_MINLIGHT
 	extern unsigned char g_minlight;
-#endif
 #ifdef HLRAD_TRANSFERDATA_COMPRESS
 	extern float_type g_transfer_compress_type;
 	extern vector_type g_rgbtransfer_compress_type;

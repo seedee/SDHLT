@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_MINLIGHT //--vluzacn
 #define HLRAD_FinalLightFace_VL // Compensate for engine's bug of no gamma correction when adding dynamic light styles together. --vluzacn
 #define HLRAD_POINT_IN_EDGE_FIX	//--vluzacn
 #define HLRAD_MULTISKYLIGHT //--vluzacn

@@ -8645,11 +8645,9 @@ void            FinalLightFace(const int facenum)
 				}
 			}
 #endif
-#ifdef HLRAD_MINLIGHT
 			for (i = 0; i < 3; ++i)
 				if (lb[i] < g_minlight)
 					lb[i] = g_minlight;
-#endif
 	        // ------------------------------------------------------------------------
 #ifdef HLRAD_FinalLightFace_VL
 			for (i = 0; i < 3; ++i)

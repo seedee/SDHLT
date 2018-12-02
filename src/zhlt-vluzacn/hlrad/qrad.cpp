@@ -153,9 +153,7 @@ bool		g_customshadow_with_bouncelight = DEFAULT_CUSTOMSHADOW_WITH_BOUNCELIGHT;
 bool		g_rgb_transfers = DEFAULT_RGB_TRANSFERS;
 
 float		g_transtotal_hack = DEFAULT_TRANSTOTAL_HACK;
-#ifdef HLRAD_MINLIGHT
 unsigned char g_minlight = DEFAULT_MINLIGHT;
-#endif
 #ifdef HLRAD_TRANSFERDATA_COMPRESS
 float_type g_transfer_compress_type = DEFAULT_TRANSFER_COMPRESS_TYPE;
 vector_type g_rgbtransfer_compress_type = DEFAULT_RGBTRANSFER_COMPRESS_TYPE;
@@ -3997,9 +3995,7 @@ static void     Usage()
 #ifndef HLRAD_REFLECTIVITY
 	Log("   -bscale        : Scaling light on every bounce\n\n");
 #endif
-#ifdef HLRAD_MINLIGHT
 	Log("   -minlight #    : Minimum final light (integer from 0 to 255)\n");
-#endif
 #ifdef HLRAD_TRANSFERDATA_COMPRESS
 	{
 		int i;
@@ -4264,9 +4260,7 @@ static void     Settings()
 	safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_TRANSTOTAL_HACK);
 	Log("bounce scale         [ %17s ] [ %17s ]\n", buf1, buf2);
 #endif
-#ifdef HLRAD_MINLIGHT
 	Log("minimum final light  [ %17d ] [ %17d ]\n", (int)g_minlight, (int)DEFAULT_MINLIGHT);
-#endif
 #ifdef HLRAD_TRANSFERDATA_COMPRESS
 	sprintf (buf1, "%d (%s)", g_transfer_compress_type, float_type_string[g_transfer_compress_type]);
 	sprintf (buf2, "%d (%s)", DEFAULT_TRANSFER_COMPRESS_TYPE, float_type_string[DEFAULT_TRANSFER_COMPRESS_TYPE]);
@@ -5148,7 +5142,6 @@ int             main(const int argc, char** argv)
             }
 		}
 
-#ifdef HLRAD_MINLIGHT
 		else if (!strcasecmp(argv[i], "-minlight"))
 		{
 			if (i + 1 < argc)
@@ -5162,7 +5155,6 @@ int             main(const int argc, char** argv)
 				Usage();
 			}
 		}
-#endif
 
 #ifdef HLRAD_SOFTSKY
 		else if (!strcasecmp(argv[i], "-softsky"))
