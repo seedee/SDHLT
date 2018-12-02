@@ -1238,11 +1238,7 @@ static bool FindBestEdge (samplefraginfo_t *info, samplefrag_t *&bestfrag, sampl
 }
 
 static samplefraginfo_t *CreateSampleFrag (int facenum, vec_t s, vec_t t, 
-#ifdef HLRAD_BLUR_MINIMALSQUARE
 	const vec_t square[2][2],
-#else
-	vec_t reach, 
-#endif
 	int maxsize)
 {
 	samplefraginfo_t *info;
@@ -1272,17 +1268,10 @@ static samplefraginfo_t *CreateSampleFrag (int facenum, vec_t s, vec_t t,
 	info->head->origin[2] = 0.0;
 	VectorCopy (info->head->origin, info->head->myorigin);
 
-#ifdef HLRAD_BLUR_MINIMALSQUARE
 	VectorScale (v_s,  1, info->head->rect.planes[0].normal); info->head->rect.planes[0].dist =  square[0][0]; // smin
 	VectorScale (v_s, -1, info->head->rect.planes[1].normal); info->head->rect.planes[1].dist = -square[1][0]; // smax
 	VectorScale (v_t,  1, info->head->rect.planes[2].normal); info->head->rect.planes[2].dist =  square[0][1]; // tmin
 	VectorScale (v_t, -1, info->head->rect.planes[3].normal); info->head->rect.planes[3].dist = -square[1][1]; // tmax
-#else
-	VectorScale (v_s,  1, info->head->rect.planes[0].normal); info->head->rect.planes[0].dist =  (s - reach);
-	VectorScale (v_s, -1, info->head->rect.planes[1].normal); info->head->rect.planes[1].dist = -(s + reach);
-	VectorScale (v_t,  1, info->head->rect.planes[2].normal); info->head->rect.planes[2].dist =  (t - reach);
-	VectorScale (v_t, -1, info->head->rect.planes[3].normal); info->head->rect.planes[3].dist = -(t + reach);
-#endif
 	info->head->myrect = info->head->rect;
 
 	ChopFrag (info->head);
@@ -1383,11 +1372,7 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 									bool *nudged,
 #endif
 									const lightinfo_t* const l, const vec_t original_s, const vec_t original_t,
-#ifdef HLRAD_BLUR_MINIMALSQUARE
 									const vec_t square[2][2], // {smin, tmin}, {smax, tmax}
-#else
-									const vec_t reach, // the size of the square that grows
-#endif
 									eModelLightmodes lightmode)
 {
 	light_flag_t LuxelFlag;
@@ -1402,11 +1387,7 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 	faceplane = getPlaneFromFace (face);
 	
 	fraginfo = CreateSampleFrag (facenum, original_s, original_t, 
-#ifdef HLRAD_BLUR_MINIMALSQUARE
 		square,
-#else
-		reach, 
-#endif
 		100);
 	
 	bool found;
@@ -1556,13 +1537,11 @@ static void		CalcPoints(lightinfo_t* l)
 			pLuxelFlags = &LuxelFlags[s+w*t];
 			us = starts + s * TEXTURE_STEP;
 			ut = startt + t * TEXTURE_STEP;
-#ifdef HLRAD_BLUR_MINIMALSQUARE
 			vec_t square[2][2];
 			square[0][0] = us - TEXTURE_STEP;
 			square[0][1] = ut - TEXTURE_STEP;
 			square[1][0] = us + TEXTURE_STEP;
 			square[1][1] = ut + TEXTURE_STEP;
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 			bool nudged;
 #endif
@@ -1572,11 +1551,7 @@ static void		CalcPoints(lightinfo_t* l)
 											&nudged,
 #endif
 											l, us, ut,
-#ifdef HLRAD_BLUR_MINIMALSQUARE
 											square,
-#else
-											TEXTURE_STEP,
-#endif
 											lightmode);
 		}
 	}
@@ -3352,11 +3327,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 		vec_t s_vec, t_vec;
 		int nearest_s, nearest_t;
 		vec3_t spot;
-	#ifdef HLRAD_BLUR_MINIMALSQUARE
 		vec_t square[2][2];  // the max possible range in which this sample point affects the lighting on a face
-	#else
-		vec_t reach; // the max possible range in which a sample point affects the lighting on a face
-	#endif
 		vec3_t surfpt; // the point on the surface (with no HUNT_OFFSET applied), used for getting phong normal and doing patch interpolation
 		int surface;
 		vec3_t pointnormal;
@@ -3389,7 +3360,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 	#ifdef HLRAD_AVOIDWALLBLEED
 			wallflags_out = &l->lmcache_wallflags[i];
 	#endif
-	#ifdef HLRAD_BLUR_MINIMALSQUARE
 //
 // The following graph illustrates the range in which a sample point can affect the lighting of a face when g_blur = 1.5 and g_extra = on
 //              X : the sample point. They are placed on every TEXTURE_STEP/lmcache_density (=16.0/3) texture pixels. We calculate light for each sample point, which is the main time sink.
@@ -3431,9 +3401,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 			square[0][1] = l->texmins[1] * TEXTURE_STEP + ceil (t - (l->lmcache_side + 0.5) / (vec_t)l->lmcache_density) * TEXTURE_STEP - TEXTURE_STEP;
 			square[1][0] = l->texmins[0] * TEXTURE_STEP + floor (s + (l->lmcache_side + 0.5) / (vec_t)l->lmcache_density) * TEXTURE_STEP + TEXTURE_STEP;
 			square[1][1] = l->texmins[1] * TEXTURE_STEP + floor (t + (l->lmcache_side + 0.5) / (vec_t)l->lmcache_density) * TEXTURE_STEP + TEXTURE_STEP;
-	#else
-			reach = (0.5 / (vec_t)l->lmcache_density) * TEXTURE_STEP + 0.5 * g_blur * TEXTURE_STEP + TEXTURE_STEP;
-	#endif
 		}
 		// find world's position for the sample
 		{
@@ -3445,11 +3412,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 									&nudged,
 	#endif
 									l, s_vec, t_vec,
-	#ifdef HLRAD_BLUR_MINIMALSQUARE
 									square,
-	#else
-									reach,
-	#endif
 									g_face_lightmode[facenum]) == LightOutside)
 				{
 					j = nearest_s + (l->texsize[0] + 1) * nearest_t;

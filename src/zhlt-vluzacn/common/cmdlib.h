@@ -72,10 +72,7 @@
 
 
 
-#define HLRAD_BLUR_MINIMALSQUARE //--vluzacn
-	#ifdef HLRAD_BLUR_MINIMALSQUARE
 #define HLRAD_AVOIDWALLBLEED //--vluzacn
-	#endif
 #define HLRAD_PRESERVELIGHTMAPCOLOR //--vluzacn
 #define HLRAD_MORE_PATCHES //--vluzacn
 #define HLRAD_SPARSEVISMATRIX_FAST //--vluzacn
