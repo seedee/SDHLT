@@ -1,6 +1,5 @@
 #include "bsp5.h"
 
-#ifdef HLBSP_BRINKHACK
 
 #include <list>
 #include <map>
@@ -2063,4 +2062,3 @@ void DeleteBrinkinfo (void *brinkinfo)
 	free (info);
 }
 
-#endif

@@ -60,9 +60,7 @@ bool			g_noclipnodemerge = DEFAULT_NOCLIPNODEMERGE;
 bool            g_nofill = DEFAULT_NOFILL;      // dont fill "-nofill"
 bool			g_noinsidefill = DEFAULT_NOINSIDEFILL;
 bool            g_notjunc = DEFAULT_NOTJUNC;
-#ifdef HLBSP_BRINKHACK
 bool			g_nobrink = DEFAULT_NOBRINK;
-#endif
 bool            g_noclip = DEFAULT_NOCLIP;      // no clipping hull "-noclip"
 bool            g_chart = DEFAULT_CHART;        // print out chart? "-chart"
 bool            g_estimate = DEFAULT_ESTIMATE;  // estimate mode "-estimate"
@@ -1423,9 +1421,7 @@ static void     Usage()
     Log("    -subdivide #   : Sets the face subdivide size\n");
     Log("    -maxnodesize # : Sets the maximum portal node size\n\n");
     Log("    -notjunc       : Don't break edges on t-junctions     (not for final runs)\n");
-#ifdef HLBSP_BRINKHACK
 	Log("    -nobrink       : Don't smooth brinks                  (not for final runs)\n");
-#endif
     Log("    -noclip        : Don't process the clipping hull      (not for final runs)\n");
     Log("    -nofill        : Don't fill outside (will mask LEAKs) (not for final runs)\n");
 	Log("    -noinsidefill  : Don't fill empty spaces\n");
@@ -1526,9 +1522,7 @@ static void     Settings()
     Log("detail brushes      [ %7s ] [ %7s ]\n", g_bDetailBrushes ? "on" : "off", DEFAULT_DETAIL ? "on" : "off" );
 #endif
     Log("notjunc             [ %7s ] [ %7s ]\n", g_notjunc ? "on" : "off", DEFAULT_NOTJUNC ? "on" : "off");
-#ifdef HLBSP_BRINKHACK
 	Log("nobrink             [ %7s ] [ %7s ]\n", g_nobrink? "on": "off", DEFAULT_NOBRINK? "on": "off");
-#endif
     Log("subdivide size      [ %7d ] [ %7d ] (Min %d) (Max %d)\n",
         g_subdivide_size, DEFAULT_SUBDIVIDE_SIZE, MIN_SUBDIVIDE_SIZE, MAX_SUBDIVIDE_SIZE);
     Log("max node size       [ %7d ] [ %7d ] (Min %d) (Max %d)\n",
@@ -1728,12 +1722,10 @@ int             main(const int argc, char** argv)
         {
             g_notjunc = true;
         }
-#ifdef HLBSP_BRINKHACK
 		else if (!strcasecmp (argv[i], "-nobrink"))
 		{
 			g_nobrink = true;
 		}
-#endif
         else if (!strcasecmp(argv[i], "-noclip"))
         {
             g_noclip = true;

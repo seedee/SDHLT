@@ -845,7 +845,6 @@ void            FinishBSPFile()
 		hlassume (g_numplanes < MAX_MAP_PLANES, assume_MAX_MAP_PLANES);
 	}
 
-#ifdef HLBSP_BRINKHACK
 	if (!g_nobrink)
 	{
 		Log ("FixBrinks:\n");
@@ -979,7 +978,6 @@ void            FinishBSPFile()
 		free (clipnodes);
 #endif
 	}
-#endif
 	
 #ifdef ZHLT_HIDDENSOUNDTEXTURE
 	for (int i = 0; i < g_numtexinfo; i++)

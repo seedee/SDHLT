@@ -42,9 +42,7 @@
 #define DEFAULT_NOFILL          false
 #define DEFAULT_NOINSIDEFILL	false
 #define DEFAULT_NOTJUNC         false
-#ifdef HLBSP_BRINKHACK
 #define DEFAULT_NOBRINK			false
-#endif
 #define DEFAULT_NOCLIP          false
 #define DEFAULT_NOOPT			false
 #ifdef HLBSP_MERGECLIPNODE
@@ -276,7 +274,6 @@ extern bool     CheckFaceForHint(const face_t* const f);
 extern bool     CheckFaceForSkip(const face_t* const f);
 extern bool     CheckFaceForNull(const face_t* const f);
 extern bool		CheckFaceForDiscardable (const face_t *f);
-#ifdef HLBSP_BRINKHACK
 #define BRINK_FLOOR_THRESHOLD 0.7
 typedef enum
 {
@@ -290,7 +287,6 @@ typedef enum
 extern void *CreateBrinkinfo (const dclipnode_t *clipnodes, int headnode);
 extern bool FixBrinks (const void *brinkinfo, bbrinklevel_e level, int &headnode_out, dclipnode_t *clipnodes_out, int maxsize, int size, int &size_out);
 extern void DeleteBrinkinfo (void *brinkinfo);
-#endif
 
 
 // =====================================================================================
@@ -313,9 +309,7 @@ extern void     CullStuff();
 extern bool     g_nofill;
 extern bool		g_noinsidefill;
 extern bool     g_notjunc;
-#ifdef HLBSP_BRINKHACK
 extern bool		g_nobrink;
-#endif
 #ifdef HLBSP_MERGECLIPNODE
 extern bool		g_noclipnodemerge;
 #endif
