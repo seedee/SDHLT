@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_CUSTOMSMOOTH //--vluzacn
 #define HLRAD_READABLE_EXCEEDSTYLEWARNING //--vluzacn
 #define HLRAD_NUDGE_SMALLSTEP //--vluzacn
 #define HLRAD_TestLine_EDGE_FIX //--vluzacn

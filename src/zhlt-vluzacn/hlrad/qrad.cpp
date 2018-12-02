@@ -119,10 +119,8 @@ bool            g_texscale = DEFAULT_TEXSCALE;
 
 float           g_smoothing_threshold;
 float           g_smoothing_value = DEFAULT_SMOOTHING_VALUE;
-#ifdef HLRAD_CUSTOMSMOOTH
 float			g_smoothing_threshold_2;
 float			g_smoothing_value_2 = DEFAULT_SMOOTHING2_VALUE;
-#endif
 
 bool            g_circus = DEFAULT_CIRCUS;
 bool            g_allow_opaques = DEFAULT_ALLOW_OPAQUES;
@@ -1388,7 +1386,6 @@ vec_t ChopScaleForTexture (int facenum)
 {
     return chopscales[g_texinfo[g_dfaces[facenum].texinfo].miptex];
 }
-#ifdef HLRAD_CUSTOMSMOOTH
 vec_t *g_smoothvalues; //[nummiptex]
 void ReadCustomSmoothValue()
 {
@@ -1424,7 +1421,6 @@ void ReadCustomSmoothValue()
 		}
 	}
 }
-#endif
 #ifdef HLRAD_TRANSLUCENT
 void ReadTranslucentTextures()
 {
@@ -3669,9 +3665,7 @@ static void     Usage()
 #endif
     Log("    -nopaque        : Disable the opaque zhlt_lightflags for this compile\n\n");
     Log("    -smooth #       : Set smoothing threshold for blending (in degrees)\n");
-#ifdef HLRAD_CUSTOMSMOOTH
 	Log("    -smooth2 #      : Set smoothing threshold between different textures\n");
-#endif
     Log("    -chop #         : Set radiosity patch size for normal textures\n");
     Log("    -texchop #      : Set radiosity patch size for texture light faces\n\n");
     Log("    -notexscale     : Do not scale radiosity patches with texture scale\n");
@@ -3890,11 +3884,9 @@ static void     Settings()
     safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_smoothing_value);
     safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_SMOOTHING_VALUE);
     Log("smoothing threshold  [ %17s ] [ %17s ]\n", buf1, buf2);
-#ifdef HLRAD_CUSTOMSMOOTH
 	safe_snprintf(buf1, sizeof(buf1), g_smoothing_value_2<0? "no change": "%3.3f", g_smoothing_value_2);
 	safe_snprintf(buf2, sizeof(buf2), DEFAULT_SMOOTHING2_VALUE<0? "no change": "%3.3f", DEFAULT_SMOOTHING2_VALUE);
     Log("smoothing threshold 2[ %17s ] [ %17s ]\n", buf1, buf2);
-#endif
     safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_dlight_threshold);
     safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_DLIGHT_THRESHOLD);
     Log("direct threshold     [ %17s ] [ %17s ]\n", buf1, buf2);
@@ -4617,7 +4609,6 @@ int             main(const int argc, char** argv)
                 Usage();
             }
         }
-#ifdef HLRAD_CUSTOMSMOOTH
 		else if (!strcasecmp(argv[i], "-smooth2"))
 		{
 			if (i + 1 < argc)
@@ -4629,7 +4620,6 @@ int             main(const int argc, char** argv)
 				Usage();
 			}
 		}
-#endif
         else if (!strcasecmp(argv[i], "-coring"))
         {
             if (i + 1 < argc)	//added "1" .--vluzacn
@@ -5175,18 +5165,14 @@ int             main(const int argc, char** argv)
 #endif
     LoadRadFiles(g_Mapname, user_lights, argv[0]);
 	ReadCustomChopValue ();
-#ifdef HLRAD_CUSTOMSMOOTH
 	ReadCustomSmoothValue ();
-#endif
 #ifdef HLRAD_TRANSLUCENT
 	ReadTranslucentTextures ();
 #endif
 #ifdef HLRAD_DIVERSE_LIGHTING
 	ReadLightingCone ();
 #endif
-#ifdef HLRAD_CUSTOMSMOOTH
     g_smoothing_threshold_2 = g_smoothing_value_2 < 0 ? g_smoothing_threshold : (float)cos(g_smoothing_value_2 * (Q_PI / 180.0));
-#endif
 	{
 		int style;
 		for (style = 0; style < ALLSTYLES; ++style)

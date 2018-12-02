@@ -360,7 +360,6 @@ void            PairEdges()
 
                     e->cos_normals_angle = DotProduct(normals[0], normals[1]);
 
-#ifdef HLRAD_CUSTOMSMOOTH
 					vec_t smoothvalue;
 					int m0 = g_texinfo[e->faces[0]->texinfo].miptex;
 					int m1 = g_texinfo[e->faces[1]->texinfo].miptex;
@@ -373,21 +372,14 @@ void            PairEdges()
 					{
 						smoothvalue = 2.0;
 					}
-#endif
                     if (e->cos_normals_angle > (1.0 - NORMAL_EPSILON))
                     {
                         e->coplanar = true;
 						VectorCopy(getPlaneFromFace(e->faces[0])->normal, e->interface_normal);
 						e->cos_normals_angle = 1.0;
                     }
-#ifdef HLRAD_CUSTOMSMOOTH
                     else if (e->cos_normals_angle >= qmax (smoothvalue - NORMAL_EPSILON, NORMAL_EPSILON))
 					{
-#else
-                    else if (g_smoothing_threshold > 0.0)
-                    {
-                        if (e->cos_normals_angle >= g_smoothing_threshold)
-#endif
                         {
                             VectorAdd(normals[0], normals[1], e->interface_normal);
                             VectorNormalize(e->interface_normal);
@@ -507,7 +499,6 @@ void            PairEdges()
 							}
 							if (DotProduct (normal, p0->normal) <= NORMAL_EPSILON || DotProduct(normal, p1->normal) <= NORMAL_EPSILON)
 								break;
-	#ifdef HLRAD_CUSTOMSMOOTH
 							vec_t smoothvalue;
 							int m0 = g_texinfo[f->texinfo].miptex;
 							int m1 = g_texinfo[fcurrent->texinfo].miptex;
@@ -521,9 +512,6 @@ void            PairEdges()
 								smoothvalue = 2.0;
 							}
 							if (DotProduct (edgenormal, normal) < qmax (smoothvalue - NORMAL_EPSILON, NORMAL_EPSILON))
-	#else
-							if (DotProduct (edgenormal, normal) + NORMAL_EPSILON < g_smoothing_threshold)
-	#endif
 								break;
 #ifndef HLRAD_GROWSAMPLE
 	#ifdef HLRAD_SMOOTH_TEXNORMAL
@@ -4777,9 +4765,6 @@ void            GetPhongNormal(int facenum, const vec3_t spot, vec3_t phongnorma
     VectorCopy(p->normal, facenormal);
     VectorCopy(facenormal, phongnormal);
 
-#ifndef HLRAD_CUSTOMSMOOTH
-    if (g_smoothing_threshold > 0.0)
-#endif
     {
         // Calculate modified point normal for surface
         // Use the edge normals iff they are defined.  Bend the surface towards the edge normal(s)

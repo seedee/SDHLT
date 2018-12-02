@@ -79,9 +79,7 @@
 #endif
 #define DEFAULT_DLIGHT_SCALE        1.0 //2.0 //vluzacn
 #define DEFAULT_SMOOTHING_VALUE     50.0
-#ifdef HLRAD_CUSTOMSMOOTH
 #define DEFAULT_SMOOTHING2_VALUE	-1.0
-#endif
 #define DEFAULT_INCREMENTAL         false
 
 #ifdef ZHLT_PROGRESSFILE // AJM
@@ -660,11 +658,9 @@ extern float    g_qgamma;
 extern float    g_indirect_sun;
 extern float    g_smoothing_threshold;
 extern float    g_smoothing_value;
-#ifdef HLRAD_CUSTOMSMOOTH
 extern float g_smoothing_threshold_2;
 extern float g_smoothing_value_2;
 extern vec_t *g_smoothvalues; //[nummiptex]
-#endif
 extern bool     g_estimate;
 extern char     g_source[_MAX_PATH];
 extern vec_t    g_fade;
