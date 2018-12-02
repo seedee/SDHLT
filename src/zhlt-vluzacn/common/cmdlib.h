@@ -56,25 +56,17 @@
 	#endif
 //#define ZHLT_HIDDENSOUNDTEXTURE //--vluzacn
 
-
 	#ifdef SYSTEM_WIN32
 #define RIPENT_PAUSE //--vluzacn
 	#endif
 
 // tool specific settings below only mean a recompile of the tool affected
 
-
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
 //#define HLBSP_SUBDIVIDE_INMID // this may contribute to 'AllocBlock: full' problem though it may generate fewer faces. --vluzacn
 
-
-
-
-
-#if defined (ZHLT_XASH) || defined (ZHLT_XASH2)
-#endif
 //=====================================================================
 
 #if _MSC_VER <1400
