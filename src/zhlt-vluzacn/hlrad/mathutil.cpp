@@ -61,7 +61,6 @@ bool            point_in_winding(const Winding& w, const dplane_t& plane, const 
 }
 
 #endif
-#ifdef HLRAD_NUDGE_VL
 // =====================================================================================
 //  point_in_winding_noedge
 //      assume a ball is created from the point, this function checks whether the ball is entirely inside the winding
@@ -93,7 +92,6 @@ bool            point_in_winding_noedge(const Winding& w, const dplane_t& plane,
 	return true;
 }
 
-#endif
 #ifdef HLRAD_SNAPTOWINDING
 // =====================================================================================
 //  snap_to_winding

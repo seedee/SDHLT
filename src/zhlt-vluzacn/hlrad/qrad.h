@@ -948,12 +948,10 @@ extern bool     point_in_winding(const Winding& w, const dplane_t& plane, const 
 					, vec_t epsilon = 0.0
 #endif
 					);
-#ifdef HLRAD_NUDGE_VL
 extern bool     point_in_winding_noedge(const Winding& w, const dplane_t& plane, const vec_t* point, vec_t width);
 #ifdef HLRAD_SNAPTOWINDING
 extern void     snap_to_winding(const Winding& w, const dplane_t& plane, vec_t* point);
 extern vec_t	snap_to_winding_noedge(const Winding& w, const dplane_t& plane, vec_t* point, vec_t width, vec_t maxmove);
-#endif
 #endif
 #ifndef HLRAD_OPAQUE_NODE
 extern bool		point_in_winding_percentage(const Winding& w, const dplane_t& plane, const vec3_t point, const vec3_t ray, double &percentage);

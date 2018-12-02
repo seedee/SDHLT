@@ -1157,9 +1157,6 @@ typedef enum
     LightNormal,                                           // Normally lit with no movement
     LightPulledInside,                                     // Pulled inside by bleed code adjustments
     LightSimpleNudge,                                      // A simple nudge 1/3 or 2/3 towards center along S or T axist
-#ifndef HLRAD_NUDGE_VL
-    LightSimpleNudgeEmbedded                               // A nudge either 1 full unit in each of S and T axis, or 1/3 or 2/3 AWAY from center
-#endif
 }
 light_flag_t;
 
@@ -2275,7 +2272,6 @@ static void     CalcPoints(lightinfo_t* l)
     const vec_t*    face_delta = g_face_offset[facenum];
     const eModelLightmodes lightmode = g_face_lightmode[facenum];
 
-#ifdef HLRAD_NUDGE_VL
 	vec_t mids, midt;
 	{
 		// use winding center instead
@@ -2285,10 +2281,6 @@ static void     CalcPoints(lightinfo_t* l)
 		mids = DotProduct (surf, l->worldtotex[0]);
 		midt = DotProduct (surf, l->worldtotex[1]);
 	}
-#else
-    const vec_t     mids = (l->exactmaxs[0] + l->exactmins[0]) / 2;
-    const vec_t     midt = (l->exactmaxs[1] + l->exactmins[1]) / 2;
-#endif
 
     const int       h = l->texsize[1] + 1;
     const int       w = l->texsize[0] + 1;
@@ -2357,7 +2349,6 @@ static void     CalcPoints(lightinfo_t* l)
                 {
                     *pLuxelFlags = LightSimpleNudge;
                 }
-#ifdef HLRAD_NUDGE_VL
                 else if (SimpleNudge(surf, l, &us, &ut, TEXTURE_STEP))
                 {
                     *pLuxelFlags = LightSimpleNudge;
@@ -2366,34 +2357,9 @@ static void     CalcPoints(lightinfo_t* l)
                 {
                     *pLuxelFlags = LightSimpleNudge;
                 }
-#else
-                // Next, if this is a model flagged with the 'Embedded' mode, try away from the facemid too
-                else if (lightmode & eModelLightmodeEmbedded)
-                {
-                    SetSurfFromST(l, surf, us, ut);
-                    if (SimpleNudge(surf, l, &us, &ut, TEXTURE_STEP))
-                    {
-                        *pLuxelFlags = LightSimpleNudgeEmbedded;
-                        continue;
-                    }
-                    if (SimpleNudge(surf, l, &us, &ut, -TEXTURE_STEP))
-                    {
-                        *pLuxelFlags = LightSimpleNudgeEmbedded;
-                        continue;
-                    }
-
-                    SetSurfFromST(l, surf, original_s, original_t);
-                    *pLuxelFlags = LightOutside;
-                    continue;
-                }
-#endif
             }
 
-#ifndef HLRAD_NUDGE_VL
-            if (!(lightmode & eModelLightmodeEmbedded))
-#endif
             {
-#ifdef HLRAD_NUDGE_VL
 				// HLRAD_NUDGE_VL: only pull when light is blocked AND point is outside face.
 				vec3_t			surf_nopull;
 				vec_t			us_nopull = us, ut_nopull = ut;
@@ -2403,7 +2369,6 @@ static void     CalcPoints(lightinfo_t* l)
 				{
 					VectorAdd (wd->m_Points[j], face_delta, wd->m_Points[j]);
 				}
-#endif
 #ifdef HLRAD_SNAPTOWINDING
 				bool nudge_succeeded = false;
 				SetSurfFromST(l, surf, us, ut);
@@ -2444,10 +2409,6 @@ static void     CalcPoints(lightinfo_t* l)
 				for (i = 0; i < max_nudge; i++)
 				{
 					// Make sure we are "in the world"(Not the zero leaf)
-	#ifndef HLRAD_NUDGE_VL
-					if (leaf_mid)
-					{
-	#endif
 						SetSurfFromST(l, surf, us, ut);
 						leaf_surf =
 							HuntForWorld(surf, face_delta, p, DEFAULT_HUNT_SIZE, DEFAULT_HUNT_SCALE,
@@ -2455,30 +2416,8 @@ static void     CalcPoints(lightinfo_t* l)
 
 						if (leaf_surf)
 						{
-	#ifdef HLRAD_NUDGE_VL
 							if (point_in_winding_noedge (*wd, *p, surf, 1.0))
 							{
-	#else
-							if (TestLine(surface_midpoint, surf) == CONTENTS_EMPTY)
-							{
-								if (lightmode & eModelLightmodeConcave)
-								{
-									vec3_t transparency = { 1.0, 1.0, 1.0 };
-									int opaquestyle;
-									if (TestSegmentAgainstOpaqueList(surface_midpoint, surf
-										, transparency
-										, opaquestyle
-										)
-										|| opaquestyle != -1
-										)
-									{
-										Log("SDF::4\n");
-										us += nudge_s;
-										ut += nudge_t;
-										continue;   // Try nudge again, we hit an opaque face
-									}
-								}
-	#endif
 								if (i)
 								{
 									*pLuxelFlags = LightPulledInside;
@@ -2491,22 +2430,6 @@ static void     CalcPoints(lightinfo_t* l)
 								break;
 							}
 						}
-	#ifndef HLRAD_NUDGE_VL
-					}
-					else
-					{
-						leaf_surf = PointInLeaf(surf);
-						if (leaf_surf != g_dleafs)
-						{
-							if ((leaf_surf->contents != CONTENTS_SKY) && (leaf_surf->contents != CONTENTS_SOLID))
-							{
-								*pLuxelFlags = LightNormal;
-								nudge_succeeded = true;
-								break;
-							}
-						}
-					}
-	#endif
 
 					us += nudge_s;
 					ut += nudge_t;
@@ -2518,7 +2441,6 @@ static void     CalcPoints(lightinfo_t* l)
                     SetSurfFromST(l, surf, original_s, original_t);
                     *pLuxelFlags = LightOutside;
                 }
-#ifdef HLRAD_NUDGE_VL
 				delete wd;
 				if (*pLuxelFlags == LightPulledInside)
 				{
@@ -2545,7 +2467,6 @@ static void     CalcPoints(lightinfo_t* l)
 						}
 					}
 				}
-#endif
             }
         }
     }
