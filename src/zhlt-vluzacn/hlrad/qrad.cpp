@@ -168,9 +168,7 @@ unsigned        g_max_opaque_face_count = 0;               // Current array maxi
 vec_t			g_corings[ALLSTYLES];
 vec3_t*			g_translucenttextures = NULL;
 vec_t			g_translucentdepth = DEFAULT_TRANSLUCENTDEPTH;
-#ifdef HLRAD_BLUR
 vec_t			g_blur = DEFAULT_BLUR;
-#endif
 #ifdef HLRAD_ACCURATEBOUNCE
 bool			g_noemitterrange = DEFAULT_NOEMITTERRANGE;
 #endif
@@ -3244,9 +3242,7 @@ static void     Usage()
 	Log("   -notextures    : Don't load textures.\n");
 	Log("   -texreflectgamma # : Gamma that relates reflectivity to texture color bits.\n");
 	Log("   -texreflectscale # : Reflectivity for 255-white texture.\n");
-#ifdef HLRAD_BLUR
 	Log("   -blur #        : Enlarge lightmap sample to blur the lightmap.\n");
-#endif
 #ifdef HLRAD_ACCURATEBOUNCE
 	Log("   -noemitterrange: Don't fix pointy texlights.\n");
 #endif
@@ -3447,11 +3443,9 @@ static void     Settings()
 	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_texreflectscale);
 	safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_TEXREFLECTSCALE);
 	Log("reflectivity scale   [ %17s ] [ %17s ]\n", buf1, buf2);
-#ifdef HLRAD_BLUR
 	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_blur);
 	safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_BLUR);
 	Log("blur size            [ %17s ] [ %17s ]\n", buf1, buf2);
-#endif
 #ifdef HLRAD_ACCURATEBOUNCE
 	Log("no emitter range     [ %17s ] [ %17s ]\n", g_noemitterrange ? "on" : "off", DEFAULT_NOEMITTERRANGE ? "on" : "off");
 #endif
@@ -4361,7 +4355,6 @@ int             main(const int argc, char** argv)
 				Usage ();
 			}
 		}
-#ifdef HLRAD_BLUR
 		else if (!strcasecmp (argv[i], "-blur"))
 		{
 			if (i + 1 < argc)
@@ -4373,7 +4366,6 @@ int             main(const int argc, char** argv)
 				Usage ();
 			}
 		}
-#endif
 #ifdef HLRAD_ACCURATEBOUNCE
 		else if (!strcasecmp (argv[i], "-noemitterrange"))
 		{
@@ -4540,12 +4532,10 @@ int             main(const int argc, char** argv)
     {
 		Warning("No vis information.");
     }
-#ifdef HLRAD_BLUR
 	if (g_blur < 1.0)
 	{
 		g_blur = 1.0;
 	}
-#endif
 
     RadWorld();
 

@@ -134,9 +134,7 @@
 	#define DEFAULT_NOTEXTURES false
 	#define DEFAULT_TEXREFLECTGAMMA 1.76f // 2.0(texgamma cvar) / 2.5 (gamma cvar) * 2.2 (screen gamma) = 1.76
 	#define DEFAULT_TEXREFLECTSCALE 0.7f // arbitrary (This is lower than 1.0, because textures are usually brightened in order to look better in Goldsrc. Textures are made brightened because Goldsrc is only able to darken the texture when combining the texture with the lightmap.)
-#ifdef HLRAD_BLUR
 	#define DEFAULT_BLUR 1.5 // classic lighting is equivalent to "-blur 1.0"
-#endif
 #ifdef HLRAD_ACCURATEBOUNCE
 	#define DEFAULT_NOEMITTERRANGE false
 #endif
@@ -580,9 +578,7 @@ extern vec3_t	g_jitter_hack;
 	extern bool g_notextures;
 	extern vec_t g_texreflectgamma;
 	extern vec_t g_texreflectscale;
-#ifdef HLRAD_BLUR
 	extern vec_t g_blur;
-#endif
 #ifdef HLRAD_ACCURATEBOUNCE
 	extern bool g_noemitterrange;
 #endif

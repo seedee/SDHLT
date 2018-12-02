@@ -602,7 +602,6 @@ typedef struct
     int             lightstyles[256];
     int             surfnum;
     dface_t*        face;
-#ifdef HLRAD_BLUR
 	int				lmcache_density; // shared by both s and t direction
 	int				lmcache_offset; // shared by both s and t direction
 	int				lmcache_side;
@@ -618,7 +617,6 @@ typedef struct
 #endif
 	int				lmcachewidth;
 	int				lmcacheheight;
-#endif
 }
 lightinfo_t;
 
@@ -736,7 +734,6 @@ static void     CalcFaceExtents(lightinfo_t* l)
 			Error( "Bad surface extents (%d x %d)\nCheck the file ZHLTProblems.html for a detailed explanation of this problem", l->texsize[0], l->texsize[1]);
 		}
 	}
-#ifdef HLRAD_BLUR
 	// allocate sample light cache
 	{
 		if (g_extra
@@ -775,7 +772,6 @@ static void     CalcFaceExtents(lightinfo_t* l)
 		hlassume (l->surfpt_position != NULL && l->surfpt_surface != NULL, assume_NoMemory);
 #endif
 	}
-#endif
 }
 
 // =====================================================================================
@@ -3809,7 +3805,6 @@ const vec3_t    s_circuscolors[] = {
 // =====================================================================================
 //  BuildFacelights
 // =====================================================================================
-#ifdef HLRAD_BLUR
 void CalcLightmap (lightinfo_t *l, byte *styles)
 {
 	int facenum;
@@ -4190,19 +4185,11 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 		}
 	}
 }
-#endif
 void            BuildFacelights(const int facenum)
 {
     dface_t*        f;
 	unsigned char	f_styles[ALLSTYLES];
 	sample_t		*fl_samples[ALLSTYLES];
-#ifndef HLRAD_BLUR
-	vec3_t			sampled[ALLSTYLES];
-#ifdef ZHLT_XASH
-	vec3_t			sampled_direction[ALLSTYLES];
-	vec3_t			sampled_normal;
-#endif
-#endif
     lightinfo_t     l;
     int             i;
     int             j;
@@ -4272,11 +4259,9 @@ void            BuildFacelights(const int facenum)
     CalcFaceVectors(&l);
     CalcFaceExtents(&l);
     CalcPoints(&l);
-#ifdef HLRAD_BLUR
 	CalcLightmap (&l
 		, f_styles
 		);
-#endif
 
     lightmapwidth = l.texsize[0] + 1;
     lightmapheight = l.texsize[1] + 1;
@@ -4323,9 +4308,6 @@ void            BuildFacelights(const int facenum)
     spot = l.surfpt[0];
     for (i = 0; i < l.numsurfpt; i++, spot += 3)
     {
-#ifndef HLRAD_BLUR
-        vec3_t          pointnormal = { 0, 0, 0 };
-#endif
 
 #ifndef HLRAD_GROWSAMPLE
 		vec3_t spot_original;
@@ -4351,7 +4333,6 @@ void            BuildFacelights(const int facenum)
 #endif
         }
 
-#ifdef HLRAD_BLUR
 		int s, t, pos;
 		int s_center, t_center;
 		vec_t sizehalf;
@@ -4522,332 +4503,6 @@ void            BuildFacelights(const int facenum)
 	#endif
 			}
 		}
-#else
-        // get the PVS for the pos to limit the number of checks
-        if (!g_visdatasize)
-        {
-			memset (pvs, 255, (g_dmodels[0].visleafs + 7) / 8);
-            lastoffset = -1;
-        }
-        else
-        {
-            dleaf_t*        leaf = PointInLeaf(spot);
-
-            thisoffset = leaf->visofs;
-            if (i == 0 || thisoffset != lastoffset)
-            {
-				if (thisoffset == -1)
-				{
-					memset (pvs, 0, (g_dmodels[0].visleafs + 7) / 8);
-				}
-				else
-				{
-					DecompressVis(&g_dvisdata[leaf->visofs], pvs, sizeof(pvs));
-				}
-            }
-            lastoffset = thisoffset;
-        }
-		if (l.translucent_b)
-		{
-			VectorSubtract (g_face_centroids[facenum], spot, delta);
-			VectorNormalize (delta);
-			VectorMA (spot, 0.2, delta, spot2);
-			VectorMA (spot2, -(g_translucentdepth + 2*DEFAULT_HUNT_OFFSET), l.facenormal, spot2);
-			if (!g_visdatasize)
-			{
-				memset (pvs2, 255, (g_dmodels[0].visleafs + 7) / 8);
-				lastoffset2 = -1;
-			}
-			else
-			{
-				dleaf_t*        leaf2 = PointInLeaf(spot2);
-
-				thisoffset2 = leaf2->visofs;
-				if (i == 0 || thisoffset2 != lastoffset2)
-				{
-					if (thisoffset2 == -1)
-					{
-						memset (pvs2, 0, (g_dmodels[0].visleafs + 7) / 8);
-					}
-					else
-					{
-						DecompressVis(&g_dvisdata[leaf2->visofs], pvs2, sizeof(pvs2));
-					}
-				}
-				lastoffset2 = thisoffset2;
-			}
-		}
-
-        memset(sampled, 0, sizeof(sampled));
-#ifdef ZHLT_XASH
-		memset (sampled_direction, 0, sizeof (sampled_direction));
-		VectorClear (sampled_normal);
-#endif
-
-        // If we are doing "extra" samples, oversample the direct light around the point.
-        if (g_extra
-			&& !g_fastmode
-			)
-        {
-            int             weighting[3][3] = { {1, 1, 1}, {1, 1, 1}, {1, 1, 1} }; // because we are using 1/3 dist not 1/2
-            vec3_t          pos;
-            int             s, t, subsamples = 0;
-
-            for (t = -1; t <= 1; t++)
-            {
-                for (s = -1; s <= 1; s++)
-                {
-                    {
-                        vec3_t          subsampled[ALLSTYLES];
-#ifdef ZHLT_XASH
-						vec3_t			subsampled_direction[ALLSTYLES];
-#endif
-
-                        for (j = 0; j < ALLSTYLES; j++)
-                        {
-                            VectorClear(subsampled[j]);
-#ifdef ZHLT_XASH
-							VectorClear (subsampled_direction[j]);
-#endif
-                        }
-
-						vec_t s_vec = l.texmins[0] * TEXTURE_STEP + (i % lightmapwidth + s * 1.0/3.0) * TEXTURE_STEP;
-						vec_t t_vec = l.texmins[1] * TEXTURE_STEP + (i / lightmapwidth + t * 1.0/3.0) * TEXTURE_STEP;
-						bool blocked = false;
-						if (SetSampleFromST (pos, &l, s_vec, t_vec, g_face_lightmode[facenum]) == LightOutside)
-						{
-							if (l.surfpt_lightoutside[i])
-							{
-								blocked = true;
-							}
-							else
-							{
-								VectorCopy(l.surfpt[i], pos);
-							}
-						}
-
-						// this will generate smoother light for cylinders partially embedded in solid,
-						vec3_t pos_original;
-						SetSurfFromST (&l, pos_original, s_vec, t_vec);
-						{
-							// adjust sample's offset to 0
-							vec_t scale;
-							scale = DotProduct (l.texnormal, l.facenormal);
-							VectorMA (pos_original, - DEFAULT_HUNT_OFFSET / scale, l.texnormal, pos_original);
-						}
-                        GetPhongNormal(facenum, pos_original, pointnormal);
-						if (!blocked)
-						{
-                        GatherSampleLight(pos, pvs, pointnormal, subsampled, 
-#ifdef ZHLT_XASH
-							subsampled_direction, 
-#endif
-							f_styles
-							, 0
-#ifdef HLRAD_DIVERSE_LIGHTING
-							, l.miptex
-#endif
-#ifdef HLRAD_TEXLIGHTGAP
-							, facenum
-#endif
-							);
-						}
-						if (l.translucent_b)
-						{
-							vec3_t subsampled2[ALLSTYLES];
-#ifdef ZHLT_XASH
-							vec3_t subsampled2_direction[ALLSTYLES];
-#endif
-							for (j = 0; j < ALLSTYLES; j++)
-							{
-								VectorFill(subsampled2[j], 0);
-#ifdef ZHLT_XASH
-								VectorFill (subsampled2_direction[j], 0);
-#endif
-							}
-							VectorSubtract (g_face_centroids[facenum], pos, delta);
-							VectorNormalize (delta);
-							VectorMA (pos, 0.2, delta, spot2);
-							VectorMA (spot2, -(g_translucentdepth + 2*DEFAULT_HUNT_OFFSET), l.facenormal, spot2);
-							VectorSubtract (vec3_origin, pointnormal, normal2);
-							if (!blocked)
-							{
-							GatherSampleLight(spot2, pvs2, normal2, subsampled2, 
-#ifdef ZHLT_XASH
-								subsampled2_direction, 
-#endif
-								f_styles
-								, 0
-#ifdef HLRAD_DIVERSE_LIGHTING
-								, l.miptex
-#endif
-#ifdef HLRAD_TEXLIGHTGAP
-								, facenum
-#endif
-								);
-							}
-							for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
-							{
-		#ifdef ZHLT_XASH
-								// reflect the direction back
-								vec_t dot = DotProduct (subsampled2_direction[j], pointnormal);
-								VectorMA (subsampled2_direction[j], -dot * 2, pointnormal, subsampled2_direction[j]);
-								vec_t front = 0, back = 0;
-								// calculate the change of brightness and adjust the direction. This is not totally right when the translucent value is not grayscale,
-								// but at least it still preserves the condition that VectorLength(light_direction) <= VectorAvg(light).
-								for (int x = 0; x < 3; x++)
-								{
-									front += ((1.0 - l.translucent_v[x]) * subsampled[j][x]) / 3;
-									back += (l.translucent_v[x] * subsampled2[j][x]) / 3;
-								}
-								front = fabs (VectorAvg (subsampled[j])) > NORMAL_EPSILON? front / VectorAvg (subsampled[j]): 0;
-								back = fabs (VectorAvg (subsampled2[j])) > NORMAL_EPSILON? back / VectorAvg (subsampled2[j]): 0;
-		#endif
-								for (int x = 0; x < 3; x++)
-								{
-									subsampled[j][x] = (1.0 - l.translucent_v[x]) * subsampled[j][x] + l.translucent_v[x] * subsampled2[j][x];
-		#ifdef ZHLT_XASH
-									subsampled_direction[j][x] = front * subsampled_direction[j][x] + back * subsampled2_direction[j][x];
-		#endif
-								}
-							}
-						}
-						for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
-                        {
-                            VectorScale(subsampled[j], weighting[s + 1][t + 1], subsampled[j]);
-                            VectorAdd(sampled[j], subsampled[j], sampled[j]);
-#ifdef ZHLT_XASH
-							VectorScale (subsampled_direction[j], weighting[s + 1][t + 1], subsampled_direction[j]);
-							VectorAdd (sampled_direction[j], subsampled_direction[j], sampled_direction[j]);
-#endif
-                        }
-#ifdef ZHLT_XASH
-						VectorMA (sampled_normal, weighting[s + 1][t + 1], pointnormal, sampled_normal);
-#endif
-                        subsamples += weighting[s + 1][t + 1];
-                    }
-                }
-            }
-			for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
-            {
-                VectorScale(sampled[j], 1.0 / subsamples, sampled[j]);
-#ifdef ZHLT_XASH
-				VectorScale (sampled_direction[j], 1.0 / subsamples, sampled_direction[j]);
-#endif
-            }
-#ifdef ZHLT_XASH
-			VectorScale (sampled_normal, 1.0 / subsamples, sampled_normal);
-			if (!VectorNormalize (sampled_normal))
-			{
-				VectorCopy (l.facenormal, sampled_normal);
-			}
-#endif
-        }
-        else
-        {
-			vec_t s_vec = l.texmins[0] * TEXTURE_STEP + (i % lightmapwidth) * TEXTURE_STEP;
-			vec_t t_vec = l.texmins[1] * TEXTURE_STEP + (i / lightmapwidth) * TEXTURE_STEP;
-			// this will generate smoother light for cylinders partially embedded in solid,
-			vec3_t pos_original;
-			SetSurfFromST (&l, pos_original, s_vec, t_vec);
-			{
-				// adjust sample's offset to 0
-				vec_t scale;
-				scale = DotProduct (l.texnormal, l.facenormal);
-				VectorMA (pos_original, - DEFAULT_HUNT_OFFSET / scale, l.texnormal, pos_original);
-			}
-			GetPhongNormal(facenum, pos_original, pointnormal);
-			bool blocked = l.surfpt_lightoutside[i];
-			if (!blocked)
-			{
-            GatherSampleLight(spot, pvs, pointnormal, sampled, 
-#ifdef ZHLT_XASH
-				sampled_direction, 
-#endif
-				f_styles
-				, 0
-#ifdef HLRAD_DIVERSE_LIGHTING
-				, l.miptex
-#endif
-#ifdef HLRAD_TEXLIGHTGAP
-				, facenum
-#endif
-				);
-			}
-			if (l.translucent_b)
-			{
-				vec3_t sampled2[ALLSTYLES];
-#ifdef ZHLT_XASH
-				vec3_t sampled2_direction[ALLSTYLES];
-#endif
-				for (j = 0; j < ALLSTYLES; j++)
-				{
-					VectorFill(sampled2[j], 0);
-#ifdef ZHLT_XASH
-					VectorFill (sampled2_direction[j], 0);
-#endif
-				}
-				VectorSubtract (vec3_origin, pointnormal, normal2);
-				GatherSampleLight(spot2, pvs2, normal2, sampled2, 
-#ifdef ZHLT_XASH
-					sampled2_direction, 
-#endif
-					f_styles
-					, 0
-#ifdef HLRAD_DIVERSE_LIGHTING
-					, l.miptex
-#endif
-#ifdef HLRAD_TEXLIGHTGAP
-					, facenum
-#endif
-					);
-				for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
-				{
-	#ifdef ZHLT_XASH
-					vec_t dot = DotProduct (sampled2_direction[j], pointnormal);
-					VectorMA (sampled2_direction[j], -dot * 2, pointnormal, sampled2_direction[j]);
-					vec_t front = 0, back = 0;
-					for (int x = 0; x < 3; x++)
-					{
-						front += ((1.0 - l.translucent_v[x]) * sampled[j][x]) / 3;
-						back += (l.translucent_v[x] * sampled2[j][x]) / 3;
-					}
-					front = fabs (VectorAvg (sampled[j])) > NORMAL_EPSILON? front / VectorAvg (sampled[j]): 0;
-					back = fabs (VectorAvg (sampled2[j])) > NORMAL_EPSILON? back / VectorAvg (sampled2[j]): 0;
-	#endif
-					for (int x = 0; x < 3; x++)
-					{
-						sampled[j][x] = (1.0 - l.translucent_v[x]) * sampled[j][x] + l.translucent_v[x] * sampled2[j][x];
-	#ifdef ZHLT_XASH
-						sampled_direction[j][x] = front * sampled_direction[j][x] + back * sampled2_direction[j][x];
-	#endif
-					}
-				}
-			}
-#ifdef ZHLT_XASH
-			VectorCopy (pointnormal, sampled_normal);
-#endif
-        }
-		
-		for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
-        {
-			VectorCopy (sampled[j], fl_samples[j][i].light);
-#ifdef ZHLT_XASH
-			VectorCopy (sampled_direction[j], fl_samples[j][i].light_direction);
-#endif
-
-
-#ifndef HLRAD_ACCURATEBOUNCE_SAMPLELIGHT
-			AddSampleToPatch (&fl_samples[j][i], facenum, f_styles[j]); //LRC
-#endif
-        }
-#ifdef ZHLT_XASH
-		for (k = 0; k < ALLSTYLES; k++) // fill 'sample.normal' for all 64 styles, just like what we did on 'sample.pos'
-		{
-			VectorCopy (sampled_normal, fl_samples[k][i].normal);
-		}
-#endif
-#endif // ifndef HLRAD_BLUR
     } // end of i loop
 #ifdef HLRAD_AVOIDWALLBLEED
 	free (sample_wallflags);
@@ -4895,11 +4550,7 @@ void            BuildFacelights(const int facenum)
 			dleaf_t*        leaf = PointInLeaf(patch->origin);
 
 			thisoffset = leaf->visofs;
-#ifdef HLRAD_BLUR
 			if (patch == g_face_patches[facenum] || thisoffset != lastoffset)
-#else
-			if (l.numsurfpt == 0 || thisoffset != lastoffset)
-#endif
 			{
 				if (thisoffset == -1)
 				{
@@ -5309,7 +4960,6 @@ void            BuildFacelights(const int facenum)
 		free (patch->directlight_all);
 		patch->directlight_all = NULL;
 	}
-#ifdef HLRAD_BLUR
 	free (l.lmcache);
 #ifdef ZHLT_XASH
 	free (l.lmcache_direction);
@@ -5323,7 +4973,6 @@ void            BuildFacelights(const int facenum)
 #ifdef HLRAD_GROWSAMPLE
 	free (l.surfpt_position);
 	free (l.surfpt_surface);
-#endif
 #endif
 }
 

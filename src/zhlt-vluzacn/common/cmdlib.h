@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_BLUR //--vluzacn
 #define HLRAD_ACCURATEBOUNCE //--vluzacn
 	#ifdef HLRAD_ACCURATEBOUNCE
 #define HLRAD_ACCURATEBOUNCE_TEXLIGHT // note: this reduces the compile time in '-extra' mode //--vluzacn
@@ -85,16 +84,10 @@
 #define HLRAD_CUSTOMTEXLIGHT_COLOR //--vluzacn
 #define HLRAD_SUBDIVIDEPATCH_NEW //--vluzacn
 #define HLRAD_DIVERSE_LIGHTING //--vluzacn
-	#ifdef HLRAD_BLUR
 #define HLRAD_GROWSAMPLE //--vluzacn
-	#endif
-	#ifdef HLRAD_BLUR
 #define HLRAD_AVOIDNORMALFLIP //--vluzacn
-	#endif
-	#ifdef HLRAD_BLUR
 	#ifdef HLRAD_GROWSAMPLE
 #define HLRAD_BLUR_MINIMALSQUARE //--vluzacn
-	#endif
 	#endif
 	#ifdef HLRAD_BLUR_MINIMALSQUARE
 #define HLRAD_AVOIDWALLBLEED //--vluzacn
