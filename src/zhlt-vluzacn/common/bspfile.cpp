@@ -1455,14 +1455,12 @@ bool            ParseEntity()
         Log("Map entity info_compile_parameters detected, using compile settings\n");
         GetParamsFromEnt(mapent);
     }
-#ifdef ZHLT_ENTITY_LIGHTSURFACE
 	// ugly code
 	if (!strncmp(ValueForKey (mapent, "classname"), "light", 5) && *ValueForKey (mapent, "_tex"))
 	{
 		SetKeyValue (mapent, "convertto", ValueForKey (mapent, "classname"));
 		SetKeyValue (mapent, "classname", "light_surface");
 	}
-#endif
 	if (!strcmp (ValueForKey (mapent, "convertfrom"), "light_shadow")
 	#ifdef ZHLT_ENTITY_LIGHTBOUNCE
 		|| !strcmp (ValueForKey (mapent, "convertfrom"), "light_bounce")
@@ -1632,7 +1630,6 @@ void            UnparseEntities()
 			SetKeyValue (mapent, "convertto", "");
 		}
 	}
-#ifdef ZHLT_ENTITY_LIGHTSURFACE
 	// ugly code
 	for (i = 0; i < g_numentities; i++)
 	{
@@ -1659,7 +1656,6 @@ void            UnparseEntities()
 			SetKeyValue (mapent, "convertto", "");
 		}
 	}
-#endif
 #ifdef HLCSG_OPTIMIZELIGHTENTITY
 #ifdef HLCSG
 	extern bool g_nolightopt;
