@@ -68,7 +68,6 @@
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
 #define HLBSP_FILL //--vluzacn
-#define HLCSG_STRIPWADPATH //--vluzacn
 #define HLCSG_NOREDUNDANTKEY //--vluzacn
 #define HLCSG_HLBSP_CUSTOMBOUNDINGBOX //--vluzacn
 #define HLCSG_HLBSP_VOIDTEXINFO //--vluzacn

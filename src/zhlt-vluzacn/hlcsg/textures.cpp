@@ -369,13 +369,9 @@ bool            TEX_InitFromWad()
         if (!bExcludeThisWad)
         {
             Log("Using Wadfile: %s\n", pszWadFile);
-#ifdef HLCSG_STRIPWADPATH
 			char tmp[_MAX_PATH];
 			ExtractFile (pszWadFile, tmp);
             safe_snprintf(szTmpWad, 1024, "%s%s;", szTmpWad, tmp);
-#else
-            safe_snprintf(szTmpWad, 1024, "%s%s;", szTmpWad, pszWadFile);
-#endif
         }
 #endif
 
@@ -447,20 +443,6 @@ bool            TEX_InitFromWad()
 
     //Log("num of used textures: %i\n", g_numUsedTextures);
 
-#ifndef HLCSG_STRIPWADPATH
-	// This is absurd. --vluzacn
-    // AJM: Tommy suggested i add this warning message in, and  it certianly doesnt
-    //  hurt to be cautious. Especially one of the possible side effects he mentioned was svc_bad
-    if (nTexFiles > 8)
-    {
-        Log("\n");
-        Warning("More than 8 wadfiles are in use. (%i)\n"
-                "This may be harmless, and if no strange side effects are occurring, then\n"
-                "it can safely be ignored. However, if your map starts exhibiting strange\n"
-                "or obscure errors, consider this as suspect.\n"
-                , nTexFiles);
-    }
-#endif
 
     // sort texlumps in memory by name
     qsort((void*)lumpinfo, (size_t) nTexLumps, sizeof(lumpinfo[0]), lump_sorter_by_name);
@@ -784,13 +766,9 @@ void            WriteMiptex()
 				double percused = (double)currentwad->usedtextures / (double)nummiptex * 100;
 				Log (" - Contains %i used texture%s, %2.2f percent of map (%d textures in wad)\n",
 					 currentwad->usedtextures, currentwad->usedtextures == 1? "": "s", percused, currentwad->totaltextures);
-	#ifdef HLCSG_STRIPWADPATH
 				char tmp[_MAX_PATH];
 				ExtractFile (currentwad->path, tmp);
 				safe_strncat (szTmpWad, tmp, MAX_VAL);
-	#else
-				safe_strncat (szTmpWad, currentwad->path, MAX_VAL);
-	#endif
 				safe_strncat (szTmpWad, ";", MAX_VAL);
 			}
 		}

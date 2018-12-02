@@ -129,13 +129,9 @@ void            HandleWadinclude()
         if (!bExcludeThisWad)
         {
             Log("Using Wadfile: %s\n", pszWadFile);
-#ifdef HLCSG_STRIPWADPATH
 			char tmp[_MAX_PATH];
 			ExtractFile (pszWadFile, tmp);
             safe_snprintf(szTmpWad, 1024, "%s%s;", szTmpWad, tmp);
-#else
-            safe_snprintf(szTmpWad, 1024, "%s%s;", szTmpWad, pszWadFile);
-#endif
         }
     }
 
