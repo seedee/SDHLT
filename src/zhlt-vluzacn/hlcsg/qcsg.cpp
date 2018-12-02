@@ -530,11 +530,7 @@ static void     SaveOutside(const brush_t* const b, const int hull, bface_t* out
         {
             c_tiny++;
             Verbose("Entity %i, Brush %i: tiny fragment\n", 
-#ifdef HLCSG_COUNT_NEW
 				b->originalentitynum, b->originalbrushnum
-#else
-				b->entitynum, b->brushnum
-#endif
 				);
             continue;
         }
@@ -579,11 +575,7 @@ static void     SaveOutside(const brush_t* const b, const int hull, bface_t* out
 				if (fabs (DotProduct (texnormal, f->plane->normal)) <= NORMAL_EPSILON)
 				{
 					Warning ("Entity %i, Brush %i: Malformed texture alignment (texture %s): Texture axis perpendicular to face.",
-	#ifdef HLCSG_COUNT_NEW
 						b->originalentitynum, b->originalbrushnum,
-	#else
-						b->entitynum, b->brushnum,
-	#endif
 						texname
 						);
 				}
@@ -609,11 +601,7 @@ static void     SaveOutside(const brush_t* const b, const int hull, bface_t* out
 				if (bad)
 				{
 					Warning ("Entity %i, Brush %i: Malformed texture alignment (texture %s): Bad surface extents.",
-	#ifdef HLCSG_COUNT_NEW
 						b->originalentitynum, b->originalbrushnum,
-	#else
-						b->entitynum, b->brushnum,
-	#endif
 						texname
 						);
 				}
@@ -810,11 +798,7 @@ static void     CSGBrush(int brushnum)
 				break;
 			default:
 				Error ("Entity %i, Brush %i: %s brushes not allowed in detail\n", 
-	#ifdef HLCSG_COUNT_NEW
 					b1->originalentitynum, b1->originalbrushnum, 
-	#else
-					b1->entitynum, b1->brushnum, 
-	#endif
 					ContentsToString((contents_t)b1->contents));
 				break;
 			case CONTENTS_SOLID:
@@ -1059,11 +1043,7 @@ static void     CSGBrush(int brushnum)
                 if (f && area < g_tiny_threshold)
                 {
                     Verbose("Entity %i, Brush %i: tiny penetration\n", 
-#ifdef HLCSG_COUNT_NEW
 						b1->originalentitynum, b1->originalbrushnum
-#else
-						b1->entitynum, b1->brushnum
-#endif
 						);
                     c_tiny_clip++;
                     FreeFace(f);

@@ -319,11 +319,7 @@ void ExpandBrushWithHullBrush (const brush_t *brush, const brushhull_t *hull0, c
 				if (!warned)
 				{
 					Warning("Illegal Brush (edge without opposite face): Entity %i, Brush %i\n",
-#ifdef HLCSG_COUNT_NEW
 						brush->originalentitynum, brush->originalbrushnum
-#else
-						brush->entitynum, brush->brushnum
-#endif
 						);
 					warned = true;
 				}
@@ -430,11 +426,7 @@ void ExpandBrush(brush_t* brush, const int hullnum)
 					if (found)
 					{
 						Warning ("Entity %i, Brush %i: Found several info_hullshape entities with the same name '%s'.",
-#ifdef HLCSG_COUNT_NEW
 							brush->originalentitynum, brush->originalbrushnum,
-#else
-							brush->entitynum, brush->brushnum,
-#endif
 							name);
 					}
 					hs = s;
@@ -444,11 +436,7 @@ void ExpandBrush(brush_t* brush, const int hullnum)
 			if (!found)
 			{
 				Error ("Entity %i, Brush %i: Couldn't find info_hullshape entity '%s'.",
-#ifdef HLCSG_COUNT_NEW
 					brush->originalentitynum, brush->originalbrushnum,
-#else
-					brush->entitynum, brush->brushnum,
-#endif
 					name);
 			}
 		}
@@ -621,11 +609,7 @@ void ExpandBrush(brush_t* brush, const int hullnum)
 					if(hullnum == 1 && !warned)
 					{
 						Warning("Illegal Brush (edge without opposite face): Entity %i, Brush %i\n",
-#ifdef HLCSG_COUNT_NEW
 							brush->originalentitynum, brush->originalbrushnum
-#else
-							brush->entitynum, brush->brushnum
-#endif
 							);
 						warned = true;
 					}
@@ -883,11 +867,7 @@ restart:
         if (h->bounds.m_Mins[i] < -BOGUS_RANGE / 2 || h->bounds.m_Maxs[i] > BOGUS_RANGE / 2)
         {
             Fatal(assume_BRUSH_OUTSIDE_WORLD, "Entity %i, Brush %i: outside world(+/-%d): (%.0f,%.0f,%.0f)-(%.0f,%.0f,%.0f)",
-#ifdef HLCSG_COUNT_NEW
 				b->originalentitynum, b->originalbrushnum,
-#else
-                  b->entitynum, b->brushnum,
-#endif
                   BOGUS_RANGE / 2,
                   h->bounds.m_Mins[0], h->bounds.m_Mins[1], h->bounds.m_Mins[2],
                   h->bounds.m_Maxs[0], h->bounds.m_Maxs[1], h->bounds.m_Maxs[2]);
@@ -927,11 +907,7 @@ bool            MakeBrushPlanes(brush_t* b)
         if (planenum == -1)
         {
             Fatal(assume_PLANE_WITH_NO_NORMAL, "Entity %i, Brush %i, Side %i: plane with no normal", 
-#ifdef HLCSG_COUNT_NEW
 				b->originalentitynum, b->originalbrushnum
-#else
-				b->entitynum, b->brushnum
-#endif
 				, i);
         }
 
@@ -943,11 +919,7 @@ bool            MakeBrushPlanes(brush_t* b)
             if (f->planenum == planenum || f->planenum == (planenum ^ 1))
             {
                 Fatal(assume_BRUSH_WITH_COPLANAR_FACES, "Entity %i, Brush %i, Side %i: has a coplanar plane at (%.0f, %.0f, %.0f), texture %s",
-#ifdef HLCSG_COUNT_NEW
 					b->originalentitynum, b->originalbrushnum
-#else
-                      b->entitynum, b->brushnum
-#endif
 					  , i, s->planepts[0][0] + origin[0], s->planepts[0][1] + origin[1],
                       s->planepts[0][2] + origin[2], s->td.name);
             }
@@ -1146,11 +1118,7 @@ contents_t      CheckBrushContents(const brush_t* const b)
 	if (b->numsides == 0)
 	{
 		Error ("Entity %i, Brush %i: Brush with no sides.\n",
-#ifdef HLCSG_COUNT_NEW
 			b->originalentitynum, b->originalbrushnum
-#else
-			b->entitynum, b->brushnum
-#endif
 			);
 	}
 	best_i = 0;
@@ -1214,11 +1182,7 @@ contents_t      CheckBrushContents(const brush_t* const b)
         if (contents2 != best_contents)
         {
             Fatal(assume_MIXED_FACE_CONTENTS, "Entity %i, Brush %i: mixed face contents\n    Texture %s and %s",
-#ifdef HLCSG_COUNT_NEW
 				b->originalentitynum, b->originalbrushnum, 
-#else
-				b->entitynum, b->brushnum, 
-#endif
                 g_brushsides[b->firstside + best_i].td.name,
 				s->td.name);
         }
@@ -1239,11 +1203,7 @@ contents_t      CheckBrushContents(const brush_t* const b)
 			)
         {
             Fatal(assume_BRUSH_NOT_ALLOWED_IN_WORLD, "Entity %i, Brush %i: %s brushes not allowed in world\n(did you forget to tie this origin brush to a rotating entity?)", 
-#ifdef HLCSG_COUNT_NEW
 				b->originalentitynum, b->originalbrushnum, 
-#else
-				b->entitynum, b->brushnum, 
-#endif
 				ContentsToString(contents));
         }
     }
@@ -1273,11 +1233,7 @@ contents_t      CheckBrushContents(const brush_t* const b)
             break;
         default:
             Fatal(assume_BRUSH_NOT_ALLOWED_IN_ENTITY, "Entity %i, Brush %i: %s brushes not allowed in entity", 
-#ifdef HLCSG_COUNT_NEW
 				b->originalentitynum, b->originalbrushnum, 
-#else
-				b->entitynum, b->brushnum, 
-#endif
 				ContentsToString(contents));
             break;
         }
@@ -1396,11 +1352,7 @@ hullbrush_t *CreateHullBrush (const brush_t *b)
 				if (fabs (p[j][k] - floor (p[j][k] + 0.5)) <= ON_EPSILON && p[j][k] != floor (p[j][k] + 0.5))
 				{
 					Warning ("Entity %i, Brush %i: vertex (%4.8f %4.8f %4.8f) of an info_hullshape entity is slightly off-grid.",
-#ifdef HLCSG_COUNT_NEW
 							b->originalentitynum, b->originalbrushnum,
-#else
-							b->entitynum, b->brushnum,
-#endif
 							p[j][0], p[j][1], p[j][2]);
 				}
 			}
@@ -1601,11 +1553,7 @@ hullbrush_t *CreateHullBrush (const brush_t *b)
 	{
 		hb = NULL;
 		Error ("Entity %i, Brush %i: invalid brush. This brush cannot be used for info_hullshape.",
-#ifdef HLCSG_COUNT_NEW
 				b->originalentitynum, b->originalbrushnum
-#else
-				b->entitynum, b->brushnum
-#endif
 				);
 	}
 
@@ -1706,11 +1654,7 @@ void CreateHullShape (int entitynum, bool disabled, const char *id, int defaulth
 	{
 		brush_t *b = &g_mapbrushes[entity->firstbrush];
 		Error ("Entity %i, Brush %i: Too many brushes in info_hullshape.",
-#ifdef HLCSG_COUNT_NEW
 			b->originalentitynum, b->originalbrushnum
-#else
-			b->entitynum, b->brushnum
-#endif
 			);
 	}
 

@@ -19,10 +19,8 @@ static const vec3_t   s_baseaxis[18] = {
     {0, -1, 0}, {1, 0, 0}, {0, 0, -1},                     // north wall
 };
 
-#ifdef HLCSG_COUNT_NEW
 int				g_numparsedentities;
 int				g_numparsedbrushes;
-#endif
 
 brush_t *CopyCurrentBrush (entity_t *entity, const brush_t *brush)
 {
@@ -73,11 +71,7 @@ void DeleteCurrentEntity (entity_t *entity)
 		if (b->firstside + b->numsides != g_numbrushsides)
 		{
 			Error ("DeleteCurrentEntity: internal error. (Entity %i, Brush %i)",
-#ifdef HLCSG_COUNT_NEW
 				b->originalentitynum, b->originalbrushnum
-#else
-				b->entitynum, b->brushnum
-#endif
 				);
 		}
 		memset (&g_brushsides[b->firstside], 0, b->numsides * sizeof (side_t));
@@ -168,10 +162,8 @@ static void ParseBrush(entity_t* mapent)
     b = &g_mapbrushes[g_nummapbrushes];
     g_nummapbrushes++;
     b->firstside = g_numbrushsides;
-#ifdef HLCSG_COUNT_NEW
 	b->originalentitynum = g_numparsedentities;
 	b->originalbrushnum = g_numparsedbrushes;
-#endif
     b->entitynum = g_numentities - 1;
     b->brushnum = g_nummapbrushes - mapent->firstbrush - 1;
 
@@ -219,11 +211,7 @@ static void ParseBrush(entity_t* mapent)
 		if (wrong)
 		{
 			Warning ("Entity %i, Brush %i: incorrect settings for detail brush.",
-#ifdef HLCSG_COUNT_NEW
 					b->originalentitynum, b->originalbrushnum
-#else
-					b->entitynum, b->brushnum
-#endif
 					);
 		}
 	}
@@ -277,11 +265,7 @@ static void ParseBrush(entity_t* mapent)
             if (strcmp(g_token, "("))
             {
                 Error("Parsing Entity %i, Brush %i, Side %i : Expecting '(' got '%s'",
-#ifdef HLCSG_COUNT_NEW
 					b->originalentitynum, b->originalbrushnum, 
-#else
-                      b->entitynum, b->brushnum, 
-#endif
 					  b->numsides, g_token);
             }
 
@@ -295,11 +279,7 @@ static void ParseBrush(entity_t* mapent)
             if (strcmp(g_token, ")"))
             {
                 Error("Parsing	Entity %i, Brush %i, Side %i : Expecting ')' got '%s'",
-#ifdef HLCSG_COUNT_NEW
 					b->originalentitynum, b->originalbrushnum, 
-#else
-                      b->entitynum, b->brushnum, 
-#endif
 					  b->numsides, g_token);
             }
         }
@@ -448,11 +428,7 @@ static void ParseBrush(entity_t* mapent)
                 aa = bb = dd = 0;
                 Warning
                     ("Degenerate QuArK-style brush texture : Entity %i, Brush %i @ (%f,%f,%f) (%f,%f,%f)	(%f,%f,%f)",
-#ifdef HLCSG_COUNT_NEW
 					b->originalentitynum, b->originalbrushnum, 
-#else
-                     b->entitynum, b->brushnum, 
-#endif
 					 side->planepts[0][0], side->planepts[0][1], side->planepts[0][2],
                      side->planepts[1][0], side->planepts[1][1], side->planepts[1][2], side->planepts[2][0],
                      side->planepts[2][1], side->planepts[2][2]);
@@ -563,11 +539,7 @@ static void ParseBrush(entity_t* mapent)
 		if (*ValueForKey (mapent, "origin"))
 		{
 			Error ("Entity %i, Brush %i: Only one ORIGIN brush allowed.",
-	#ifdef HLCSG_COUNT_NEW
 					b->originalentitynum, b->originalbrushnum
-	#else
-					b->entitynum, b->brushnum
-	#endif
 					);
 		}
 #endif
@@ -623,11 +595,7 @@ static void ParseBrush(entity_t* mapent)
 		if (*ValueForKey (mapent, "zhlt_minsmaxs"))
 		{
 			Error ("Entity %i, Brush %i: Only one BoundingBox brush allowed.",
-	#ifdef HLCSG_COUNT_NEW
 					b->originalentitynum, b->originalbrushnum
-	#else
-					b->entitynum, b->brushnum
-	#endif
 					);
 		}
         char            string[MAXTOKEN];
@@ -718,9 +686,7 @@ bool            ParseMapEntity()
     entity_t*       mapent;
     epair_t*        e;
 
-#ifdef HLCSG_COUNT_NEW
 	g_numparsedbrushes = 0;
-#endif
     if (!GetToken(true))
     {
         return false;
@@ -731,11 +697,7 @@ bool            ParseMapEntity()
     if (strcmp(g_token, "{"))
     {
         Error("Parsing Entity %i, expected '{' got '%s'", 
-#ifdef HLCSG_COUNT_NEW
 			g_numparsedentities, 
-#else
-			this_entity, 
-#endif
 			g_token);
     }
 
@@ -757,9 +719,7 @@ bool            ParseMapEntity()
         if (!strcmp(g_token, "{"))  // must be a brush
         {
 			ParseBrush (mapent);
-#ifdef HLCSG_COUNT_NEW
 			g_numparsedbrushes++;
-#endif
 
         }
         else                        // else assume an epair
@@ -804,11 +764,7 @@ bool            ParseMapEntity()
 	{
 		if (!*ValueForKey (mapent, "origin"))
 			Warning ("Entity %i: 'zhlt_usemodel' requires the entity to have an origin brush.", 
-#ifdef HLCSG_COUNT_NEW
 				g_numparsedentities
-#else
-				this_entity
-#endif
 				);
 		mapent->numbrushes = 0;
 	}
@@ -964,11 +920,7 @@ bool            ParseMapEntity()
 						if (zeroscale)
 						{
 							Error ("Entity %i, Brush %i: invalid texture scale.\n", 
-	#ifdef HLCSG_COUNT_NEW
 								brush->originalentitynum, brush->originalbrushnum
-	#else
-								this_entity, ibrush
-	#endif
 								);
 						}
 					}
@@ -1027,11 +979,7 @@ bool            ParseMapEntity()
 #ifndef HLCSG_HLBSP_ALLOWEMPTYENTITY
     if (mapent->numbrushes && all_clip)
         Fatal(assume_NO_VISIBILE_BRUSHES, "Entity %i has no visible brushes\n", 
-#ifdef HLCSG_COUNT_NEW
 			g_numparsedentities
-#else
-			this_entity
-#endif
 			);
 #endif
 
@@ -1109,11 +1057,7 @@ bool            ParseMapEntity()
         brushhull_t*    hull = g_mapbrushes[mapent->firstbrush].hulls;
 
         Error("Entity %i, contains ONLY an origin brush near (%.0f,%.0f,%.0f)\n",
-#ifdef HLCSG_COUNT_NEW
 			g_numparsedentities, 
-#else
-              this_entity, 
-#endif
 			  hull->bounds.m_Mins[0], hull->bounds.m_Mins[1], hull->bounds.m_Mins[2]);
     }
 #endif
@@ -1200,11 +1144,7 @@ bool            ParseMapEntity()
 		if (strncmp (classname, "light", 5))
 		{
 			Warning ("Entity %i (classname \"%s\"): origin outside +/-%.0f: (%.0f,%.0f,%.0f)", 
-#ifdef HLCSG_COUNT_NEW
 				g_numparsedentities, 
-#else
-				this_entity, 
-#endif
 				classname, (double)ENGINE_ENTITY_RANGE, mapent->origin[0], mapent->origin[1], mapent->origin[2]);
 		}
 	}
@@ -1265,14 +1205,10 @@ void            LoadMapFile(const char* const filename)
 
     g_numentities = 0;
 
-#ifdef HLCSG_COUNT_NEW
 	g_numparsedentities = 0;
-#endif
     while (ParseMapEntity())
     {
-#ifdef HLCSG_COUNT_NEW
 		g_numparsedentities++;
-#endif
     }
 
     // AJM debug

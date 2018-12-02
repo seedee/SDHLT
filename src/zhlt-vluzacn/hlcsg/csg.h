@@ -164,10 +164,8 @@ typedef struct
 
 typedef struct brush_s
 {
-#ifdef HLCSG_COUNT_NEW
 	int				originalentitynum;
 	int				originalbrushnum;
-#endif
     int             entitynum;
     int             brushnum;
 
