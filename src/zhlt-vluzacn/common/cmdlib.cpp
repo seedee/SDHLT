@@ -211,12 +211,7 @@ void ExtractFile(const char* const path, char* dest)
 
 	int length = strlen(path);
 
-#ifdef ZHLT_FILE_FUNCTIONS_FIX
 	length -= directory_pos + 1;
-#else
-	if(directory_pos == -1)	{ directory_pos = 0; }
-	else { length -= directory_pos + 1; }
-#endif
 
     memcpy(dest,path+directory_pos+1,length); //exclude directory slash
     dest[length] = 0;
@@ -228,12 +223,7 @@ void ExtractFileBase(const char* const path, char* dest)
 	getFilePositions(path,&extension_pos,&directory_pos);
 	int length = extension_pos == -1 ? strlen(path) : extension_pos;
 
-#ifdef ZHLT_FILE_FUNCTIONS_FIX
 	length -= directory_pos + 1;
-#else
-	if(directory_pos == -1)	{ directory_pos = 0; }
-	else { length -= directory_pos + 1; }
-#endif
 
     memcpy(dest,path+directory_pos+1,length); //exclude directory slash
     dest[length] = 0;
