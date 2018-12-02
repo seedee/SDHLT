@@ -1002,19 +1002,12 @@ static contents_t TextureContents(const char* const name)
 	if (!strncasecmp(name, "solidhint", 9))
 		return CONTENTS_NULL;
 #endif
-#ifdef HLCSG_NOSPLITBYHINT
 	if (!strncasecmp(name, "splitface", 9))
 		return CONTENTS_HINT;
 	if (!strncasecmp(name, "hint", 4))
 		return CONTENTS_TOEMPTY;
 	if (!strncasecmp(name, "skip", 4))
 		return CONTENTS_TOEMPTY;
-#else
-    if (!strncasecmp(name, "hint", 4))
-        return CONTENTS_HINT;
-    if (!strncasecmp(name, "skip", 4))
-        return CONTENTS_HINT;
-#endif
 
     if (!strncasecmp(name, "translucent", 11))
         return CONTENTS_TRANSLUCENT;

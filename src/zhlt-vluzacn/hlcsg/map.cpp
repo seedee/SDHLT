@@ -476,9 +476,7 @@ static void ParseBrush(entity_t* mapent)
 #ifdef HLCSG_HLBSP_SOLIDHINT
 			&& strncasecmp(side->td.name,"SOLIDHINT",9)
 #endif
-#ifdef HLCSG_NOSPLITBYHINT
 			&& strncasecmp(side->td.name,"SPLITFACE",9)
-#endif
 			&& strncasecmp(side->td.name,"BOUNDINGBOX",11)
 #ifdef HLCSG_CUSTOMCONTENT
 			&& strncasecmp(side->td.name,"CONTENT",7) && strncasecmp(side->td.name,"SKY",3)
@@ -488,7 +486,6 @@ static void ParseBrush(entity_t* mapent)
 			safe_strncpy(side->td.name,"NULL",sizeof(side->td.name));
 		}
 	}
-#ifdef HLCSG_NOSPLITBYHINT
 	for (j = 0; j < b->numsides; j++)
 	{
 		// change to SKIP now that we have set brush content.
@@ -498,7 +495,6 @@ static void ParseBrush(entity_t* mapent)
 			strcpy (side->td.name, "SKIP");
 		}
 	}
-#endif
 #ifdef HLCSG_CUSTOMCONTENT
 	for (j = 0; j < b->numsides; j++)
 	{
