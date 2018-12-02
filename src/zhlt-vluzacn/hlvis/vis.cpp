@@ -10,11 +10,9 @@
 */
 
 #include "vis.h"
-#ifdef ZHLT_LANGFILE
 #ifdef SYSTEM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#endif
 #endif
 
 #ifdef ZHLT_NETVIS
@@ -1353,9 +1351,7 @@ static void     Usage()
 
     Log("\n-= %s Options =-\n\n", g_Program);
 	Log("    -console #      : Set to 0 to turn off the pop-up console (default is 1)\n");
-#ifdef ZHLT_LANGFILE
 	Log("    -lang file      : localization file\n");
-#endif
     Log("    -full           : Full vis\n");
     Log("    -fast           : Fast vis\n\n");
 #ifdef ZHLT_NETVIS
@@ -1736,7 +1732,6 @@ int             main(const int argc, char** argv)
 			g_postcompile = true;
 		}*/
 #endif
-#ifdef ZHLT_LANGFILE
 		else if (!strcasecmp (argv[i], "-lang"))
 		{
 			if (i + 1 < argc)
@@ -1754,7 +1749,6 @@ int             main(const int argc, char** argv)
 				Usage();
 			}
 		}
-#endif
 
         else if (argv[i][0] == '-')
         {

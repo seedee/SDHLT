@@ -16,11 +16,9 @@
 #include <conio.h>
 #endif
 #endif
-#ifdef ZHLT_LANGFILE
 #ifdef SYSTEM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#endif
 #endif
 
 typedef enum
@@ -851,9 +849,7 @@ static void     Usage(void)
 	Log("\n-= %s Options =-\n\n", g_Program);
 
 	Log("    -console #      : Set to 0 to turn off the pop-up console (default is 1)\n");
-#ifdef ZHLT_LANGFILE
 	Log("    -lang file      : localization file\n");
-#endif
 	Log("    -export         : Export entity data\n");
 	Log("    -import         : Import entity data\n\n");
 
@@ -1104,7 +1100,6 @@ int             main(int argc, char** argv)
 		}
 #endif
 #endif
-#ifdef ZHLT_LANGFILE
 		else if (!strcasecmp (argv[i], "-lang"))
 		{
 			if (i + 1 < argc)
@@ -1122,7 +1117,6 @@ int             main(int argc, char** argv)
 				Usage();
 			}
 		}
-#endif
 		else if (argv[i][0] == '-') //--vluzacn
 		{
 			Log("Unknown option: '%s'\n", argv[i]);

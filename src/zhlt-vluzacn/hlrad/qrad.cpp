@@ -3995,9 +3995,7 @@ static void     Usage()
 
     Log("\n-= %s Options =-\n\n", g_Program);
 	Log("    -console #      : Set to 0 to turn off the pop-up console (default is 1)\n");
-#ifdef ZHLT_LANGFILE
 	Log("    -lang file      : localization file\n");
-#endif
 #ifdef HLRAD_TEXTURE
 	Log("    -waddir folder  : Search this folder for wad files.\n");
 #endif
@@ -5494,7 +5492,6 @@ int             main(const int argc, char** argv)
 			}
 		}
 #endif
-#ifdef ZHLT_LANGFILE
 		else if (!strcasecmp (argv[i], "-lang"))
 		{
 			if (i + 1 < argc)
@@ -5512,7 +5509,6 @@ int             main(const int argc, char** argv)
 				Usage();
 			}
 		}
-#endif
 
         else if (argv[i][0] == '-')
         {

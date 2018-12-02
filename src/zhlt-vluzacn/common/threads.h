@@ -44,12 +44,7 @@ extern void     threads_InitCrit();
 extern void     threads_UninitCrit();
 #endif
 
-#ifdef ZHLT_LANGFILE
 #define NamedRunThreadsOn(n,p,f) { Log("%s\n", Localize(#f ":")); RunThreadsOn(n,p,f); }
 #define NamedRunThreadsOnIndividual(n,p,f) { Log("%s\n", Localize(#f ":")); RunThreadsOnIndividual(n,p,f); }
-#else
-#define NamedRunThreadsOn(n,p,f) { Log("%s\n", #f ":"); RunThreadsOn(n,p,f); }
-#define NamedRunThreadsOnIndividual(n,p,f) { Log("%s\n", #f ":"); RunThreadsOnIndividual(n,p,f); }
-#endif
 
 #endif //**/ THREADS_H__
