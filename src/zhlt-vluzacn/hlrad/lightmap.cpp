@@ -923,23 +923,12 @@ static void     CalcFaceVectors(lightinfo_t* l)
     // the distance along the plane normal
     distscale = 1.0 / distscale;
 
-#ifdef ZHLT_FREETEXTUREAXIS
 	for (i = 0; i < 2; i++)
 	{
 		CrossProduct (l->worldtotex[!i], l->facenormal, l->textoworld[i]);
 		len = DotProduct (l->textoworld[i], l->worldtotex[i]);
 		VectorScale (l->textoworld[i], 1 / len, l->textoworld[i]);
 	}
-#else
-    for (i = 0; i < 2; i++)
-    {
-        len = (float)VectorLength(l->worldtotex[i]);
-        dist = DotProduct(l->worldtotex[i], l->facenormal);
-        dist *= distscale;
-        VectorMA(l->worldtotex[i], -dist, texnormal, l->textoworld[i]);
-        VectorScale(l->textoworld[i], (1 / len) * (1 / len), l->textoworld[i]);
-    }
-#endif
 
     // calculate texorg on the texture plane
     for (i = 0; i < 3; i++)

@@ -1035,7 +1035,6 @@ bool            ParseMapEntity()
 								VectorScale (point, ent_gscale, point);
 							}
 						}
-#ifdef ZHLT_FREETEXTUREAXIS
 						// note that  tex->vecs = td.vects.valve.Axis / td.vects.valve.scale
 						//            tex->vecs[3] = vects.valve.shift + Dot(origin, tex->vecs)
 						//      and   texcoordinate = Dot(worldposition, tex->vecs) + tex->vecs[3]
@@ -1120,33 +1119,6 @@ bool            ParseMapEntity()
 	#endif
 								);
 						}
-#else
-						vec3_t U, V, position;
-						// assume: UAxis and VAxis are perpendicular normalized vectors.
-						VectorScale (side->td.vects.valve.UAxis, - side->td.vects.valve.shift[0] * side->td.vects.valve.scale[0], U);
-						VectorScale (side->td.vects.valve.VAxis, - side->td.vects.valve.shift[1] * side->td.vects.valve.scale[1], V);
-						VectorAdd (U, V, position);
-						if (ent_scale_b)
-						{
-							VectorSubtract (position, ent_scale_origin, position);
-							VectorScale (position, ent_scale, position);
-							VectorAdd (position, ent_scale_origin, position);
-							side->td.vects.valve.scale[0] *= ent_scale;
-							side->td.vects.valve.scale[1] *= ent_scale;
-						}
-						if (ent_move_b)
-						{
-							VectorAdd (position, ent_move, position);
-						}
-						if (ent_gscale_b)
-						{
-							VectorScale (position, ent_gscale, position);
-							side->td.vects.valve.scale[0] *= ent_gscale;
-							side->td.vects.valve.scale[1] *= ent_gscale;
-						}
-						side->td.vects.valve.shift[0] = DotProduct (position, side->td.vects.valve.UAxis) / - side->td.vects.valve.scale[0];
-						side->td.vects.valve.shift[1] = DotProduct (position, side->td.vects.valve.VAxis) / - side->td.vects.valve.scale[1];
-#endif
 					}
 				}
 				if (ent_gscale_b)

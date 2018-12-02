@@ -1295,24 +1295,10 @@ static void     getGridPlanes(const patch_t* const p, dplane_t* const pl)
 
     for (x = 0; x < 2; x++, plane++)
     {
-#ifdef ZHLT_FREETEXTUREAXIS
 		// cut the patch along texel grid planes
 		vec_t			val;
 		val = DotProduct (faceplane->normal, tx->vecs[!x]);
 		VectorMA (tx->vecs[!x], -val, faceplane->normal, plane->normal);
-#else
-        vec3_t          a, b, c;
-        vec3_t          delta1, delta2;
-
-        VectorCopy(patch->origin, a);
-        VectorAdd(patch->origin, faceplane->normal, b);
-        VectorAdd(patch->origin, tx->vecs[x], c);
-
-        VectorSubtract(b, a, delta1);
-        VectorSubtract(c, a, delta2);
-
-        CrossProduct(delta1, delta2, plane->normal);
-#endif
         VectorNormalize(plane->normal);
         plane->dist = DotProduct(plane->normal, patch->origin);
     }
@@ -1590,7 +1576,6 @@ static vec_t    getScale(const patch_t* const patch)
 
     if (g_texscale)
     {
-#ifdef ZHLT_FREETEXTUREAXIS
 		const dplane_t*	faceplane = getPlaneFromFace (f);
 		vec3_t			vecs_perpendicular[2];
 		vec_t			scale[2];
@@ -1609,25 +1594,6 @@ static vec_t    getScale(const patch_t* const patch)
 		// don't care about the angle between vecs[0] and vecs[1] (given the length of "vecs", smaller angle = larger texel area), because gridplanes will have the same angle (also smaller angle = larger patch area)
 
 		return sqrt (scale[0] * scale[1]);
-#else
-        vec_t           scale[2];
-
-        scale[0] = 0.0;
-        scale[1] = 0.0;
-
-        scale[0] += tx->vecs[0][0] * tx->vecs[0][0];
-        scale[0] += tx->vecs[0][1] * tx->vecs[0][1];
-        scale[0] += tx->vecs[0][2] * tx->vecs[0][2];
-
-        scale[1] += tx->vecs[1][0] * tx->vecs[1][0];
-        scale[1] += tx->vecs[1][1] * tx->vecs[1][1];
-        scale[1] += tx->vecs[1][2] * tx->vecs[1][2];
-
-        scale[0] = sqrt(scale[0]);
-        scale[1] = sqrt(scale[1]);
-
-        return 2.0 / ((scale[0] + scale[1]));
-#endif
     }
     else
     {
