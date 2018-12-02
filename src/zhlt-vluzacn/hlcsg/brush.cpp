@@ -802,17 +802,13 @@ restart:
             }
             const plane_t* p = &g_mapplanes[f2->planenum ^ 1];
             if (!w->Chop(p->normal, p->dist
-#ifdef HLCSG_MakeHullFaces_PRECISE
 				, NORMAL_EPSILON  // fix "invalid brush" in ExpandBrush
-#endif
 				))   // Nothing left to chop (getArea will return 0 for us in this case for below)
             {
                 break;
             }
         }
-#ifdef HLCSG_MakeHullFaces_PRECISE
 		w->RemoveColinearPoints (ON_EPSILON);
-#endif
         if (w->getArea() < 0.1)
         {
             delete w;
