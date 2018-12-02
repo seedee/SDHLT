@@ -54,7 +54,6 @@
 	#ifdef ZHLT_XASH
 //#define ZHLT_XASH2 // build the compiler for Xash engine with change in bsp format //--vluzacn
 	#endif
-#define ZHLT_CHART_WADFILES //--vluzacn
 #define ZHLT_DEFAULTEXTENSION_FIX //--vluzacn
 #define ZHLT_FREETEXTUREAXIS //--vluzacn
 #define ZHLT_WARNWORLDFACES //--vluzacn

@@ -978,7 +978,6 @@ int CountBlocks ()
 	}
 	return count;
 }
-#ifdef ZHLT_CHART_WADFILES
 bool NoWadTextures ()
 {
 	// copied from loadtextures.cpp
@@ -1064,7 +1063,6 @@ char *FindWadValue ()
 	}
 	return NULL;
 }
-#endif
 
 #define ENTRIES(a)		(sizeof(a)/sizeof(*(a)))
 #define ENTRYSIZE(a)	(sizeof(*(a)))
@@ -1105,10 +1103,8 @@ void            PrintBSPFileSizes()
     int             totalmemory = 0;
 	int numallocblocks = CountBlocks ();
 	int maxallocblocks = 64;
-#ifdef ZHLT_CHART_WADFILES
 	bool nowadtextures = NoWadTextures (); // We don't have this check at hlcsg, because only legacy compile tools don't empty "wad" value in "-nowadtextures" compiles.
 	char *wadvalue = FindWadValue ();
-#endif
 
     Log("\n");
     Log("Object names  Objects/Maxobjs  Memory / Maxmem  Fullness\n");
@@ -1155,7 +1151,6 @@ void            PrintBSPFileSizes()
     Log("%i textures referenced\n", numtextures);
 
     Log("=== Total BSP file data space used: %d bytes ===\n", totalmemory);
-#ifdef ZHLT_CHART_WADFILES
 	if (nowadtextures)
 	{
 		Log ("Wad files required to run the map: (None)\n");
@@ -1172,7 +1167,6 @@ void            PrintBSPFileSizes()
 	{
 		free (wadvalue);
 	}
-#endif
 }
 
 
