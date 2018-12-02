@@ -571,10 +571,6 @@ void            Banner()
 #endif
 		" (%s)\n", g_Program, __DATE__);
     //Log("BUGGY %s (built: %s)\nUse at own risk.\n", g_Program, __DATE__);
-#ifdef ZHLT_XASH2
-	Log (" - special edition for Xash with change in bsp format\n");
-#else
-#endif
 
     Log("Zoner's Half-Life Compilation Tools -- Custom Build\n"
         "Based on code modifications by Sean 'Zoner' Cavanaugh\n"

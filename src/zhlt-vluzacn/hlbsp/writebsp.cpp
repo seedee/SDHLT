@@ -126,17 +126,10 @@ static int      WriteClipNodes_r(node_t* node
 		return num;
 	}
 
-#ifdef ZHLT_XASH2
-	dclipnode_t tmpclipnode; // this clipnode will be inserted into g_dclipnodes[c] if it can't be merged
-	cn = &tmpclipnode;
-	c = g_numclipnodes[g_hullnum - 1];
-	g_numclipnodes[g_hullnum - 1]++;
-#else
 	dclipnode_t tmpclipnode; // this clipnode will be inserted into g_dclipnodes[c] if it can't be merged
 	cn = &tmpclipnode;
 	c = g_numclipnodes;
 	g_numclipnodes++;
-#endif
     if (node->planenum & 1)
     {
         Error("WriteClipNodes_r: odd planenum");
@@ -154,29 +147,17 @@ static int      WriteClipNodes_r(node_t* node
 	if (g_noclipnodemerge || output == outputmap->end ())
 	{
 		hlassume (c < MAX_MAP_CLIPNODES, assume_MAX_MAP_CLIPNODES);
-#ifdef ZHLT_XASH2
-		g_dclipnodes[g_hullnum - 1][c] = *cn;
-#else
 		g_dclipnodes[c] = *cn;
-#endif
 		(*outputmap)[MakeKey (*cn)] = c;
 	}
 	else
 	{
 		count_mergedclipnodes++;
-#ifdef ZHLT_XASH2
-		if (g_numclipnodes[g_hullnum - 1] != c + 1)
-		{
-			Error ("Merge clipnodes: internal error");
-		}
-		g_numclipnodes[g_hullnum - 1] = c;
-#else
 		if (g_numclipnodes != c + 1)
 		{
 			Error ("Merge clipnodes: internal error");
 		}
 		g_numclipnodes = c;
-#endif
 		c = output->second; // use existing clipnode
 	}
 
@@ -587,14 +568,7 @@ void            BeginBSPFile()
     g_nummodels = 0;
     g_numfaces = 0;
     g_numnodes = 0;
-#ifdef ZHLT_XASH2
-	for (int hull = 1; hull < MAX_MAP_HULLS; hull++)
-	{
-		g_numclipnodes[hull - 1] = 0;
-	}
-#else
     g_numclipnodes = 0;
-#endif
     g_numvertexes = 0;
     g_nummarksurfaces = 0;
     g_numsurfedges = 0;
@@ -625,16 +599,7 @@ void            FinishBSPFile()
 	Developer (DEVELOPER_LEVEL_MESSAGE, "count_mergedclipnodes = %d\n", count_mergedclipnodes);
 	if (!g_noclipnodemerge)
 	{
-#ifdef ZHLT_XASH2
-		int total = 0;
-		for (int hull = 1; hull < MAX_MAP_HULLS; hull++)
-		{
-			total += g_numclipnodes[hull - 1];
-		}
-		Log ("Reduced %d clipnodes to %d\n", total + count_mergedclipnodes, total);
-#else
 		Log ("Reduced %d clipnodes to %d\n", g_numclipnodes + count_mergedclipnodes, g_numclipnodes);
-#endif
 	}
 	if(!g_noopt)
 	{
@@ -787,20 +752,10 @@ void            FinishBSPFile()
 	if (!g_nobrink)
 	{
 		Log ("FixBrinks:\n");
-#ifdef ZHLT_XASH2
-		dclipnode_t *clipnodes[MAX_MAP_HULLS - 1];
-		int numclipnodes[MAX_MAP_HULLS - 1];
-		for (int hull = 1; hull < MAX_MAP_HULLS; hull++)
-		{
-			clipnodes[hull - 1] = (dclipnode_t *)malloc (MAX_MAP_CLIPNODES * sizeof (dclipnode_t));
-			hlassume (clipnodes[hull - 1] != NULL, assume_NoMemory);
-		}
-#else
 		dclipnode_t *clipnodes; //[MAX_MAP_CLIPNODES]
 		int numclipnodes;
 		clipnodes = (dclipnode_t *)malloc (MAX_MAP_CLIPNODES * sizeof (dclipnode_t));
 		hlassume (clipnodes != NULL, assume_NoMemory);
-#endif
 		void *(*brinkinfo)[NUM_HULLS]; //[MAX_MAP_MODELS]
 		int (*headnode)[NUM_HULLS]; //[MAX_MAP_MODELS]
 		brinkinfo = (void *(*)[NUM_HULLS])malloc (MAX_MAP_MODELS * sizeof (void *[NUM_HULLS]));
@@ -815,33 +770,18 @@ void            FinishBSPFile()
 			Developer (DEVELOPER_LEVEL_MESSAGE, " model %d\n", i);
 			for (j = 1; j < NUM_HULLS; j++)
 			{
-#ifdef ZHLT_XASH2
-				brinkinfo[i][j] = CreateBrinkinfo (g_dclipnodes[j - 1], m->headnode[j]);
-#else
 				brinkinfo[i][j] = CreateBrinkinfo (g_dclipnodes, m->headnode[j]);
-#endif
 			}
 		}
 		for (level = BrinkAny; level > BrinkNone; level--)
 		{
-#ifdef ZHLT_XASH2
-			for (int hull = 1; hull < MAX_MAP_HULLS; hull++)
-			{
-				numclipnodes[hull - 1] = 0;
-			}
-#else
 			numclipnodes = 0;
-#endif
 			count_mergedclipnodes = 0;
 			for (i = 0; i < g_nummodels; i++)
 			{
 				for (j = 1; j < NUM_HULLS; j++)
 				{
-#ifdef ZHLT_XASH2
-					if (!FixBrinks (brinkinfo[i][j], (bbrinklevel_e) level, headnode[i][j], clipnodes[j - 1], MAX_MAP_CLIPNODES, numclipnodes[j - 1], numclipnodes[j - 1]))
-#else
 					if (!FixBrinks (brinkinfo[i][j], (bbrinklevel_e) level, headnode[i][j], clipnodes, MAX_MAP_CLIPNODES, numclipnodes, numclipnodes))
-#endif
 					{
 						break;
 					}
@@ -874,25 +814,9 @@ void            FinishBSPFile()
 				Warning ("Not all brinks have been fixed because clipnode data is almost full.");
 			}
 			Developer (DEVELOPER_LEVEL_MESSAGE, "count_mergedclipnodes = %d\n", count_mergedclipnodes);
-#ifdef ZHLT_XASH2
-			int g_numclipnodes_total = 0;
-			int numclipnodes_total = 0;
-			for (int hull = 1; hull < MAX_MAP_HULLS; hull++)
-			{
-				g_numclipnodes_total += g_numclipnodes[hull - 1];
-				numclipnodes_total += numclipnodes[hull - 1];
-			}
-			Log ("Increased %d clipnodes to %d.\n", g_numclipnodes_total, numclipnodes_total);
-			for (int hull = 1; hull < MAX_MAP_HULLS; hull++)
-			{
-				g_numclipnodes[hull - 1] = numclipnodes[hull - 1];
-				memcpy (g_dclipnodes[hull - 1], clipnodes[hull - 1], numclipnodes[hull - 1] * sizeof (dclipnode_t));
-			}
-#else
 			Log ("Increased %d clipnodes to %d.\n", g_numclipnodes, numclipnodes);
 			g_numclipnodes = numclipnodes;
 			memcpy (g_dclipnodes, clipnodes, numclipnodes * sizeof (dclipnode_t));
-#endif
 			for (i = 0; i < g_nummodels; i++)
 			{
 				dmodel_t *m = &g_dmodels[i];
@@ -904,14 +828,7 @@ void            FinishBSPFile()
 		}
 		free (brinkinfo);
 		free (headnode);
-#ifdef ZHLT_XASH2
-		for (int hull = 1; hull < MAX_MAP_HULLS; hull++)
-		{
-			free (clipnodes[hull - 1]);
-		}
-#else
 		free (clipnodes);
-#endif
 	}
 	
 #ifdef PLATFORM_CAN_CALC_EXTENT
