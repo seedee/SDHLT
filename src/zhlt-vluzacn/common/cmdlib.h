@@ -67,7 +67,6 @@
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
-#define HLCSG_NOREDUNDANTKEY //--vluzacn
 #define HLCSG_HLBSP_CUSTOMBOUNDINGBOX //--vluzacn
 #define HLCSG_HLBSP_VOIDTEXINFO //--vluzacn
 	#ifdef HLCSG_HLBSP_VOIDTEXINFO

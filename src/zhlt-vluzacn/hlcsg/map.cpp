@@ -730,15 +730,10 @@ bool            ParseMapEntity()
                 g_nMapFileVersion = atoi(e->value);
             }
 
-#ifdef HLCSG_NOREDUNDANTKEY
 			SetKeyValue (mapent, e->key, e->value);
 			Free (e->key);
 			Free (e->value);
 			Free (e);
-#else
-            e->next = mapent->epairs;
-            mapent->epairs = e;
-#endif
         }
     }
 	{
