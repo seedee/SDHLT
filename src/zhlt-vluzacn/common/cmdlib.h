@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_BOUNCE_STYLE //--vluzacn
 #define HLRAD_BLUR //--vluzacn
 #define HLRAD_ACCURATEBOUNCE //--vluzacn
 	#ifdef HLRAD_ACCURATEBOUNCE

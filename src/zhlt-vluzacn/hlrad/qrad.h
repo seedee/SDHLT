@@ -326,9 +326,7 @@ typedef struct patch_s
 #ifdef ZHLT_XASH
 	vec3_t			directlight_direction[MAXLIGHTMAPS];
 #endif
-#ifdef HLRAD_BOUNCE_STYLE
 	int				bouncestyle; // light reflected from this patch must convert to this style. -1 = normal (don't convert)
-#endif
 	unsigned char	emitstyle;
     vec3_t          baselight;                             // emissivity only, uses emitstyle
 	bool			emitmode;								// texlight emit mode. 1 for normal, 0 for fast.

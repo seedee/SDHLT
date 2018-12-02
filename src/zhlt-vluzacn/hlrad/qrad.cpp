@@ -1559,9 +1559,7 @@ static vec_t    getChop(const patch_t* const patch)
 //  MakePatchForFace
 // =====================================================================================
 static void     MakePatchForFace(const int fn, Winding* w, int style
-#ifdef HLRAD_BOUNCE_STYLE
 	, int bouncestyle
-#endif
 	) //LRC
 {
     const dface_t*  f = g_dfaces + fn;
@@ -1666,7 +1664,6 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 							opacity = 1.0 - VectorAvg (op->transparency_scale);
 							opacity = opacity > 1.0? 1.0: opacity < 0.0? 0.0: opacity;
 						}
-	#ifdef HLRAD_BOUNCE_STYLE
 						if (op->style != -1)
 						{ // toggleable opaque entity
 							if (bouncestyle == -1)
@@ -1674,11 +1671,9 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 								opacity = 0.0; // doesn't reflect light
 							}
 						}
-	#endif
 						break;
 					}
 				}
-	#ifdef HLRAD_BOUNCE_STYLE
 				if (x == g_opaque_face_count)
 				{ // not opaque
 					if (bouncestyle != -1)
@@ -1686,7 +1681,6 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 						opacity = 1.0; // reflects light
 					}
 				}
-	#endif
 			}
 	#ifdef ZHLT_HIDDENSOUNDTEXTURE
 			// if the face is a world face and it's not referenced by any leaf, it must be a hidden face, and shouldn't reflect light
@@ -1709,13 +1703,11 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 	#endif
 			VectorScale (patch->texturereflectivity, opacity, patch->bouncereflectivity);
 		}
-	#ifdef HLRAD_BOUNCE_STYLE
 		patch->bouncestyle = bouncestyle;
 		if (bouncestyle == 0)
 		{ // there is an unnamed light_bounce
 			patch->bouncestyle = -1; // reflects light normally
 		}
-	#endif
 		patch->emitmode = getEmitMode (patch);
         patch->scale = getScale(patch);
         patch->chop = getChop(patch);
@@ -2134,7 +2126,6 @@ static void     MakePatches()
 		{
 			Error ("invalid light style: style (%d) >= ALLSTYLES (%d)", style, ALLSTYLES);
 		}
-#ifdef HLRAD_BOUNCE_STYLE
 		int bouncestyle = -1;
 		{
 			int j;
@@ -2157,7 +2148,6 @@ static void     MakePatches()
 				}
 			}
 		}
-#endif
 
         for (j = 0; j < mod->numfaces; j++)
         {
@@ -2173,9 +2163,7 @@ static void     MakePatches()
                 VectorAdd(w->m_Points[k], origin, w->m_Points[k]);
             }
             MakePatchForFace(fn, w, style
-#ifdef HLRAD_BOUNCE_STYLE
 				, bouncestyle
-#endif
 				); //LRC
         }
     }
@@ -2454,7 +2442,6 @@ static void     GatherLight(int threadnum)
 					if (isPointFinite (v))
 					{
 						int addstyle = emitpatch->directstyle[emitstyle];
-		#ifdef HLRAD_BOUNCE_STYLE
 						if (emitpatch->bouncestyle != -1)
 						{
 							if (addstyle == 0 || addstyle == emitpatch->bouncestyle)
@@ -2462,7 +2449,6 @@ static void     GatherLight(int threadnum)
 							else
 								continue;
 						}
-		#endif
 						if (opaquestyle != -1)
 						{
 							if (addstyle == 0 || addstyle == opaquestyle)
@@ -2484,7 +2470,6 @@ static void     GatherLight(int threadnum)
 					if (isPointFinite(v))
 					{
 						int addstyle = emitpatch->totalstyle[emitstyle];
-		#ifdef HLRAD_BOUNCE_STYLE
 						if (emitpatch->bouncestyle != -1)
 						{
 							if (addstyle == 0 || addstyle == emitpatch->bouncestyle)
@@ -2492,7 +2477,6 @@ static void     GatherLight(int threadnum)
 							else
 								continue;
 						}
-		#endif
 						if (opaquestyle != -1)
 						{
 							if (addstyle == 0 || addstyle == opaquestyle)
@@ -2653,7 +2637,6 @@ static void     GatherRGBLight(int threadnum)
 					if (isPointFinite (v))
 					{
 						int addstyle = emitpatch->directstyle[emitstyle];
-		#ifdef HLRAD_BOUNCE_STYLE
 						if (emitpatch->bouncestyle != -1)
 						{
 							if (addstyle == 0 || addstyle == emitpatch->bouncestyle)
@@ -2661,7 +2644,6 @@ static void     GatherRGBLight(int threadnum)
 							else
 								continue;
 						}
-		#endif
 						if (opaquestyle != -1)
 						{
 							if (addstyle == 0 || addstyle == opaquestyle)
@@ -2683,7 +2665,6 @@ static void     GatherRGBLight(int threadnum)
 					if (isPointFinite(v))
 					{
 						int addstyle = emitpatch->totalstyle[emitstyle];
-		#ifdef HLRAD_BOUNCE_STYLE
 						if (emitpatch->bouncestyle != -1)
 						{
 							if (addstyle == 0 || addstyle == emitpatch->bouncestyle)
@@ -2691,7 +2672,6 @@ static void     GatherRGBLight(int threadnum)
 							else
 								continue;
 						}
-		#endif
 						if (opaquestyle != -1)
 						{
 							if (addstyle == 0 || addstyle == opaquestyle)

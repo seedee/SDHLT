@@ -2173,9 +2173,7 @@ void            CreateDirectLights()
 			}
 		}
 		if (!strcmp (name, "light_shadow")
-	#ifdef HLRAD_BOUNCE_STYLE
 			|| !strcmp (name, "light_bounce")
-	#endif
 			)
 		{
 			int style = IntForKey (e, "style");
