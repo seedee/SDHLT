@@ -85,21 +85,12 @@ extern const vec3_t vec3_origin;
     (a)[2] = -((a)[2]); \
 }
 #define VectorRound(a) floor((a) + 0.5)
-#ifdef ZHLT_VectorMA_FIX
 #define VectorMA(a, scale, b, dest) \
 { \
     (dest)[0] = (a)[0] + (scale) * (b)[0]; \
     (dest)[1] = (a)[1] + (scale) * (b)[1]; \
     (dest)[2] = (a)[2] + (scale) * (b)[2]; \
 }
-#else
-#define VectorMA(a, scale, b, dest) \
-{ \
-    (dest)[0] = (a)[0] + scale * (b)[0]; \
-    (dest)[1] = (a)[1] + scale * (b)[1]; \
-    (dest)[2] = (a)[2] + scale * (b)[2]; \
-}
-#endif
 #define VectorLength(a)  sqrt((double) ((double)((a)[0] * (a)[0]) + (double)( (a)[1] * (a)[1]) + (double)( (a)[2] * (a)[2])) )
 #define VectorCompareMinimum(a,b,c) { (c)[0] = qmin((a)[0], (b)[0]); (c)[1] = qmin((a)[1], (b)[1]); (c)[2] = qmin((a)[2], (b)[2]); }
 #define VectorCompareMaximum(a,b,c) { (c)[0] = qmax((a)[0], (b)[0]); (c)[1] = qmax((a)[1], (b)[1]); (c)[2] = qmax((a)[2], (b)[2]); }
