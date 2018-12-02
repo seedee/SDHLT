@@ -589,9 +589,7 @@ static void CalcSinglePosition (positionmap_t *map, int is, int it)
 		}
 
 		if (!p->valid
-#ifdef HLRAD_FASTMODE
 			&& !g_fastmode
-#endif
 			)
 		{
 			const int numnudges = 12;
@@ -707,12 +705,10 @@ void FindFacePositions (int facenum)
 		}
 	}
 	density = 3.0;
-#ifdef HLRAD_FASTMODE
 	if (g_fastmode)
 	{
 		density = 1.0;
 	}
-#endif
 	map->step[0] = (vec_t)TEXTURE_STEP / density;
 	map->step[1] = (vec_t)TEXTURE_STEP / density;
 	map->step[2] = 1.0;

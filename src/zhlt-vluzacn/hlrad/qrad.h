@@ -43,9 +43,7 @@
 #include <direct.h>
 #endif
 
-#ifdef HLRAD_FASTMODE
 #define DEFAULT_FASTMODE			false
-#endif
 #define DEFAULT_METHOD eMethodSparseVismatrix
 #define DEFAULT_LERP_ENABLED        true
 #define DEFAULT_FADE                1.0
@@ -511,9 +509,7 @@ extern void     MakeShadowSplits();
 
 //==============================================
 
-#ifdef HLRAD_FASTMODE
 extern bool		g_fastmode;
-#endif
 extern bool     g_extra;
 extern vec3_t   g_ambient;
 extern vec_t    g_direct_scale;

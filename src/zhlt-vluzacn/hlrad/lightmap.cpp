@@ -745,9 +745,7 @@ static void     CalcFaceExtents(lightinfo_t* l)
 	// allocate sample light cache
 	{
 		if (g_extra
-	#ifdef HLRAD_FASTMODE
 			&& !g_fastmode
-	#endif
 			)
 		{
 			l->lmcache_density = 3;
@@ -2081,12 +2079,10 @@ void            CreateDirectLights()
 			{
 				dl->topatch = true;
 			}
-#ifdef HLRAD_FASTMODE
 			if (g_fastmode)
 			{
 				dl->topatch = true;
 			}
-#endif
 #ifdef HLRAD_TEXLIGHT_SPOTS_FIX
 			dl->patch_area = p->area;
 	#ifdef HLRAD_ACCURATEBOUNCE_TEXLIGHT
@@ -2244,12 +2240,10 @@ void            CreateDirectLights()
 		{
 			dl->topatch = true;
 		}
-#ifdef HLRAD_FASTMODE
 		if (g_fastmode)
 		{
 			dl->topatch = true;
 		}
-#endif
         pLight = ValueForKey(e, "_light");
         // scanf into doubles, then assign, so it is vec_t size independent
         r = g = b = scaler = 0;
@@ -2610,11 +2604,7 @@ void            CreateDirectLights()
 						}
 						else
 						{
-			#ifdef HLRAD_FASTMODE
 							countfastlights += g_numskynormals[SKYLEVEL_SOFTSKYOFF];
-			#else
-							countnormallights += g_numskynormals[SKYLEVEL_SOFTSKYOFF];
-			#endif
 						}
 					}
 					break;
@@ -3042,10 +3032,8 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							step_match = 0;
 							if (g_softsky)
 								step_match = 1;
-	#ifdef HLRAD_FASTMODE
 							if (g_fastmode)
 								step_match = 1;
-	#endif
 							if (step != step_match)
 								continue;
 							// check intensity
@@ -4609,9 +4597,7 @@ void            BuildFacelights(const int facenum)
 
         // If we are doing "extra" samples, oversample the direct light around the point.
         if (g_extra
-#ifdef HLRAD_FASTMODE
 			&& !g_fastmode
-#endif
 			)
         {
             int             weighting[3][3] = { {1, 1, 1}, {1, 1, 1}, {1, 1, 1} }; // because we are using 1/3 dist not 1/2

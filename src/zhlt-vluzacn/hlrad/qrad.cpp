@@ -33,9 +33,7 @@ char g_dlitfile[_MAX_PATH] = "";
 bool g_drawdirection = false;
 vec_t g_directionscale = 0.0;
 #endif
-#ifdef HLRAD_FASTMODE
 bool			g_fastmode = DEFAULT_FASTMODE;
-#endif
 typedef enum
 {
     eMethodVismatrix,
@@ -3183,9 +3181,7 @@ static void     Usage()
 	Log("    -console #      : Set to 0 to turn off the pop-up console (default is 1)\n");
 	Log("    -lang file      : localization file\n");
 	Log("    -waddir folder  : Search this folder for wad files.\n");
-#ifdef HLRAD_FASTMODE
 	Log("    -fast           : Fast rad\n");
-#endif
 	Log("    -vismatrix value: Set vismatrix method to normal, sparse or off .\n");
     Log("    -extra          : Improve lighting quality by doing 9 point oversampling\n");
     Log("    -bounce #       : Set number of radiosity bounces\n");
@@ -3345,9 +3341,7 @@ static void     Settings()
     Log("priority             [ %17s ] [ %17s ]\n", tmp, "Normal");
     Log("\n");
 
-#ifdef HLRAD_FASTMODE
 	Log("fast rad             [ %17s ] [ %17s ]\n", g_fastmode? "on": "off", DEFAULT_FASTMODE? "on": "off");
-#endif
 	Log("vismatrix algorithm  [ %17s ] [ %17s ]\n",
 		g_method == eMethodVismatrix? "Original": g_method == eMethodSparseVismatrix? "Sparse": g_method == eMethodNoVismatrix? "NoMatrix": "Unknown",
 		DEFAULT_METHOD == eMethodVismatrix? "Original": DEFAULT_METHOD == eMethodSparseVismatrix? "Sparse": DEFAULT_METHOD == eMethodNoVismatrix? "NoMatrix": "Unknown"
@@ -3818,12 +3812,10 @@ int             main(const int argc, char** argv)
             }
         }
 #endif
-#ifdef HLRAD_FASTMODE
 		else if (!strcasecmp (argv[i], "-fast"))
 		{
 			g_fastmode = true;
 		}
-#endif
         else if (!strcasecmp(argv[i], "-nolerp"))
         {
              g_lerp_enabled  = false;
@@ -4528,13 +4520,11 @@ int             main(const int argc, char** argv)
 	LoadExtentFile (extentfilename);
 #endif
     ParseEntities();
-#ifdef HLRAD_FASTMODE
 	if (g_fastmode)
 	{
 		g_numbounce = 0;
 		g_softsky = false;
 	}
-#endif
     Settings();
 	DeleteEmbeddedLightmaps ();
 	LoadTextures ();

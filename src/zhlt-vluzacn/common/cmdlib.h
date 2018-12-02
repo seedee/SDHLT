@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_FASTMODE //--vluzacn
 #define HLRAD_OVERWRITEVERTEX_FIX //--vluzacn
 #define HLRAD_TEXLIGHT_SPOTS_FIX //--vluzacn
 #define HLRAD_BOUNCE_STYLE //--vluzacn
