@@ -46,7 +46,6 @@ static FILE*    texfiles[MAX_TEXFILES];
 static wadpath_t* texwadpathes[MAX_TEXFILES]; // maps index of the wad to its path
 #endif
 
-#ifdef HLCSG_TEXMAP64_FIX
 // The old buggy code in effect limit the number of brush sides to MAX_MAP_BRUSHES
 
 static char *texmap[MAX_INTERNAL_MAP_TEXINFO];
@@ -91,41 +90,6 @@ static void texmap_clear ()
 	numtexmap = 0;
 	ThreadUnlock ();
 }
-#else
-// fix for 64 bit machines
-#if /* 64 bit */
-    static char* texmap64[MAX_MAP_BRUSHES];
-    static int   tex_max64=0;
-
-    static inline int texmap64_store(char *texname)
-    {
-        int curr_tex;
-        ThreadLock();
-        if (tex_max64 >= MAX_MAP_BRUSHES)   // no assert?
-        {
-			Error ("MAX_MAP_BRUSHES exceeded!");
-        }
-        curr_tex = tex_max64;
-        texmap64[tex_max64] = texname;
-        tex_max64++;
-        ThreadUnlock();
-        return curr_tex;
-    }
-
-    static inline char* texmap64_retrieve( int index)
-    {
-        if(index > tex_max64)
-        {
-			Error ("retrieving bogus texture index %d", index);
-        }
-        return texmap64[index];
-    }
-
-#else
-    #define texmap64_store( A ) ( (int) A)
-    #define texmap64_retrieve( A ) ( (char*) A)
-#endif
-#endif
 
 // =====================================================================================
 //  CleanupName
@@ -184,12 +148,10 @@ static int CDECL lump_sorter_by_name(const void* lump1, const void* lump2)
 static int      FindMiptex(const char* const name)
 {
     int             i;
-#ifdef HLCSG_TEXMAP64_FIX
 	if (strlen (name) >= MAXWADNAME)
 	{
 		Error ("Texture name is too long (%s)\n", name);
 	}
-#endif
 
     ThreadLock();
     for (i = 0; i < nummiptex; i++)
@@ -789,22 +751,12 @@ void            WriteMiptex()
         // Sleazy Hack 104 Pt 2 - After sorting the miptex array, reset the texinfos to point to the right miptexs
         for (i = 0; i < g_numtexinfo; i++, tx++)
         {
-#ifdef HLCSG_TEXMAP64_FIX
             char*          miptex_name = texmap_retrieve(tx->miptex);
-#else
-            char*          miptex_name = texmap64_retrieve(tx->miptex);
-#endif
 
             tx->miptex = FindMiptex(miptex_name);
 
-#ifndef HLCSG_TEXMAP64_FIX
-            // Free up the originally strdup()'ed miptex_name
-            free(miptex_name);
-#endif
         }
-#ifdef HLCSG_TEXMAP64_FIX
 		texmap_clear ();
-#endif
     }
     end = I_FloatTime();
     Verbose("qsort(miptex) elapsed time = %ldms\n", (long)(end - start));
@@ -926,17 +878,7 @@ int             TexinfoForBrushTexture(const plane_t* const plane, brush_texture
 	autowad_PushName (bt->name);
 	ThreadUnlock ();
 #endif
-#ifdef HLCSG_TEXMAP64_FIX
 	FindMiptex (bt->name);
-#else
-    tx.miptex = FindMiptex(bt->name);
-
-    // Note: FindMiptex() still needs to be called here to add it to the global miptex array
-
-    // Very Sleazy Hack 104 - since the tx.miptex index will be bogus after we sort the miptex array later
-    // Put the string name of the miptex in this "index" until after we are done sorting it in WriteMiptex().
-    tx.miptex = texmap64_store(strdup(bt->name));
-#endif
 
     // set the special flag
     if (bt->name[0] == '*'
@@ -1083,11 +1025,7 @@ int             TexinfoForBrushTexture(const plane_t* const plane, brush_texture
     for (i = 0; i < g_numtexinfo; i++, tc++)
     {
         // Sleazy hack 104, Pt 3 - Use strcmp on names to avoid dups
-#ifdef HLCSG_TEXMAP64_FIX
 		if (strcmp (texmap_retrieve (tc->miptex), bt->name) != 0)
-#else
-        if (strcmp(texmap64_retrieve((tc->miptex)), texmap64_retrieve((tx.miptex))) != 0)
-#endif
         {
             continue;
         }
@@ -1113,9 +1051,7 @@ skip:;
     hlassume(g_numtexinfo < MAX_INTERNAL_MAP_TEXINFO, assume_MAX_MAP_TEXINFO);
 
     *tc = tx;
-#ifdef HLCSG_TEXMAP64_FIX
 	tc->miptex = texmap_store (bt->name, false);
-#endif
     g_numtexinfo++;
     ThreadUnlock();
     return i;
@@ -1126,9 +1062,5 @@ const char *GetTextureByNumber_CSG(int texturenumber)
 {
 	if (texturenumber == -1)
 		return "";
-#ifdef HLCSG_TEXMAP64_FIX
 	return texmap_retrieve (g_texinfo[texturenumber].miptex);
-#else
-	return texmap64_retrieve (g_texinfo[texturenumber].miptex);
-#endif
 }
