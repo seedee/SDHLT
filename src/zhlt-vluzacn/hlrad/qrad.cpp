@@ -1176,7 +1176,6 @@ void ReadTranslucentTextures()
 		}
 	}
 }
-#ifdef HLRAD_DIVERSE_LIGHTING
 vec3_t *g_lightingconeinfo;//[nummiptex]
 static vec_t DefaultScaleForPower (vec_t power)
 {
@@ -1239,7 +1238,6 @@ void ReadLightingCone ()
 		}
 	}
 }
-#endif
 
 static vec_t    getScale(const patch_t* const patch)
 {
@@ -4282,9 +4280,7 @@ int             main(const int argc, char** argv)
 	ReadCustomChopValue ();
 	ReadCustomSmoothValue ();
 	ReadTranslucentTextures ();
-#ifdef HLRAD_DIVERSE_LIGHTING
 	ReadLightingCone ();
-#endif
     g_smoothing_threshold_2 = g_smoothing_value_2 < 0 ? g_smoothing_threshold : (float)cos(g_smoothing_value_2 * (Q_PI / 180.0));
 	{
 		int style;

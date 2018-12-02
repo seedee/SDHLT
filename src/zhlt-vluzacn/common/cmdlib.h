@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_DIVERSE_LIGHTING //--vluzacn
 #define HLRAD_GROWSAMPLE //--vluzacn
 #define HLRAD_AVOIDNORMALFLIP //--vluzacn
 	#ifdef HLRAD_GROWSAMPLE

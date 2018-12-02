@@ -337,9 +337,7 @@ void            SnapToPlane(const dplane_t* const plane, vec_t* const point, vec
 //  CalcSightArea
 // =====================================================================================
 vec_t CalcSightArea (const vec3_t receiver_origin, const vec3_t receiver_normal, const Winding *emitter_winding, int skylevel
-	#ifdef HLRAD_DIVERSE_LIGHTING
 					, vec_t lighting_power, vec_t lighting_scale
-	#endif
 					)
 {
 	// maybe there are faster ways in calculating the weighted area, but at least this way is not bad.
@@ -384,27 +382,21 @@ vec_t CalcSightArea (const vec3_t receiver_origin, const vec3_t receiver_normal,
 			{
 				continue;
 			}
-	#ifdef HLRAD_DIVERSE_LIGHTING
 			if (lighting_power != 1.0)
 			{
 				dot = pow (dot, lighting_power);
 			}
-	#endif
 			area += dot * (*psize);
 		}
 		area = area * 4 * Q_PI; // convert to absolute sphere area
 	}
 	free (edges);
-#ifdef HLRAD_DIVERSE_LIGHTING
 	area *= lighting_scale;
-#endif
 	return area;
 }
 
 vec_t CalcSightArea_SpotLight (const vec3_t receiver_origin, const vec3_t receiver_normal, const Winding *emitter_winding, const vec3_t emitter_normal, vec_t emitter_stopdot, vec_t emitter_stopdot2, int skylevel
-	#ifdef HLRAD_DIVERSE_LIGHTING
 					, vec_t lighting_power, vec_t lighting_scale
-	#endif
 					)
 {
 	// stopdot = cos (cone)
@@ -455,12 +447,10 @@ vec_t CalcSightArea_SpotLight (const vec3_t receiver_origin, const vec3_t receiv
 			{
 				continue;
 			}
-	#ifdef HLRAD_DIVERSE_LIGHTING
 			if (lighting_power != 1.0)
 			{
 				dot = pow (dot, lighting_power);
 			}
-	#endif
 			dot2 = -DotProduct (*pnormal, emitter_normal);
 			if (dot2 <= emitter_stopdot2 + NORMAL_EPSILON)
 			{
@@ -475,9 +465,7 @@ vec_t CalcSightArea_SpotLight (const vec3_t receiver_origin, const vec3_t receiv
 		area = area * 4 * Q_PI; // convert to absolute sphere area
 	}
 	free (edges);
-#ifdef HLRAD_DIVERSE_LIGHTING
 	area *= lighting_scale;
-#endif
 	return area;
 }
 

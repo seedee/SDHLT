@@ -555,9 +555,7 @@ extern vec3_t	g_jitter_hack;
 	extern int stylewarningnext; // not thread safe
 	extern vec3_t *g_translucenttextures;
 	extern vec_t g_translucentdepth;
-#ifdef HLRAD_DIVERSE_LIGHTING
 	extern vec3_t *g_lightingconeinfo; //[nummiptex]; X component = power, Y component = scale, Z component = nothing
-#endif
 	extern bool g_notextures;
 	extern vec_t g_texreflectgamma;
 	extern vec_t g_texreflectscale;
@@ -736,14 +734,10 @@ extern bool     point_in_tri(const vec3_t point, const dplane_t* const plane, co
 #endif
 extern void     SnapToPlane(const dplane_t* const plane, vec_t* const point, vec_t offset);
 extern vec_t	CalcSightArea (const vec3_t receiver_origin, const vec3_t receiver_normal, const Winding *emitter_winding, int skylevel
-	#ifdef HLRAD_DIVERSE_LIGHTING
 					, vec_t lighting_power, vec_t lighting_scale
-	#endif
 					);
 extern vec_t	CalcSightArea_SpotLight (const vec3_t receiver_origin, const vec3_t receiver_normal, const Winding *emitter_winding, const vec3_t emitter_normal, vec_t emitter_stopdot, vec_t emitter_stopdot2, int skylevel
-	#ifdef HLRAD_DIVERSE_LIGHTING
 					, vec_t lighting_power, vec_t lighting_scale
-	#endif
 					);
 extern void		GetAlternateOrigin (const vec3_t pos, const vec3_t normal, const patch_t *patch, vec3_t &origin);
 

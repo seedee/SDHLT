@@ -276,7 +276,6 @@ void            MakeScales(const int threadnum)
 			VectorMA (patch->origin, -(g_translucentdepth + 2*PATCH_HUNT_OFFSET), normal1, backorigin);
 			VectorSubtract (vec3_origin, normal1, backnormal);
 		}
-#ifdef HLRAD_DIVERSE_LIGHTING
 		bool lighting_diversify;
 		vec_t lighting_power;
 		vec_t lighting_scale;
@@ -284,7 +283,6 @@ void            MakeScales(const int threadnum)
 		lighting_power = g_lightingconeinfo[miptex][0];
 		lighting_scale = g_lightingconeinfo[miptex][1];
 		lighting_diversify = (lighting_power != 1.0 || lighting_scale != 1.0);
-#endif
 
         // find out which patch2's will collect light
         // from patch
@@ -349,14 +347,12 @@ void            MakeScales(const int threadnum)
 				continue;
 			}
 
-#ifdef HLRAD_DIVERSE_LIGHTING
 			if (lighting_diversify
 				&& !light_behind_surface
 				)
 			{
 				dot1 = lighting_scale * pow (dot1, lighting_power);
 			}
-#endif
             trans = (dot1 * dot2) / (dist * dist);         // Inverse square falloff factoring angle between patch normals
             if (trans * patch2->area > 0.8f)
 				trans = 0.8f / patch2->area;
@@ -379,9 +375,7 @@ void            MakeScales(const int threadnum)
 				}
 				emitter_winding = patch2->winding;
 				sightarea = CalcSightArea (receiver_origin, receiver_normal, emitter_winding, patch2->emitter_skylevel
-	#ifdef HLRAD_DIVERSE_LIGHTING
 					, lighting_power, lighting_scale
-	#endif
 					);
 				
 				vec_t frac;
@@ -554,7 +548,6 @@ void            MakeRGBScales(const int threadnum)
 			VectorMA (patch->origin, -(g_translucentdepth + 2*PATCH_HUNT_OFFSET), normal1, backorigin);
 			VectorSubtract (vec3_origin, normal1, backnormal);
 		}
-#ifdef HLRAD_DIVERSE_LIGHTING
 		bool lighting_diversify;
 		vec_t lighting_power;
 		vec_t lighting_scale;
@@ -562,7 +555,6 @@ void            MakeRGBScales(const int threadnum)
 		lighting_power = g_lightingconeinfo[miptex][0];
 		lighting_scale = g_lightingconeinfo[miptex][1];
 		lighting_diversify = (lighting_power != 1.0 || lighting_scale != 1.0);
-#endif
 
         // find out which patch2's will collect light
         // from patch
@@ -625,14 +617,12 @@ void            MakeRGBScales(const int threadnum)
 				continue;
 			}
 			
-#ifdef HLRAD_DIVERSE_LIGHTING
 			if (lighting_diversify
 				&& !light_behind_surface
 				)
 			{
 				dot1 = lighting_scale * pow (dot1, lighting_power);
 			}
-#endif
             trans_one = (dot1 * dot2) / (dist * dist);         // Inverse square falloff factoring angle between patch normals
             
 			if (trans_one * patch2->area > 0.8f)
@@ -658,9 +648,7 @@ void            MakeRGBScales(const int threadnum)
 				}
 				emitter_winding = patch2->winding;
 				sightarea = CalcSightArea (receiver_origin, receiver_normal, emitter_winding, patch2->emitter_skylevel
-	#ifdef HLRAD_DIVERSE_LIGHTING
 					, lighting_power, lighting_scale
-	#endif
 					);
 				
 				vec_t frac;

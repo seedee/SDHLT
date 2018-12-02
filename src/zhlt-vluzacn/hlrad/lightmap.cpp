@@ -379,7 +379,6 @@ void            PairEdges()
 					e->coplanar = false;
 					VectorClear (e->interface_normal);
 				}
-#ifdef HLRAD_DIVERSE_LIGHTING
 				{
 					int miptex0, miptex1;
 					miptex0 = g_texinfo[e->faces[0]->texinfo].miptex;
@@ -391,7 +390,6 @@ void            PairEdges()
 						VectorClear (e->interface_normal);
 					}
 				}
-#endif
 				if (!VectorCompare(e->interface_normal, vec3_origin))
 				{
 					e->smooth = true;
@@ -579,9 +577,7 @@ typedef struct
     vec3_t          facenormal;
 	bool			translucent_b;
 	vec3_t			translucent_v;
-#ifdef HLRAD_DIVERSE_LIGHTING
 	int				miptex;
-#endif
 
     int             numsurfpt;
     vec3_t          surfpt[MAX_SINGLEMAP];
@@ -2851,9 +2847,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 #endif
 								  , byte* styles
 								  , int step
-#ifdef HLRAD_DIVERSE_LIGHTING
 								  , int miptex
-#endif
 #ifdef HLRAD_TEXLIGHTGAP
 								  , int texlightgap_surfacenum
 #endif
@@ -2881,14 +2875,12 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 #ifdef ZHLT_XASH
 	memset (adds_direction, 0, ALLSTYLES * sizeof (vec3_t));
 #endif
-#ifdef HLRAD_DIVERSE_LIGHTING
 	bool			lighting_diversify;
 	vec_t			lighting_power;
 	vec_t			lighting_scale;
 	lighting_power = g_lightingconeinfo[miptex][0];
 	lighting_scale = g_lightingconeinfo[miptex][1];
 	lighting_diversify = (lighting_power != 1.0 || lighting_scale != 1.0);
-#endif
 #ifdef HLRAD_TEXLIGHTGAP
 	vec3_t			texlightgap_textoworld[2];
 	// calculates textoworld
@@ -2982,12 +2974,10 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							VectorCopy (l->sunnormals[j], direction);
 		#endif
 							vec3_t add_one;
-	#ifdef HLRAD_DIVERSE_LIGHTING
 							if (lighting_diversify)
 							{
 								dot = lighting_scale * pow (dot, lighting_power);
 							}
-	#endif
 							VectorScale (l->intensity, dot * l->sunnormalweights[j], add_one);
 							VectorMultiply(add_one, transparency, add_one);
 							// add to the total brightness of this sample
@@ -3072,12 +3062,10 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								VectorMA (sky_intensity, factor, l->diffuse_intensity2, sky_intensity);
 								VectorScale (sky_intensity, skyweights[j] * g_indirect_sun / 2, sky_intensity);
 								vec3_t add_one;
-					#ifdef HLRAD_DIVERSE_LIGHTING
 								if (lighting_diversify)
 								{
 									dot = lighting_scale * pow (dot, lighting_power);
 								}
-					#endif
 								VectorScale(sky_intensity, dot, add_one);
 								VectorMultiply(add_one, transparency, add_one);
 								// add to the total brightness of this sample
@@ -3147,12 +3135,10 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								continue;
 							}
 							vec_t denominator = dist * dist * l->fade;
-#ifdef HLRAD_DIVERSE_LIGHTING
 							if (lighting_diversify)
 							{
 								dot = lighting_scale * pow (dot, lighting_power);
 							}
-#endif
                             ratio = dot / denominator;
                             VectorScale(l->intensity, ratio, add);
                             break;
@@ -3165,14 +3151,12 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							{
 								light_behind_surface = true;
 							}
-#ifdef HLRAD_DIVERSE_LIGHTING
 							if (lighting_diversify
 								&& !light_behind_surface
 								)
 							{
 								dot = lighting_scale * pow (dot, lighting_power);
 							}
-#endif
                             dot2 = -DotProduct(delta, l->normal);
 #ifdef HLRAD_TEXLIGHTGAP
 							// discard the texlight if the spot is too close to the texlight plane
@@ -3249,17 +3233,13 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 										skylevel += 1; // because the range is larger
 									}
 									sightarea = CalcSightArea_SpotLight (pos, normal, l->patch->winding, emitnormal, l->stopdot, l->stopdot2, skylevel
-			#ifdef HLRAD_DIVERSE_LIGHTING
 										, lighting_power, lighting_scale
-			#endif
 										); // because we have doubled the range
 								}
 								else
 								{
 									sightarea = CalcSightArea (pos, normal, l->patch->winding, skylevel
-			#ifdef HLRAD_DIVERSE_LIGHTING
 										, lighting_power, lighting_scale
-			#endif
 										);
 								}
 
@@ -3298,12 +3278,10 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                             {
                                 denominator *= dist;
                             }
-#ifdef HLRAD_DIVERSE_LIGHTING
 							if (lighting_diversify)
 							{
 								dot = lighting_scale * pow (dot, lighting_power);
 							}
-#endif
                             ratio = dot * dot2 / denominator;
 
                             if (dot2 <= l->stopdot)
@@ -3974,9 +3952,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 	#endif
 					, styles
 					, 0
-	#ifdef HLRAD_DIVERSE_LIGHTING
 					, l->miptex
-	#endif
 	#ifdef HLRAD_TEXLIGHTGAP
 		#ifdef HLRAD_GROWSAMPLE
 					, surface
@@ -4002,9 +3978,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 	#endif
 						, styles
 						, 0
-	#ifdef HLRAD_DIVERSE_LIGHTING
 						, l->miptex
-	#endif
 	#ifdef HLRAD_TEXLIGHTGAP
 		#ifdef HLRAD_GROWSAMPLE
 						, surface
@@ -4125,9 +4099,7 @@ void            BuildFacelights(const int facenum)
 
 	VectorCopy (g_translucenttextures[g_texinfo[f->texinfo].miptex], l.translucent_v);
 	l.translucent_b = !VectorCompare (l.translucent_v, vec3_origin);
-#ifdef HLRAD_DIVERSE_LIGHTING
 	l.miptex = g_texinfo[f->texinfo].miptex;
-#endif
 
     //
     // rotate plane
@@ -4482,9 +4454,7 @@ void            BuildFacelights(const int facenum)
 		#endif
 				patch->totalstyle_all
 				, 1
-	#ifdef HLRAD_DIVERSE_LIGHTING
 				, l.miptex
-	#endif
 	#ifdef HLRAD_TEXLIGHTGAP
 				, facenum
 	#endif
@@ -4495,9 +4465,7 @@ void            BuildFacelights(const int facenum)
 		#endif
 				patch->totalstyle_all
 				, 1
-	#ifdef HLRAD_DIVERSE_LIGHTING
 				, l.miptex
-	#endif
 	#ifdef HLRAD_TEXLIGHTGAP
 				, facenum
 	#endif
@@ -4534,9 +4502,7 @@ void            BuildFacelights(const int facenum)
 	#endif
 				patch->totalstyle_all
 				, 1
-	#ifdef HLRAD_DIVERSE_LIGHTING
 				, l.miptex
-	#endif
 	#ifdef HLRAD_TEXLIGHTGAP
 				, facenum
 	#endif
