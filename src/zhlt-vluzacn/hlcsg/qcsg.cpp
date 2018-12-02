@@ -706,14 +706,12 @@ static void     CSGBrush(int brushnum)
 					(hull? (b2->clipnodedetaillevel < b1->clipnodedetaillevel): (b2->detaillevel < b1->detaillevel))
 					;
 			}
-#ifdef HLCSG_COPLANARPRIORITY
 			if (b2->contents == b1->contents
 				&& hull == 0 && b2->detaillevel == b1->detaillevel
 				&& b2->coplanarpriority != b1->coplanarpriority)
 			{
 				overwrite = b2->coplanarpriority > b1->coplanarpriority;
 			}
-#endif
 
             if (!bh2->faces)
                 continue;                                  // brush isn't in this hull

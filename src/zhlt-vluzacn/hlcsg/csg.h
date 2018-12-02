@@ -169,9 +169,7 @@ typedef struct brush_s
 	int				chopdown; // allow this brush to chop brushes of lower detail level
 	int				chopup; // allow this brush to be chopped by brushes of higher detail level
 	int				clipnodedetaillevel;
-#ifdef HLCSG_COPLANARPRIORITY
 	int				coplanarpriority;
-#endif
 	char *			hullshapes[NUM_HULLS]; // might be NULL
 
     int             contents;

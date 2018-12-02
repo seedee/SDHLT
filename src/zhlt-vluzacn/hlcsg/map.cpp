@@ -175,9 +175,7 @@ static void ParseBrush(entity_t* mapent)
 		b->chopdown = IntForKey (mapent, "zhlt_chopdown");
 		b->chopup = IntForKey (mapent, "zhlt_chopup");
 		b->clipnodedetaillevel = IntForKey (mapent, "zhlt_clipnodedetaillevel");
-#ifdef HLCSG_COPLANARPRIORITY
 		b->coplanarpriority = IntForKey (mapent, "zhlt_coplanarpriority");
-#endif
 		bool wrong = false;
 		if (b->detaillevel < 0)
 		{
