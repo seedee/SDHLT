@@ -2007,13 +2007,11 @@ static void     AddFaceToOpaqueList(
 				if (g_opaque_group_count>=MAX_OPAQUE_GROUP_COUNT)
 					Error ("too many opaque models");
 				g_opaque_group_list[ig].mod=mod;
-#ifdef HLRAD_OPAQUE_RANGE
 				for (int i=0; i<3; ++i)
 				{
 					g_opaque_group_list[ig].mins[i]=mod->mins[i]+g_face_offset[facenum][i]-1;
 					g_opaque_group_list[ig].maxs[i]=mod->maxs[i]+g_face_offset[facenum][i]+1;
 				}
-#endif
 				g_opaque_group_count++;
 			}
 			opaque->groupnum=ig;

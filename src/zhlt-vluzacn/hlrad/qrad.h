@@ -592,10 +592,8 @@ eModelLightmodes;
 typedef struct
 {
 	const dmodel_t* mod;
-#ifdef HLRAD_OPAQUE_RANGE
 	float mins[3];
 	float maxs[3];
-#endif
 } opaqueGroup_t;
 #endif
 

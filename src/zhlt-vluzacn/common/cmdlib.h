@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_OPAQUE_RANGE //--vluzacn //obsolete
 #define HLRAD_MATH_VL //--vluzacn
 #define HLRAD_TRANSFERDATA_COMPRESS //--vluzacn
 #define HLRAD_TRANCPARENCYLOSS_FIX //--vluzacn

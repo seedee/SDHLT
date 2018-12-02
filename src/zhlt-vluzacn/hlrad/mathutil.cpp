@@ -519,20 +519,16 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 	opaquestyleout = -1;
 #endif
 
-#ifdef HLRAD_OPAQUE_RANGE
 	bool intersects[MAX_OPAQUE_GROUP_COUNT];
 	for (x = 0; x < g_opaque_group_count; x++)
 	{
 		intersects[x] = 
 			LineSegmentIntersectsBounds (p1, p2, g_opaque_group_list[x].mins, g_opaque_group_list[x].maxs);
 	}
-#endif
     for (x = 0; x < g_opaque_face_count; x++)
     {
-#ifdef HLRAD_OPAQUE_RANGE
 		if (intersects[g_opaque_face_list[x].groupnum] == 0)
 			continue;
-#endif
         plane = &g_opaque_face_list[x].plane;
         winding = g_opaque_face_list[x].winding;
 
