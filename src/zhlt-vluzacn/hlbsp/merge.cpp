@@ -47,7 +47,6 @@ static face_t*  TryMerge(face_t* f1, face_t* f2)
     {
         return NULL;
     }
-#ifdef HLBSP_TryMerge_PLANENUM_FIX
 	if (f1->planenum != f2->planenum)
 	{
 		return NULL;
@@ -56,7 +55,6 @@ static face_t*  TryMerge(face_t* f1, face_t* f2)
 	{
 		return NULL;
 	}
-#endif
 #ifdef ZHLT_DETAILBRUSH
 	if (f1->detaillevel != f2->detaillevel)
 	{

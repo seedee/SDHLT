@@ -67,7 +67,6 @@
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
-#define HLBSP_TryMerge_PLANENUM_FIX //--vluzacn
 #define HLCSG_SORTBRUSH_KEEPORDER //--vluzacn
 #define HLCSG_FACENORMALEPSILON //--vluzacn
 #define HLCSG_MakeHullFaces_PRECISE //--vluzacn
