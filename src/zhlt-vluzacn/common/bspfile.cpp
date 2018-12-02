@@ -1079,11 +1079,7 @@ static int      ArrayUsage(const char* const szItem, const int items, const int 
 {
     float           percentage = maxitems ? items * 100.0 / maxitems : 0.0;
 
-#ifdef ZHLT_MAX_MAP_LEAFS
     Log("%-13s %7i/%-7i %8i/%-8i (%4.1f%%)\n", szItem, items, maxitems, items * itemsize, maxitems * itemsize, percentage);
-#else
-    Log("%-12s  %7i/%-7i  %7i/%-7i  (%4.1f%%)\n", szItem, items, maxitems, items * itemsize, maxitems * itemsize, percentage);
-#endif
 
     return items * itemsize;
 }
@@ -1096,11 +1092,7 @@ static int      GlobUsage(const char* const szItem, const int itemstorage, const
 {
     float           percentage = maxstorage ? itemstorage * 100.0 / maxstorage : 0.0;
 
-#ifdef ZHLT_MAX_MAP_LEAFS
     Log("%-13s    [variable]   %8i/%-8i (%4.1f%%)\n", szItem, itemstorage, maxstorage, percentage);
-#else
-    Log("%-12s     [variable]    %7i/%-7i  (%4.1f%%)\n", szItem, itemstorage, maxstorage, percentage);
-#endif
 
     return itemstorage;
 }
@@ -1145,12 +1137,8 @@ void            PrintBSPFileSizes()
 #else
     totalmemory += ArrayUsage("clipnodes", g_numclipnodes, ENTRIES(g_dclipnodes), ENTRYSIZE(g_dclipnodes));
 #endif
-#ifdef ZHLT_MAX_MAP_LEAFS
     totalmemory += ArrayUsage("leaves", g_numleafs, MAX_MAP_LEAFS, ENTRYSIZE(g_dleafs));
     totalmemory += ArrayUsage("* worldleaves", (g_nummodels > 0? g_dmodels[0].visleafs: 0), MAX_MAP_LEAFS_ENGINE, 0);
-#else
-    totalmemory += ArrayUsage("leaves", g_numleafs, ENTRIES(g_dleafs), ENTRYSIZE(g_dleafs));
-#endif
     totalmemory += ArrayUsage("marksurfaces", g_nummarksurfaces, ENTRIES(g_dmarksurfaces), ENTRYSIZE(g_dmarksurfaces));
     totalmemory += ArrayUsage("surfedges", g_numsurfedges, ENTRIES(g_dsurfedges), ENTRYSIZE(g_dsurfedges));
     totalmemory += ArrayUsage("edges", g_numedges, ENTRIES(g_dedges), ENTRYSIZE(g_dedges));

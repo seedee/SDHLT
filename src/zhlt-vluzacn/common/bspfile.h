@@ -38,16 +38,11 @@
 #define MAX_MAP_CLIPNODES    32767
 // hard limit (negative short's are used as contents values)
 
-#ifdef ZHLT_MAX_MAP_LEAFS
 #define MAX_MAP_LEAFS        32760
 #define MAX_MAP_LEAFS_ENGINE 8192
 // No problem has been observed in testmap or reported, except when viewing the map from outside (some leafs missing, no crash).
 // This problem indicates that engine's MAX_MAP_LEAFS is 8192 (for reason, see: Quake - gl_model.c - Mod_Init).
 // I don't know if visleafs > 8192 will cause Mod_DecompressVis overflow.
-#else
-#define MAX_MAP_LEAFS         8192
-// hard limit (halflife depends on it to setup pvs bits correctly)
-#endif
 
 #define MAX_MAP_VERTS        65535
 #define MAX_MAP_FACES        65535 // This ought to be 32768, otherwise faces(in world) can become invisible. --vluzacn

@@ -262,9 +262,7 @@ static void     WriteDrawLeaf(const node_t* const node)
 #endif
 
     // emit a leaf
-#ifdef ZHLT_MAX_MAP_LEAFS
 	hlassume (g_numleafs < MAX_MAP_LEAFS, assume_MAX_MAP_LEAFS);
-#endif
     leaf_p = &g_dleafs[g_numleafs];
     g_numleafs++;
 
@@ -783,12 +781,10 @@ void            FinishBSPFile()
 {
     Verbose("--- FinishBSPFile ---\n");
 
-#ifdef ZHLT_MAX_MAP_LEAFS
 	if (g_dmodels[0].visleafs > MAX_MAP_LEAFS_ENGINE)
 	{
 		Warning ("Number of world leaves(%d) exceeded MAX_MAP_LEAFS(%d)\nIf you encounter problems when running your map, consider this the most likely cause.\n", g_dmodels[0].visleafs, MAX_MAP_LEAFS_ENGINE);
 	}
-#endif
 #ifdef ZHLT_WARNWORLDFACES
 	if (g_dmodels[0].numfaces > MAX_MAP_WORLDFACES)
 	{

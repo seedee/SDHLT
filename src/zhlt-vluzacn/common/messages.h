@@ -81,9 +81,7 @@ typedef enum
     assume_MAX_MAP_NODES,
     assume_COMPRESSVIS_OVERFLOW,
     assume_DECOMPRESSVIS_OVERFLOW,
-#ifdef ZHLT_MAX_MAP_LEAFS
 	assume_MAX_MAP_LEAFS,
-#endif
     // AJM: added in
     assume_TOOL_CANCEL,
     assume_GENERIC,

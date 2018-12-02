@@ -97,9 +97,7 @@ static const MessageTable_t assumes[assume_last] = {
     {"Exceeded MAX_MAP_NODES", "The maximum number of nodes for a map has been reached", simplify},
     {"CompressVis Overflow", internalerror, contact},
     {"DecompressVis Overflow", internalerror, contact},
-#ifdef ZHLT_MAX_MAP_LEAFS
 	{"Exceeded MAX_MAP_LEAFS", "The maximum number of leaves for a map has been reached", simplify},
-#endif
     {"Execution Cancelled", "Tool execution was cancelled either by the user or due to a fatal compile setting", selfexplanitory},
     {"Internal Error", internalerror, contact},
 	//KGP added
