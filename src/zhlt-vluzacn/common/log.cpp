@@ -99,11 +99,9 @@ void            ResetTmpFiles()
 
         safe_snprintf(filename, _MAX_PATH, "%s.hsz", g_Mapname);
         _unlink(filename);
-#ifdef HLCSG_HLBSP_DOUBLEPLANE
 
         safe_snprintf(filename, _MAX_PATH, "%s.pln", g_Mapname);
         _unlink(filename);
-#endif
 #ifdef ZHLT_DETAILBRUSH
 
 		safe_snprintf(filename, _MAX_PATH, "%s.b0", g_Mapname);

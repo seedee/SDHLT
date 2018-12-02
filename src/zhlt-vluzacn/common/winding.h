@@ -23,7 +23,6 @@
 #define	SIDE_BACK		1
 #define	SIDE_CROSS		-2
 
-#ifdef HLCSG_HLBSP_DOUBLEPLANE
 #ifdef HLBSP
 #ifndef DOUBLEVEC_T
 #error you must add -dDOUBLEVEC_T to the project!
@@ -38,7 +37,6 @@ typedef struct
 	planetypes		type;
 } dplane_t;
 extern dplane_t g_dplanes[MAX_INTERNAL_MAP_PLANES];
-#endif
 #endif
 class Winding
 {

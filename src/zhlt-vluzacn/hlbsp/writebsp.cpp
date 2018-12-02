@@ -1097,7 +1097,6 @@ void            FinishBSPFile()
         PrintBSPFileSizes();
     }
 
-#ifdef HLCSG_HLBSP_DOUBLEPLANE
 #undef dplane_t // this allow us to temporarily access the raw data directly without the layer of indirection
 #undef g_dplanes
 	for (int i = 0; i < g_numplanes; i++)
@@ -1110,6 +1109,5 @@ void            FinishBSPFile()
 	}
 #define dplane_t plane_t
 #define g_dplanes g_mapplanes
-#endif
     WriteBSPFile(g_bspfilename);
 }

@@ -1132,7 +1132,6 @@ static void     EmitPlanes()
     g_numplanes = g_nummapplanes;
     mp = g_mapplanes;
     dp = g_dplanes;
-#ifdef HLCSG_HLBSP_DOUBLEPLANE
 	{
 		char name[_MAX_PATH];
 		safe_snprintf (name, _MAX_PATH, "%s.pln", g_Mapname);
@@ -1142,7 +1141,6 @@ static void     EmitPlanes()
 		SafeWrite (planeout, g_mapplanes, g_nummapplanes * sizeof (plane_t));
 		fclose (planeout);
 	}
-#endif
     for (i = 0; i < g_nummapplanes; i++, mp++, dp++)
     {
         //if (!(mp->redundant))

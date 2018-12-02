@@ -89,9 +89,7 @@ bool g_nohull2 = false;
 bool g_viewportal = false;
 #endif
 
-#ifdef HLCSG_HLBSP_DOUBLEPLANE
 dplane_t g_dplanes[MAX_INTERNAL_MAP_PLANES];
-#endif
 
 
 // =====================================================================================
@@ -1022,9 +1020,7 @@ static surfchain_t* ReadSurfs(FILE* file)
     int             i;
     double          v[3];
     int             line = 0;
-#ifdef HLCSG_HLBSP_DOUBLEPLANE
 	double			inaccuracy, inaccuracy_count = 0.0, inaccuracy_total = 0.0, inaccuracy_max = 0.0;
-#endif
 
     // read in the polygons
     while (1)
@@ -1043,9 +1039,7 @@ static surfchain_t* ReadSurfs(FILE* file)
         }
         if (planenum == -1)                                // end of model
         {
-#ifdef HLCSG_HLBSP_DOUBLEPLANE
 			Developer (DEVELOPER_LEVEL_MEGASPAM, "inaccuracy: average %.8f max %.8f\n", inaccuracy_total / inaccuracy_count, inaccuracy_max);
-#endif
             break;
         }
 #ifdef ZHLT_DETAILBRUSH
@@ -1115,7 +1109,6 @@ static surfchain_t* ReadSurfs(FILE* file)
                 Error("::ReadSurfs (face_normal), fscanf of points failed at line %i", line);
             }
             VectorCopy(v, f->pts[i]);
-#ifdef HLCSG_HLBSP_DOUBLEPLANE
 			 if (DEVELOPER_LEVEL_MEGASPAM <= g_developer)
 			 {
 				const dplane_t *plane = &g_dplanes[f->planenum];
@@ -1124,7 +1117,6 @@ static surfchain_t* ReadSurfs(FILE* file)
 				inaccuracy_total += inaccuracy;
 				inaccuracy_max = qmax (inaccuracy, inaccuracy_max);
 			}
-#endif
         }
         fscanf(file, "\n");
     }
@@ -1672,7 +1664,6 @@ static void     ProcessFile(const char* const filename)
 
     Settings(); // AJM: moved here due to info_compile_parameters entity
 
-#ifdef HLCSG_HLBSP_DOUBLEPLANE
 	{
 		char name[_MAX_PATH];
 		safe_snprintf (name, _MAX_PATH, "%s.pln", filename);
@@ -1703,7 +1694,6 @@ static void     ProcessFile(const char* const filename)
 			fclose (planefile);
 		}
 	}
-#endif
     // init the tables to be shared by all models
     BeginBSPFile();
 
@@ -1731,10 +1721,8 @@ static void     ProcessFile(const char* const filename)
     }
 	safe_snprintf (name, _MAX_PATH, "%s.hsz", filename);
 	unlink (name);
-#ifdef HLCSG_HLBSP_DOUBLEPLANE
 	safe_snprintf (name, _MAX_PATH, "%s.pln", filename);
 	unlink (name);
-#endif
 #endif
 }
 
