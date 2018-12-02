@@ -37,11 +37,7 @@
 
 #define MIN_SUBDIVIDE_SIZE      64
 
-#ifdef ZHLT_GENERAL
 #define MAX_SUBDIVIDE_SIZE      512
-#else
-#define MAX_SUBDIVIDE_SIZE      240
-#endif
 
 #define DEFAULT_SUBDIVIDE_SIZE  ((MAX_SURFACE_EXTENT-1)*TEXTURE_STEP) //#define DEFAULT_SUBDIVIDE_SIZE  240 //--vluzacn
 
