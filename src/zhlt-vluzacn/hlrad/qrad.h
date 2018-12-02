@@ -588,7 +588,6 @@ typedef enum
 eModelLightmodes;
 
 #ifndef HLRAD_OPAQUE_NODE
-#ifdef HLRAD_OPAQUE_GROUP
 #define MAX_OPAQUE_GROUP_COUNT 2048
 typedef struct
 {
@@ -598,7 +597,6 @@ typedef struct
 	float maxs[3];
 #endif
 } opaqueGroup_t;
-#endif
 #endif
 
 typedef struct
@@ -616,9 +614,7 @@ typedef struct
     vec3_t transparency_scale;
     bool transparency;
 #ifndef HLRAD_OPAQUE_NODE
-#ifdef HLRAD_OPAQUE_GROUP
 	unsigned groupnum;
-#endif
 #endif
 #ifdef HLRAD_OPAQUE_STYLE
 	int style; // -1 = no style; transparency must be false if style >= 0
@@ -731,10 +727,8 @@ extern opaqueList_t* g_opaque_face_list;
 extern unsigned      g_opaque_face_count; // opaque entity count //HLRAD_OPAQUE_NODE
 extern unsigned      g_max_opaque_face_count;    // Current array maximum (used for reallocs)
 #ifndef HLRAD_OPAQUE_NODE
-#ifdef HLRAD_OPAQUE_GROUP
 extern opaqueGroup_t g_opaque_group_list[MAX_OPAQUE_GROUP_COUNT];
 extern unsigned g_opaque_group_count;
-#endif
 #endif
 
 #ifdef ZHLT_PROGRESSFILE // AJM

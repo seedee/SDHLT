@@ -203,10 +203,8 @@ opaqueList_t*   g_opaque_face_list = NULL;
 unsigned        g_opaque_face_count = 0;
 unsigned        g_max_opaque_face_count = 0;               // Current array maximum (used for reallocs)
 #ifndef HLRAD_OPAQUE_NODE
-#ifdef HLRAD_OPAQUE_GROUP
 opaqueGroup_t	g_opaque_group_list[MAX_OPAQUE_GROUP_COUNT];
 unsigned		g_opaque_group_count = 0;
-#endif
 #endif
 #ifdef HLRAD_STYLE_CORING
 vec_t			g_corings[ALLSTYLES];
@@ -1957,9 +1955,7 @@ static void     AddFaceToOpaqueList(
 #endif
 									, const vec3_t &transparency_scale, const bool transparency
 #ifndef HLRAD_OPAQUE_NODE
-#ifdef HLRAD_OPAQUE_GROUP
 									, const dmodel_t* mod
-#endif
 #endif
 #ifdef HLRAD_OPAQUE_STYLE
 									, int style
@@ -2001,7 +1997,6 @@ static void     AddFaceToOpaqueList(
         opaque->winding = new Winding(*winding);
 #endif
 #ifndef HLRAD_OPAQUE_NODE
-#ifdef HLRAD_OPAQUE_GROUP
 		{
 			int ig;
 			for (ig=0; ig<g_opaque_group_count; ++ig)
@@ -2023,7 +2018,6 @@ static void     AddFaceToOpaqueList(
 			}
 			opaque->groupnum=ig;
 		}
-#endif
 #endif
 #ifdef HLRAD_OPAQUE_STYLE
 		opaque->style = style;
@@ -2473,9 +2467,7 @@ static void     MakePatches()
                 {
 					AddFaceToOpaqueList(fn, w
 						, d_transparency, b_transparency
-#ifdef HLRAD_OPAQUE_GROUP
 						, mod
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 						, opaquestyle
 #endif
@@ -2493,9 +2485,7 @@ static void     MakePatches()
 
     Log("%i base patches\n", g_num_patches);
 #ifndef HLRAD_OPAQUE_NODE
-#ifdef HLRAD_OPAQUE_GROUP
 	Log("%i opaque models\n", g_opaque_group_count);
-#endif
     Log("%i opaque faces\n", g_opaque_face_count);
 #endif
     Log("%i square feet [%.2f square inches]\n", (int)(totalarea / 144), totalarea);
