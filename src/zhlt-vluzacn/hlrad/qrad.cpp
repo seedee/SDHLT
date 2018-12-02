@@ -146,9 +146,7 @@ vec3_t*			g_translucenttextures = NULL;
 vec_t			g_translucentdepth = DEFAULT_TRANSLUCENTDEPTH;
 vec_t			g_blur = DEFAULT_BLUR;
 bool			g_noemitterrange = DEFAULT_NOEMITTERRANGE;
-#ifdef HLRAD_TEXLIGHTGAP
 vec_t			g_texlightgap = DEFAULT_TEXLIGHTGAP;
-#endif
 
 // Misc
 int             leafparents[MAX_MAP_LEAFS];
@@ -2915,9 +2913,7 @@ static void     Usage()
     Log("    -dlight #       : Set direct lighting threshold\n");
     Log("    -nolerp         : Disable radiosity interpolation, nearest point instead\n\n");
     Log("    -fade #         : Set global fade (larger values = shorter lights)\n");
-#ifdef HLRAD_TEXLIGHTGAP
 	Log("    -texlightgap #  : Set global gap distance for texlights\n");
-#endif
     Log("    -scale #        : Set global light scaling value\n");
     Log("    -gamma #        : Set global gamma value\n\n");
     Log("    -sky #          : Set ambient sunlight contribution in the shade outside\n");
@@ -3095,11 +3091,9 @@ static void     Settings()
     safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_fade);
     safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_FADE);
     Log("global fade          [ %17s ] [ %17s ]\n", buf1, buf2);
-#ifdef HLRAD_TEXLIGHTGAP
     safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_texlightgap);
     safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_TEXLIGHTGAP);
     Log("global texlight gap  [ %17s ] [ %17s ]\n", buf1, buf2);
-#endif
     
     // ------------------------------------------------------------------------
     // Changes by Adam Foster - afoster@compsoc.man.ac.uk
@@ -4092,7 +4086,6 @@ int             main(const int argc, char** argv)
 		{
 			g_bleedfix = false;
 		}
-#ifdef HLRAD_TEXLIGHTGAP
 		else if (!strcasecmp (argv[i], "-texlightgap"))
 		{
 			if (i + 1 < argc)
@@ -4104,7 +4097,6 @@ int             main(const int argc, char** argv)
 				Usage ();
 			}
 		}
-#endif
 		else if (!strcasecmp (argv[i], "-lang"))
 		{
 			if (i + 1 < argc)

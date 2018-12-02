@@ -1689,13 +1689,11 @@ void            CreateDirectLights()
 			dl->patch_area = p->area;
 			dl->patch_emitter_range = p->emitter_range;
 			dl->patch = p;
-#ifdef HLRAD_TEXLIGHTGAP
 			dl->texlightgap = g_texlightgap;
 			if (g_face_texlights[p->faceNumber] && *ValueForKey (g_face_texlights[p->faceNumber], "_texlightgap"))
 			{
 				dl->texlightgap = FloatForKey (g_face_texlights[p->faceNumber], "_texlightgap");
 			}
-#endif
 			dl->stopdot = 0.0;
 			dl->stopdot2 = 0.0;
 			if (g_face_texlights[p->faceNumber])
@@ -2464,9 +2462,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								  , byte* styles
 								  , int step
 								  , int miptex
-#ifdef HLRAD_TEXLIGHTGAP
 								  , int texlightgap_surfacenum
-#endif
 								  )
 {
     int             i;
@@ -2497,7 +2493,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 	lighting_power = g_lightingconeinfo[miptex][0];
 	lighting_scale = g_lightingconeinfo[miptex][1];
 	lighting_diversify = (lighting_power != 1.0 || lighting_scale != 1.0);
-#ifdef HLRAD_TEXLIGHTGAP
 	vec3_t			texlightgap_textoworld[2];
 	// calculates textoworld
 	{
@@ -2521,7 +2516,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 			}
 		}
 	}
-#endif
 
     for (i = 0; i < 1 + g_dmodels[0].visleafs; i++)
     {
@@ -2774,7 +2768,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								dot = lighting_scale * pow (dot, lighting_power);
 							}
                             dot2 = -DotProduct(delta, l->normal);
-#ifdef HLRAD_TEXLIGHTGAP
 							// discard the texlight if the spot is too close to the texlight plane
 							if (l->texlightgap > 0)
 							{
@@ -2788,7 +2781,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 									continue;
 								}
 							}
-#endif
 							if (dot2 * dist <= MINIMUM_PATCH_DISTANCE)
 							{
 								continue;
@@ -3499,9 +3491,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 					, styles
 					, 0
 					, l->miptex
-	#ifdef HLRAD_TEXLIGHTGAP
 					, surface
-	#endif
 					);
 			}
 			if (l->translucent_b)
@@ -3521,9 +3511,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 						, styles
 						, 0
 						, l->miptex
-	#ifdef HLRAD_TEXLIGHTGAP
 						, surface
-	#endif
 						);
 				}
 				for (j = 0; j < ALLSTYLES && styles[j] != 255; j++)
@@ -3947,9 +3935,7 @@ void            BuildFacelights(const int facenum)
 				patch->totalstyle_all
 				, 1
 				, l.miptex
-	#ifdef HLRAD_TEXLIGHTGAP
 				, facenum
-	#endif
 				);
 			GatherSampleLight (spot2, pvs2, normal2, backsampled, 
 		#ifdef ZHLT_XASH
@@ -3958,9 +3944,7 @@ void            BuildFacelights(const int facenum)
 				patch->totalstyle_all
 				, 1
 				, l.miptex
-	#ifdef HLRAD_TEXLIGHTGAP
 				, facenum
-	#endif
 				);
 			for (j = 0; j < ALLSTYLES && patch->totalstyle_all[j] != 255; j++)
 			{
@@ -3995,9 +3979,7 @@ void            BuildFacelights(const int facenum)
 				patch->totalstyle_all
 				, 1
 				, l.miptex
-	#ifdef HLRAD_TEXLIGHTGAP
 				, facenum
-	#endif
 				);
 		}
 	}

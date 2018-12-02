@@ -139,9 +139,7 @@
 	#define DEFAULT_EMBEDLIGHTMAP_DENOMINATOR 188.0
 	#define DEFAULT_EMBEDLIGHTMAP_GAMMA 1.05
 	#define DEFAULT_EMBEDLIGHTMAP_RESOLUTION 1
-#ifdef HLRAD_TEXLIGHTGAP
 	#define DEFAULT_TEXLIGHTGAP 0.0
-#endif
 
 
 #ifdef SYSTEM_WIN32
@@ -230,9 +228,7 @@ typedef struct directlight_s
 	vec_t			patch_area;
 	vec_t			patch_emitter_range;
 	struct patch_s	*patch;
-#ifdef HLRAD_TEXLIGHTGAP
 	vec_t			texlightgap;
-#endif
 	bool			topatch;
 } directlight_t;
 
@@ -495,9 +491,7 @@ extern vec3_t	g_jitter_hack;
 	extern bool g_bleedfix;
 	extern vec_t g_maxdiscardedlight;
 	extern vec3_t g_maxdiscardedpos;
-#ifdef HLRAD_TEXLIGHTGAP
 	extern vec_t g_texlightgap;
-#endif
 
 extern void     MakeTnodes(dmodel_t* bm);
 extern void     PairEdges();
