@@ -67,7 +67,6 @@
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
-#define HLCSG_PRICISION_FIX // Important!! --vluzacn
 #define HLBSP_MAX_LEAF_FACES //--vluzacn
 #define HLBSP_SKY_SOLID //--vluzacn
 #define HLCSG_HLBSP_CONTENTSNULL_FIX //--vluzacn

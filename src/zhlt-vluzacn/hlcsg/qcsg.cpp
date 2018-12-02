@@ -393,11 +393,7 @@ void            WriteFace(const int hull, const bface_t* const f
     for (i = 0; i < w->m_NumPoints; i++)
     {
         // write the co-ords
-#ifdef HLCSG_PRICISION_FIX
         fprintf(out[hull], "%5.8f %5.8f %5.8f\n", w->m_Points[i][0], w->m_Points[i][1], w->m_Points[i][2]);
-#else
-        fprintf(out[hull], "%5.2f %5.2f %5.2f\n", w->m_Points[i][0], w->m_Points[i][1], w->m_Points[i][2]);
-#endif
     }
 
     // put in an extra line break
