@@ -396,10 +396,8 @@ void            MakeScales(const int threadnum)
 			}
 #endif
             trans = (dot1 * dot2) / (dist * dist);         // Inverse square falloff factoring angle between patch normals
-#ifdef HLRAD_TRANSWEIRDFIX
             if (trans * patch2->area > 0.8f)
 				trans = 0.8f / patch2->area;
-#endif
 #ifdef HLRAD_ACCURATEBOUNCE
 			if (dist < patch2->emitter_range - ON_EPSILON)
 			{
@@ -468,16 +466,6 @@ void            MakeScales(const int threadnum)
             if (trans >= 0)
 #endif
             {
-#ifndef HLRAD_TRANSWEIRDFIX
-				send = trans * area;
-
-                // Caps light from getting weird
-                if (send > 0.4f)
-                {
-					trans = 0.4f / area;
-                    send = 0.4f;
-                }
-#endif /*HLRAD_TRANSWEIRDFIX*/
 
 
 #ifdef HLRAD_TRANSFERDATA_COMPRESS
@@ -784,12 +772,10 @@ void            MakeRGBScales(const int threadnum)
 #endif
             trans_one = (dot1 * dot2) / (dist * dist);         // Inverse square falloff factoring angle between patch normals
             
-#ifdef HLRAD_TRANSWEIRDFIX
 			if (trans_one * patch2->area > 0.8f)
 			{
 				trans_one = 0.8f / patch2->area;
 			}
-#endif
 #ifdef HLRAD_ACCURATEBOUNCE
 			if (dist < patch2->emitter_range - ON_EPSILON)
 			{
@@ -869,16 +855,6 @@ void            MakeRGBScales(const int threadnum)
 			if (trans_one >= 0)
 #endif
 			{
-#ifndef HLRAD_TRANSWEIRDFIX
-				send = trans_one * area;
-				if (send > 0.4f)
-				{
-					trans_one = 0.4f / area;
-					send = 0.4f;
-					VectorFill(trans, trans_one);
-					VectorMultiply(trans, transparency, trans);
-				}
-#endif /*HLRAD_TRANSWEIRDFIX*/
 
 #ifdef HLRAD_TRANSFERDATA_COMPRESS
                 VectorScale(trans, patch2 -> area, trans);

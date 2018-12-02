@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_TRANSWEIRDFIX //--vluzacn
 #define HLRAD_MDL_LIGHT_HACK //--vluzacn
 #define HLRAD_MINLIGHT //--vluzacn
 #define HLRAD_FinalLightFace_VL // Compensate for engine's bug of no gamma correction when adding dynamic light styles together. --vluzacn
@@ -84,9 +83,7 @@
 #define HLRAD_OPAQUE_RANGE //--vluzacn //obsolete
 	#endif
 #define HLRAD_MATH_VL //--vluzacn
-	#ifdef HLRAD_TRANSWEIRDFIX
 #define HLRAD_TRANSFERDATA_COMPRESS //--vluzacn
-	#endif
 #define HLRAD_TRANCPARENCYLOSS_FIX //--vluzacn
 #define HLRAD_STYLE_CORING //--vluzacn
 	#ifdef HLRAD_STYLE_CORING
@@ -233,10 +230,8 @@
 	#ifdef HLRAD_CalcPoints_NEW
 #define HLRAD_BLUR //--vluzacn
 	#endif
-	#ifdef HLRAD_TRANSWEIRDFIX
 	#ifdef HLRAD_SOFTSKY
 #define HLRAD_ACCURATEBOUNCE //--vluzacn
-	#endif
 	#endif
 	#ifdef HLRAD_TEXLIGHT_SPOTS_FIX
 	#ifdef HLRAD_ACCURATEBOUNCE
