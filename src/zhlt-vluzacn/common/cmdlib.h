@@ -72,10 +72,7 @@
 
 
 
-#define HLRAD_LERP_FIX //--vluzacn
-	#ifdef HLRAD_LERP_FIX
 #define HLRAD_LERP_VL //--vluzacn
-	#endif
 	#ifdef HLRAD_LERP_VL
 #define HLRAD_LERP_TRY5POINTS //--vluzacn
 	#endif

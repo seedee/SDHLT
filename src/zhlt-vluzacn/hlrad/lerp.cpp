@@ -2479,15 +2479,10 @@ static bool     LerpEdge(const lerpTriangulation_t* const trian, const vec3_t po
     p3 = trian->points[trian->dists[2].patch];
 #endif
 
-#ifndef HLRAD_LERP_FIX
-    VectorSubtract(point, p1->origin, v2);
-    VectorNormalize(v2);
-#endif
 
     // Try nearest and 2
     if (!TestLineSegmentIntersectWall(trian, p1->origin, p2->origin))
     {
-#ifdef HLRAD_LERP_FIX
 		vec_t total_length, length1, length2;
 		VectorSubtract (p2->origin, p1->origin, v1);
 		CrossProduct (trian->plane->normal, v1, v2);
@@ -2498,32 +2493,10 @@ static bool     LerpEdge(const lerpTriangulation_t* const trian, const vec3_t po
 		if (total_length > 0 && length1 >= 0 && length2 >= 0)
 		{
             int             i;
-#else
-        VectorSubtract(p2->origin, p1->origin, v1);
-        VectorNormalize(v1);
-        d = DotProduct(v2, v1);
-        if (d >= ON_EPSILON)
-        {
-            int             i;
-            vec_t           length1;
-            vec_t           length2;
-            vec3_t          segment;
-            vec_t           total_length;
-
-            VectorSubtract(point, p1->origin, segment);
-            length1 = VectorLength(segment);
-            VectorSubtract(point, p2->origin, segment);
-            length2 = VectorLength(segment);
-            total_length = length1 + length2;
-#endif
 
             for (i = 0; i < 3; i++)
             {
-	#ifdef HLRAD_LERP_FIX
                 result[i] = (((*GetTotalLight(p1, style))[i] * length2) + ((*GetTotalLight(p2, style))[i] * length1)) / total_length; //LRC
-	#else
-				result[i] = (((*GetTotalLight(p1, style))[i] * length2) + ((*GetTotalLight(p1, style))[i] * length1)) / total_length; //LRC
-	#endif
             }
             return true;
         }
@@ -2533,7 +2506,6 @@ static bool     LerpEdge(const lerpTriangulation_t* const trian, const vec3_t po
     // Try nearest and 3
     if (!TestLineSegmentIntersectWall(trian, p1->origin, p3->origin))
     {
-#ifdef HLRAD_LERP_FIX
 		vec_t total_length, length1, length2;
 		VectorSubtract (p3->origin, p1->origin, v1);
 		CrossProduct (trian->plane->normal, v1, v2);
@@ -2544,24 +2516,6 @@ static bool     LerpEdge(const lerpTriangulation_t* const trian, const vec3_t po
 		if (total_length > 0 && length1 >= 0 && length2 >= 0)
 		{
             int             i;
-#else
-        VectorSubtract(p3->origin, p1->origin, v1);
-        VectorNormalize(v1);
-        d = DotProduct(v2, v1);
-        if (d >= ON_EPSILON)
-        {
-            int             i;
-            vec_t           length1;
-            vec_t           length2;
-            vec3_t          segment;
-            vec_t           total_length;
-
-            VectorSubtract(point, p1->origin, segment);
-            length1 = VectorLength(segment);
-            VectorSubtract(point, p3->origin, segment);
-            length2 = VectorLength(segment);
-            total_length = length1 + length2;
-#endif
 
             for (i = 0; i < 3; i++)
             {
