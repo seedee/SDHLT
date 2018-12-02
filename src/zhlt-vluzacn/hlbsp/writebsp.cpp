@@ -329,14 +329,12 @@ static void     WriteDrawLeaf(const node_t* const node)
         f = *fp;
         do
         {
-#ifdef HLBSP_NULLFACEOUTPUT_FIX
 			// fix face 0 being seen everywhere
 			if (f->outputnumber == -1)
 			{
 				f = f->original;
 				continue;
 			}
-#endif
 #if defined(HLBSP_HIDDENFACE) || defined(ZHLT_HIDDENSOUNDTEXTURE)
 			bool ishidden = false;
 			{
@@ -403,9 +401,7 @@ static void     WriteFace(face_t* f)
 
        )
     {
-#ifdef HLBSP_NULLFACEOUTPUT_FIX
 		f->outputnumber = -1;
-#endif
         return;
     }
 
