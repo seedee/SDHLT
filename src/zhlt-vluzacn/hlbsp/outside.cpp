@@ -619,13 +619,11 @@ node_t*         FillOutside(node_t* node, const bool leakfile, const unsigned hu
             
         return node;
     }
-#ifdef HLBSP_DELETELEAKFILE
 	if (leakfile && !ret)
 	{
 		unlink(g_linefilename);
 		unlink(g_pointfilename);
 	}
-#endif
 
     // now go back and fill things in
     valid++;

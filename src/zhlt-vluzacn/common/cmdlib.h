@@ -67,7 +67,6 @@
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
-#define HLBSP_DELETELEAKFILE //--vluzacn
 #define HLBSP_FILL //--vluzacn
 #define HLBSP_WARNMIXEDCONTENTS //--vluzacn
 #define HLBSP_NULLFACEOUTPUT_FIX //--vluzacn
