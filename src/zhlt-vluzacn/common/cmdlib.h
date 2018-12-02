@@ -69,11 +69,8 @@
 	#endif
 //#define HLBSP_SUBDIVIDE_INMID // this may contribute to 'AllocBlock: full' problem though it may generate fewer faces. --vluzacn
 
-#define HLVIS_MAXDIST
 #define HLVIS_OVERVIEW //--vluzacn
-	#ifdef HLVIS_MAXDIST
 #define HLVIS_MAXDIST_NEW // GetShortestDistance used to crash randomly for no reason (compiled with VS2010), and I couldn't make it work even after fixing several obvious bugs. So replaced it with this. --vluzacn
-	#endif
 	#ifdef HLVIS_OVERVIEW
 #define HLVIS_SKYBOXMODEL //--vluzacn
 	#endif

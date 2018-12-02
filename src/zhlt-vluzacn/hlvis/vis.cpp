@@ -36,12 +36,10 @@ int				*g_leafcounts;
 int				g_leafcount_all;
 
 // AJM: MVD
-#ifdef HLVIS_MAXDIST
 #ifndef HLVIS_MAXDIST_NEW
 byte*			g_mightsee;
 visblocker_t    g_visblockers[MAX_VISBLOCKERS];
 int		        g_numvisblockers = 0;
-#endif
 #endif
 //
 
@@ -61,12 +59,10 @@ bool            g_estimate = DEFAULT_ESTIMATE;
 bool            g_chart = DEFAULT_CHART;
 bool            g_info = DEFAULT_INFO;
 
-#ifdef HLVIS_MAXDIST
 // AJM: MVD
 unsigned int	g_maxdistance = DEFAULT_MAXDISTANCE_RANGE;
 //bool			g_postcompile = DEFAULT_POST_COMPILE;
 //
-#endif
 #ifdef HLVIS_OVERVIEW
 const int		g_overview_max = MAX_MAP_ENTITIES;
 overview_t		g_overview[g_overview_max];
@@ -408,10 +404,8 @@ static portal_t* GetNextPortal()
 #endif
 }
 
-#ifdef HLVIS_MAXDIST
 
 
-#endif // HLVIS_MAXDIST
 
 // =====================================================================================
 //  LeafThread
@@ -742,7 +736,6 @@ static void     CalcVis()
 
 #ifndef ZHLT_NETVIS
 
-#ifdef HLVIS_MAXDIST
 #ifndef HLVIS_MAXDIST_NEW
 // AJM: MVD
 // =====================================================================================
@@ -902,7 +895,6 @@ void		ResetPortalStatus(void)
 }
 #endif
 
-#endif // HLVIS_MAXDIST
 
 
 // AJM UNDONE HLVIS_MAXDIST THIS!!!!!!!!!!!!!
@@ -1293,9 +1285,7 @@ static void     Usage()
 #ifdef SYSTEM_POSIX
     Log("    -noestimate     : do not display continuous compile time estimates\n");
 #endif
-#ifdef HLVIS_MAXDIST // AJM: MVD
 	Log("    -maxdistance #  : Alter the maximum distance for visibility\n");
-#endif
     Log("    -verbose        : compile with verbose messages\n");
     Log("    -noinfo         : Do not show tool configuration information\n");
     Log("    -dev #          : compile with developer message\n\n");
@@ -1347,10 +1337,8 @@ static void     Settings()
     Log("estimate            [ %7s ] [ %7s ]\n", g_estimate ? "on" : "off", DEFAULT_ESTIMATE ? "on" : "off");
     Log("max texture memory  [ %7d ] [ %7d ]\n", g_max_map_miptex, DEFAULT_MAX_MAP_MIPTEX);
 
-#ifdef HLVIS_MAXDIST // AJM: MVD
     Log("max vis distance    [ %7d ] [ %7d ]\n", g_maxdistance, DEFAULT_MAXDISTANCE_RANGE);
 	//Log("max dist only       [ %7s ] [ %7s ]\n", g_postcompile ? "on" : "off", DEFAULT_POST_COMPILE ? "on" : "off");
-#endif
 
     switch (g_threadpriority)
     {
@@ -1632,7 +1620,6 @@ int             main(const int argc, char** argv)
         }
 #endif
         
-#ifdef HLVIS_MAXDIST
         // AJM: MVD
 		else if(!strcasecmp(argv[i], "-maxdistance"))
 		{
@@ -1649,7 +1636,6 @@ int             main(const int argc, char** argv)
 		{
 			g_postcompile = true;
 		}*/
-#endif
 		else if (!strcasecmp (argv[i], "-lang"))
 		{
 			if (i + 1 < argc)

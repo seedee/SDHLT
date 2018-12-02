@@ -671,7 +671,6 @@ static void     SimpleFlood(byte* const srcmightsee, const int leafnum, byte* co
 #pragma warning(disable: 4100)                             // unreferenced formal parameter
 #endif
 
-#ifdef HLVIS_MAXDIST
 #ifndef HLVIS_MAXDIST_NEW
 // AJM: MVD
 // =====================================================================================
@@ -1151,7 +1150,6 @@ static float		CalcSplitsAndDotProducts(plane_t *org_split_plane, leaf_t *leaf1, 
 }
 
 #endif
-#endif // HLVIS_MAXDIST
 
 // =====================================================================================
 //  BasePortalVis
@@ -1237,7 +1235,6 @@ void            BasePortalVis(int unused)
     }
 }
 
-#ifdef HLVIS_MAXDIST
 #ifdef HLVIS_MAXDIST_NEW
 bool BestNormalFromWinding (const vec3_t *points, int numpoints, vec3_t &normal_out)
 {
@@ -1764,7 +1761,6 @@ NoWork:
 	if(boundary)
 		delete [] boundary;
 }
-#endif // HLVIS_MAXDIST
 
 #ifdef SYSTEM_WIN32
 #pragma warning(pop)

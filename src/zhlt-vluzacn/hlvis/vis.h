@@ -18,12 +18,10 @@
 #include "zones.h"
 #include "cmdlinecfg.h"
 
-#ifdef HLVIS_MAXDIST    // AJM: MVD
 #define DEFAULT_MAXDISTANCE_RANGE   0
 #ifndef HLVIS_MAXDIST_NEW
 //#define DEFAULT_POST_COMPILE      0
 #define MAX_VISBLOCKERS 512
-#endif
 #endif
 
 #ifdef ZHLT_PROGRESSFILE // AJM
@@ -142,7 +140,6 @@ typedef struct
     pstack_t        pstack_head;
 } threaddata_t;
 
-#ifdef HLVIS_MAXDIST
 #ifndef HLVIS_MAXDIST_NEW
 // AJM: MVD
 // Special VISBLOCKER entity structure
@@ -157,7 +154,6 @@ typedef struct
 	char			blocknames[MAX_VISBLOCKERS][64];
 } visblocker_t;
 #endif
-#endif
 
 extern bool     g_fastvis;
 extern bool     g_fullvis;
@@ -165,10 +161,8 @@ extern bool     g_fullvis;
 extern int      g_numportals;
 extern unsigned g_portalleafs;
 
-#ifdef HLVIS_MAXDIST // AJM: MVD
 extern unsigned int g_maxdistance;
 //extern bool		g_postcompile;
-#endif
 #ifdef HLVIS_OVERVIEW
 typedef struct
 {
@@ -197,13 +191,11 @@ extern leafinfo_t *g_leafinfos;
 extern portal_t*g_portals;
 extern leaf_t*  g_leafs;
 
-#ifdef HLVIS_MAXDIST // AJM: MVD
 #ifndef HLVIS_MAXDIST_NEW
 // Visblockers
 extern visblocker_t g_visblockers[MAX_VISBLOCKERS];
 extern int		g_numvisblockers;
 extern byte*	g_mightsee; 
-#endif
 #endif
 
 extern byte*    g_uncompressed;
@@ -217,14 +209,12 @@ extern Zones*          g_Zones;
 extern void     BasePortalVis(int threadnum);
 
 
-#ifdef HLVIS_MAXDIST // AJM: MVD
 #ifndef HLVIS_MAXDIST_NEW
 extern visblocker_t *GetVisBlock(char *name);
 extern void		BlockVis(int unused);
 #endif
 extern void		MaxDistVis(int threadnum);
 //extern void		PostMaxDistVis(int threadnum);
-#endif
 
 extern void     PortalFlow(portal_t* p);
 extern void     CalcAmbientSounds();
