@@ -190,7 +190,6 @@ planetypes;
 #define DIR_EPSILON 0.0001
 #endif
 
-#ifdef ZHLT_PLANETYPE_FIX
 inline planetypes PlaneTypeForNormal(vec3_t normal)
 {
     vec_t           ax, ay, az;
@@ -240,39 +239,5 @@ inline planetypes PlaneTypeForNormal(vec3_t normal)
     }
     return plane_anyz;
 }
-#else
-inline planetypes PlaneTypeForNormal(vec3_t normal)
-{
-    vec_t           ax, ay, az;
-
-    ax = fabs(normal[0]);
-    if (ax == 1.0)
-    {
-        return plane_x;
-    }
-
-    ay = fabs(normal[1]);
-    if (ay == 1.0)
-    {
-        return plane_y;
-    }
-
-    az = fabs(normal[2]);
-    if (az == 1.0)
-    {
-        return plane_z;
-    }
-
-    if ((ax > ay) && (ax > az))
-    {
-        return plane_anyx;
-    }
-    if ((ay > ax) && (ay > az))
-    {
-        return plane_anyy;
-    }
-    return plane_anyz;
-}
-#endif
 
 #endif //MATHLIB_H__

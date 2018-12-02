@@ -123,7 +123,6 @@ int             FindIntPlane(const vec_t* const normal, const vec_t* const origi
     VectorNormalize(p->normal);
 
     p->type = (p + 1)->type = PlaneTypeForNormal(p->normal);
-#ifdef ZHLT_PLANETYPE_FIX
 	if (p->type <= last_axial)
 	{
 		for (int i = 0; i < 3; i++)
@@ -134,7 +133,6 @@ int             FindIntPlane(const vec_t* const normal, const vec_t* const origi
 				p->normal[i] = 0;
 		}
 	}
-#endif
 
     p->dist = DotProduct(origin, p->normal);
     VectorSubtract(vec3_origin, p->normal, (p + 1)->normal);
@@ -224,7 +222,6 @@ int FindIntPlane(const vec_t* const normal, const vec_t* const origin)
 	VectorCopy(normal,p->normal);
     VectorNormalize(p->normal);
 	p->type = PlaneTypeForNormal(p->normal);
-#ifdef ZHLT_PLANETYPE_FIX
 	if (p->type <= last_axial)
 	{
 		for (int i = 0; i < 3; i++)
@@ -235,7 +232,6 @@ int FindIntPlane(const vec_t* const normal, const vec_t* const origin)
 				p->normal[i] = 0;
 		}
 	}
-#endif
     p->dist = DotProduct(origin, p->normal);
 
 	VectorCopy(origin,(p+1)->origin);
@@ -244,11 +240,7 @@ int FindIntPlane(const vec_t* const normal, const vec_t* const origin)
 	(p+1)->dist = -p->dist;
 
     // always put axial planes facing positive first
-#ifdef ZHLT_PLANETYPE_FIX
 	if (normal[(p->type)%3] < 0)
-#else
-    if (p->type <= last_axial && (normal[0] < 0 || normal[1] < 0 || normal[2] < 0))	// flip order
-#endif
 	{
 		temp = *p;
 		*p = *(p+1);

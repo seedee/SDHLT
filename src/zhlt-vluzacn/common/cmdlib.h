@@ -50,7 +50,6 @@
 //#define ZHLT_DETAIL                         // HLCSG, HLBSP - detail brushes     //should never turn on
 //#define ZHLT_PROGRESSFILE                   // ALL TOOLS - estimate progress reporting to -progressfile //should never turn on
 //#define ZHLT_NSBOB //should never turn on
-#define ZHLT_PLANETYPE_FIX // Very Important !! --vluzacn
 #define ZHLT_WINDING_FIX // Very Important !! --vluzacn
 #define ZHLT_FILE_FUNCTIONS_FIX //--vluzacn
 #define ZHLT_MAX_MAP_LEAFS //--vluzacn
