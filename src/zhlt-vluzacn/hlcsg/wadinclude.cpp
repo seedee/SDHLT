@@ -92,12 +92,10 @@ void            HandleWadinclude()
 
     szTmpWad[0] = 0;
 
-#ifdef HLCSG_AUTOWAD
     if (g_bWadAutoDetect)
     {
         autowad_UpdateUsedWads();
     }
-#endif
 
     // for eachwadpath
     for (i = 0; i < g_iNumWadPaths; i++)
@@ -107,7 +105,7 @@ void            HandleWadinclude()
         currentwad = g_pWadPaths[i];
         pszWadFile = currentwad->path;
         
-#ifdef HLCSG_AUTOWAD/*
+	/*
     #ifdef _DEBUG
         Log("[dbg] HandleWIC: attempting to parse wad '%s'\n", currentwad->path);
     #endif*/
@@ -116,7 +114,6 @@ void            HandleWadinclude()
     #ifdef _DEBUG
         Log("[dbg] HandleWIC: parsing wad\n");
     #endif*/
-#endif // HLCSG_AUTOWAD
 
         // look and see if we're supposed to include the textures from this WAD in the bsp.
         WadInclude_i it;

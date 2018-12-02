@@ -64,9 +64,7 @@ const char*			g_nullfile = NULL;
 
 bool            g_bClipNazi = DEFAULT_CLIPNAZI;         // "-noclipeconomy"
 
-#ifdef HLCSG_AUTOWAD // AJM
 bool            g_bWadAutoDetect = DEFAULT_WADAUTODETECT; // "-wadautodetect"
-#endif
 
 #ifdef ZHLT_DETAIL // AJM
 bool            g_bDetailBrushes = DEFAULT_DETAIL; // "-detail"
@@ -157,7 +155,6 @@ void            GetParamsFromEnt(entity_t* mapent)
         Log("%30s [ %-9s ]\n", "Custom Hullfile", g_hullfile);
     }
 
-#ifdef HLCSG_AUTOWAD
     // wadautodetect(choices) : "Wad Auto Detect" : 0 =	[ 0 : "Off" 1 : "On" ]
     if (!strcmp(ValueForKey(mapent, "wadautodetect"), "1"))
     { 
@@ -168,7 +165,6 @@ void            GetParamsFromEnt(entity_t* mapent)
         g_bWadAutoDetect = false;
     }
     Log("%30s [ %-9s ]\n", "Wad Auto Detect", g_bWadAutoDetect ? "on" : "off");
-#endif
 	
 	// wadconfig(string) : "Custom Wad Configuration" : ""
     if (*ValueForKey(mapent, "wadconfig"))
@@ -1951,9 +1947,7 @@ static void     Usage()
     Log("    -dev #           : compile with developer message\n\n");
 
 
-#ifdef HLCSG_AUTOWAD // AJM:
     Log("    -wadautodetect   : Force auto-detection of wadfiles\n");
-#endif
 
 #ifdef HLCSG_SCALESIZE
 	Log("    -scale #         : Scale the world. Use at your own risk.\n");
@@ -2111,9 +2105,7 @@ void            CSGCleanup()
 {
     //Log("CSGCleanup\n");
 #ifndef HLCSG_AUTOWAD_NEW
-#ifdef HLCSG_AUTOWAD
     autowad_cleanup();
-#endif
 #endif
     FreeWadPaths();
 }
@@ -2305,12 +2297,10 @@ int             main(const int argc, char** argv)
 		}
 #endif
 
-#ifdef HLCSG_AUTOWAD // AJM
         else if (!strcasecmp(argv[i], "-wadautodetect"))
         { 
             g_bWadAutoDetect = true;
         }
-#endif
 
 #ifdef ZHLT_DETAIL // AJM
         else if (!strcasecmp(argv[i], "-nodetail"))
@@ -2734,12 +2724,10 @@ int             main(const int argc, char** argv)
 		GetUsedWads();
 	}
 
-#ifdef HLCSG_AUTOWAD
     if (g_bWadAutoDetect)
     {
         Log("Wadfiles not in use by the map will be excluded\n");
     }
-#endif
 
     DumpWadinclude();
     Log("\n");

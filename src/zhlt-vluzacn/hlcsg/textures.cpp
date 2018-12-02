@@ -248,9 +248,7 @@ bool            TEX_InitFromWad()
     pszWadroot = getenv("WADROOT");
 
 #ifndef HLCSG_AUTOWAD_NEW
-#ifdef HLCSG_AUTOWAD
     autowad_UpdateUsedWads();
-#endif
 #endif
 
     // for eachwadpath
@@ -266,7 +264,6 @@ bool            TEX_InitFromWad()
 
 
 #ifndef HLCSG_AUTOWAD_NEW
-#ifdef HLCSG_AUTOWAD
         #ifdef _DEBUG
         Log("[dbg] Attempting to parse wad: '%s'\n", pszWadFile);
         #endif
@@ -277,7 +274,6 @@ bool            TEX_InitFromWad()
         #ifdef _DEBUG
         Log("[dbg] Parsing wad\n");
         #endif
-#endif
 #endif
 
 #ifdef HLCSG_AUTOWAD_NEW
@@ -442,13 +438,11 @@ bool            TEX_InitFromWad()
 #ifdef HLCSG_AUTOWAD_NEW
 		currentwad->totaltextures = wadinfo.numlumps;
 #else
-#ifdef HLCSG_AUTOWAD
         {
             double percused = ((float)(currentwad->usedtextures) / (float)(g_numUsedTextures)) * 100;
             Log(" - Contains %i used texture%s, %2.2f percent of map (%d textures in wad)\n",
                 currentwad->usedtextures, currentwad->usedtextures == 1 ? "" : "s", percused, wadinfo.numlumps);
         }
-#endif
 #endif
 
         nTexFiles++;

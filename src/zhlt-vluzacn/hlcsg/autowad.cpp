@@ -3,7 +3,6 @@
 #include "cmdlib.h"
 
 #ifndef HLCSG_AUTOWAD_NEW
-#ifdef HLCSG_AUTOWAD
 
 #define MAX_AUTOWAD_TEXNAME 32  // 32 char limit in array size in brush_texture_t struct
 
@@ -419,5 +418,4 @@ void        autowad_UpdateUsedWads()
 }
 
 
-#endif // HLCSG_AUTOWAD
 #endif

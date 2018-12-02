@@ -57,9 +57,7 @@
 #define DEFAULT_CLIPNAZI    true
 #endif
 
-#ifdef HLCSG_AUTOWAD //  AJM
 #define DEFAULT_WADAUTODETECT false
-#endif
 
 #ifdef ZHLT_DETAIL // AJM
 #define DEFAULT_DETAIL      true
@@ -397,7 +395,6 @@ extern const char *g_wadconfigname;
 extern void LoadWadcfgfile (const char *filename);
 extern void LoadWadconfig (const char *filename, const char *configname);
 
-#ifdef HLCSG_AUTOWAD
 //============================================================================
 // autowad.cpp      AJM
 
@@ -418,7 +415,6 @@ extern void     autowad_PushName(const char *texname);
 #endif
 #endif
 
-#endif // HLCSG_AUTOWAD
 
 //=============================================================================
 // properties.cpp

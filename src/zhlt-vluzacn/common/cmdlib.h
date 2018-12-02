@@ -62,7 +62,6 @@
 	#endif
 
 // tool specific settings below only mean a recompile of the tool affected
-#define HLCSG_AUTOWAD
 
 #define HLCSG_PRECISIONCLIP
 #define HLCSG_FASTFIND
@@ -214,10 +213,8 @@
 #define HLCSG_FILEREADFAILURE_FIX //--vluzacn
 #define HLBSP_DELETETEMPFILES //--vluzacn
 	#ifdef HLCSG_ONLYENTS_NOWADCHANGE
-	#ifdef HLCSG_AUTOWAD
 	#ifdef HLCSG_TEXMAP64_FIX
 #define HLCSG_AUTOWAD_NEW //--vluzacn
-	#endif
 	#endif
 	#endif
 	#ifdef HLCSG_HLBSP_VOIDTEXINFO
