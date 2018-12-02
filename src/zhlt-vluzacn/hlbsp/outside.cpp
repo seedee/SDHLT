@@ -649,7 +649,6 @@ node_t*         FillOutside(node_t* node, const bool leakfile, const unsigned hu
     return node;
 }
 
-#ifdef HLBSP_FILL
 void			ResetMark_r (node_t* node)
 {
 #ifdef ZHLT_DETAILBRUSH
@@ -732,4 +731,3 @@ void			FillInside (node_t* node)
 	}
 	RemoveUnused_r (node);
 }
-#endif

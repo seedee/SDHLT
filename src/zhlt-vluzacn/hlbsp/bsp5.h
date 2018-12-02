@@ -40,9 +40,7 @@
 #define DEFAULT_MAXNODE_SIZE    1024
 
 #define DEFAULT_NOFILL          false
-#ifdef HLBSP_FILL
 #define DEFAULT_NOINSIDEFILL	false
-#endif
 #define DEFAULT_NOTJUNC         false
 #ifdef HLBSP_BRINKHACK
 #define DEFAULT_NOBRINK			false
@@ -196,9 +194,7 @@ typedef struct node_s
     int             visleafnum;                            // -1 = solid
     int             valid;                                 // for flood filling
     int             occupied;                              // light number in leaf for outside filling
-#ifdef HLBSP_FILL
 	int				empty;
-#endif
 }
 node_t;
 
@@ -261,9 +257,7 @@ extern void     FinishBSPFile();
 extern node_t*  FillOutside(node_t* node, bool leakfile, unsigned hullnum);
 extern void     LoadAllowableOutsideList(const char* const filename);
 extern void     FreeAllowableOutsideList();
-#ifdef HLBSP_FILL
 extern void		FillInside (node_t* node);
-#endif
 
 //=============================================================================
 // misc functions
@@ -335,9 +329,7 @@ extern void     CullStuff();
 //=============================================================================
 // qbsp.c
 extern bool     g_nofill;
-#ifdef HLBSP_FILL
 extern bool		g_noinsidefill;
-#endif
 extern bool     g_notjunc;
 #ifdef HLBSP_BRINKHACK
 extern bool		g_nobrink;

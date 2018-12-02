@@ -60,9 +60,7 @@ bool			g_noopt = DEFAULT_NOOPT;		// don't optimize BSP on write
 bool			g_noclipnodemerge = DEFAULT_NOCLIPNODEMERGE;
 #endif
 bool            g_nofill = DEFAULT_NOFILL;      // dont fill "-nofill"
-#ifdef HLBSP_FILL
 bool			g_noinsidefill = DEFAULT_NOINSIDEFILL;
-#endif
 bool            g_notjunc = DEFAULT_NOTJUNC;
 #ifdef HLBSP_BRINKHACK
 bool			g_nobrink = DEFAULT_NOBRINK;
@@ -1348,10 +1346,8 @@ static bool     ProcessModel()
     // some portals are solid polygons, and some are paths to other leafs
     if (g_nummodels == 1 && !g_nofill)                       // assume non-world bmodels are simple
     {
-#ifdef HLBSP_FILL
 		if (!g_noinsidefill)
 			FillInside (nodes);
-#endif
         nodes = FillOutside(nodes, (g_bLeaked != true), 0);                  // make a leakfile if bad
     }
 
@@ -1564,9 +1560,7 @@ static void     Usage()
 #endif
     Log("    -noclip        : Don't process the clipping hull      (not for final runs)\n");
     Log("    -nofill        : Don't fill outside (will mask LEAKs) (not for final runs)\n");
-#ifdef HLBSP_FILL
 	Log("    -noinsidefill  : Don't fill empty spaces\n");
-#endif
 	Log("    -noopt         : Don't optimize planes on BSP write   (not for final runs)\n");
 #ifdef HLBSP_MERGECLIPNODE
 	Log("    -noclipnodemerge: Don't optimize clipnodes\n");
@@ -1656,9 +1650,7 @@ static void     Settings()
     // HLBSP Specific Settings
     Log("noclip              [ %7s ] [ %7s ]\n", g_noclip ? "on" : "off", DEFAULT_NOCLIP ? "on" : "off");
     Log("nofill              [ %7s ] [ %7s ]\n", g_nofill ? "on" : "off", DEFAULT_NOFILL ? "on" : "off");
-#ifdef HLBSP_FILL
 	Log("noinsidefill        [ %7s ] [ %7s ]\n", g_noinsidefill ? "on" : "off", DEFAULT_NOINSIDEFILL ? "on" : "off");
-#endif
 	Log("noopt               [ %7s ] [ %7s ]\n", g_noopt ? "on" : "off", DEFAULT_NOOPT ? "on" : "off");
 #ifdef HLBSP_MERGECLIPNODE
 	Log("no clipnode merging [ %7s ] [ %7s ]\n", g_noclipnodemerge? "on": "off", DEFAULT_NOCLIPNODEMERGE? "on": "off");
@@ -1892,12 +1884,10 @@ int             main(const int argc, char** argv)
         {
             g_nofill = true;
         }
-#ifdef HLBSP_FILL
         else if (!strcasecmp(argv[i], "-noinsidefill"))
         {
             g_noinsidefill = true;
         }
-#endif
 
 #ifdef SYSTEM_WIN32
         else if (!strcasecmp(argv[i], "-estimate"))
