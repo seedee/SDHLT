@@ -727,14 +727,9 @@ static void     CalcFaceExtents(lightinfo_t* l)
                 {
 					v = g_dvertexes + g_dedges[-e].v[1];
                 }
-#ifdef HLRAD_OVERWRITEVERTEX_FIX
 				vec3_t pos;
 				VectorAdd (v->point, g_face_offset[facenum], pos);
 				Log ("(%4.3f %4.3f %4.3f) ", pos[0], pos[1], pos[2]);
-#else
-                VectorAdd(v->point, g_face_offset[facenum], v->point);
-				Log("(%4.3f %4.3f %4.3f) ", v->point[0], v->point[1], v->point[2]);
-#endif
 			}
 			Log("\n");
 
