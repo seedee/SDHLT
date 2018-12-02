@@ -597,13 +597,6 @@ void            MakeScalesVismatrix()
         FreeTransparencyArrays();
 	#endif
 
-#ifndef HLRAD_NOSWAP
-        // invert the transfers for gather vs scatter
-	if(g_rgb_transfers)
-		{NamedRunThreadsOnIndividual(g_num_patches, g_estimate, SwapRGBTransfers);}
-	else
-		{NamedRunThreadsOnIndividual(g_num_patches, g_estimate, SwapTransfers);}
-#endif /*HLRAD_NOSWAP*/
         if (g_incremental)
             writetransfers(transferfile, g_num_patches);
         else

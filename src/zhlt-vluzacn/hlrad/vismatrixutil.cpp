@@ -401,17 +401,8 @@ void            MakeScales(const int threadnum)
 #endif
             trans = (dot1 * dot2) / (dist * dist);         // Inverse square falloff factoring angle between patch normals
 #ifdef HLRAD_TRANSWEIRDFIX
-#ifdef HLRAD_NOSWAP
             if (trans * patch2->area > 0.8f)
 				trans = 0.8f / patch2->area;
-#else
-			// HLRAD_TRANSWEIRDFIX:
-			// we should limit "trans(patch2receive) * patch1area" 
-			// instead of "trans(patch2receive) * patch2area".
-			// also raise "0.4f" to "0.8f" ( 0.8/Q_PI = 1/4).
-            if (trans * area > 0.8f)
-                trans = 0.8f / area;
-#endif
 #endif
 #ifdef HLRAD_ACCURATEBOUNCE
 			if (dist < patch2->emitter_range - ON_EPSILON)
@@ -482,20 +473,12 @@ void            MakeScales(const int threadnum)
 #endif
             {
 #ifndef HLRAD_TRANSWEIRDFIX
-#ifdef HLRAD_NOSWAP
 				send = trans * area;
-#else
-                send = trans * patch2->area;
-#endif
 
                 // Caps light from getting weird
                 if (send > 0.4f)
                 {
-#ifdef HLRAD_NOSWAP
 					trans = 0.4f / area;
-#else
-                    trans = 0.4f / patch2->area;
-#endif
                     send = 0.4f;
                 }
 #endif /*HLRAD_TRANSWEIRDFIX*/
@@ -506,11 +489,7 @@ void            MakeScales(const int threadnum)
 #else
                 // scale to 16 bit (black magic)
 				// BUG: (in MakeRGBScales) convert to integer will lose data. --vluzacn
-#ifdef HLRAD_NOSWAP
                 trans = trans * patch2->area * INVERSE_TRANSFER_SCALE;
-#else
-                trans = trans * area * INVERSE_TRANSFER_SCALE;
-#endif /*HLRAD_NOSWAP*/
                 if (trans >= TRANSFER_SCALE_MAX)
                 {
                     trans = TRANSFER_SCALE_MAX;
@@ -623,59 +602,6 @@ void            MakeScales(const int threadnum)
  * they will actually be rather different.
  * =============
  */
-#ifndef HLRAD_NOSWAP
-void            SwapTransfers(const int patchnum)
-{
-    patch_t*        patch = &g_patches[patchnum];
-    transfer_index_t* tIndex = patch->tIndex;
-    transfer_data_t* tData = patch->tData;
-    unsigned        x;
-
-    for (x = 0; x < patch->iIndex; x++, tIndex++)
-    {
-        unsigned        size = (tIndex->size + 1);
-        unsigned        patchnum2 = tIndex->index;
-        unsigned        y;
-
-        for (y = 0; y < size; y++, tData++, patchnum2++)
-        {
-            patch_t*        patch2 = &g_patches[patchnum2];
-
-            if (patchnum2 > patchnum)
-            {                                              // done with this list
-                return;
-            }
-            else if (!patch2->iData)
-            {                                              // Set to zero in this impossible case
-                Log("patch2 has no iData\n");
-                (*tData) = 0;
-                continue;
-            }
-            else
-            {
-                transfer_index_t* tIndex2 = patch2->tIndex;
-                transfer_data_t* tData2 = patch2->tData;
-                int             offset = FindTransferOffsetPatchnum(tIndex2, patch2, patchnum);
-
-                if (offset >= 0)
-                {
-                    transfer_data_t tmp = *tData;
-
-                    *tData = tData2[offset];
-                    tData2[offset] = tmp;
-                }
-                else
-                {                                          // Set to zero in this impossible case
-                    Log("FindTransferOffsetPatchnum returned -1 looking for patch %d in patch %d's transfer lists\n",
-                        patchnum, patchnum2);
-                    (*tData) = 0;
-                    return;
-                }
-            }
-        }
-    }
-}
-#endif /*HLRAD_NOSWAP*/
 
 /*
  * =============
@@ -871,17 +797,10 @@ void            MakeRGBScales(const int threadnum)
             trans_one = (dot1 * dot2) / (dist * dist);         // Inverse square falloff factoring angle between patch normals
             
 #ifdef HLRAD_TRANSWEIRDFIX
-#ifdef HLRAD_NOSWAP
 			if (trans_one * patch2->area > 0.8f)
 			{
 				trans_one = 0.8f / patch2->area;
 			}
-#else
-			if (trans_one * area > 0.8f)
-			{
-				trans_one = 0.8f / area;
-			}
-#endif
 #endif
 #ifdef HLRAD_ACCURATEBOUNCE
 			if (dist < patch2->emitter_range - ON_EPSILON)
@@ -964,18 +883,10 @@ void            MakeRGBScales(const int threadnum)
 #endif
 			{
 #ifndef HLRAD_TRANSWEIRDFIX
-	#ifdef HLRAD_NOSWAP
 				send = trans_one * area;
-	#else
-				send = trans_one * patch2->area;
-	#endif
 				if (send > 0.4f)
 				{
-	#ifdef HLRAD_NOSWAP
 					trans_one = 0.4f / area;
-	#else
-                    trans_one = 0.4f / patch2->area;
-	#endif
 					send = 0.4f;
 					VectorFill(trans, trans_one);
 					VectorMultiply(trans, transparency, trans);
@@ -1023,11 +934,7 @@ void            MakeRGBScales(const int threadnum)
                 VectorScale(trans, patch2 -> area, trans);
 #else
                 // scale to 16 bit (black magic)
-#ifdef HLRAD_NOSWAP
                 VectorScale(trans, patch2 -> area * INVERSE_TRANSFER_SCALE, trans);
-#else
-                VectorScale(trans, area * INVERSE_TRANSFER_SCALE, trans);
-#endif /*HLRAD_NOSWAP*/
 
                 if (trans[0] >= TRANSFER_SCALE_MAX)
                 {
@@ -1151,60 +1058,6 @@ void            MakeRGBScales(const int threadnum)
  * they will actually be rather different.
  * =============
  */
-#ifndef HLRAD_NOSWAP
-void            SwapRGBTransfers(const int patchnum)
-{
-    patch_t*        		patch	= &g_patches[patchnum];
-    transfer_index_t*		tIndex	= patch->tIndex;
-    rgb_transfer_data_t* 	tRGBData= patch->tRGBData;
-    unsigned        x;
-
-    for (x = 0; x < patch->iIndex; x++, tIndex++)
-    {
-        unsigned        size = (tIndex->size + 1);
-        unsigned        patchnum2 = tIndex->index;
-        unsigned        y;
-
-        for (y = 0; y < size; y++, tRGBData++, patchnum2++)
-        {
-            patch_t*        patch2 = &g_patches[patchnum2];
-
-            if (patchnum2 > patchnum)
-            {                                              // done with this list
-                return;
-            }
-            else if (!patch2->iData)
-            {                                              // Set to zero in this impossible case
-                Log("patch2 has no iData\n");
-                VectorFill(*tRGBData, 0);
-                continue;
-            }
-            else
-            {
-                transfer_index_t* tIndex2 = patch2->tIndex;
-                rgb_transfer_data_t* tRGBData2 = patch2->tRGBData;
-                int             offset = FindTransferOffsetPatchnum(tIndex2, patch2, patchnum);
-
-                if (offset >= 0)
-                {
-                    rgb_transfer_data_t tmp;
-                    VectorCopy(*tRGBData, tmp)
-
-                    VectorCopy(tRGBData2[offset], *tRGBData);
-                    VectorCopy(tmp, tRGBData2[offset]);
-                }
-                else
-                {                                          // Set to zero in this impossible case
-                    Log("FindTransferOffsetPatchnum returned -1 looking for patch %d in patch %d's transfer lists\n",
-                        patchnum, patchnum2);
-                    VectorFill(*tRGBData, 0);
-                    return;
-                }
-            }
-        }
-    }
-}
-#endif /*HLRAD_NOSWAP*/
 
 
 

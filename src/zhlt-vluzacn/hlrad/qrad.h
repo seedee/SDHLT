@@ -976,14 +976,8 @@ extern bool     readtransfers(const char* const transferfile, long numpatches);
 extern void     writetransfers(const char* const transferfile, long total_patches);
 
 // vismatrixutil.c (shared between vismatrix.c and sparse.c)
-#ifndef HLRAD_NOSWAP
-extern void     SwapTransfers(int patchnum);
-#endif
 extern void     MakeScales(int threadnum);
 extern void     DumpTransfersMemoryUsage();
-#ifndef HLRAD_NOSWAP
-extern void     SwapRGBTransfers(int patchnum);
-#endif
 extern void     MakeRGBScales(int threadnum);
 
 #ifdef HLRAD_TRANSPARENCY_CPP

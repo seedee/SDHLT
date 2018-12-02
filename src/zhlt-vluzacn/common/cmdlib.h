@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_NOSWAP //--vluzacn
 #define HLRAD_TRANSTOTAL_HACK //--vluzacn
 #define HLRAD_TRANSPARENCY_CPP //--vluzacn
 	#ifdef HLRAD_TRANSPARENCY_CPP
@@ -100,10 +99,8 @@
 #define HLRAD_OPAQUE_RANGE //--vluzacn //obsolete
 	#endif
 #define HLRAD_MATH_VL //--vluzacn
-	#ifdef HLRAD_NOSWAP
 	#ifdef HLRAD_TRANSWEIRDFIX
 #define HLRAD_TRANSFERDATA_COMPRESS //--vluzacn
-	#endif
 	#endif
 #define HLRAD_TRANCPARENCYLOSS_FIX //--vluzacn
 #define HLRAD_STYLE_CORING //--vluzacn
@@ -116,9 +113,7 @@
 	#endif
 	#endif
 	#endif
-	#ifdef HLRAD_NOSWAP
 #define HLRAD_CheckVisBitNoVismatrix_NOSWAP //--vluzacn
-	#endif
 	#ifdef HLRAD_OPAQUE_STYLE
 	#ifdef HLRAD_CheckVisBitNoVismatrix_NOSWAP
 #define HLRAD_OPAQUE_STYLE_BOUNCE //--vluzacn
@@ -255,11 +250,9 @@
 	#ifdef HLRAD_CalcPoints_NEW
 #define HLRAD_BLUR //--vluzacn
 	#endif
-	#ifdef HLRAD_NOSWAP
 	#ifdef HLRAD_TRANSWEIRDFIX
 	#ifdef HLRAD_SOFTSKY
 #define HLRAD_ACCURATEBOUNCE //--vluzacn
-	#endif
 	#endif
 	#endif
 	#ifdef HLRAD_TEXLIGHT_SPOTS_FIX
@@ -276,17 +269,13 @@
 #define HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN //--vluzacn
 	#endif
 	#ifdef HLRAD_PATCHBLACK_FIX
-	#ifdef HLRAD_NOSWAP
 #define HLRAD_ACCURATEBOUNCE_REDUCEAREA //--vluzacn
-	#endif
 	#endif
 	#ifdef HLRAD_CUSTOMTEXLIGHT
 #define HLRAD_CUSTOMTEXLIGHT_COLOR //--vluzacn
 	#endif
 #define HLRAD_SUBDIVIDEPATCH_NEW //--vluzacn
-	#ifdef HLRAD_NOSWAP
 #define HLRAD_DIVERSE_LIGHTING //--vluzacn
-	#endif
 	#ifdef HLRAD_CalcPoints_NEW
 	#ifdef HLRAD_BLUR
 	#ifdef HLRAD_GetPhongNormal_VL
