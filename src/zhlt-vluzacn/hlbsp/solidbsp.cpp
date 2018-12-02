@@ -799,7 +799,6 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 			crosscount += 1;
 		}
 #endif
-#ifdef HLBSP_BALANCE
 		// This is the most efficient code among what I have ever tested:
 		// (1) BSP file is small, despite possibility of slowing down vis and rad (but still faster than the original non BSP balancing method).
 		// (2) Factors need not adjust across various maps.
@@ -809,7 +808,6 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 		tmpvalue[p->planenum][1] = crosscount * (1 - ent);
 #else
 		value += crosscount * avesplit * (1 - ent);
-#endif
 #endif
 #ifdef HLBSP_AVOIDEPSILONSPLIT
 		value += epsilonsplit * 10000;

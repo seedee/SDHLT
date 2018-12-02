@@ -67,7 +67,6 @@
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
-#define HLBSP_BALANCE //--vluzacn
 #define HLBSP_TryMerge_PLANENUM_FIX //--vluzacn
 #define HLCSG_SORTBRUSH_KEEPORDER //--vluzacn
 #define HLCSG_FACENORMALEPSILON //--vluzacn
@@ -101,9 +100,7 @@
 	#ifdef HLBSP_BRINKHACK
 #define HLBSP_BRINKNOTUSEDBYLEAF_FIX //--vluzacn
 	#endif
-	#ifdef HLBSP_BALANCE
 #define HLBSP_FAST_SELECTPARTITION //--vluzacn
-	#endif
 	#ifdef ZHLT_DETAILBRUSH
 #define HLBSP_DETAILBRUSH_CULL //--vluzacn
 	#endif
