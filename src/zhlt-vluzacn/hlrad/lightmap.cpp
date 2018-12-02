@@ -5734,11 +5734,7 @@ void            BuildFacelights(const int facenum)
 #endif
 			)
         {
-#ifdef HLRAD_WEIGHT_FIX
             int             weighting[3][3] = { {1, 1, 1}, {1, 1, 1}, {1, 1, 1} }; // because we are using 1/3 dist not 1/2
-#else
-            int             weighting[3][3] = { {5, 9, 5}, {9, 16, 9}, {5, 9, 5} };
-#endif
             vec3_t          pos;
             int             s, t, subsamples = 0;
 

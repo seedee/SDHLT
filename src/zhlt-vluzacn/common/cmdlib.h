@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_WEIGHT_FIX //--vluzacn
 #define HLRAD_PATCHBLACK_FIX //--vluzacn
 #define HLRAD_HuntForWorld_EDGE_FIX // similar to HLRAD_TestLine_EDGE_FIX. --vluzacn
 #define HLRAD_WITHOUTVIS //--vluzacn
