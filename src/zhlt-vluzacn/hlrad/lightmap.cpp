@@ -617,16 +617,12 @@ typedef struct
 	vec3_t*			surfpt_position; //[MAX_SINGLEMAP] // surfpt_position[] are valid positions for light tracing, while surfpt[] are positions for getting phong normal and doing patch interpolation
 	int*			surfpt_surface; //[MAX_SINGLEMAP] // the face that owns this position
 #endif
-#ifdef HLRAD_CalcPoints_NEW
 	bool			surfpt_lightoutside[MAX_SINGLEMAP];
-#endif
 
     vec3_t          texorg;
     vec3_t          worldtotex[2];                         // s = (world - texorg) . worldtotex[0]
     vec3_t          textoworld[2];                         // world = texorg + s * textoworld[0]
-#ifdef HLRAD_CalcPoints_NEW
 	vec3_t			texnormal;
-#endif
 
     vec_t           exactmins[2], exactmaxs[2];
 
@@ -920,9 +916,7 @@ static void     CalcFaceVectors(lightinfo_t* l)
 #endif
     dist *= distscale;
     VectorMA(l->texorg, -dist, texnormal, l->texorg);
-#ifdef HLRAD_CalcPoints_NEW
 	VectorCopy (texnormal, l->texnormal);
-#endif
 
 }
 
@@ -943,211 +937,6 @@ static void     SetSurfFromST(const lightinfo_t* const l, vec_t* surf, const vec
     VectorAdd(surf, g_face_offset[facenum], surf);
 }
 
-#ifndef HLRAD_CalcPoints_NEW
-// =====================================================================================
-//  FindSurfaceMidpoint
-// =====================================================================================
-static dleaf_t* FindSurfaceMidpoint(const lightinfo_t* const l, vec_t* midpoint)
-{
-    int             s, t;
-    int             w, h;
-    vec_t           starts, startt;
-    vec_t           us, ut;
-
-    vec3_t          broken_midpoint;
-    vec3_t          surface_midpoint;
-    int             inside_point_count;
-
-    dleaf_t*        last_valid_leaf = NULL;
-    dleaf_t*        leaf_mid;
-
-    const int       facenum = l->surfnum;
-    const dface_t*  f = g_dfaces + facenum;
-    const dplane_t* p = getPlaneFromFace(f);
-
-    const vec_t*    face_delta = g_face_offset[facenum];
-
-    h = l->texsize[1] + 1;
-    w = l->texsize[0] + 1;
-    starts = (float)l->texmins[0] * TEXTURE_STEP; //starts = (float)l->texmins[0] * 16; //--vluzacn
-    startt = (float)l->texmins[1] * TEXTURE_STEP; //startt = (float)l->texmins[1] * 16; //--vluzacn
-
-    // General case
-    inside_point_count = 0;
-    VectorClear(surface_midpoint);
-    for (t = 0; t < h; t++)
-    {
-        for (s = 0; s < w; s++)
-        {
-            us = starts + s * TEXTURE_STEP;
-            ut = startt + t * TEXTURE_STEP;
-
-            SetSurfFromST(l, midpoint, us, ut);
-            if ((leaf_mid = PointInLeaf(midpoint)) != g_dleafs)
-            {
-                if ((leaf_mid->contents != CONTENTS_SKY) && (leaf_mid->contents != CONTENTS_SOLID))
-                {
-                    last_valid_leaf = leaf_mid;
-                    inside_point_count++;
-                    VectorAdd(surface_midpoint, midpoint, surface_midpoint);
-                }
-            }
-        }
-    }
-
-    if (inside_point_count > 1)
-    {
-        vec_t           tmp = 1.0 / inside_point_count;
-
-        VectorScale(surface_midpoint, tmp, midpoint);
-
-        //Verbose("Trying general at (%4.3f %4.3f %4.3f) %d\n", surface_midpoint[0], surface_midpoint[1], surface_midpoint[2], inside_point_count);
-        if (
-            (leaf_mid =
-             HuntForWorld(midpoint, face_delta, p, DEFAULT_HUNT_SIZE, DEFAULT_HUNT_SCALE, DEFAULT_HUNT_OFFSET)))
-        {
-            //Verbose("general method succeeded at (%4.3f %4.3f %4.3f)\n", midpoint[0], midpoint[1], midpoint[2]);
-            return leaf_mid;
-        }
-        //Verbose("Tried general , failed at (%4.3f %4.3f %4.3f)\n", midpoint[0], midpoint[1], midpoint[2]);
-    }
-    else if (inside_point_count == 1)
-    {
-        //Verbose("Returning single point from general\n");
-        VectorCopy(surface_midpoint, midpoint);
-        return last_valid_leaf;
-    }
-    else
-    {
-        //Verbose("general failed (no points)\n");
-    }
-
-    // Try harder
-    inside_point_count = 0;
-    VectorClear(surface_midpoint);
-    for (t = 0; t < h; t++)
-    {
-        for (s = 0; s < w; s++)
-        {
-            us = starts + s * TEXTURE_STEP;
-            ut = startt + t * TEXTURE_STEP;
-
-            SetSurfFromST(l, midpoint, us, ut);
-            leaf_mid =
-                HuntForWorld(midpoint, face_delta, p, DEFAULT_HUNT_SIZE, DEFAULT_HUNT_SCALE, DEFAULT_HUNT_OFFSET);
-            if (leaf_mid != g_dleafs)
-            {
-                last_valid_leaf = leaf_mid;
-                inside_point_count++;
-                VectorAdd(surface_midpoint, midpoint, surface_midpoint);
-            }
-        }
-    }
-
-    if (inside_point_count > 1)
-    {
-        vec_t           tmp = 1.0 / inside_point_count;
-
-        VectorScale(surface_midpoint, tmp, midpoint);
-
-        if (
-            (leaf_mid =
-             HuntForWorld(midpoint, face_delta, p, DEFAULT_HUNT_SIZE, DEFAULT_HUNT_SCALE, DEFAULT_HUNT_OFFSET)))
-        {
-            //Verbose("best method succeeded at (%4.3f %4.3f %4.3f)\n", midpoint[0], midpoint[1], midpoint[2]);
-            return leaf_mid;
-        }
-        //Verbose("Tried best, failed at (%4.3f %4.3f %4.3f)\n", midpoint[0], midpoint[1], midpoint[2]);
-    }
-    else if (inside_point_count == 1)
-    {
-        //Verbose("Returning single point from best\n");
-        VectorCopy(surface_midpoint, midpoint);
-        return last_valid_leaf;
-    }
-    else
-    {
-        //Verbose("best failed (no points)\n");
-    }
-
-    // Original broken code
-    {
-        vec_t           mids = (l->exactmaxs[0] + l->exactmins[0]) / 2;
-        vec_t           midt = (l->exactmaxs[1] + l->exactmins[1]) / 2;
-
-        SetSurfFromST(l, midpoint, mids, midt);
-
-        if ((leaf_mid = PointInLeaf(midpoint)) != g_dleafs)
-        {
-            if ((leaf_mid->contents != CONTENTS_SKY) && (leaf_mid->contents != CONTENTS_SOLID))
-            {
-                return leaf_mid;
-            }
-        }
-
-        VectorCopy(midpoint, broken_midpoint);
-        //Verbose("Tried original method, failed at (%4.3f %4.3f %4.3f)\n", midpoint[0], midpoint[1], midpoint[2]);
-    }
-
-    VectorCopy(broken_midpoint, midpoint);
-    return HuntForWorld(midpoint, face_delta, p, DEFAULT_HUNT_SIZE, DEFAULT_HUNT_SCALE, DEFAULT_HUNT_OFFSET);
-}
-
-// =====================================================================================
-//  SimpleNudge
-//      Return vec_t in point only valid when function returns true
-//      Use negative scales to push away from center instead
-// =====================================================================================
-static bool     SimpleNudge(vec_t* const point, const lightinfo_t* const l, vec_t* const s, vec_t* const t, const vec_t delta)
-{
-    const int       facenum = l->surfnum;
-    const dface_t*  f = g_dfaces + facenum;
-    const dplane_t* p = getPlaneFromFace(f);
-    const vec_t*    face_delta = g_face_offset[facenum];
-    const int       h = l->texsize[1] + 1;
-    const int       w = l->texsize[0] + 1;
-    const vec_t     half_w = (vec_t)(w - 1) / 2.0;
-    const vec_t     half_h = (vec_t)(h - 1) / 2.0;
-    const vec_t     s_vec = *s;
-    const vec_t     t_vec = *t;
-    vec_t           s1;
-    vec_t           t1;
-
-    if (s_vec > half_w)
-    {
-        s1 = s_vec - delta;
-    }
-    else
-    {
-        s1 = s_vec + delta;
-    }
-
-    SetSurfFromST(l, point, s1, t_vec);
-    if (HuntForWorld(point, face_delta, p, DEFAULT_HUNT_SIZE, DEFAULT_HUNT_SCALE, DEFAULT_HUNT_OFFSET))
-    {
-        *s = s1;
-        return true;
-    }
-
-    if (t_vec > half_h)
-    {
-        t1 = t_vec - delta;
-    }
-    else
-    {
-        t1 = t_vec + delta;
-    }
-
-    SetSurfFromST(l, point, s_vec, t1);
-    if (HuntForWorld(point, face_delta, p, DEFAULT_HUNT_SIZE, DEFAULT_HUNT_SCALE, DEFAULT_HUNT_OFFSET))
-    {
-        *t = t1;
-        return true;
-    }
-
-    return false;
-}
-#endif
 
 typedef enum
 {
@@ -1165,7 +954,6 @@ light_flag_t;
 //      For each texture aligned grid point, back project onto the plane
 //      to get the world xyz value of the sample point
 // =====================================================================================
-#ifdef HLRAD_CalcPoints_NEW
 #ifndef HLRAD_GROWSAMPLE
 static int		PointInFace(const lightinfo_t *l, const vec_t* point)
 {
@@ -2262,299 +2050,6 @@ static void		CalcPoints(lightinfo_t* l)
 		l->surfpt_lightoutside[i] = (LuxelFlags[i] == LightOutside);
 	}
 }
-#else /*HLRAD_CalcPoints_NEW*/
-static void     CalcPoints(lightinfo_t* l)
-{
-    const int       facenum = l->surfnum;
-    const dface_t*  f = g_dfaces + facenum;
-    const dplane_t* p = getPlaneFromFace	(f);
-
-    const vec_t*    face_delta = g_face_offset[facenum];
-    const eModelLightmodes lightmode = g_face_lightmode[facenum];
-
-	vec_t mids, midt;
-	{
-		// use winding center instead
-		vec3_t surf;
-		VectorSubtract (g_face_centroids[facenum], g_face_offset[facenum], surf);
-		VectorSubtract (surf, l->texorg, surf);
-		mids = DotProduct (surf, l->worldtotex[0]);
-		midt = DotProduct (surf, l->worldtotex[1]);
-	}
-
-    const int       h = l->texsize[1] + 1;
-    const int       w = l->texsize[0] + 1;
-
-    const vec_t     starts = (l->texmins[0] * TEXTURE_STEP); //const vec_t     starts = (l->texmins[0] * 16); //--vluzacn
-    const vec_t     startt = (l->texmins[1] * TEXTURE_STEP); //const vec_t     startt = (l->texmins[1] * 16); //--vluzacn
-
-    light_flag_t    LuxelFlags[MAX_SINGLEMAP];
-    light_flag_t*   pLuxelFlags;
-    vec_t           us, ut;
-    vec_t*          surf;
-    vec3_t          surface_midpoint;
-    dleaf_t*        leaf_mid;
-    dleaf_t*        leaf_surf;
-    int             s, t;
-    int             i;
-
-    l->numsurfpt = w * h;
-
-    memset(LuxelFlags, 0, sizeof(LuxelFlags));
-
-    leaf_mid = FindSurfaceMidpoint(l, surface_midpoint);
-#if 0
-    if (!leaf_mid)
-    {
-        Developer(DEVELOPER_LEVEL_FLUFF, "CalcPoints [face %d] (%4.3f %4.3f %4.3f) midpoint outside world\n",
-                  facenum, surface_midpoint[0], surface_midpoint[1], surface_midpoint[2]);
-    }
-    else
-    {
-        Developer(DEVELOPER_LEVEL_FLUFF, "FindSurfaceMidpoint [face %d] @ (%4.3f %4.3f %4.3f)\n",
-                  facenum, surface_midpoint[0], surface_midpoint[1], surface_midpoint[2]);
-    }
-#endif
-
-    // First pass, light normally, and pull any faces toward the center for bleed adjustment
-
-    surf = l->surfpt[0];
-    pLuxelFlags = LuxelFlags;
-    for (t = 0; t < h; t++)
-    {
-        for (s = 0; s < w; s++, surf += 3, pLuxelFlags++)
-        {
-            vec_t           original_s = us = starts + s * TEXTURE_STEP;
-            vec_t           original_t = ut = startt + t * TEXTURE_STEP;
-
-            SetSurfFromST(l, surf, us, ut);
-            leaf_surf = HuntForWorld(surf, face_delta, p, DEFAULT_HUNT_SIZE, DEFAULT_HUNT_SCALE, DEFAULT_HUNT_OFFSET);
-
-            if (!leaf_surf)
-            {
-                // At first try a 1/3 and 2/3 distance to nearest in each S and T axis towards the face midpoint
-                if (SimpleNudge(surf, l, &us, &ut, TEXTURE_STEP * (1.0 / 3.0)))
-                {
-                    *pLuxelFlags = LightSimpleNudge;
-                }
-                else if (SimpleNudge(surf, l, &us, &ut, -TEXTURE_STEP * (1.0 / 3.0)))
-                {
-                    *pLuxelFlags = LightSimpleNudge;
-                }
-                else if (SimpleNudge(surf, l, &us, &ut, TEXTURE_STEP * (2.0 / 3.0)))
-                {
-                    *pLuxelFlags = LightSimpleNudge;
-                }
-                else if (SimpleNudge(surf, l, &us, &ut, -TEXTURE_STEP * (2.0 / 3.0)))
-                {
-                    *pLuxelFlags = LightSimpleNudge;
-                }
-                else if (SimpleNudge(surf, l, &us, &ut, TEXTURE_STEP))
-                {
-                    *pLuxelFlags = LightSimpleNudge;
-                }
-                else if (SimpleNudge(surf, l, &us, &ut, -TEXTURE_STEP))
-                {
-                    *pLuxelFlags = LightSimpleNudge;
-                }
-            }
-
-            {
-				// HLRAD_NUDGE_VL: only pull when light is blocked AND point is outside face.
-				vec3_t			surf_nopull;
-				vec_t			us_nopull = us, ut_nopull = ut;
-				Winding			*wd = new Winding (*f);
-				int				j;
-				for (j = 0; j < wd->m_NumPoints; j++)
-				{
-					VectorAdd (wd->m_Points[j], face_delta, wd->m_Points[j]);
-				}
-				bool nudge_succeeded = false;
-				SetSurfFromST(l, surf, us, ut);
-				leaf_surf = HuntForWorld(surf, face_delta, p, DEFAULT_HUNT_SIZE, DEFAULT_HUNT_SCALE, DEFAULT_HUNT_OFFSET);
-				if (leaf_surf && point_in_winding_noedge (*wd, *p, surf, 1.0))
-				{
-					*pLuxelFlags = LightNormal;
-					nudge_succeeded = true;
-				}
-				else
-				{
-					SetSurfFromST(l, surf, us, ut);
-					snap_to_winding (*wd, *p, surf);
-					if (lightmode & eModelLightmodeConcave)
-					{
-						VectorScale (surf, 0.99, surf);
-						VectorMA (surf, 0.01, g_face_centroids[facenum], surf);
-					}
-					leaf_surf = HuntForWorld(surf, face_delta, p, DEFAULT_HUNT_SIZE, DEFAULT_HUNT_SCALE, DEFAULT_HUNT_OFFSET);
-					if (leaf_surf)
-					{
-						*pLuxelFlags = LightPulledInside;
-						nudge_succeeded = true;
-					}
-				}
-
-
-                if (!nudge_succeeded)
-                {
-                    SetSurfFromST(l, surf, original_s, original_t);
-                    *pLuxelFlags = LightOutside;
-                }
-				delete wd;
-				if (*pLuxelFlags == LightPulledInside)
-				{
-					SetSurfFromST(l, surf_nopull, us_nopull, ut_nopull);
-					leaf_surf =
-						HuntForWorld(surf_nopull, face_delta, p, DEFAULT_HUNT_SIZE, DEFAULT_HUNT_SCALE,
-							DEFAULT_HUNT_OFFSET);
-					if (leaf_surf)
-					{
-						if (TestLine(surf, surf_nopull) == CONTENTS_EMPTY)
-						{
-							vec3_t transparency = { 1.0, 1.0, 1.0 };
-							int opaquestyle;
-							if (!TestSegmentAgainstOpaqueList(surf, surf_nopull
-								, transparency
-								, opaquestyle
-								)
-								&& opaquestyle == -1
-								)
-							{
-								*pLuxelFlags = LightNormal;
-								VectorCopy (surf_nopull, surf);
-							}
-						}
-					}
-				}
-            }
-        }
-    }
-
-    // 2nd Pass, find units that are not lit and try to move them one half or unit worth 
-    // in each direction and see if that is lit.
-    // This handles 1 x N lightmaps which are all dark everywhere and have no frame of refernece
-    // for a good center or directly lit areas
-    surf = l->surfpt[0];
-    pLuxelFlags = LuxelFlags;
-#if 0
-    Developer(DEVELOPER_LEVEL_SPAM,
-              "w (%d) h (%d) dim (%d) leafmid (%4.3f %4.3f %4.3f) plane normal (%4.3f) (%4.3f) (%4.3f) dist (%f)\n", w,
-              h, w * h, surface_midpoint[0], surface_midpoint[1], surface_midpoint[2], p->normal[0], p->normal[1],
-              p->normal[2], p->dist);
-#endif
-    {
-        int             total_dark = 0;
-        int             total_adjusted = 0;
-
-        for (t = 0; t < h; t++)
-        {
-            for (s = 0; s < w; s++, surf += 3, pLuxelFlags++)
-            {
-                if (!*pLuxelFlags)
-                {
-#if 0
-                    Developer(DEVELOPER_LEVEL_FLUFF, "Dark (%d %d) (%4.3f %4.3f %4.3f)\n",
-                              s, t, surf[0], surf[1], surf[2]);
-#endif
-                    total_dark++;
-                    if (HuntForWorld(surf, face_delta, p, DEFAULT_HUNT_SIZE, DEFAULT_HUNT_SCALE, DEFAULT_HUNT_OFFSET))
-                    {
-#if 0
-                        Developer(DEVELOPER_LEVEL_FLUFF, "Shifted %d %d to (%4.3f %4.3f %4.3f)\n", s, t, surf[0],
-                                  surf[1], surf[2]);
-#endif
-                        *pLuxelFlags = LightShifted;
-                        total_adjusted++;
-                    }
-                    else if (HuntForWorld(surf, face_delta, p, 101, 0.5, DEFAULT_HUNT_OFFSET))
-                    {
-#if 0
-                        Developer(DEVELOPER_LEVEL_FLUFF, "Shifted %d %d to (%4.3f %4.3f %4.3f)\n", s, t, surf[0],
-                                  surf[1], surf[2]);
-#endif
-                        *pLuxelFlags = LightShifted;
-                        total_adjusted++;
-                    }
-                }
-            }
-        }
-#if 0
-        if (total_dark)
-        {
-            Developer(DEVELOPER_LEVEL_FLUFF, "Pass 2 : %d dark, %d corrected\n", total_dark, total_adjusted);
-        }
-#endif
-    }
-
-    // 3rd Pass, find units that are not lit and move them towards neighbhors who are
-    // Currently finds the first lit neighbhor and uses its data
-    surf = l->surfpt[0];
-    pLuxelFlags = LuxelFlags;
-    {
-        int             total_dark = 0;
-        int             total_adjusted = 0;
-
-        for (t = 0; t < h; t++)
-        {
-            for (s = 0; s < w; s++, surf += 3, pLuxelFlags++)
-            {
-                if (!*pLuxelFlags)
-                {
-                    int             x_min = qmax(0, s - 1);
-                    int             x_max = qmin(w, s + 1);
-                    int             y_min = qmax(0, t - 1);
-                    int             y_max = qmin(t, t + 1);
-
-                    int             x, y;
-
-#if 0
-                    Developer(DEVELOPER_LEVEL_FLUFF, "Point outside (%d %d) (%4.3f %4.3f %4.3f)\n",
-                              s, t, surf[0], surf[1], surf[2]);
-#endif
-
-                    total_dark++;
-
-                    for (x = x_min; x < x_max; x++)
-                    {
-                        for (y = y_min; y < y_max; y++)
-                        {
-                            if (*pLuxelFlags >= LightNormal)
-                            {
-                                dleaf_t*        leaf;
-                                vec_t*          other_surf = l->surfpt[0];
-
-                                other_surf += ((y * w) + x) * 3;
-
-                                leaf = PointInLeaf(other_surf);
-                                if ((leaf->contents != CONTENTS_SKY && leaf->contents != CONTENTS_SOLID))
-                                {
-                                    *pLuxelFlags = LightShiftedInside;
-#if 0
-                                    Developer(DEVELOPER_LEVEL_MESSAGE,
-                                              "Nudged (%d %d) (%4.3f %4.3f %4.3f) to (%d %d) (%4.3f %4.3f %4.3f) \n",
-                                              s, t, surf[0], surf[1], surf[2], x, y, other_surf[0], other_surf[1],
-                                              other_surf[2]);
-#endif
-                                    VectorCopy(other_surf, surf);
-                                    total_adjusted++;
-                                    goto found_it;
-                                }
-                            }
-                        }
-                    }
-                }
-              found_it:;
-            }
-        }
-#if 0
-        if (total_dark)
-        {
-            Developer(DEVELOPER_LEVEL_FLUFF, "Pass 2 : %d dark, %d corrected\n", total_dark, total_adjusted);
-        }
-#endif
-    }
-}
-#endif /*HLRAD_CalcPoints_NEW*/
 
 //==============================================================
 
@@ -5701,14 +5196,6 @@ void            BuildFacelights(const int facenum)
             {
                 for (s = -1; s <= 1; s++)
                 {
-#ifndef HLRAD_CalcPoints_NEW
-                    int             subsample = i + t * lightmapwidth + s;
-                    int             sample_s = i % lightmapwidth;
-                    int sample_t = i / lightmapwidth;
-
-                    if ((0 <= s + sample_s) && (s + sample_s < lightmapwidth)
-                        && (0 <= t + sample_t)&&(t + sample_t <lightmapheight))
-#endif
                     {
 #ifdef HLRAD_AUTOCORING
                         vec3_t          subsampled[ALLSTYLES];
@@ -5729,7 +5216,6 @@ void            BuildFacelights(const int facenum)
 #endif
                         }
 
-#ifdef HLRAD_CalcPoints_NEW
 						vec_t s_vec = l.texmins[0] * TEXTURE_STEP + (i % lightmapwidth + s * 1.0/3.0) * TEXTURE_STEP;
 						vec_t t_vec = l.texmins[1] * TEXTURE_STEP + (i / lightmapwidth + t * 1.0/3.0) * TEXTURE_STEP;
 						bool blocked = false;
@@ -5744,13 +5230,6 @@ void            BuildFacelights(const int facenum)
 								VectorCopy(l.surfpt[i], pos);
 							}
 						}
-#else
-                        // Calculate the point one third of the way toward the "subsample point"
-                        VectorCopy(l.surfpt[i], pos);
-                        VectorAdd(pos, l.surfpt[i], pos);
-                        VectorAdd(pos, l.surfpt[subsample], pos);
-                        VectorScale(pos, 1.0 / 3.0, pos);
-#endif
 
 #ifdef HLRAD_PHONG_FROMORIGINAL
 						// this will generate smoother light for cylinders partially embedded in solid,
@@ -5766,10 +5245,8 @@ void            BuildFacelights(const int facenum)
 #else
                         GetPhongNormal(facenum, pos, pointnormal);
 #endif
-#ifdef HLRAD_CalcPoints_NEW
 						if (!blocked)
 						{
-#endif
                         GatherSampleLight(pos, pvs, pointnormal, subsampled, 
 #ifdef ZHLT_XASH
 							subsampled_direction, 
@@ -5789,9 +5266,7 @@ void            BuildFacelights(const int facenum)
 							, facenum
 #endif
 							);
-#ifdef HLRAD_CalcPoints_NEW
 						}
-#endif
 #ifdef HLRAD_TRANSLUCENT
 						if (l.translucent_b)
 						{
@@ -5816,10 +5291,8 @@ void            BuildFacelights(const int facenum)
 							VectorMA (pos, 0.2, delta, spot2);
 							VectorMA (spot2, -(g_translucentdepth + 2*DEFAULT_HUNT_OFFSET), l.facenormal, spot2);
 							VectorSubtract (vec3_origin, pointnormal, normal2);
-#ifdef HLRAD_CalcPoints_NEW
 							if (!blocked)
 							{
-#endif
 							GatherSampleLight(spot2, pvs2, normal2, subsampled2, 
 #ifdef ZHLT_XASH
 								subsampled2_direction, 
@@ -5839,9 +5312,7 @@ void            BuildFacelights(const int facenum)
 								, facenum
 #endif
 								);
-#ifdef HLRAD_CalcPoints_NEW
 							}
-#endif
 #ifdef HLRAD_AUTOCORING
 							for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
 #else
@@ -5930,11 +5401,9 @@ void            BuildFacelights(const int facenum)
 #else
             GetPhongNormal(facenum, spot, pointnormal);
 #endif
-#ifdef HLRAD_CalcPoints_NEW
 			bool blocked = l.surfpt_lightoutside[i];
 			if (!blocked)
 			{
-#endif
             GatherSampleLight(spot, pvs, pointnormal, sampled, 
 #ifdef ZHLT_XASH
 				sampled_direction, 
@@ -5954,9 +5423,7 @@ void            BuildFacelights(const int facenum)
 				, facenum
 #endif
 				);
-#ifdef HLRAD_CalcPoints_NEW
 			}
-#endif
 #ifdef HLRAD_TRANSLUCENT
 			if (l.translucent_b)
 			{

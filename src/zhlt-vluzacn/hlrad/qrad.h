@@ -530,13 +530,7 @@ lerpTriangulation_t;
 typedef enum
 {
     eModelLightmodeNull     = 0,
-#ifndef HLRAD_CalcPoints_NEW
-    eModelLightmodeEmbedded = 0x01,
-#endif
     eModelLightmodeOpaque   = 0x02,
-#ifndef HLRAD_CalcPoints_NEW
-    eModelLightmodeConcave  = 0x04,
-#endif
 #ifdef HLRAD_OPAQUE_BLOCK
 	eModelLightmodeNonsolid = 0x08, // for opaque entities with {texture
 #endif

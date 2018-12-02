@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_CalcPoints_NEW // --vluzacn
 #define HLRAD_DPLANEOFFSET_MISCFIX //--vluzacn
 #define HLRAD_NEGATIVEDIVIDEND_MISCFIX //--vluzacn
 #define HLRAD_LERP_FIX //--vluzacn
@@ -84,9 +83,7 @@
 	#endif
 #define HLRAD_DEBUG_DRAWPOINTS //--vluzacn
 #define HLRAD_SubdividePatch_NOTMIDDLE //--vluzacn
-	#ifdef HLRAD_CalcPoints_NEW
 #define HLRAD_PHONG_FROMORIGINAL //--vluzacn
-	#endif
 #define HLRAD_SMOOTH_FACELIST //--vluzacn
 #define HLRAD_SortPatches_FIX // Important!! --vluzacn
 #define HLRAD_GatherPatchLight //--vluzacn
@@ -96,9 +93,7 @@
 #define HLRAD_OPAQUE_NODE //--vluzacn
 #define HLRAD_TRANSLUCENT //--vluzacn
 	#ifdef HLRAD_OPAQUE_NODE
-	#ifdef HLRAD_CalcPoints_NEW
 #define HLRAD_OPAQUE_BLOCK //--vluzacn
-	#endif
 	#endif
 #define HLRAD_EDGESHARE_NOSPECIAL //--vluzacn
 	#ifdef HLRAD_SMOOTH_FACELIST
@@ -138,9 +133,7 @@
 #define HLRAD_WATERBACKFACE_FIX // remove this if you have fixed the engine's bug of drawing water backface. --vluzacn
 	#ifdef HLRAD_SMOOTH_TEXNORMAL
 	#ifdef HLRAD_LERP_VL
-	#ifdef HLRAD_CalcPoints_NEW
 #define HLRAD_LERP_TEXNORMAL //--vluzacn
-	#endif
 	#endif
 	#endif
 #define HLRAD_REDUCELIGHTMAP //--vluzacn
@@ -162,9 +155,7 @@
 	#ifdef HLRAD_REFLECTIVITY
 #define HLRAD_BOUNCE_STYLE //--vluzacn
 	#endif
-	#ifdef HLRAD_CalcPoints_NEW
 #define HLRAD_BLUR //--vluzacn
-	#endif
 	#ifdef HLRAD_SOFTSKY
 #define HLRAD_ACCURATEBOUNCE //--vluzacn
 	#endif
@@ -173,10 +164,8 @@
 #define HLRAD_ACCURATEBOUNCE_TEXLIGHT // note: this reduces the compile time in '-extra' mode //--vluzacn
 	#endif
 	#endif
-	#ifdef HLRAD_CalcPoints_NEW
 	#ifdef HLRAD_AUTOCORING
 #define HLRAD_ACCURATEBOUNCE_SAMPLELIGHT //--vluzacn
-	#endif
 	#endif
 	#ifdef HLRAD_ACCURATEBOUNCE_TEXLIGHT
 #define HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN //--vluzacn
@@ -187,10 +176,8 @@
 	#endif
 #define HLRAD_SUBDIVIDEPATCH_NEW //--vluzacn
 #define HLRAD_DIVERSE_LIGHTING //--vluzacn
-	#ifdef HLRAD_CalcPoints_NEW
 	#ifdef HLRAD_BLUR
 #define HLRAD_GROWSAMPLE //--vluzacn
-	#endif
 	#endif
 	#ifdef HLRAD_BLUR
 #define HLRAD_AVOIDNORMALFLIP //--vluzacn
