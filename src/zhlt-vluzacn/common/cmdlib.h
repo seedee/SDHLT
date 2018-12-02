@@ -68,7 +68,6 @@
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
 //#define HLBSP_SUBDIVIDE_INMID // this may contribute to 'AllocBlock: full' problem though it may generate fewer faces. --vluzacn
-#define HLCSG_ONLYENTS_NOWADCHANGE //--vluzacn
 #define HLCSG_NOFAKESPLITS //--vluzacn
 #define HLBSP_MAXNODESIZE_SKYBOX //--vluzacn
 #define ZHLT_CLIPNODEDETAILLEVEL //--vluzacn
@@ -82,9 +81,7 @@
 #define HLBSP_FAST_SELECTPARTITION //--vluzacn
 #define HLBSP_DETAILBRUSH_CULL //--vluzacn
 #define HLBSP_SPLITFACE_FIX //--vluzacn
-	#ifdef HLCSG_ONLYENTS_NOWADCHANGE
 #define HLCSG_AUTOWAD_TEXTURELIST_FIX //--vluzacn
-	#endif
 	#ifdef HLCSG_AUTOWAD_TEXTURELIST_FIX
 #define HLCSG_HULLBRUSH //--vluzacn
 	#endif
@@ -98,10 +95,8 @@
 #define HLBSP_REMOVECOVEREDFACES //--vluzacn
 #define HLCSG_FILEREADFAILURE_FIX //--vluzacn
 #define HLBSP_DELETETEMPFILES //--vluzacn
-	#ifdef HLCSG_ONLYENTS_NOWADCHANGE
 	#ifdef HLCSG_TEXMAP64_FIX
 #define HLCSG_AUTOWAD_NEW //--vluzacn
-	#endif
 	#endif
 #define HLCSG_WARNBADTEXINFO //--vluzacn
 #define HLBSP_HASH_FIX //--vluzacn

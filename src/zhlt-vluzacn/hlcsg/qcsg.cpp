@@ -1291,7 +1291,6 @@ static void     ConvertHintToEmpty()
 // =====================================================================================
 //  WriteBSP
 // =====================================================================================
-#ifdef HLCSG_ONLYENTS_NOWADCHANGE
 void LoadWadValue ()
 {
 	char *wadvalue;
@@ -1345,7 +1344,6 @@ void LoadWadValue ()
 	SetKeyValue (&g_entities[0], "wad", wadvalue);
 	free (wadvalue);
 }
-#endif
 void WriteBSP(const char* const name)
 {
     char path[_MAX_PATH];
@@ -1358,12 +1356,10 @@ void WriteBSP(const char* const name)
 
     if (!g_onlyents)
         WriteMiptex();
-#ifdef HLCSG_ONLYENTS_NOWADCHANGE
 	if (g_onlyents)
 	{
 		LoadWadValue ();
 	}
-#endif
 
     UnparseEntities();
     ConvertHintToEmpty(); // this is ridiculous. --vluzacn
@@ -2420,10 +2416,8 @@ int             main(const int argc, char** argv)
 		}
 	}
 #endif
-#ifdef HLCSG_ONLYENTS_NOWADCHANGE
   if (!g_onlyents)
   {
-#endif
 	if (g_wadconfigname)
 	{
 		char temp[_MAX_PATH];
@@ -2464,9 +2458,7 @@ int             main(const int argc, char** argv)
 
     DumpWadinclude();
     Log("\n");
-#ifdef HLCSG_ONLYENTS_NOWADCHANGE
   }
-#endif
 
     // if onlyents, just grab the entites and resave
     if (g_onlyents)
@@ -2475,11 +2467,6 @@ int             main(const int argc, char** argv)
 
         safe_snprintf(out, _MAX_PATH, "%s.bsp", g_Mapname);
         LoadBSPFile(out);
-#ifndef HLCSG_ONLYENTS_NOWADCHANGE
-        LoadWadincludeFile(g_Mapname);
-
-        HandleWadinclude();
-#endif
 
         // Write it all back out again.
         WriteBSP(g_Mapname);
@@ -2488,12 +2475,6 @@ int             main(const int argc, char** argv)
         LogTimeElapsed(end - start);
         return 0;
     }
-#ifndef HLCSG_ONLYENTS_NOWADCHANGE
-    else
-    {
-        SaveWadincludeFile(g_Mapname);
-    }
-#endif
 
     CheckForNoClip(); 
 

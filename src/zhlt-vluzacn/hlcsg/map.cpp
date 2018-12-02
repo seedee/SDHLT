@@ -1182,13 +1182,9 @@ void            LoadMapFile(const char* const filename)
 
     // AJM: added in 
 #ifndef HLCSG_AUTOWAD_TEXTURELIST_FIX
-#ifdef HLCSG_ONLYENTS_NOWADCHANGE
 	if (!g_onlyents)
 	{
-#endif
     GetUsedTextures();
-#ifdef HLCSG_ONLYENTS_NOWADCHANGE
 	}
-#endif
 #endif
 }

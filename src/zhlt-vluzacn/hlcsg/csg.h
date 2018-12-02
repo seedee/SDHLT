@@ -332,15 +332,6 @@ extern void     FreeFaceList(bface_t* f);
 
 extern void     GetParamsFromEnt(entity_t* mapent);
 
-#ifndef HLCSG_ONLYENTS_NOWADCHANGE
-//=============================================================================
-// wadinclude.c
-// passed 'filename' is extensionless, the function cats ".wic" at runtime
-
-extern void     LoadWadincludeFile(const char* const filename);
-extern void     SaveWadincludeFile(const char* const filename);
-extern void     HandleWadinclude();
-#endif
 
 //=============================================================================
 // brushunion.c

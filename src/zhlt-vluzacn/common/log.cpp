@@ -92,10 +92,6 @@ void            ResetTmpFiles()
         safe_snprintf(filename, _MAX_PATH, "%s.lin", g_Mapname);
         _unlink(filename);
 
-#ifndef HLCSG_ONLYENTS_NOWADCHANGE
-        safe_snprintf(filename, _MAX_PATH, "%s.wic", g_Mapname);
-        _unlink(filename);
-#endif
 
         safe_snprintf(filename, _MAX_PATH, "%s.hsz", g_Mapname);
         _unlink(filename);

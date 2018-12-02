@@ -358,13 +358,11 @@ bool            TEX_InitFromWad()
                 break;
             }
         }
-#ifdef HLCSG_ONLYENTS_NOWADCHANGE
 		if (!bExcludeThisWad && !g_wadtextures) // -nowadtextures
 		{
 			Log("Including Wadfile: %s\n", pszWadFile);
 			bExcludeThisWad = true;
 		}
-#endif
 
         if (!bExcludeThisWad)
         {
@@ -449,7 +447,6 @@ bool            TEX_InitFromWad()
 
 #ifndef HLCSG_AUTOWAD_NEW
     Log("\n");
-#ifdef HLCSG_ONLYENTS_NOWADCHANGE
 	if (*szTmpWad)
 	{
 		Log ("Wad files required to run the map: \"%s\"\n", szTmpWad);
@@ -458,9 +455,6 @@ bool            TEX_InitFromWad()
 	{
 		Log ("Wad files required to run the map: (None)\n");
 	}
-#else
-    Log("\"wad\" is \"%s\"\n", szTmpWad);
-#endif
     SetKeyValue(&g_entities[0], "wad", szTmpWad);
 
     Log("\n");
