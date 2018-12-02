@@ -785,12 +785,10 @@ void            FinishBSPFile()
 	{
 		Warning ("Number of world leaves(%d) exceeded MAX_MAP_LEAFS(%d)\nIf you encounter problems when running your map, consider this the most likely cause.\n", g_dmodels[0].visleafs, MAX_MAP_LEAFS_ENGINE);
 	}
-#ifdef ZHLT_WARNWORLDFACES
 	if (g_dmodels[0].numfaces > MAX_MAP_WORLDFACES)
 	{
 		Warning ("Number of world faces(%d) exceeded %d. Some faces will disappear in game.\nTo reduce world faces, change some world brushes (including func_details) to func_walls.\n", g_dmodels[0].numfaces, MAX_MAP_WORLDFACES);
 	}
-#endif
 #ifdef HLBSP_MERGECLIPNODE
 	Developer (DEVELOPER_LEVEL_MESSAGE, "count_mergedclipnodes = %d\n", count_mergedclipnodes);
 	if (!g_noclipnodemerge)

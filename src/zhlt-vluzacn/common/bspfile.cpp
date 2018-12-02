@@ -1116,9 +1116,7 @@ void            PrintBSPFileSizes()
     totalmemory += ArrayUsage("nodes", g_numnodes, ENTRIES(g_dnodes), ENTRYSIZE(g_dnodes));
     totalmemory += ArrayUsage("texinfos", g_numtexinfo, MAX_MAP_TEXINFO, ENTRYSIZE(g_texinfo));
     totalmemory += ArrayUsage("faces", g_numfaces, ENTRIES(g_dfaces), ENTRYSIZE(g_dfaces));
-#ifdef ZHLT_WARNWORLDFACES
 	totalmemory += ArrayUsage("* worldfaces", (g_nummodels > 0? g_dmodels[0].numfaces: 0), MAX_MAP_WORLDFACES, 0);
-#endif
 #ifdef ZHLT_XASH2
 	for (int hull = 1; hull < MAX_MAP_HULLS; hull++)
 	{

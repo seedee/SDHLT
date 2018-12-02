@@ -46,9 +46,7 @@
 
 #define MAX_MAP_VERTS        65535
 #define MAX_MAP_FACES        65535 // This ought to be 32768, otherwise faces(in world) can become invisible. --vluzacn
-#ifdef ZHLT_WARNWORLDFACES
 #define MAX_MAP_WORLDFACES   32768
-#endif
 #define MAX_MAP_MARKSURFACES 65535
 // hard limit (data structures store them as unsigned shorts)
 
