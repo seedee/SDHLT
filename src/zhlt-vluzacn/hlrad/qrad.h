@@ -238,9 +238,7 @@ typedef struct directlight_s
 	// Really horrible hack which probably won't work!
 	vec3_t			diffuse_intensity;
 	// -----------------------------------------------------------------------------------
-#ifdef HLRAD_SUNDIFFUSE
 	vec3_t			diffuse_intensity2;
-#endif
 	vec_t			sunspreadangle;
 	int				numsunnormals;
 	vec3_t*			sunnormals;

@@ -2419,7 +2419,6 @@ void            CreateDirectLights()
 					dl->diffuse_intensity[2] = dl->intensity[2];
         		}
 				// -----------------------------------------------------------------------------------
-#ifdef HLRAD_SUNDIFFUSE
 				pLight = ValueForKey(e, "_diffuse_light2");
         		r = g = b = scaler = 0;
         		argCnt = sscanf(pLight, "%lf %lf %lf %lf", &r, &g, &b, &scaler);
@@ -2450,7 +2449,6 @@ void            CreateDirectLights()
 					dl->diffuse_intensity2[1] = dl->diffuse_intensity[1];
 					dl->diffuse_intensity2[2] = dl->diffuse_intensity[2];
         		}
-#endif
 
                 dl->type = emit_skylight;
                 dl->stopdot2 = FloatForKey(e, "_sky");     // hack stopdot2 to a sky key number
@@ -3055,15 +3053,11 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								VectorCompare (
 									l->diffuse_intensity,
 									vec3_origin)
-	#ifdef HLRAD_SUNDIFFUSE
 								&& VectorCompare (l->diffuse_intensity2, vec3_origin)
-	#endif
 								)
 								continue;
 
 							vec3_t sky_intensity;
-	#ifndef HLRAD_SUNDIFFUSE
-	#endif
 
 							// loop over the normals
 							vec3_t *skynormals = g_skynormals[g_softsky?SKYLEVEL_SOFTSKYON:SKYLEVEL_SOFTSKYOFF];
@@ -3104,14 +3098,10 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								vec3_t direction;
 								VectorCopy (skynormals[j], direction);
 						#endif
-				#ifdef HLRAD_SUNDIFFUSE
 								vec_t factor = qmin (qmax (0.0, (1 - DotProduct (l->normal, skynormals[j])) / 2), 1.0); // how far this piece of sky has deviated from the sun
 								VectorScale (l->diffuse_intensity, 1 - factor, sky_intensity);
 								VectorMA (sky_intensity, factor, l->diffuse_intensity2, sky_intensity);
 								VectorScale (sky_intensity, skyweights[j] * g_indirect_sun / 2, sky_intensity);
-				#else
-								VectorScale (l->diffuse_intensity, skyweights[j] * g_indirect_sun / 2, sky_intensity);
-				#endif
 								vec3_t add_one;
 					#ifdef HLRAD_DIVERSE_LIGHTING
 								if (lighting_diversify)
