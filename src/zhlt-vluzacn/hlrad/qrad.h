@@ -18,9 +18,7 @@
 #include "blockmem.h"
 #include "filelib.h"
 #include "winding.h"
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
 #include "compress.h"
-#endif
 #include "cmdlinecfg.h"
 
 #ifdef SYSTEM_WIN32
@@ -167,10 +165,8 @@
 
 	#define DEFAULT_TRANSTOTAL_HACK 0.2 //0.5 //vluzacn
 	#define DEFAULT_MINLIGHT 0
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
 	#define DEFAULT_TRANSFER_COMPRESS_TYPE FLOAT16
 	#define DEFAULT_RGBTRANSFER_COMPRESS_TYPE VECTOR32
-#endif
 #ifdef HLRAD_SOFTSKY
 	#define DEFAULT_SOFTSKY true
 #endif
@@ -324,13 +320,6 @@ typedef struct directlight_s
 #endif
 } directlight_t;
 
-#ifndef HLRAD_TRANSFERDATA_COMPRESS
-#define TRANSFER_SCALE_VAL    (USHRT_MAX/4)
-
-#define	TRANSFER_SCALE          (1.0 / TRANSFER_SCALE_VAL)
-#define	INVERSE_TRANSFER_SCALE	(TRANSFER_SCALE_VAL)
-#define TRANSFER_SCALE_MAX	(TRANSFER_SCALE_VAL * 4)
-#endif
 
 typedef struct
 {
@@ -339,28 +328,9 @@ typedef struct
 } transfer_index_t;
 
 typedef unsigned transfer_raw_index_t;
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
 typedef unsigned char transfer_data_t;
-#else
-typedef float transfer_data_t;
-#endif
 
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
 typedef unsigned char rgb_transfer_data_t;
-#else
-//Special RGB mode for transfers
-	#if defined(HLRAD_HULLU_48BIT_RGB_TRANSFERS) && defined(HLRAD_HULLU_96BIT_RGB_TRANSFERS)
-		#error Conflict: Both HLRAD_HULLU_48BIT_RGB_TRANSFERS and HLRAD_HULLU_96BIT_RGB_TRANSFERS defined!
-	#elif defined(HLRAD_HULLU_96BIT_RGB_TRANSFERS)
-		//96bit (no noticeable difference to 48bit)
-		typedef float rgb_transfer_t[3];
-	#else
-		//default.. 48bit
-		typedef unsigned short rgb_transfer_t[3];
-	#endif
-	
-	typedef rgb_transfer_t rgb_transfer_data_t;
-#endif
 
 #define MAX_COMPRESSED_TRANSFER_INDEX_SIZE ((1 << 12) - 1)
 
@@ -759,10 +729,8 @@ extern float	g_softlight_hack_distance;
 
 	extern float g_transtotal_hack;
 	extern unsigned char g_minlight;
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
 	extern float_type g_transfer_compress_type;
 	extern vector_type g_rgbtransfer_compress_type;
-#endif
 #ifdef HLRAD_SOFTSKY
 	extern bool g_softsky;
 #endif

@@ -238,7 +238,6 @@ void            MakeScales(const int threadnum)
 
     vec_t           total;
 
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
     transfer_raw_index_t* tIndex;
     float* tData;
 
@@ -248,18 +247,6 @@ void            MakeScales(const int threadnum)
 #else
     transfer_raw_index_t* tIndex_All = (transfer_raw_index_t*)AllocBlock(sizeof(transfer_index_t) * MAX_PATCHES);
     float* tData_All = (float*)AllocBlock(sizeof(float) * MAX_PATCHES);
-#endif
-#else
-    transfer_raw_index_t* tIndex;
-    transfer_data_t* tData;
-
-#ifdef HLRAD_MORE_PATCHES
-    transfer_raw_index_t* tIndex_All = (transfer_raw_index_t*)AllocBlock(sizeof(transfer_index_t) * (g_num_patches + 1));
-    transfer_data_t* tData_All = (transfer_data_t*)AllocBlock(sizeof(transfer_data_t) * (g_num_patches + 1));
-#else
-    transfer_raw_index_t* tIndex_All = (transfer_raw_index_t*)AllocBlock(sizeof(transfer_index_t) * MAX_PATCHES);
-    transfer_data_t* tData_All = (transfer_data_t*)AllocBlock(sizeof(transfer_data_t) * MAX_PATCHES);
-#endif
 #endif
 
     count = 0;
@@ -468,17 +455,7 @@ void            MakeScales(const int threadnum)
             {
 
 
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
 				trans = trans * patch2->area;
-#else
-                // scale to 16 bit (black magic)
-				// BUG: (in MakeRGBScales) convert to integer will lose data. --vluzacn
-                trans = trans * patch2->area * INVERSE_TRANSFER_SCALE;
-                if (trans >= TRANSFER_SCALE_MAX)
-                {
-                    trans = TRANSFER_SCALE_MAX;
-                }
-#endif
             }
 #ifndef HLRAD_ACCURATEBOUNCE
             else
@@ -513,11 +490,7 @@ void            MakeScales(const int threadnum)
         // copy the transfers out
         if (patch->iData)
         {
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
 			unsigned	data_size = patch->iData * float_size[g_transfer_compress_type] + unused_size;
-#else
-            unsigned        data_size = patch->iData * sizeof(transfer_data_t);
-#endif
 
             patch->tData = (transfer_data_t*)AllocBlock(data_size);
             patch->tIndex = CompressTransferIndicies(tIndex_All, patch->iData, &patch->iIndex);
@@ -535,7 +508,6 @@ void            MakeScales(const int threadnum)
 			total = g_transtotal_hack / Q_PI;
 #endif
             {
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
                 unsigned        x;
                 transfer_data_t* t1 = patch->tData;
                 float* t2 = tData_All;
@@ -546,16 +518,6 @@ void            MakeScales(const int threadnum)
 					f = (*t2) * total;
 					float_compress (g_transfer_compress_type, t1, &f);
 				}
-#else
-                unsigned        x;
-                transfer_data_t* t1 = patch->tData;
-                transfer_data_t* t2 = tData_All;
-
-                for (x = 0; x < patch->iData; x++, t1++, t2++)
-                {
-                    (*t1) = (*t2) * total;
-                }
-#endif
             }
         }
     }
@@ -615,7 +577,6 @@ void            MakeRGBScales(const int threadnum)
     unsigned int    fastfind_index = 0;
     vec_t           total;
 
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
     transfer_raw_index_t* tIndex;
     float* tRGBData;
 
@@ -625,18 +586,6 @@ void            MakeRGBScales(const int threadnum)
 #else
     transfer_raw_index_t* tIndex_All = (transfer_raw_index_t*)AllocBlock(sizeof(transfer_index_t) * MAX_PATCHES);
     float* tRGBData_All = (float*)AllocBlock(sizeof(float[3]) * MAX_PATCHES);
-#endif
-#else
-    transfer_raw_index_t* tIndex;
-    rgb_transfer_data_t* tRGBData;
-
-#ifdef HLRAD_MORE_PATCHES
-    transfer_raw_index_t* tIndex_All = (transfer_raw_index_t*)AllocBlock(sizeof(transfer_index_t) * (g_num_patches + 1));
-    rgb_transfer_data_t* tRGBData_All = (rgb_transfer_data_t*)AllocBlock(sizeof(rgb_transfer_data_t) * (g_num_patches + 1));
-#else
-    transfer_raw_index_t* tIndex_All = (transfer_raw_index_t*)AllocBlock(sizeof(transfer_index_t) * MAX_PATCHES);
-    rgb_transfer_data_t* tRGBData_All = (rgb_transfer_data_t*)AllocBlock(sizeof(rgb_transfer_data_t) * MAX_PATCHES);
-#endif
 #endif
 
     count = 0;
@@ -856,25 +805,7 @@ void            MakeRGBScales(const int threadnum)
 #endif
 			{
 
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
                 VectorScale(trans, patch2 -> area, trans);
-#else
-                // scale to 16 bit (black magic)
-                VectorScale(trans, patch2 -> area * INVERSE_TRANSFER_SCALE, trans);
-
-                if (trans[0] >= TRANSFER_SCALE_MAX)
-                {
-                    trans[0] = TRANSFER_SCALE_MAX;
-                }
-                if (trans[1] >= TRANSFER_SCALE_MAX)
-                {
-                    trans[1] = TRANSFER_SCALE_MAX;
-                }
-                if (trans[2] >= TRANSFER_SCALE_MAX)
-                {
-                    trans[2] = TRANSFER_SCALE_MAX;
-                }
-#endif
             }
 #ifndef HLRAD_ACCURATEBOUNCE
             else
@@ -892,30 +823,18 @@ void            MakeRGBScales(const int threadnum)
             }
 #endif
 
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
 			VectorCopy(trans, tRGBData);
             *tIndex = j;
             tRGBData+=3;
             tIndex++;
             patch->iData++;
-#else
-            VectorCopy(trans, *tRGBData);
-            *tIndex = j;
-            tRGBData++;
-            tIndex++;
-            patch->iData++;
-#endif
             count++;
         }
 
         // copy the transfers out
         if (patch->iData)
         {
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
 			unsigned	data_size = patch->iData * vector_size[g_rgbtransfer_compress_type] + unused_size;
-#else
-            unsigned data_size = patch->iData * sizeof(rgb_transfer_data_t);
-#endif
 
             patch->tRGBData = (rgb_transfer_data_t*)AllocBlock(data_size);
             patch->tIndex = CompressTransferIndicies(tIndex_All, patch->iData, &patch->iIndex);
@@ -933,7 +852,6 @@ void            MakeRGBScales(const int threadnum)
 			total = g_transtotal_hack / Q_PI;
 #endif
             {
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
                 unsigned        x;
                 rgb_transfer_data_t* t1 = patch->tRGBData;
 				float* t2 = tRGBData_All;
@@ -944,16 +862,6 @@ void            MakeRGBScales(const int threadnum)
                      VectorScale( t2, total, f );
 					 vector_compress (g_rgbtransfer_compress_type, t1, &f[0], &f[1], &f[2]);
                 }
-#else
-                unsigned        x;
-                rgb_transfer_data_t* t1 = patch->tRGBData;
-                rgb_transfer_data_t* t2 = tRGBData_All;
-
-                for (x = 0; x < patch->iData; x++, t1++, t2++)
-                {
-                     VectorScale( *t2, total, *t1 );
-                }
-#endif
             }
         }
     }

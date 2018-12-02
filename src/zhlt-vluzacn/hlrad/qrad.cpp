@@ -151,10 +151,8 @@ bool		g_rgb_transfers = DEFAULT_RGB_TRANSFERS;
 
 float		g_transtotal_hack = DEFAULT_TRANSTOTAL_HACK;
 unsigned char g_minlight = DEFAULT_MINLIGHT;
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
 float_type g_transfer_compress_type = DEFAULT_TRANSFER_COMPRESS_TYPE;
 vector_type g_rgbtransfer_compress_type = DEFAULT_RGBTRANSFER_COMPRESS_TYPE;
-#endif
 #ifdef HLRAD_SOFTSKY
 bool g_softsky = DEFAULT_SOFTSKY;
 #endif
@@ -2676,11 +2674,7 @@ static void     CollectLight()
 		for (j = 0; j < MAXLIGHTMAPS && patch->totalstyle[j] != 255; j++)
 		{
 		    VectorAdd(patch->totallight[j], addlight[i][j], patch->totallight[j]);
-	#ifdef HLRAD_TRANSFERDATA_COMPRESS
 	        VectorCopy(addlight[i][j], emitlight[i][j]);
-	#else
-	        VectorScale(addlight[i][j], TRANSFER_SCALE, emitlight[i][j]);
-	#endif
 			VectorClear(addlight[i][j]);
 		}
 #endif
@@ -2707,9 +2701,7 @@ static void     GatherLight(int threadnum)
     unsigned        iIndex;
     transfer_data_t* tData;
     transfer_index_t* tIndex;
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
 	float f;
-#endif
 #ifdef HLRAD_STYLE_CORING
 #ifndef HLRAD_AUTOCORING
 	int				style_index;
@@ -2772,11 +2764,7 @@ static void     GatherLight(int threadnum)
             unsigned        size = (tIndex->size + 1);
             unsigned        patchnum = tIndex->index;
 
-	#ifdef HLRAD_TRANSFERDATA_COMPRESS
             for (l = 0; l < size; l++, tData+=float_size[g_transfer_compress_type], patchnum++)
-	#else
-            for (l = 0; l < size; l++, tData++, patchnum++)
-	#endif
             {
                 vec3_t          v;
                  //LRC:
@@ -2786,9 +2774,7 @@ static void     GatherLight(int threadnum)
 				int				opaquestyle = -1;
 				GetStyle (j, patchnum, opaquestyle, fastfind_index);
 #endif
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
 				float_decompress (g_transfer_compress_type, tData, &f);
-#endif
 #ifdef ZHLT_XASH
 				vec3_t direction;
 				VectorSubtract (patch->origin, emitpatch->origin, direction);
@@ -2807,11 +2793,7 @@ static void     GatherLight(int threadnum)
 #ifdef HLRAD_AUTOCORING
 				for (emitstyle = 0; emitstyle < MAXLIGHTMAPS && emitpatch->directstyle[emitstyle] != 255; emitstyle++)
 				{
-	#ifdef HLRAD_TRANSFERDATA_COMPRESS
 					VectorScale(emitpatch->directlight[emitstyle], f, v);
-	#else
-					VectorScale(emitpatch->directlight[emitstyle], (*tData) * TRANSFER_SCALE, v);
-	#endif
 	#ifdef HLRAD_REFLECTIVITY
 					VectorMultiply(v, emitpatch->bouncereflectivity, v);
 	#endif
@@ -2853,15 +2835,7 @@ static void     GatherLight(int threadnum)
 				for (emitstyle = 0; emitstyle < MAXLIGHTMAPS && emitpatch->totalstyle[emitstyle] != 255; emitstyle++)
 				{
 #ifdef HLRAD_STYLE_CORING
-	#ifdef HLRAD_TRANSFERDATA_COMPRESS
 					VectorScale(emitlight[patchnum][emitstyle], f, v);
-	#else
-		#ifdef HLRAD_AUTOCORING
-					VectorScale(emitlight[patchnum][emitstyle], (*tData) * TRANSFER_SCALE, v);
-		#else
-					VectorScale(emitlight[patchnum][emitstyle], (*tData), v);
-		#endif
-	#endif
 	#ifdef HLRAD_REFLECTIVITY
 					VectorMultiply(v, emitpatch->bouncereflectivity, v);
 	#endif
@@ -2933,12 +2907,8 @@ static void     GatherLight(int threadnum)
 							patch->totalstyle[m] = emitpatch->totalstyle[emitstyle];
 //							Log("Granting new style %d to patch at idx %d\n", patch->totalstyle[m], m);
 						}
-	#ifdef HLRAD_TRANSFERDATA_COMPRESS
 						float_decompress (g_transfer_compress_type, tData, &f);
 						VectorScale(emitlight[patchnum][emitstyle], f, v);
-	#else
-						VectorScale(emitlight[patchnum][emitstyle], (*tData), v);
-	#endif
 	#ifdef HLRAD_REFLECTIVITY
 						VectorMultiply(v, emitpatch->bouncereflectivity, v);
 	#endif
@@ -3065,9 +3035,7 @@ static void     GatherRGBLight(int threadnum)
     unsigned        iIndex;
     rgb_transfer_data_t* tRGBData;
     transfer_index_t* tIndex;
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
 	float f[3];
-#endif
 #ifdef HLRAD_STYLE_CORING
 #ifndef HLRAD_AUTOCORING
 	int				style_index;
@@ -3129,11 +3097,7 @@ static void     GatherRGBLight(int threadnum)
             unsigned        l;
             unsigned        size = (tIndex->size + 1);
             unsigned        patchnum = tIndex->index;
-	#ifdef HLRAD_TRANSFERDATA_COMPRESS
             for (l = 0; l < size; l++, tRGBData+=vector_size[g_rgbtransfer_compress_type], patchnum++)
-	#else
-            for (l = 0; l < size; l++, tRGBData++, patchnum++)
-	#endif
             {
                 vec3_t          v;
                  //LRC:
@@ -3143,9 +3107,7 @@ static void     GatherRGBLight(int threadnum)
 				int				opaquestyle = -1;
 				GetStyle (j, patchnum, opaquestyle, fastfind_index);
 #endif
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
 				vector_decompress (g_rgbtransfer_compress_type, tRGBData, &f[0], &f[1], &f[2]);
-#endif
 #ifdef ZHLT_XASH
 				vec3_t direction;
 				VectorSubtract (patch->origin, emitpatch->origin, direction);
@@ -3164,12 +3126,7 @@ static void     GatherRGBLight(int threadnum)
 #ifdef HLRAD_AUTOCORING
 				for (emitstyle = 0; emitstyle < MAXLIGHTMAPS && emitpatch->directstyle[emitstyle] != 255; emitstyle++)
 				{
-	#ifdef HLRAD_TRANSFERDATA_COMPRESS
 					VectorMultiply(emitpatch->directlight[emitstyle], f, v);
-	#else
-					VectorMultiply(emitpatch->directlight[emitstyle], (*tRGBData), v);
-					VectorScale(v, TRANSFER_SCALE, v);
-	#endif
 	#ifdef HLRAD_REFLECTIVITY
 					VectorMultiply(v, emitpatch->bouncereflectivity, v);
 	#endif
@@ -3211,16 +3168,7 @@ static void     GatherRGBLight(int threadnum)
 				for (emitstyle = 0; emitstyle < MAXLIGHTMAPS && emitpatch->totalstyle[emitstyle] != 255; emitstyle++)
 				{
 #ifdef HLRAD_STYLE_CORING
-	#ifdef HLRAD_TRANSFERDATA_COMPRESS
 					VectorMultiply(emitlight[patchnum][emitstyle], f, v);
-	#else
-		#ifdef HLRAD_AUTOCORING
-					VectorMultiply(emitlight[patchnum][emitstyle], (*tRGBData), v);
-					VectorScale(v, TRANSFER_SCALE, v);
-		#else
-					VectorMultiply(emitlight[patchnum][emitstyle], (*tRGBData), v);
-		#endif
-	#endif
 	#ifdef HLRAD_REFLECTIVITY
 					VectorMultiply(v, emitpatch->bouncereflectivity, v);
 	#endif
@@ -3292,12 +3240,8 @@ static void     GatherRGBLight(int threadnum)
 							patch->totalstyle[m] = emitpatch->totalstyle[emitstyle];
 //							Log("Granting new style %d to patch at idx %d\n", patch->totalstyle[m], m);
 						}
-	#ifdef HLRAD_TRANSFERDATA_COMPRESS
 						vector_decompress (g_rgbtransfer_compress_type, tRGBData, &f[0], &f[1], &f[2]);
 						VectorMultiply(emitlight[patchnum][emitstyle], f, v);
-	#else
-						VectorMultiply(emitlight[patchnum][emitstyle], (*tRGBData), v);
-	#endif
 	#ifdef HLRAD_REFLECTIVITY
 						VectorMultiply(v, emitpatch->bouncereflectivity, v);
 	#endif
@@ -3441,11 +3385,7 @@ static void     BounceLight()
         //LRC
 		for (j = 0; j < MAXLIGHTMAPS && g_patches[i].totalstyle[j] != 255; j++)
 		{
-	#ifdef HLRAD_TRANSFERDATA_COMPRESS
 	        VectorCopy(g_patches[i].totallight[j], emitlight[i][j]);
-	#else
-	        VectorScale(g_patches[i].totallight[j], TRANSFER_SCALE, emitlight[i][j]);
-	#endif
 		}
 #endif
     }
@@ -3978,7 +3918,6 @@ static void     Usage()
 	Log("   -bscale        : Scaling light on every bounce\n\n");
 #endif
 	Log("   -minlight #    : Minimum final light (integer from 0 to 255)\n");
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
 	{
 		int i;
 	Log("   -compress #    : compress tranfer (");
@@ -3990,7 +3929,6 @@ static void     Usage()
 			Log (" %d=%s", i, vector_type_string[i]);
 		Log(" )\n");
 	}
-#endif
 #ifdef HLRAD_SOFTSKY
 	Log("   -softsky #     : Smooth skylight.(0=off 1=on)\n");
 #endif
@@ -4238,14 +4176,12 @@ static void     Settings()
 	Log("bounce scale         [ %17s ] [ %17s ]\n", buf1, buf2);
 #endif
 	Log("minimum final light  [ %17d ] [ %17d ]\n", (int)g_minlight, (int)DEFAULT_MINLIGHT);
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
 	sprintf (buf1, "%d (%s)", g_transfer_compress_type, float_type_string[g_transfer_compress_type]);
 	sprintf (buf2, "%d (%s)", DEFAULT_TRANSFER_COMPRESS_TYPE, float_type_string[DEFAULT_TRANSFER_COMPRESS_TYPE]);
 	Log("size of transfer     [ %17s ] [ %17s ]\n", buf1, buf2);
 	sprintf (buf1, "%d (%s)", g_rgbtransfer_compress_type, vector_type_string[g_rgbtransfer_compress_type]);
 	sprintf (buf2, "%d (%s)", DEFAULT_RGBTRANSFER_COMPRESS_TYPE, vector_type_string[DEFAULT_RGBTRANSFER_COMPRESS_TYPE]);
 	Log("size of rgbtransfer  [ %17s ] [ %17s ]\n", buf1, buf2);
-#endif
 #ifdef HLRAD_SOFTSKY
 	Log("soft sky             [ %17s ] [ %17s ]\n", g_softsky ? "on" : "off", DEFAULT_SOFTSKY ? "on" : "off");
 #endif
@@ -5171,7 +5107,6 @@ int             main(const int argc, char** argv)
 		}
 #endif
 
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
 		else if (!strcasecmp(argv[i], "-compress"))
 		{
 			if (i + 1 < argc)
@@ -5198,7 +5133,6 @@ int             main(const int argc, char** argv)
 				Usage();
 			}
 		}
-#endif
 #ifdef HLRAD_TRANSLUCENT
 		else if (!strcasecmp (argv[i], "-depth"))
 		{
@@ -5373,9 +5307,7 @@ int             main(const int argc, char** argv)
 
     CheckForErrorLog();
 
-#ifdef HLRAD_TRANSFERDATA_COMPRESS
 	compress_compatability_test ();
-#endif
 #ifdef PLATFORM_CAN_CALC_EXTENT
 	hlassume (CalcFaceExtents_test (), assume_first);
 #endif
