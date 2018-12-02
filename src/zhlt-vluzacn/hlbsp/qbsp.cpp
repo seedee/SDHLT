@@ -83,9 +83,7 @@ char*           g_progressfile = DEFAULT_PROGRESSFILE; // "-progressfile path"
 
 bool g_nohull2 = false;
 
-#ifdef HLBSP_VIEWPORTAL
 bool g_viewportal = false;
-#endif
 
 dplane_t g_dplanes[MAX_INTERNAL_MAP_PLANES];
 
@@ -1459,9 +1457,7 @@ static void     Usage()
 
 	Log("    -nohull2       : Don't generate hull 2 (the clipping hull for large monsters and pushables)\n");
 
-#ifdef HLBSP_VIEWPORTAL
 	Log("    -viewportal    : Show portal boundaries in 'mapname_portal.pts' file\n");
-#endif
 
     Log("    -verbose       : compile with verbose messages\n");
     Log("    -noinfo        : Do not show tool configuration information\n");
@@ -1911,12 +1907,10 @@ int             main(const int argc, char** argv)
                 Usage();
             }
         }
-#ifdef HLBSP_VIEWPORTAL
 		else if (!strcasecmp (argv[i], "-viewportal"))
 		{
 			g_viewportal = true;
 		}
-#endif
         else if (!strcasecmp(argv[i], "-texdata"))
         {
             if (i + 1 < argc)	//added "1" .--vluzacn

@@ -156,10 +156,8 @@ void            MakeHeadnodePortals(node_t* node, const vec3_t mins, const vec3_
  */
 
 static FILE*    pf;
-#ifdef HLBSP_VIEWPORTAL
 static FILE *pf_view;
 extern bool g_viewportal;
-#endif
 static int      num_visleafs;                              // leafs the player can be in
 static int      num_visportals;
 
@@ -219,7 +217,6 @@ static void     WritePortalFile_r(const node_t* const node)
                     fprintf(pf, "(%f %f %f) ", w->m_Points[i][0], w->m_Points[i][1], w->m_Points[i][2]);
                 }
                 fprintf(pf, "\n");
-#ifdef HLBSP_VIEWPORTAL
 				if (g_viewportal)
 				{
 					vec3_t center, center1, center2;
@@ -240,7 +237,6 @@ static void     WritePortalFile_r(const node_t* const node)
 						fprintf (pf_view, "%5.2f %5.2f %5.2f\n", center1[0], center1[1], center1[2]);
 					}
 				}
-#endif
             }
         }
 
@@ -354,7 +350,6 @@ void            WritePortalfile(node_t* headnode)
     {
         Error("Error writing portal file %s", g_portfilename);
     }
-#ifdef HLBSP_VIEWPORTAL
 	if (g_viewportal)
 	{
 		char filename[_MAX_PATH];
@@ -366,7 +361,6 @@ void            WritePortalfile(node_t* headnode)
 		}
 		Log ("Writing '%s' ...\n", filename);
 	}
-#endif
 
     fprintf(pf, "%i\n", num_visleafs);
     fprintf(pf, "%i\n", num_visportals);
@@ -374,12 +368,10 @@ void            WritePortalfile(node_t* headnode)
 	WriteLeafCount_r (headnode);
     WritePortalFile_r(headnode);
     fclose(pf);
-#ifdef HLBSP_VIEWPORTAL
 	if (g_viewportal)
 	{
 		fclose (pf_view);
 	}
-#endif
     Log("BSP generation successful, writing portal file '%s'\n", g_portfilename);
 }
 
