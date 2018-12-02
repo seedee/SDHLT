@@ -2075,10 +2075,8 @@ void            CreateDirectLights()
 				dl->topatch = true;
 			}
 			dl->patch_area = p->area;
-	#ifdef HLRAD_ACCURATEBOUNCE_TEXLIGHT
 			dl->patch_emitter_range = p->emitter_range;
 			dl->patch = p;
-	#endif
 #ifdef HLRAD_TEXLIGHTGAP
 			dl->texlightgap = g_texlightgap;
 			if (g_face_texlights[p->faceNumber] && *ValueForKey (g_face_texlights[p->faceNumber], "_texlightgap"))
@@ -3119,13 +3117,11 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                         float           denominator;
 
                         VectorSubtract(l->origin, pos, delta);
-#ifdef HLRAD_ACCURATEBOUNCE_TEXLIGHT
 						if (l->type == emit_surface)
 						{
 							// move emitter back to its plane
 							VectorMA (delta, -PATCH_HUNT_OFFSET, l->normal, delta);
 						}
-#endif
                         dist = VectorNormalize(delta);
                         dot = DotProduct(delta, normal);
                         //                        if (dot <= 0.0)
@@ -3148,13 +3144,11 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 #ifdef ZHLT_XASH
 						vec3_t direction;
 						VectorSubtract (vec3_origin, delta, direction);
-	#ifdef HLRAD_ACCURATEBOUNCE_TEXLIGHT
 						if ((-dot) > 0)
 						{
 							// reflect the direction back (this is not ideal!)
 							VectorMA (direction, -(-dot) * 2, normal, direction);
 						}
-	#endif
 #endif
                         switch (l->type)
                         {
@@ -3213,7 +3207,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								}
 							}
 #endif
-	#ifdef HLRAD_ACCURATEBOUNCE_TEXLIGHT
 							if (dot2 * dist <= MINIMUM_PATCH_DISTANCE)
 							{
 								continue;
@@ -3249,20 +3242,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							{
 								ratio = dot * dot2 / (dist * dist);
 							}
-	#else
-							if (dot2 <= l->stopdot2 + NORMAL_EPSILON)
-							{
-								continue;
-							}
-							if (dot2 <= l->stopdot)
-							{
-								ratio = dot * dot2 * (dot2 - l->stopdot2) / (dist * dist * (l->stopdot - l->stopdot2));
-							}
-							else
-							{
-								ratio = dot * dot2 / (dist * dist);
-							}
-	#endif
 							
 							// analogous to the one in MakeScales
 							// 0.4f is tested to be able to fully eliminate bright spots
@@ -3270,7 +3249,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							{
 								ratio = 0.4f / l->patch_area;
 							}
-	#ifdef HLRAD_ACCURATEBOUNCE_TEXLIGHT
 							if (dist < range - ON_EPSILON)
 							{ // do things slow
 		#ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
@@ -3321,7 +3299,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								}
 							}
 		#endif
-	#endif
                             VectorScale(l->intensity, ratio, add);
                             break;
                         }

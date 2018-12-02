@@ -234,10 +234,8 @@ typedef struct directlight_s
 	vec_t*			sunnormalweights;
 
 	vec_t			patch_area;
-#ifdef HLRAD_ACCURATEBOUNCE_TEXLIGHT
 	vec_t			patch_emitter_range;
 	struct patch_s	*patch;
-#endif
 #ifdef HLRAD_TEXLIGHTGAP
 	vec_t			texlightgap;
 #endif

@@ -1531,14 +1531,7 @@ static vec_t    getChop(const patch_t* const patch)
     else
     {
         rval = g_texchop * getScale(patch);
-#ifdef HLRAD_ACCURATEBOUNCE_TEXLIGHT
 		// we needn't do this now, so let's save our compile time.
-#else
-        if (g_extra)
-        {
-            rval *= 0.5;
-        }
-#endif
     }
 
 	rval *= ChopScaleForTexture (patch->faceNumber);
