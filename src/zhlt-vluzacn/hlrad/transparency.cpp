@@ -6,10 +6,6 @@
 #include "qrad.h"
 
 
-#ifndef HLRAD_TRANSPARENCY_FAST
-#define TRANS_LIST_GROWTH 64
-#define RAW_LIST_GROWTH 2048
-#endif
 
 typedef struct {
 	unsigned	p1;
@@ -48,11 +44,7 @@ static unsigned AddTransparencyToDataList(const vec3_t trans)
 	while( s_trans_count >= s_max_trans_count )
 	{
 		unsigned int old_max_count = s_max_trans_count;
-#ifdef HLRAD_TRANSPARENCY_FAST
 		s_max_trans_count = qmax (64u, (unsigned int)((double)s_max_trans_count * 1.41));
-#else
-		s_max_trans_count += TRANS_LIST_GROWTH;
-#endif
 		if (s_max_trans_count >= (unsigned int)INT_MAX)
 		{
 			Error ("AddTransparencyToDataList: array size exceeded INT_MAX");
@@ -62,11 +54,7 @@ static unsigned AddTransparencyToDataList(const vec3_t trans)
 
 		hlassume (s_trans_list != NULL, assume_NoMemory);
 		
-#ifdef HLRAD_TRANSPARENCY_FAST
 		memset( &s_trans_list[old_max_count], 0, sizeof(vec3_t) * (s_max_trans_count - old_max_count) );
-#else
-		memset( &s_trans_list[old_max_count], 0, sizeof(vec3_t) * TRANS_LIST_GROWTH );
-#endif
 		
 		if( old_max_count == 0 )
 		{
@@ -94,11 +82,7 @@ void	AddTransparencyToRawArray(const unsigned p1, const unsigned p2, const vec3_
 	while( s_raw_count >= s_max_raw_count )
 	{
 		unsigned int old_max_count = s_max_raw_count;
-#ifdef HLRAD_TRANSPARENCY_FAST
 		s_max_raw_count = qmax (64u, (unsigned int)((double)s_max_raw_count * 1.41));
-#else
-		s_max_raw_count += RAW_LIST_GROWTH;
-#endif
 		if (s_max_raw_count >= (unsigned int)INT_MAX)
 		{
 			Error ("AddTransparencyToRawArray: array size exceeded INT_MAX");
@@ -108,11 +92,7 @@ void	AddTransparencyToRawArray(const unsigned p1, const unsigned p2, const vec3_
 
 		hlassume (s_raw_list != NULL, assume_NoMemory);
 		
-#ifdef HLRAD_TRANSPARENCY_FAST
 		memset( &s_raw_list[old_max_count], 0, sizeof(transList_t) * (s_max_raw_count - old_max_count) );
-#else
-		memset( &s_raw_list[old_max_count], 0, sizeof(transList_t) * RAW_LIST_GROWTH );
-#endif
 	}
 	
 	s_raw_list[s_raw_count].p1 = p1;
@@ -293,9 +273,6 @@ void GetTransparency(const unsigned p1, const unsigned p2, vec3_t &trans, unsign
 
 
 
-#ifndef HLRAD_TRANSPARENCY_FAST
-#define STYLE_LIST_GROWTH 2048
-#endif
 typedef struct {
 	unsigned	p1;
 	unsigned	p2;
@@ -315,11 +292,7 @@ void	AddStyleToStyleArray(const unsigned p1, const unsigned p2, const int style)
 	while( s_style_count >= s_max_style_count )
 	{
 		unsigned int old_max_count = s_max_style_count;
-#ifdef HLRAD_TRANSPARENCY_FAST
 		s_max_style_count = qmax (64u, (unsigned int)((double)s_max_style_count * 1.41));
-#else
-		s_max_style_count += STYLE_LIST_GROWTH;
-#endif
 		if (s_max_style_count >= (unsigned int)INT_MAX)
 		{
 			Error ("AddStyleToStyleArray: array size exceeded INT_MAX");
@@ -329,11 +302,7 @@ void	AddStyleToStyleArray(const unsigned p1, const unsigned p2, const int style)
 
 		hlassume (s_style_list != NULL, assume_NoMemory);
 		
-#ifdef HLRAD_TRANSPARENCY_FAST
 		memset( &s_style_list[old_max_count], 0, sizeof(styleList_t) * (s_max_style_count - old_max_count) );
-#else
-		memset( &s_style_list[old_max_count], 0, sizeof(styleList_t) * STYLE_LIST_GROWTH );
-#endif
 	}
 	
 	s_style_list[s_style_count].p1 = p1;
