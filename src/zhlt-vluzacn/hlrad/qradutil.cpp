@@ -216,7 +216,6 @@ dleaf_t*        HuntForWorld(vec_t* point, const vec_t* plane_offset, const dpla
                     VectorSubtract(current_point, original_point, delta);
                     dist = DotProduct(delta, delta);
 
-#ifdef HLRAD_OPAQUE_BLOCK
 					{
 						int x;
 						for (x = 0; x < g_opaque_face_count; x++)
@@ -227,7 +226,6 @@ dleaf_t*        HuntForWorld(vec_t* point, const vec_t* plane_offset, const dpla
 						if (x < g_opaque_face_count)
 							continue;
 					}
-#endif
                     if (dist < best_dist)
                     {
                         if ((leaf = PointInLeaf_Worst(current_point)) != g_dleafs)

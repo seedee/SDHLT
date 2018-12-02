@@ -972,7 +972,6 @@ int CountOpaqueFaces (int modelnum)
 	return CountOpaqueFaces_r (&opaquenodes[opaquemodels[modelnum].headnode]);
 }
 
-#ifdef HLRAD_OPAQUE_BLOCK
 int TestPointOpaque_r (int nodenum, bool solid, const vec3_t point)
 {
 	opaquenode_t *thisnode;
@@ -1044,6 +1043,5 @@ int TestPointOpaque (int modelnum, const vec3_t modelorigin, bool solid, const v
 	}
 	return TestPointOpaque_r (thismodel->headnode, solid, newpoint);
 }
-#endif
 #endif
 

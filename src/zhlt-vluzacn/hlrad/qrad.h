@@ -166,9 +166,7 @@
 	#define DEFAULT_TRANSFER_COMPRESS_TYPE FLOAT16
 	#define DEFAULT_RGBTRANSFER_COMPRESS_TYPE VECTOR32
 	#define DEFAULT_SOFTSKY true
-#ifdef HLRAD_OPAQUE_BLOCK
 	#define DEFAULT_BLOCKOPAQUE 1
-#endif
 	#define DEFAULT_TRANSLUCENTDEPTH 2.0f
 #ifdef HLRAD_TEXTURE
 	#define DEFAULT_NOTEXTURES false
@@ -509,9 +507,7 @@ typedef enum
 {
     eModelLightmodeNull     = 0,
     eModelLightmodeOpaque   = 0x02,
-#ifdef HLRAD_OPAQUE_BLOCK
 	eModelLightmodeNonsolid = 0x08, // for opaque entities with {texture
-#endif
 }
 eModelLightmodes;
 
@@ -526,9 +522,7 @@ typedef struct
     bool transparency;
 	int style; // -1 = no style; transparency must be false if style >= 0
 	// style0 and same style will change to this style, other styles will be blocked.
-#ifdef HLRAD_OPAQUE_BLOCK
 	bool block; // this entity can't be seen inside, so all lightmap sample should move outside.
-#endif
 
 } opaqueList_t;
 
@@ -664,9 +658,7 @@ extern float	g_softlight_hack_distance;
 	extern float_type g_transfer_compress_type;
 	extern vector_type g_rgbtransfer_compress_type;
 	extern bool g_softsky;
-#ifdef HLRAD_OPAQUE_BLOCK
 	extern int g_blockopaque;
-#endif
 	extern bool g_drawpatch;
 	extern bool g_drawsample;
 	extern vec3_t g_drawsample_origin;
@@ -758,7 +750,6 @@ extern void		CreateOpaqueNodes();
 extern int		TestLineOpaque(int modelnum, const vec3_t modelorigin, const vec3_t start, const vec3_t stop);
 extern int		CountOpaqueFaces(int modelnum);
 extern void		DeleteOpaqueNodes();
-#ifdef HLRAD_OPAQUE_BLOCK
 #ifdef OPAQUE_NODE_INLINECALL
 extern int TestPointOpaque_r (int nodenum, bool solid, const vec3_t point);
 FORCEINLINE int TestPointOpaque (int modelnum, const vec3_t modelorigin, bool solid, const vec3_t point) // use "forceinline" because "inline" does nothing here
@@ -778,7 +769,6 @@ FORCEINLINE int TestPointOpaque (int modelnum, const vec3_t modelorigin, bool so
 }
 #else
 extern int		TestPointOpaque (int modelnum, const vec3_t modelorigin, bool solid, const vec3_t point);
-#endif
 #endif
 extern void     CreateDirectLights();
 extern void     DeleteDirectLights();

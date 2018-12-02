@@ -152,9 +152,7 @@ unsigned char g_minlight = DEFAULT_MINLIGHT;
 float_type g_transfer_compress_type = DEFAULT_TRANSFER_COMPRESS_TYPE;
 vector_type g_rgbtransfer_compress_type = DEFAULT_RGBTRANSFER_COMPRESS_TYPE;
 bool g_softsky = DEFAULT_SOFTSKY;
-#ifdef HLRAD_OPAQUE_BLOCK
 int g_blockopaque = DEFAULT_BLOCKOPAQUE;
-#endif
 #ifdef HLRAD_TEXTURE
 bool g_notextures = DEFAULT_NOTEXTURES;
 #endif
@@ -1874,9 +1872,7 @@ static void     AddFaceToOpaqueList(
 									int entitynum, int modelnum, const vec3_t origin
 									, const vec3_t &transparency_scale, const bool transparency
 									, int style
-#ifdef HLRAD_OPAQUE_BLOCK
 									, bool block
-#endif
 									)
 {
     if (g_opaque_face_count == g_max_opaque_face_count)
@@ -1903,9 +1899,7 @@ static void     AddFaceToOpaqueList(
 		opaque->modelnum = modelnum;
 		VectorCopy (origin, opaque->origin);
 		opaque->style = style;
-#ifdef HLRAD_OPAQUE_BLOCK
 		opaque->block = block;
-#endif
     }
 }
 
@@ -2007,7 +2001,6 @@ static void		LoadOpaqueEntities()
 					}
 				}
 			}
-#ifdef HLRAD_OPAQUE_BLOCK
 			bool block = false;
 			{
 				if (g_blockopaque)
@@ -2021,15 +2014,12 @@ static void		LoadOpaqueEntities()
 						block = false;
 				}
 			}
-#endif
 			if (opaque)
 			{
 				AddFaceToOpaqueList (entnum, modelnum, origin
 					, d_transparency, b_transparency
 					, opaquestyle
-#ifdef HLRAD_OPAQUE_BLOCK
 					, block
-#endif
 					);
 			}
 		}
@@ -3530,9 +3520,7 @@ static void     Usage()
 	}
 	Log("   -softsky #     : Smooth skylight.(0=off 1=on)\n");
 	Log("   -depth #       : Thickness of translucent objects.\n");
-#ifdef HLRAD_OPAQUE_BLOCK
 	Log("   -blockopaque # : Remove the black areas around opaque entities.(0=off 1=on)\n");
-#endif
 #ifdef HLRAD_TEXTURE
 	Log("   -notextures    : Don't load textures.\n");
 #endif
@@ -3777,9 +3765,7 @@ static void     Settings()
 	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_translucentdepth);
 	safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_TRANSLUCENTDEPTH);
 	Log("translucent depth    [ %17s ] [ %17s ]\n", buf1, buf2);
-#ifdef HLRAD_OPAQUE_BLOCK
 	Log("block opaque         [ %17s ] [ %17s ]\n", g_blockopaque ? "on" : "off", DEFAULT_BLOCKOPAQUE ? "on" : "off");
-#endif
 #ifdef HLRAD_TEXTURE
 	Log("ignore textures      [ %17s ] [ %17s ]\n", g_notextures ? "on" : "off", DEFAULT_NOTEXTURES ? "on" : "off");
 #endif
@@ -4725,7 +4711,6 @@ int             main(const int argc, char** argv)
 				Usage ();
 			}
 		}
-#ifdef HLRAD_OPAQUE_BLOCK
 		else if (!strcasecmp (argv[i], "-blockopaque"))
 		{
 			if (i + 1 < argc)
@@ -4737,7 +4722,6 @@ int             main(const int argc, char** argv)
 				Usage ();
 			}
 		}
-#endif
 #ifdef HLRAD_TEXTURE
 		else if (!strcasecmp (argv[i], "-waddir"))
 		{
