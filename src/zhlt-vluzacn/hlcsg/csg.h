@@ -348,17 +348,12 @@ extern bool     g_bWadAutoDetect;
 #ifndef HLCSG_AUTOWAD_NEW
 extern int      g_numUsedTextures;
 
-#ifndef HLCSG_AUTOWAD_TEXTURELIST_FIX
-extern void     GetUsedTextures();
-#endif
 //extern bool     autowad_IsUsedTexture(const char* const texname);
 //extern bool     autowad_IsUsedWad(const char* const path);
 //extern void     autowad_PurgeName(const char* const texname);
 extern void     autowad_cleanup();
 extern void     autowad_UpdateUsedWads();
-#ifdef HLCSG_AUTOWAD_TEXTURELIST_FIX
 extern void     autowad_PushName(const char *texname);
-#endif
 #endif
 
 

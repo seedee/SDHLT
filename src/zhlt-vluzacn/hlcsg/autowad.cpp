@@ -175,22 +175,6 @@ bool        autowad_IsUsedTexture(const char* const texname)
     return false;
 }
 
-#ifndef HLCSG_AUTOWAD_TEXTURELIST_FIX
-// =====================================================================================
-//  GetUsedTextures
-// =====================================================================================
-void        GetUsedTextures()
-{
-    int             i;
-    side_t*         bs;
-
-    for (i = 0; i < g_numbrushsides; i++)
-    {
-        bs = &g_brushsides[i];
-        autowad_PushName(bs->td.name);
-    }
-}
-#endif
 
 // =====================================================================================
 //  autowad_UpdateUsedWads

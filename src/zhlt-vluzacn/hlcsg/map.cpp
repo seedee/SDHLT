@@ -1177,10 +1177,4 @@ void            LoadMapFile(const char* const filename)
     Verbose("%5i engine entities\n", num_engine_entities);
 
     // AJM: added in 
-#ifndef HLCSG_AUTOWAD_TEXTURELIST_FIX
-	if (!g_onlyents)
-	{
-    GetUsedTextures();
-	}
-#endif
 }

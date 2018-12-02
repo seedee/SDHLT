@@ -922,11 +922,9 @@ int             TexinfoForBrushTexture(const plane_t* const plane, brush_texture
 	}
     memset(&tx, 0, sizeof(tx));
 #ifndef HLCSG_AUTOWAD_NEW
-#ifdef HLCSG_AUTOWAD_TEXTURELIST_FIX
 	ThreadLock ();
 	autowad_PushName (bt->name);
 	ThreadUnlock ();
-#endif
 #endif
 #ifdef HLCSG_TEXMAP64_FIX
 	FindMiptex (bt->name);
