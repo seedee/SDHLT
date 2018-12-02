@@ -719,7 +719,6 @@ void ExpandBrush(brush_t* brush, const int hullnum)
 // =====================================================================================
 //  MakeHullFaces
 // =====================================================================================
-#ifdef HLCSG_SORTSIDES
 void SortSides (brushhull_t *h)
 {
 	int numsides;
@@ -777,15 +776,12 @@ void SortSides (brushhull_t *h)
 	free (isused);
 	free (sorted);
 }
-#endif
 void            MakeHullFaces(const brush_t* const b, brushhull_t *h)
 {
     bface_t*        f;
     bface_t*        f2;
-#ifdef HLCSG_SORTSIDES
 	// this will decrease AllocBlock amount
 	SortSides (h);
-#endif
 
 restart:
     h->bounds.reset();
