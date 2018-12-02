@@ -723,12 +723,10 @@ void SplitTreeLeaf (int &numobjects, btreeleaf_t *tl, const dplane_t *plane, int
 				{
 					tp->tmp_side = SIDE_ON;
 				}
-#ifdef HLBSP_BRINKHACK_BUGFIX
 #if 0
 				// let's mess up something and see whether the code is fragile or robust
 				static int randcounter = 0;
 				if (randcounter++ % 8 == 0) tp->tmp_side = randcounter % 3;
-#endif
 #endif
 			}
 		}
@@ -1039,9 +1037,6 @@ void SplitTreeLeaf (int &numobjects, btreeleaf_t *tl, const dplane_t *plane, int
 			}
 		}
 
-#ifndef HLBSP_BRINKHACK_BUGFIX
-		DeleteLeaf (numobjects, tl);
-#endif
 		btreeleaf_t *(frontback[2]) = {front, back};
 		for (int side = 0; side < 2; side++)
 		{
@@ -1108,9 +1103,7 @@ void SplitTreeLeaf (int &numobjects, btreeleaf_t *tl, const dplane_t *plane, int
 				}
 			}
 		}
-#ifdef HLBSP_BRINKHACK_BUGFIX
 		DeleteLeaf (numobjects, tl);
-#endif
 	}
 }
 
@@ -1631,23 +1624,19 @@ void AnalyzeBrinks (bbrinkinfo_t *info)
 			for (int side2 = 0; side2 < 2; side2++)
 			{
 				btreepoint_t *tp = GetPointFromEdge (b->edge, side2);
-#ifdef HLBSP_BRINKHACK_BUGFIX
 				if (tp->infinite)
 				{
 					continue;
 				}
-#endif
 				for (btreeedge_l::iterator ei = tp->edges->begin (); ei != tp->edges->end (); ei++)
 				{
 					for (btreeface_l::iterator fi = ei->e->faces->begin (); fi != ei->e->faces->end (); fi++)
 					{
-#ifdef HLBSP_BRINKHACK_BUGFIX
 						if (fi->f->infinite || GetLeafFromFace (fi->f, false)->infinite || GetLeafFromFace (fi->f, true)->infinite)
 						{
 							PrintOnce ("AnalyzeBrinks: internal error: an infinite object contains a finite object");
 							hlassume (false, assume_first);
 						}
-#endif
 						for (int side3 = 0; side3 < 2; side3++)
 						{
 							vec3_t normal;
@@ -1736,12 +1725,10 @@ void DeleteClipnodes (bbrinkinfo_t *info)
 {
 	for (int i = 0; i < info->numclipnodes; i++)
 	{
-#ifdef HLBSP_BRINKHACK_BUGFIX
 		if (!info->clipnodes[i].isleaf)
 		{
 			continue;
 		}
-#endif
 		bpartition_t *p;
 		while ((p = info->clipnodes[i].partitions) != NULL)
 		{
