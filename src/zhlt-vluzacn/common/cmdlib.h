@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_AUTOCORING //--vluzacn
 #define HLRAD_OPAQUEINSKY_FIX //--vluzacn
 #define HLRAD_SUNSPREAD //--vluzacn
 #define HLRAD_SUNDIFFUSE //--vluzacn
@@ -87,9 +86,7 @@
 #define HLRAD_ACCURATEBOUNCE_TEXLIGHT // note: this reduces the compile time in '-extra' mode //--vluzacn
 	#endif
 	#endif
-	#ifdef HLRAD_AUTOCORING
 #define HLRAD_ACCURATEBOUNCE_SAMPLELIGHT //--vluzacn
-	#endif
 	#ifdef HLRAD_ACCURATEBOUNCE_TEXLIGHT
 #define HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN //--vluzacn
 	#endif
@@ -127,7 +124,7 @@
 #define HLRAD_TRANSPARENCY_FAST //--vluzacn
 
 #if defined (ZHLT_XASH) || defined (ZHLT_XASH2)
-#if !defined (HLRAD_AUTOCORING) || !defined (HLRAD_AVOIDNORMALFLIP)
+#if !defined (HLRAD_AVOIDNORMALFLIP)
 #error "ZHLT_XASH has not been implemented for current configuration"
 #endif
 #endif

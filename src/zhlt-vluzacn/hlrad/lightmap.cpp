@@ -606,13 +606,9 @@ typedef struct
 	int				lmcache_density; // shared by both s and t direction
 	int				lmcache_offset; // shared by both s and t direction
 	int				lmcache_side;
-#ifdef HLRAD_AUTOCORING
 	vec3_t			(*lmcache)[ALLSTYLES]; // lm: short for lightmap // don't forget to free!
 #ifdef ZHLT_XASH
 	vec3_t			(*lmcache_direction)[ALLSTYLES];
-#endif
-#else
-	vec3_t			(*lmcache)[MAXLIGHTMAPS];
 #endif
 #ifdef HLRAD_AVOIDNORMALFLIP
 	vec3_t			*lmcache_normal; // record the phong normals
@@ -764,14 +760,10 @@ static void     CalcFaceExtents(lightinfo_t* l)
 		l->lmcache_offset = l->lmcache_side;
 		l->lmcachewidth = l->texsize[0] * l->lmcache_density + 1 + 2 * l->lmcache_side;
 		l->lmcacheheight = l->texsize[1] * l->lmcache_density + 1 + 2 * l->lmcache_side;
-	#ifdef HLRAD_AUTOCORING
 		l->lmcache = (vec3_t (*)[ALLSTYLES])malloc (l->lmcachewidth * l->lmcacheheight * sizeof (vec3_t [ALLSTYLES]));
 #ifdef ZHLT_XASH
 		l->lmcache_direction = (vec3_t (*)[ALLSTYLES])malloc (l->lmcachewidth * l->lmcacheheight * sizeof (vec3_t [ALLSTYLES]));
 #endif
-	#else
-		l->lmcache = (vec3_t (*)[MAXLIGHTMAPS])malloc (l->lmcachewidth * l->lmcacheheight * sizeof (vec3_t [MAXLIGHTMAPS]));
-	#endif
 		hlassume (l->lmcache != NULL, assume_NoMemory);
 #ifdef ZHLT_XASH
 		hlassume (l->lmcache_direction != NULL, assume_NoMemory);
@@ -3501,17 +3493,9 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 
 	for (style = 0; style < ALLSTYLES; ++style)
 	{
-#ifdef HLRAD_AUTOCORING
 		if (VectorMaximum(adds[style]) > g_corings[style] * 0.1)
-#else
-		if (VectorMaximum(adds[style]) > g_corings[style])
-#endif
 		{
-	#ifdef HLRAD_AUTOCORING
 			for (style_index = 0; style_index < ALLSTYLES; style_index++)
-	#else
-			for (style_index = 0; style_index < MAXLIGHTMAPS; style_index++)
-	#endif
 			{
 				if (styles[style_index] == style || styles[style_index] == 255)
 				{
@@ -3519,11 +3503,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 				}
 			}
 
-	#ifdef HLRAD_AUTOCORING
 			if (style_index == ALLSTYLES) // shouldn't happen
-	#else
-			if (style_index == MAXLIGHTMAPS)
-	#endif
 			{
 				if (++stylewarningcount >= stylewarningnext)
 				{
@@ -3544,7 +3524,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 			VectorAdd (sample_direction[style_index], adds_direction[style], sample_direction[style_index]);
 #endif
 		}
-#ifdef HLRAD_AUTOCORING
 		else
 		{
 			if (VectorMaximum (adds[style]) > g_maxdiscardedlight + NORMAL_EPSILON)
@@ -3558,7 +3537,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 				ThreadUnlock ();
 			}
 		}
-#endif
 	}
 }
 
@@ -3701,30 +3679,19 @@ static void     AddSampleToPatch(const sample_t* const s, const int facenum, int
                 goto nextpatch;
             }
         }
-#ifdef HLRAD_AUTOCORING
 		if (style == 0)
 		{
 			patch->samples++;
 		}
-#endif
 
         // add the sample to the patch
         //LRC:
-	#ifdef HLRAD_AUTOCORING
 		for (i = 0; i < ALLSTYLES && patch->totalstyle_all[i] != 255; i++)
 		{
 			if (patch->totalstyle_all[i] == style)
 				break;
 		}
 		if (i == ALLSTYLES) // shouldn't happen
-	#else
-		for (i = 0; i < MAXLIGHTMAPS && patch->totalstyle[i] != 255; i++)
-		{
-			if (patch->totalstyle[i] == style)
-				break;
-		}
-		if (i == MAXLIGHTMAPS)
-	#endif
 		{
 			if (++stylewarningcount >= stylewarningnext)
 			{
@@ -3735,7 +3702,6 @@ static void     AddSampleToPatch(const sample_t* const s, const int facenum, int
 		}
 		else
 		{
-	#ifdef HLRAD_AUTOCORING
 			if (patch->totalstyle_all[i] == 255)
 			{
 				patch->totalstyle_all[i] = style;
@@ -3744,15 +3710,6 @@ static void     AddSampleToPatch(const sample_t* const s, const int facenum, int
 		#ifdef ZHLT_XASH
 			VectorAdd (patch->samplelight_all_direction[i], s->light_direction, patch->samplelight_all_direction[i]);
 		#endif
-	#else
-			if (patch->totalstyle[i] == 255)
-			{
-				patch->totalstyle[i] = style;
-			}
-
-	        patch->samples[i]++;
-			VectorAdd(patch->samplelight[i], s->light, patch->samplelight[i]);
-	#endif
 		}
         //LRC (ends)
         //return;
@@ -3938,13 +3895,9 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 	int lastoffset2;
 
 	facenum = l->surfnum;
-#ifdef HLRAD_AUTOCORING
 	memset (l->lmcache, 0, l->lmcachewidth * l->lmcacheheight * sizeof (vec3_t [ALLSTYLES]));
 #ifdef ZHLT_XASH
 	memset (l->lmcache_direction, 0, l->lmcachewidth * l->lmcacheheight * sizeof (vec3_t [ALLSTYLES]));
-#endif
-#else
-	memset (l->lmcache, 0, l->lmcachewidth * l->lmcacheheight * sizeof (vec3_t [MAXLIGHTMAPS]));
 #endif
 
 	// for each sample whose light we need to calculate
@@ -4235,16 +4188,11 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 			}
 			if (l->translucent_b)
 			{
-	#ifdef HLRAD_AUTOCORING
 				vec3_t sampled2[ALLSTYLES];
 				memset (sampled2, 0, ALLSTYLES * sizeof (vec3_t));
 	#ifdef ZHLT_XASH
 				vec3_t sampled2_direction[ALLSTYLES];
 				memset (sampled2_direction, 0, ALLSTYLES * sizeof (vec3_t));
-	#endif
-	#else
-				vec3_t sampled2[MAXLIGHTMAPS];
-				memset (sampled2, 0, MAXLIGHTMAPS * sizeof (vec3_t));
 	#endif
 				if (!blocked)
 				{
@@ -4266,11 +4214,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 	#endif
 						);
 				}
-	#ifdef HLRAD_AUTOCORING
 				for (j = 0; j < ALLSTYLES && styles[j] != 255; j++)
-	#else
-				for (j = 0; j < MAXLIGHTMAPS && styles[j] != 255; j++)
-	#endif
 				{
 		#ifdef ZHLT_XASH
 					// reflect the direction back
@@ -4299,11 +4243,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 	#ifdef HLRAD_AVOIDWALLBLEED
 			if (g_drawnudge)
 			{
-		#ifdef HLRAD_AUTOCORING
 				for (j = 0; j < ALLSTYLES && styles[j] != 255; j++)
-		#else
-				for (j = 0; j < MAXLIGHTMAPS && styles[j] != 255; j++)
-		#endif
 				{
 					if (blocked && styles[j] == 0)
 					{
@@ -4329,7 +4269,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 void            BuildFacelights(const int facenum)
 {
     dface_t*        f;
-#ifdef HLRAD_AUTOCORING
 	unsigned char	f_styles[ALLSTYLES];
 	sample_t		*fl_samples[ALLSTYLES];
 #ifndef HLRAD_BLUR
@@ -4337,11 +4276,6 @@ void            BuildFacelights(const int facenum)
 #ifdef ZHLT_XASH
 	vec3_t			sampled_direction[ALLSTYLES];
 	vec3_t			sampled_normal;
-#endif
-#endif
-#else
-#ifndef HLRAD_BLUR
-    vec3_t          sampled[MAXLIGHTMAPS];
 #endif
 #endif
     lightinfo_t     l;
@@ -4372,41 +4306,24 @@ void            BuildFacelights(const int facenum)
     // some surfaces don't need lightmaps
     //
     f->lightofs = -1;
-#ifdef HLRAD_AUTOCORING
     for (j = 0; j < ALLSTYLES; j++)
     {
         f_styles[j] = 255;
     }
-#else
-    for (j = 0; j < MAXLIGHTMAPS; j++)
-    {
-        f->styles[j] = 255;
-    }
-#endif
 
     if (g_texinfo[f->texinfo].flags & TEX_SPECIAL)
     {
-#ifdef HLRAD_AUTOCORING
 		for (j = 0; j < MAXLIGHTMAPS; j++)
 		{
 			f->styles[j] = 255;
 		}
-#endif
         return;                                            // non-lit texture
     }
 
-#ifdef HLRAD_AUTOCORING
 	f_styles[0] = 0;
-#else
-    f->styles[0] = 0;                                      // Everyone gets the style zero map.
-#endif
 	if (g_face_patches[facenum] && g_face_patches[facenum]->emitstyle)
 	{
-#ifdef HLRAD_AUTOCORING
 		f_styles[1] = g_face_patches[facenum]->emitstyle;
-#else
-		f->styles[1] = g_face_patches[facenum]->emitstyle;
-#endif
 	}
 
     memset(&l, 0, sizeof(l));
@@ -4432,11 +4349,7 @@ void            BuildFacelights(const int facenum)
     CalcPoints(&l);
 #ifdef HLRAD_BLUR
 	CalcLightmap (&l
-#ifdef HLRAD_AUTOCORING
 		, f_styles
-#else
-		, f->styles
-#endif
 		);
 #endif
 
@@ -4448,21 +4361,11 @@ void            BuildFacelights(const int facenum)
 
     facelight[facenum].numsamples = l.numsurfpt;
 
-#ifdef HLRAD_AUTOCORING
 	for (k = 0; k < ALLSTYLES; k++)
 	{
 		fl_samples[k] = (sample_t *)calloc (l.numsurfpt, sizeof(sample_t));
 		hlassume (fl_samples[k] != NULL, assume_NoMemory);
 	}
-#else
-    for (k = 0; k < MAXLIGHTMAPS; k++)
-    {
-        facelight[facenum].samples[k] = (sample_t*)calloc(l.numsurfpt, sizeof(sample_t));
-
-		hlassume (facelight[facenum].samples[k] != NULL, assume_NoMemory);
-    }
-#endif
-#ifdef HLRAD_AUTOCORING
 	for (patch = g_face_patches[facenum]; patch; patch = patch->next)
 	{
 		hlassume (patch->totalstyle_all = (unsigned char *)malloc (ALLSTYLES * sizeof (unsigned char)), assume_NoMemory);
@@ -4488,7 +4391,6 @@ void            BuildFacelights(const int facenum)
 		}
 		patch->totalstyle_all[0] = 0;
 	}
-#endif
 
 #ifdef HLRAD_AVOIDWALLBLEED
 	sample_wallflags = (int *)malloc ((2 * l.lmcache_side + 1) * (2 * l.lmcache_side + 1) * sizeof (int));
@@ -4514,7 +4416,6 @@ void            BuildFacelights(const int facenum)
 			}
 		}
 #endif
-#ifdef HLRAD_AUTOCORING
         for (k = 0; k < ALLSTYLES; k++)
         {
 #ifdef HLRAD_GROWSAMPLE
@@ -4524,17 +4425,6 @@ void            BuildFacelights(const int facenum)
             VectorCopy(spot_original, fl_samples[k][i].pos);
 #endif
         }
-#else
-        for (k = 0; k < MAXLIGHTMAPS; k++)
-        {
-#ifdef HLRAD_GROWSAMPLE
-            VectorCopy(spot, facelight[facenum].samples[k][i].pos);
-			facelight[facenum].samples[k][i].surface = l.surfpt_surface[i];
-#else
-            VectorCopy(spot_original, facelight[facenum].samples[k][i].pos);
-#endif
-        }
-#endif
 
 #ifdef HLRAD_BLUR
 		int s, t, pos;
@@ -4650,7 +4540,6 @@ void            BuildFacelights(const int facenum)
 				weighting_correction = (weighting_correction > 0)? weighting_correction * weighting_correction: 0;
 				weighting = weighting * weighting_correction;
 	#endif
-	#ifdef HLRAD_AUTOCORING
 				for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
 				{
 					VectorMA (fl_samples[j][i].light, weighting, l.lmcache[pos][j], fl_samples[j][i].light);
@@ -4658,12 +4547,6 @@ void            BuildFacelights(const int facenum)
 					VectorMA (fl_samples[j][i].light_direction, weighting, l.lmcache_direction[pos][j], fl_samples[j][i].light_direction);
 		#endif
 				}
-	#else
-				for (j = 0; j < MAXLIGHTMAPS && f->styles[j] != 255; j++)
-				{
-					VectorAdd (facelight[facenum].samples[j][i].light, weighting, l.lmcache[pos][j], facelight[facenum].samples[j][i].light);
-				}
-	#endif
 				subsamples += weighting;
 			}
 		}
@@ -4675,7 +4558,6 @@ void            BuildFacelights(const int facenum)
 		else
 		{
 			subsamples = 0.0;
-	#ifdef HLRAD_AUTOCORING
 			for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
 			{
 				VectorClear (fl_samples[j][i].light);
@@ -4683,12 +4565,6 @@ void            BuildFacelights(const int facenum)
 				VectorClear (fl_samples[j][i].light_direction);
 		#endif
 			}
-	#else
-			for (j = 0; j < MAXLIGHTMAPS && f->styles[j] != 255; j++)
-			{
-				VectorClear (facelight[facenum].samples[j][i].light);
-			}
-	#endif
 		}
 	  }
 #endif
@@ -4710,24 +4586,14 @@ void            BuildFacelights(const int facenum)
 				VectorCopy (centernormal, fl_samples[k][i].normal);
 			}
 #endif
-	#ifdef HLRAD_AUTOCORING
 			for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
 			{
 				VectorScale (fl_samples[j][i].light, 1.0 / subsamples, fl_samples[j][i].light);
 		#ifdef ZHLT_XASH
 				VectorScale (fl_samples[j][i].light_direction, 1.0 / subsamples, fl_samples[j][i].light_direction);
 		#endif
-	#else
-			for (j = 0; j < MAXLIGHTMAPS && f->styles[j] != 255; j++)
-			{
-				VectorScale (facelight[facenum].samples[j][i].light, 1.0 / subsamples, facelight[facenum].samples[j][i].light);
-	#endif
 	#ifndef HLRAD_ACCURATEBOUNCE_SAMPLELIGHT
-		#ifdef HLRAD_AUTOCORING
 				AddSampleToPatch (&fl_samples[j][i], facenum, f_styles[j]); //LRC
-		#else
-				AddSampleToPatch(&facelight[facenum].samples[j][i], facenum, f->styles[j]); //LRC
-		#endif
 	#endif
 			}
 		}
@@ -4809,18 +4675,12 @@ void            BuildFacelights(const int facenum)
                 for (s = -1; s <= 1; s++)
                 {
                     {
-#ifdef HLRAD_AUTOCORING
                         vec3_t          subsampled[ALLSTYLES];
 #ifdef ZHLT_XASH
 						vec3_t			subsampled_direction[ALLSTYLES];
 #endif
 
                         for (j = 0; j < ALLSTYLES; j++)
-#else
-                        vec3_t          subsampled[MAXLIGHTMAPS];
-
-                        for (j = 0; j < MAXLIGHTMAPS; j++)
-#endif
                         {
                             VectorClear(subsampled[j]);
 #ifdef ZHLT_XASH
@@ -4859,11 +4719,7 @@ void            BuildFacelights(const int facenum)
 #ifdef ZHLT_XASH
 							subsampled_direction, 
 #endif
-#ifdef HLRAD_AUTOCORING
 							f_styles
-#else
-							f->styles
-#endif
 							, 0
 #ifdef HLRAD_DIVERSE_LIGHTING
 							, l.miptex
@@ -4875,16 +4731,11 @@ void            BuildFacelights(const int facenum)
 						}
 						if (l.translucent_b)
 						{
-#ifdef HLRAD_AUTOCORING
 							vec3_t subsampled2[ALLSTYLES];
 #ifdef ZHLT_XASH
 							vec3_t subsampled2_direction[ALLSTYLES];
 #endif
 							for (j = 0; j < ALLSTYLES; j++)
-#else
-							vec3_t subsampled2[MAXLIGHTMAPS];
-							for (j = 0; j < MAXLIGHTMAPS; j++)
-#endif
 							{
 								VectorFill(subsampled2[j], 0);
 #ifdef ZHLT_XASH
@@ -4902,11 +4753,7 @@ void            BuildFacelights(const int facenum)
 #ifdef ZHLT_XASH
 								subsampled2_direction, 
 #endif
-#ifdef HLRAD_AUTOCORING
 								f_styles
-#else
-								f->styles
-#endif
 								, 0
 #ifdef HLRAD_DIVERSE_LIGHTING
 								, l.miptex
@@ -4916,11 +4763,7 @@ void            BuildFacelights(const int facenum)
 #endif
 								);
 							}
-#ifdef HLRAD_AUTOCORING
 							for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
-#else
-							for (j = 0; j < MAXLIGHTMAPS && (f->styles[j] != 255); j++)
-#endif
 							{
 		#ifdef ZHLT_XASH
 								// reflect the direction back
@@ -4946,11 +4789,7 @@ void            BuildFacelights(const int facenum)
 								}
 							}
 						}
-#ifdef HLRAD_AUTOCORING
 						for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
-#else
-                        for (j = 0; j < MAXLIGHTMAPS && (f->styles[j] != 255); j++)
-#endif
                         {
                             VectorScale(subsampled[j], weighting[s + 1][t + 1], subsampled[j]);
                             VectorAdd(sampled[j], subsampled[j], sampled[j]);
@@ -4966,11 +4805,7 @@ void            BuildFacelights(const int facenum)
                     }
                 }
             }
-#ifdef HLRAD_AUTOCORING
 			for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
-#else
-            for (j = 0; j < MAXLIGHTMAPS && (f->styles[j] != 255); j++)
-#endif
             {
                 VectorScale(sampled[j], 1.0 / subsamples, sampled[j]);
 #ifdef ZHLT_XASH
@@ -5006,11 +4841,7 @@ void            BuildFacelights(const int facenum)
 #ifdef ZHLT_XASH
 				sampled_direction, 
 #endif
-#ifdef HLRAD_AUTOCORING
 				f_styles
-#else
-				f->styles
-#endif
 				, 0
 #ifdef HLRAD_DIVERSE_LIGHTING
 				, l.miptex
@@ -5022,16 +4853,11 @@ void            BuildFacelights(const int facenum)
 			}
 			if (l.translucent_b)
 			{
-#ifdef HLRAD_AUTOCORING
 				vec3_t sampled2[ALLSTYLES];
 #ifdef ZHLT_XASH
 				vec3_t sampled2_direction[ALLSTYLES];
 #endif
 				for (j = 0; j < ALLSTYLES; j++)
-#else
-				vec3_t sampled2[MAXLIGHTMAPS];
-				for (j = 0; j < MAXLIGHTMAPS; j++)
-#endif
 				{
 					VectorFill(sampled2[j], 0);
 #ifdef ZHLT_XASH
@@ -5043,11 +4869,7 @@ void            BuildFacelights(const int facenum)
 #ifdef ZHLT_XASH
 					sampled2_direction, 
 #endif
-#ifdef HLRAD_AUTOCORING
 					f_styles
-#else
-					f->styles
-#endif
 					, 0
 #ifdef HLRAD_DIVERSE_LIGHTING
 					, l.miptex
@@ -5056,11 +4878,7 @@ void            BuildFacelights(const int facenum)
 					, facenum
 #endif
 					);
-#ifdef HLRAD_AUTOCORING
 				for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
-#else
-				for (j = 0; j < MAXLIGHTMAPS && (f->styles[j] != 255); j++)
-#endif
 				{
 	#ifdef ZHLT_XASH
 					vec_t dot = DotProduct (sampled2_direction[j], pointnormal);
@@ -5088,28 +4906,16 @@ void            BuildFacelights(const int facenum)
 #endif
         }
 		
-#ifdef HLRAD_AUTOCORING
 		for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
-#else
-        for (j = 0; j < MAXLIGHTMAPS && (f->styles[j] != 255); j++)
-#endif
         {
-#ifdef HLRAD_AUTOCORING
 			VectorCopy (sampled[j], fl_samples[j][i].light);
 #ifdef ZHLT_XASH
 			VectorCopy (sampled_direction[j], fl_samples[j][i].light_direction);
 #endif
-#else
-            VectorCopy(sampled[j], facelight[facenum].samples[j][i].light);
-#endif
 
 
 #ifndef HLRAD_ACCURATEBOUNCE_SAMPLELIGHT
-	#ifdef HLRAD_AUTOCORING
 			AddSampleToPatch (&fl_samples[j][i], facenum, f_styles[j]); //LRC
-	#else
-            AddSampleToPatch(&facelight[facenum].samples[j][i], facenum, f->styles[j]); //LRC
-	#endif
 #endif
         }
 #ifdef ZHLT_XASH
@@ -5133,7 +4939,6 @@ void            BuildFacelights(const int facenum)
         {
             //LRC:
 			unsigned istyle;
-	#ifdef HLRAD_AUTOCORING
 		#ifdef HLRAD_ACCURATEBOUNCE_SAMPLELIGHT
 			if (patch->samples <= ON_EPSILON * ON_EPSILON)
 				patch->samples = 0.0;
@@ -5151,19 +4956,6 @@ void            BuildFacelights(const int facenum)
 		#endif
 				}
 			}
-	#else
-			for (istyle = 0; istyle < MAXLIGHTMAPS && patch->totalstyle[istyle] != 255; istyle++)
-			{
-				if (patch->samples[istyle])
-		        {
-		            vec3_t          v;                         // BUGBUG: Use a weighted average instead?
-
-					VectorScale(patch->samplelight[istyle], (1.0f / patch->samples[istyle]), v);
-					VectorAdd(patch->totallight[istyle], v, patch->totallight[istyle]);
-	                VectorAdd(patch->directlight[istyle], v, patch->directlight[istyle]);
-				}
-			}
-	#endif
             //LRC (ends)
         }
     }
@@ -5223,16 +5015,11 @@ void            BuildFacelights(const int facenum)
 				}
 				lastoffset2 = thisoffset2;
 			}
-	#ifdef HLRAD_AUTOCORING
 			vec3_t frontsampled[ALLSTYLES], backsampled[ALLSTYLES];
 		#ifdef ZHLT_XASH
 			vec3_t frontsampled_direction[ALLSTYLES], backsampled_direction[ALLSTYLES];
 		#endif
 			for (j = 0; j < ALLSTYLES; j++)
-	#else
-			vec3_t frontsampled[MAXLIGHTMAPS], backsampled[MAXLIGHTMAPS];
-			for (j = 0; j < MAXLIGHTMAPS; j++)
-	#endif
 			{
 				VectorClear (frontsampled[j]);
 				VectorClear (backsampled[j]);
@@ -5246,11 +5033,7 @@ void            BuildFacelights(const int facenum)
 		#ifdef ZHLT_XASH
 				frontsampled_direction, 
 		#endif
-	#ifdef HLRAD_AUTOCORING
 				patch->totalstyle_all
-	#else
-				patch->totalstyle
-	#endif
 				, 1
 	#ifdef HLRAD_DIVERSE_LIGHTING
 				, l.miptex
@@ -5263,11 +5046,7 @@ void            BuildFacelights(const int facenum)
 		#ifdef ZHLT_XASH
 				backsampled_direction, 
 		#endif
-	#ifdef HLRAD_AUTOCORING
 				patch->totalstyle_all
-	#else
-				patch->totalstyle
-	#endif
 				, 1
 	#ifdef HLRAD_DIVERSE_LIGHTING
 				, l.miptex
@@ -5276,11 +5055,7 @@ void            BuildFacelights(const int facenum)
 				, facenum
 	#endif
 				);
-	#ifdef HLRAD_AUTOCORING
 			for (j = 0; j < ALLSTYLES && patch->totalstyle_all[j] != 255; j++)
-	#else
-			for (j = 0; j < MAXLIGHTMAPS && (patch->totalstyle[j] != 255); j++)
-	#endif
 			{
 	#ifdef ZHLT_XASH
 				vec_t dot = DotProduct (backsampled_direction[j], l.facenormal);
@@ -5296,29 +5071,21 @@ void            BuildFacelights(const int facenum)
 	#endif
 				for (int x = 0; x < 3; x++)
 				{
-	#ifdef HLRAD_AUTOCORING
 					patch->totallight_all[j][x] += (1.0 - l.translucent_v[x]) * frontsampled[j][x] + l.translucent_v[x] * backsampled[j][x];
 		#ifdef ZHLT_XASH
 					patch->totallight_all_direction[j][x] += front * frontsampled_direction[j][x] + back * backsampled_direction[j][x];
 		#endif
-	#else
-					patch->totallight[j][x] += (1.0 - l.translucent_v[x]) * frontsampled[j][x] + l.translucent_v[x] * backsampled[j][x];
-	#endif
 				}
 			}
 		}
 		else
 		{
 			GatherSampleLight (patch->origin, pvs, l.facenormal, 
-	#ifdef HLRAD_AUTOCORING
 				patch->totallight_all, 
 	#ifdef ZHLT_XASH
 				patch->totallight_all_direction, 
 	#endif
 				patch->totalstyle_all
-	#else
-				patch->totallight, patch->totalstyle
-	#endif
 				, 1
 	#ifdef HLRAD_DIVERSE_LIGHTING
 				, l.miptex
@@ -5333,19 +5100,11 @@ void            BuildFacelights(const int facenum)
     // add an ambient term if desired
     if (g_ambient[0] || g_ambient[1] || g_ambient[2])
     {
-#ifdef HLRAD_AUTOCORING
 		for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
 		{
 			if (f_styles[j] == 0)
 			{
 				s = fl_samples[j];
-#else
-        for (j = 0; j < MAXLIGHTMAPS && f->styles[j] != 255; j++)
-        {
-            if (f->styles[j] == 0)
-            {
-                s = facelight[facenum].samples[j];
-#endif
                 for (i = 0; i < l.numsurfpt; i++, s++)
                 {
                     VectorAdd(s->light, g_ambient, s->light);
@@ -5363,24 +5122,13 @@ void            BuildFacelights(const int facenum)
     // add circus lighting for finding black lightmaps
     if (g_circus)
     {
-#ifdef HLRAD_AUTOCORING
 		for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
 		{
 			if (f_styles[j] == 0)
 			{
-#else
-        for (j = 0; j < MAXLIGHTMAPS && f->styles[j] != 255; j++)
-        {
-            if (f->styles[j] == 0)
-            {
-#endif
                 int             amt = 7;
 
-#ifdef HLRAD_AUTOCORING
 				s = fl_samples[j];
-#else
-                s = facelight[facenum].samples[j];
-#endif
 
                 while ((l.numsurfpt % amt) == 0)
                 {
@@ -5411,7 +5159,6 @@ void            BuildFacelights(const int facenum)
         //LRC:
 		if (g_face_patches[facenum])
 		{
-	#ifdef HLRAD_AUTOCORING
 			for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
 			{
 				if (f_styles[j] == g_face_patches[facenum]->emitstyle)
@@ -5420,17 +5167,6 @@ void            BuildFacelights(const int facenum)
 				}
 			}
 			if (j == ALLSTYLES)
-	#else
-			for (j = 0; j < MAXLIGHTMAPS && f->styles[j] != 255; j++)
-			{
-                if (f->styles[j] == g_face_patches[facenum]->emitstyle) //LRC
-				{
-					break;
-				}
-			}
-
-			if (j == MAXLIGHTMAPS)
-	#endif
 			{
 				if (++stylewarningcount >= stylewarningnext)
 				{
@@ -5441,21 +5177,12 @@ void            BuildFacelights(const int facenum)
 			}
 			else
 			{
-	#ifdef HLRAD_AUTOCORING
 				if (f_styles[j] == 255)
 				{
 					f_styles[j] = g_face_patches[facenum]->emitstyle;
 				}
 
 				s = fl_samples[j];
-	#else
-				if (f->styles[j] == 255)
-				{
-					f->styles[j] = g_face_patches[facenum]->emitstyle;
-				}
-
-				s = facelight[facenum].samples[j];
-	#endif
 				for (i = 0; i < l.numsurfpt; i++, s++)
 				{
 					VectorAdd(s->light, g_face_patches[facenum]->baselight, s->light);
@@ -5468,7 +5195,6 @@ void            BuildFacelights(const int facenum)
 		}
         //LRC (ends)
     }
-#ifdef HLRAD_AUTOCORING
 	// samples
 	{
 		facelight_t *fl = &facelight[facenum];
@@ -5660,7 +5386,6 @@ void            BuildFacelights(const int facenum)
 		free (patch->directlight_all);
 		patch->directlight_all = NULL;
 	}
-#endif
 #ifdef HLRAD_BLUR
 	free (l.lmcache);
 #ifdef ZHLT_XASH
@@ -5708,7 +5433,6 @@ void            PrecompLightmapOffsets()
         }
 
 
-#ifdef HLRAD_AUTOCORING
 		{
 			int i, j, k;
 			vec_t maxlights[ALLSTYLES];
@@ -5834,35 +5558,6 @@ void            PrecompLightmapOffsets()
 				free (oldsamples[k]);
 			}
 		}
-#else
-        		//LRC - find all the patch lightstyles, and add them to the ones used by this face
-		for (patch = g_face_patches[facenum]; patch; patch = patch->next)
-		{
-			for (i = 0; i < MAXLIGHTMAPS && patch->totalstyle[i] != 255; i++)
-			{
-				for (lightstyles = 0; lightstyles < MAXLIGHTMAPS && f->styles[lightstyles] != 255; lightstyles++)
-				{
-					if (f->styles[lightstyles] == patch->totalstyle[i])
-						break;
-				}
-				if (lightstyles == MAXLIGHTMAPS)
-				{
-					if (++stylewarningcount >= stylewarningnext)
-					{
-						stylewarningnext = stylewarningcount * 2;
-						Warning("Too many direct light styles on a face(?,?,?)\n");
-						Warning(" total %d warnings for too many styles", stylewarningcount);
-					}
-				}
-				else if (f->styles[lightstyles] == 255)
-				{
-					f->styles[lightstyles] = patch->totalstyle[i];
-//					Log("Face acquires new lightstyle %d at offset %d\n", f->styles[lightstyles], lightstyles);
-				}
-			}
-		}
-		//LRC (ends)
-#endif
 
         for (lightstyles = 0; lightstyles < MAXLIGHTMAPS; lightstyles++)
         {
@@ -6468,7 +6163,6 @@ void AddPatchLights (int facenum)
 					}
 					else
 					{
-		#ifdef HLRAD_AUTOCORING
 						if (VectorMaximum (v) > g_maxdiscardedlight + NORMAL_EPSILON)
 						{
 							ThreadLock ();
@@ -6479,7 +6173,6 @@ void AddPatchLights (int facenum)
 							}
 							ThreadUnlock ();
 						}
-		#endif
 					}
 				}
 			} // loop samples
@@ -6675,7 +6368,6 @@ void            FinalLightFace(const int facenum)
 						VectorCopy (v_direction, direction);
 	#endif
 					}
-	#ifdef HLRAD_AUTOCORING
 					else
 					{
 						if (VectorMaximum (v) > g_maxdiscardedlight + NORMAL_EPSILON)
@@ -6689,7 +6381,6 @@ void            FinalLightFace(const int facenum)
 							ThreadUnlock ();
 						}
 					}
-	#endif
                 }
                 else
                 {

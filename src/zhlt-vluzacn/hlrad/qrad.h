@@ -85,11 +85,7 @@
 #define DEFAULT_EXTRA               false
 #define DEFAULT_SKY_LIGHTING_FIX    true
 #define DEFAULT_CIRCUS              false
-#ifdef HLRAD_AUTOCORING
 #define DEFAULT_CORING				0.01
-#else
-#define DEFAULT_CORING              0.1 //1.0 //vluzacn
-#endif
 #define DEFAULT_SUBDIVIDE           true
 #define DEFAULT_CHART               false
 #define DEFAULT_INFO                true
@@ -191,9 +187,6 @@
 #define MINIMUM_PATCH_DISTANCE 1.01
 #endif
 
-#ifndef HLRAD_AUTOCORING
-	#define BOUNCE_CORING_SCALE 0.5f
-#endif
 
 #define ALLSTYLES 64 // HL limit. //--vluzacn
 
@@ -332,9 +325,7 @@ typedef struct patch_s
 	vec3_t			bouncereflectivity;
 
 	unsigned char	totalstyle[MAXLIGHTMAPS];
-#ifdef HLRAD_AUTOCORING
 	unsigned char	directstyle[MAXLIGHTMAPS];
-#endif
 	// HLRAD_AUTOCORING: totallight: all light gathered by patch
 	vec3_t          totallight[MAXLIGHTMAPS];				// accumulated by radiosity does NOT include light accounted for by direct lighting
 #ifdef ZHLT_XASH
@@ -351,7 +342,6 @@ typedef struct patch_s
 	unsigned char	emitstyle;
     vec3_t          baselight;                             // emissivity only, uses emitstyle
 	bool			emitmode;								// texlight emit mode. 1 for normal, 0 for fast.
-#ifdef HLRAD_AUTOCORING
 #ifdef HLRAD_ACCURATEBOUNCE_SAMPLELIGHT
 	vec_t			samples;
 #else
@@ -361,11 +351,6 @@ typedef struct patch_s
 #ifdef ZHLT_XASH
 	vec3_t*			samplelight_all_direction;
 #endif
-#else
-    vec3_t          samplelight[MAXLIGHTMAPS];
-    int             samples[MAXLIGHTMAPS];                 // for averaging direct light
-#endif
-#ifdef HLRAD_AUTOCORING
 	unsigned char*	totalstyle_all;						// NULL, or [ALLSTYLES] during BuildFacelights
 	vec3_t*			totallight_all;						// NULL, or [ALLSTYLES] during BuildFacelights
 #ifdef ZHLT_XASH
@@ -374,7 +359,6 @@ typedef struct patch_s
 	vec3_t*			directlight_all;						// NULL, or [ALLSTYLES] during BuildFacelights
 #ifdef ZHLT_XASH
 	vec3_t*			directlight_all_direction;
-#endif
 #endif
 	int				leafnum;
 } patch_t;
@@ -621,10 +605,8 @@ extern vec3_t	g_jitter_hack;
 #ifdef HLRAD_AVOIDWALLBLEED
 	extern bool g_bleedfix;
 #endif
-#ifdef HLRAD_AUTOCORING
 	extern vec_t g_maxdiscardedlight;
 	extern vec3_t g_maxdiscardedpos;
-#endif
 #ifdef HLRAD_TEXLIGHTGAP
 	extern vec_t g_texlightgap;
 #endif
