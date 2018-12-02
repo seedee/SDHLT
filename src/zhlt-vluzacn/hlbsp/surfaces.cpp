@@ -63,32 +63,6 @@ void            SubdivideFace(face_t* f, face_t** prevptr)
     {
         while (1)
         {
-#ifdef HLBSP_SUBDIVIDE_INMID
-			const int maxlightmapsize = g_subdivide_size / TEXTURE_STEP + 1;
-			int lightmapmins, lightmapmaxs;
-			if (f->numpoints == 0)
-			{
-				break;
-			}
-			for (i = 0; i < f->numpoints; i++)
-			{
-				v = DotProduct (f->pts[i], tex->vecs[axis]) + tex->vecs[axis][3];
-				if (i == 0 || v < mins)
-				{
-					mins = v;
-				}
-				if (i == 0 || v > maxs)
-				{
-					maxs = v;
-				}
-			}
-			lightmapmins = (int)floor (mins / TEXTURE_STEP - 0.05); // the worst case
-			lightmapmaxs = (int)ceil (maxs / TEXTURE_STEP + 0.05); // the worst case
-			if (lightmapmaxs - lightmapmins <= maxlightmapsize)
-			{
-				break;
-			}
-#else
 			mins = 99999999;
 			maxs = -99999999;
 
@@ -109,7 +83,6 @@ void            SubdivideFace(face_t* f, face_t** prevptr)
             {
                 break;
             }
-#endif
                 
             // split it
             subdivides++;
@@ -118,20 +91,7 @@ void            SubdivideFace(face_t* f, face_t** prevptr)
             v = VectorNormalize(temp);
 
             VectorCopy(temp, plane.normal);
-#ifdef HLBSP_SUBDIVIDE_INMID
-			int splitpos;
-			if ((lightmapmaxs - lightmapmins - 1) - (maxlightmapsize - 1) < (maxlightmapsize - 1) / 4) // don't create very thin face
-			{
-				splitpos = lightmapmins + (maxlightmapsize - 1) - (maxlightmapsize - 1) / 4;
-			}
-			else
-			{
-				splitpos = lightmapmins + (maxlightmapsize - 1);
-			}
-			plane.dist = ((splitpos + 0.5) * TEXTURE_STEP - tex->vecs[axis][3]) / v;
-#else
             plane.dist = (mins + g_subdivide_size - TEXTURE_STEP) / v; //plane.dist = (mins + g_subdivide_size - 16) / v; //--vluzacn
-#endif
             next = f->next;
             SplitFace(f, &plane, &front, &back);
             if (!front || !back)

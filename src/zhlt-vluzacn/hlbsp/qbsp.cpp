@@ -1895,13 +1895,6 @@ int             main(const int argc, char** argv)
             Usage();
         }
     }
-#ifdef HLBSP_SUBDIVIDE_INMID
-	if (g_subdivide_size % TEXTURE_STEP != 0)
-	{
-		Warning ("Subdivide size must be a multiple of %d", (int)TEXTURE_STEP);
-		g_subdivide_size = TEXTURE_STEP * (g_subdivide_size / TEXTURE_STEP);
-	}
-#endif
 
     if (!mapname_from_arg)
     {
