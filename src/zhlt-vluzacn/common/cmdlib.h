@@ -72,10 +72,7 @@
 
 
 
-#define HLRAD_TRANSPARENCY_CPP //--vluzacn
-	#ifdef HLRAD_TRANSPARENCY_CPP
 #define HLRAD_TestSegmentAgainstOpaqueList_VL //--vluzacn
-	#endif
 #define HLRAD_ENTSTRIPRAD //--vluzacn
 #define HLRAD_CHOP_FIX //--vluzacn
 #define HLRAD_CUSTOMCHOP // don't use this --vluzacn

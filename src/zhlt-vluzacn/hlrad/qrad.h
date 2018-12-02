@@ -771,9 +771,7 @@ extern float	g_softlight_hack_distance;
 
 	extern bool	g_customshadow_with_bouncelight;
 	extern bool	g_rgb_transfers;
-#ifdef HLRAD_TRANSPARENCY_CPP
 	extern const vec3_t vec3_one;
-#endif
 
 	extern float g_transtotal_hack;
 #ifdef HLRAD_MINLIGHT
@@ -920,9 +918,7 @@ extern void     GetPhongNormal(int facenum, const vec3_t spot, vec3_t phongnorma
 
 typedef bool (*funcCheckVisBit) (unsigned, unsigned
 								 , vec3_t&
-#ifdef HLRAD_TRANSPARENCY_CPP
 								 , unsigned int&
-#endif
 								 );
 extern funcCheckVisBit g_CheckVisBit;
 #ifdef HLRAD_TRANSLUCENT
@@ -976,13 +972,11 @@ extern void     MakeScales(int threadnum);
 extern void     DumpTransfersMemoryUsage();
 extern void     MakeRGBScales(int threadnum);
 
-#ifdef HLRAD_TRANSPARENCY_CPP
 // transparency.c (transparency array functions - shared between vismatrix.c and sparse.c)
 extern void	GetTransparency(const unsigned p1, const unsigned p2, vec3_t &trans, unsigned int &next_index);
 extern void	AddTransparencyToRawArray(const unsigned p1, const unsigned p2, const vec3_t trans);
 extern void	CreateFinalTransparencyArrays(const char *print_name);
 extern void	FreeTransparencyArrays();
-#endif
 #ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 extern void GetStyle(const unsigned p1, const unsigned p2, int &style, unsigned int &next_index);
 extern void	AddStyleToStyleArray(const unsigned p1, const unsigned p2, const int style);

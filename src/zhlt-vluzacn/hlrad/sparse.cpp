@@ -1,32 +1,5 @@
 #include "qrad.h"
 
-#ifndef HLRAD_TRANSPARENCY_CPP
-// Transparency array
-
-
-typedef struct {
-	unsigned x;
-	unsigned y;
-	vec3_t transparency;
-} transparency_t;
-static transparency_t *s_transparency_list=NULL;
-static unsigned long s_transparency_count=0;
-static unsigned long s_max_transparency_count=0;
-
-static void FindOpacity(const unsigned p1, const unsigned p2, vec3_t &out)
-{
-	for(unsigned long i = 0; i < s_transparency_count; i++)
-	{
-		if(s_transparency_list[i].x==p1 && s_transparency_list[i].y==p2)
-		{
-			VectorCopy(s_transparency_list[i].transparency, out);
-			return;
-		}
-	}
-	VectorFill(out, 1.0);
-}
-
-#endif
 
 
 typedef struct
@@ -272,7 +245,6 @@ static void     SetVisBit(unsigned x, unsigned y)
 #endif
 
 // Vismatrix public
-#ifdef HLRAD_TRANSPARENCY_CPP
 static bool     CheckVisBitSparse(unsigned x, unsigned y
 								  , vec3_t &transparency_out
 								  , unsigned int &next_index
@@ -316,54 +288,6 @@ static bool     CheckVisBitSparse(unsigned x, unsigned y
 
 	return false;
 }
-#else /*HLRAD_TRANSPARENCY_CPP*/
-static bool     CheckVisBitSparse(unsigned x, unsigned y
-								  , vec3_t &transparency_out
-								  )
-{
-    unsigned        offset;
-
-    if (x == y)
-    {
-    	VectorFill(transparency_out, 1.0);
-        return 1;
-    }
-
-    if (x > y)
-    {
-        const unsigned a = x;
-        const unsigned b = y;
-        x = b;
-        y = a;
-    }
-
-    if (x > g_num_patches)
-    {
-        Warning("in CheckVisBit(), x > num_patches");
-    }
-    if (y > g_num_patches)
-    {
-        Warning("in CheckVisBit(), y > num_patches");
-    }
-
-    if ((offset = IsVisbitInArray(x, y)) != -1)
-    {
-    	if(g_customshadow_with_bouncelight)
-    	{
-    	     vec3_t tmp = {1.0, 1.0, 1.0};
-    	     FindOpacity(x, y, tmp);
-    	     VectorCopy(tmp, transparency_out);
-    	}
-    	else
-    	{
-    	     VectorFill(transparency_out, 1.0);
-    	}
-        return s_vismatrix[x].row[offset].values & (1 << (y & 7));
-    }
-    VectorFill(transparency_out, 1.0);
-    return 0;
-}
-#endif /*HLRAD_TRANSPARENCY_CPP*/
 
 /*
  * ==============
@@ -499,36 +423,10 @@ static void     TestPatchToFace(const unsigned patchnum, const int facenum, cons
 					}
 #endif
                                         
-	#ifdef HLRAD_TRANSPARENCY_CPP
                     if(g_customshadow_with_bouncelight && !VectorCompare(transparency, vec3_one) )
                     {
                     	AddTransparencyToRawArray(patchnum, m, transparency);
                     }
-	#else
-                    // transparency face fix table
-                    if(g_customshadow_with_bouncelight && fabs(VectorAvg(transparency) - 1.0) < 0.001)
-                    {
-                    	while(s_transparency_count>=s_max_transparency_count)
-                    	{
-                    	    //new size
-                    	    unsigned long oldsize = s_max_transparency_count;
-                    	    s_max_transparency_count += 128;
-                    	    
-                    	    //realloc
-                    	    s_transparency_list = (transparency_t*)realloc(s_transparency_list, s_max_transparency_count * sizeof(transparency_t));
-                    	    
-                    	    // clean new memory
-                    	    memset(&s_transparency_list[oldsize], 0, sizeof(transparency_t) * 128);
-                    	}
-                    	
-                    	//add to array
-                    	VectorCopy(transparency, s_transparency_list[s_transparency_count].transparency);
-                	s_transparency_list[s_transparency_count].y = m;
-                    	s_transparency_list[s_transparency_count].x = patchnum;
-                    	
-                    	s_transparency_count++;
-                    }
-	#endif
 #ifdef HLRAD_SPARSEVISMATRIX_FAST
 					uncompressedcolumn[m] = true;
 #else
@@ -790,14 +688,6 @@ static void     FreeVisMatrix()
         }
     }
 
-#ifndef HLRAD_TRANSPARENCY_CPP
-    if(s_transparency_list)
-    {
-    	free(s_transparency_list);
-    	s_transparency_list = NULL;
-    }
-    s_transparency_count = s_max_transparency_count = 0;    
-#endif
 
 }
 
@@ -840,23 +730,14 @@ void            MakeScalesSparseVismatrix()
         DumpVismatrixInfo();
         g_CheckVisBit = CheckVisBitSparse;
 
-	#ifdef HLRAD_TRANSPARENCY_CPP
         CreateFinalTransparencyArrays("custom shadow array");
-	#else
-        if((s_max_transparency_count*sizeof(transparency_t))>=(1024 * 1024))
-        	Log("%-20s: %5.1f megs\n", "custom shadow array", (s_max_transparency_count*sizeof(transparency_t)) / (1024 * 1024.0));
-        else if(s_transparency_count)
-        	Log("%-20s: %5.1f kilos\n", "custom shadow array", (s_max_transparency_count*sizeof(transparency_t)) / 1024.0);
-	#endif
         
 	if(g_rgb_transfers)
 		{NamedRunThreadsOn(g_num_patches, g_estimate, MakeRGBScales);}
 	else
 		{NamedRunThreadsOn(g_num_patches, g_estimate, MakeScales);}
         FreeVisMatrix();
-	#ifdef HLRAD_TRANSPARENCY_CPP
         FreeTransparencyArrays();
-	#endif
 
         if (g_incremental)
         {

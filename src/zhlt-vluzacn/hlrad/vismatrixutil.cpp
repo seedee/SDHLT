@@ -234,9 +234,7 @@ void            MakeScales(const int threadnum)
     const vec_t*    normal1;
     const vec_t*    normal2;
 
-#ifdef HLRAD_TRANSPARENCY_CPP
     unsigned int    fastfind_index = 0;
-#endif
 
     vec_t           total;
 
@@ -320,9 +318,7 @@ void            MakeScales(const int threadnum)
 
             if (!g_CheckVisBit(i, j
 				, transparency
-#ifdef HLRAD_TRANSPARENCY_CPP
 				, fastfind_index
-#endif
 				) || (i == j))
             {
 #ifdef HLRAD_TRANSLUCENT
@@ -628,9 +624,7 @@ void            MakeRGBScales(const int threadnum)
     const vec_t*    normal1;
     const vec_t*    normal2;
 
-#ifdef HLRAD_TRANSPARENCY_CPP
     unsigned int    fastfind_index = 0;
-#endif
     vec_t           total;
 
 #ifdef HLRAD_TRANSFERDATA_COMPRESS
@@ -712,9 +706,7 @@ void            MakeRGBScales(const int threadnum)
 
             if (!g_CheckVisBit(i, j
 				, transparency
-#ifdef HLRAD_TRANSPARENCY_CPP
 				, fastfind_index
-#endif
 				) || (i == j))
             {
 #ifdef HLRAD_TRANSLUCENT
