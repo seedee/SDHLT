@@ -186,12 +186,10 @@ static hashvert_t* hashverts[NUM_HASH];
 
 static vec3_t   hash_min;
 static vec3_t   hash_scale;
-#ifdef HLBSP_HASH_FIX
 // It's okay if the coordinates go under hash_min, because they are hashed in a cyclic way (modulus by hash_numslots)
 // So please don't change the hardcoded hash_min and scale
 static int		hash_numslots[3];
 #define MAX_HASH_NEIGHBORS	4
-#endif
 
 // =====================================================================================
 //  InitHash
@@ -216,7 +214,6 @@ static void     InitHash()
 
     scale = sqrt(volume / NUM_HASH);
 
-#ifdef HLBSP_HASH_FIX
 	hash_numslots[0] = (int)floor (size[0] / scale);
 	hash_numslots[1] = (int)floor (size[1] / scale);
 	while (hash_numslots[0] * hash_numslots[1] > NUM_HASH)
@@ -228,14 +225,6 @@ static void     InitHash()
 
 	hash_scale[0] = hash_numslots[0] / size[0];
 	hash_scale[1] = hash_numslots[1] / size[1];
-#else
-    newsize[0] = size[0] / scale;
-    newsize[1] = size[1] / scale;
-
-    hash_scale[0] = newsize[0] / size[0];
-    hash_scale[1] = newsize[1] / size[1];
-    hash_scale[2] = newsize[1];
-#endif
 
     hvert_p = hvertex;
 }
@@ -243,7 +232,6 @@ static void     InitHash()
 // =====================================================================================
 //  HashVec
 // =====================================================================================
-#ifdef HLBSP_HASH_FIX
 static int HashVec (const vec3_t vec, int *num_hashneighbors, int *hashneighbors)
 	// returned value: the one bucket that a new vertex may "write" into
 	// returned hashneighbors: the buckets that we should "read" to check for an existing vertex
@@ -296,19 +284,6 @@ static int HashVec (const vec3_t vec, int *num_hashneighbors, int *hashneighbors
 
 	return h;
 }
-#else // This HashVec function was subtly but horribly wrong...
-static unsigned HashVec(const vec3_t vec)
-{
-    unsigned        h;
-
-    h = hash_scale[0] * (vec[0] - hash_min[0]) * hash_scale[2] + hash_scale[1] * (vec[1] - hash_min[1]);
-    if (h >= NUM_HASH)
-    {
-        return NUM_HASH - 1;
-    }
-    return h;
-}
-#endif
 
 // =====================================================================================
 //  GetVertex
@@ -319,10 +294,8 @@ static int      GetVertex(const vec3_t in, const int planenum)
     int             i;
     hashvert_t*     hv;
     vec3_t          vert;
-#ifdef HLBSP_HASH_FIX
 	int				num_hashneighbors;
 	int				hashneighbors[MAX_HASH_NEIGHBORS];
-#endif
 
     for (i = 0; i < 3; i++)
     {
@@ -336,18 +309,10 @@ static int      GetVertex(const vec3_t in, const int planenum)
         }
     }
 
-#ifdef HLBSP_HASH_FIX
 	h = HashVec(vert, &num_hashneighbors, hashneighbors);
-#else
-    h = HashVec(vert);
-#endif
 
-#ifdef HLBSP_HASH_FIX
   for (i = 0; i < num_hashneighbors; i++)
 	for (hv = hashverts[hashneighbors[i]]; hv; hv = hv->next)
-#else
-    for (hv = hashverts[h]; hv; hv = hv->next)
-#endif
     {
         if (fabs(hv->point[0] - vert[0]) < POINT_EPSILON
             && fabs(hv->point[1] - vert[1]) < POINT_EPSILON && fabs(hv->point[2] - vert[2]) < POINT_EPSILON)
