@@ -280,9 +280,7 @@ bface_t*        NewFaceFromFace(const bface_t* const in)
     newf->texinfo = in->texinfo;
     newf->planenum = in->planenum;
     newf->plane = in->plane;
-#ifdef HLCSG_EMPTYBRUSH
 	newf->backcontents = in->backcontents;
-#endif
 
     return newf;
 }
@@ -464,7 +462,6 @@ static void     SaveOutside(const brush_t* const b, const int hull, bface_t* out
     {
         next = f->next;
 
-#ifdef HLCSG_EMPTYBRUSH
 		int frontcontents, backcontents;
 		int texinfo = f->texinfo;
 		const char *texname = GetTextureByNumber_CSG (texinfo);
@@ -516,12 +513,9 @@ static void     SaveOutside(const brush_t* const b, const int hull, bface_t* out
 			backnull = true; // strip water face on one side
 		}
 	#endif
-#endif
 
-#ifdef HLCSG_EMPTYBRUSH
 		f->contents = frontcontents;
 		f->texinfo = frontnull? -1: texinfo;
-#endif
         if (f->w->getArea() < g_tiny_threshold)
         {
             c_tiny++;
@@ -620,12 +614,8 @@ static void     SaveOutside(const brush_t* const b, const int hull, bface_t* out
         {
             f->planenum ^= 1;
             f->plane = &g_mapplanes[f->planenum];
-#ifdef HLCSG_EMPTYBRUSH
 			f->contents = backcontents;
 			f->texinfo = backnull? -1: texinfo;
-#else
-            f->contents = mirrorcontents;
-#endif
 
             // swap point orders
             for (i = 0; i < f->w->m_NumPoints / 2; i++)      // add points backwards
@@ -786,9 +776,7 @@ static void     CSGBrush(int brushnum)
 			case CONTENTS_ORIGIN:
 			case CONTENTS_BOUNDINGBOX:
 			case CONTENTS_HINT:
-	#ifdef HLCSG_EMPTYBRUSH
 			case CONTENTS_TOEMPTY:
-	#endif
 				break;
 			default:
 				Error ("Entity %i, Brush %i: %s brushes not allowed in detail\n", 
@@ -805,7 +793,6 @@ static void     CSGBrush(int brushnum)
         // set outside to a copy of the brush's faces
         outside = CopyFacesToOutside(bh1);
         overwrite = false;
-#ifdef HLCSG_EMPTYBRUSH
 		if (b1->contents == CONTENTS_TOEMPTY)
 		{
 			for (f = outside; f; f = f->next)
@@ -814,7 +801,6 @@ static void     CSGBrush(int brushnum)
 				f->backcontents = CONTENTS_TOEMPTY;
 			}
 		}
-#endif
 
         // for each brush in entity e
         for (bn = 0; bn < e->numbrushes; bn++)
@@ -836,10 +822,8 @@ static void     CSGBrush(int brushnum)
 
             b2 = &g_mapbrushes[e->firstbrush + bn];
             bh2 = &b2->hulls[hull];
-#ifdef HLCSG_EMPTYBRUSH
 			if (b2->contents == CONTENTS_TOEMPTY)
 				continue;
-#endif
 #ifdef ZHLT_DETAILBRUSH
 			if (
 #ifdef ZHLT_CLIPNODEDETAILLEVEL
@@ -1077,7 +1061,6 @@ static void     CSGBrush(int brushnum)
 						continue;
 					}
 #endif
-#ifdef HLCSG_EMPTYBRUSH
 					if (b1->contents == CONTENTS_TOEMPTY)
 					{
 						bool onfront = true, onback = true;
@@ -1107,7 +1090,6 @@ static void     CSGBrush(int brushnum)
 						}
 						continue;
 					}
-#endif
                     if (b1->contents > b2->contents
 #ifdef HLCSG_HLBSP_SOLIDHINT
 						|| b1->contents == b2->contents && !strncasecmp (GetTextureByNumber_CSG (f->texinfo), "SOLIDHINT", 9)

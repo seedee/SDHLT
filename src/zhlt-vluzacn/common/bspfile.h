@@ -215,9 +215,7 @@ typedef enum
 
 	CONTENTS_BOUNDINGBOX = -19, // similar to CONTENTS_ORIGIN
 
-#ifdef HLCSG_EMPTYBRUSH
 	CONTENTS_TOEMPTY = -32,
-#endif
 }
 contents_t;
 

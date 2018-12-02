@@ -1078,10 +1078,8 @@ const char*     ContentsToString(const contents_t type)
         return "DETAIL";
 #endif
 
-#ifdef HLCSG_EMPTYBRUSH
 	case CONTENTS_TOEMPTY:
 		return "EMPTY";
-#endif
 
     default:
         return "UNKNOWN";
@@ -1206,9 +1204,7 @@ contents_t      CheckBrushContents(const brush_t* const b)
         case CONTENTS_ORIGIN:
 		case CONTENTS_BOUNDINGBOX:
 		case CONTENTS_HINT:
-#ifdef HLCSG_EMPTYBRUSH
 		case CONTENTS_TOEMPTY:
-#endif
             break;
         default:
             Fatal(assume_BRUSH_NOT_ALLOWED_IN_ENTITY, "Entity %i, Brush %i: %s brushes not allowed in entity", 
@@ -1247,10 +1243,8 @@ void CreateBrush(const int brushnum) //--vluzacn
 
 	if (contents == CONTENTS_HINT)
 		return;
-#ifdef HLCSG_EMPTYBRUSH
 	if (contents == CONTENTS_TOEMPTY)
 		return;
-#endif
 
 	if (g_noclip)
 	{
