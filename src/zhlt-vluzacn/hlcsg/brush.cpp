@@ -273,7 +273,6 @@ int PlaneFromPoints(const vec_t* const p0, const vec_t* const p1, const vec_t* c
     return -1;
 }
 
-#ifdef HLCSG_PRECISIONCLIP
 
 const char ClipTypeStrings[5][11] = {{"smallest"},{"normalized"},{"simple"},{"precise"},{"legacy"}};
 
@@ -920,211 +919,6 @@ void ExpandBrush(brush_t* brush, const int hullnum)
 	}
 */
 }
-#else //!HLCSG_PRECISIONCLIP
-
-#define	MAX_HULL_POINTS	32
-#define	MAX_HULL_EDGES	64
-
-typedef struct
-{
-    brush_t*        b;
-    int             hullnum;
-    int             num_hull_points;
-    vec3_t          hull_points[MAX_HULL_POINTS];
-    vec3_t          hull_corners[MAX_HULL_POINTS * 8];
-    int             num_hull_edges;
-    int             hull_edges[MAX_HULL_EDGES][2];
-} expand_t;
-
-/*
- * =============
- * IPlaneEquiv
- *
- * =============
- */
-bool            IPlaneEquiv(const plane_t* const p1, const plane_t* const p2)
-{
-    vec_t           t;
-    int             j;
-
-    // see if origin is on plane
-    t = 0;
-    for (j = 0; j < 3; j++)
-    {
-        t += (p2->origin[j] - p1->origin[j]) * p2->normal[j];
-    }
-    if (fabs(t) > DIST_EPSILON)
-    {
-        return false;
-    }
-
-    // see if the normal is forward, backwards, or off
-    for (j = 0; j < 3; j++)
-    {
-        if (fabs(p2->normal[j] - p1->normal[j]) > NORMAL_EPSILON)
-        {
-            break;
-        }
-    }
-    if (j == 3)
-    {
-        return true;
-    }
-
-    for (j = 0; j < 3; j++)
-    {
-        if (fabs(p2->normal[j] - p1->normal[j]) > NORMAL_EPSILON)
-        {
-            break;
-        }
-    }
-    if (j == 3)
-    {
-        return true;
-    }
-
-    return false;
-}
-
-/*
- * ============
- * AddBrushPlane
- * =============
- */
-void            AddBrushPlane(const expand_t* const ex, const plane_t* const plane)
-{
-    plane_t*        pl;
-    bface_t*        f;
-    bface_t*        nf;
-    brushhull_t*    h;
-
-    h = &ex->b->hulls[ex->hullnum];
-    // see if the plane has allready been added
-    for (f = h->faces; f; f = f->next)
-    {
-        pl = f->plane;
-        if (IPlaneEquiv(plane, pl))
-        {
-            return;
-        }
-    }
-
-    nf = (bface_t*)Alloc(sizeof(*nf));                               // TODO: This leaks
-    nf->planenum = FindIntPlane(plane->normal, plane->origin);
-    nf->plane = &g_mapplanes[nf->planenum];
-    nf->next = h->faces;
-    nf->contents = CONTENTS_EMPTY;
-    h->faces = nf;
-
-#ifdef HLCSG_HLBSP_VOIDTEXINFO
-	nf->texinfo = -1;
-#else
-    nf->texinfo = 0;                                       // all clip hulls have same texture
-#endif
-}
-
-// =====================================================================================
-//  ExpandBrush
-// =====================================================================================
-void            ExpandBrush(brush_t* b, const int hullnum)
-{
-    int             x;
-    int             s;
-    int             corner;
-    bface_t*        brush_faces;
-    bface_t*        f;
-    bface_t*        nf;
-    plane_t*        p;
-    plane_t         plane;
-    vec3_t          origin;
-    vec3_t          normal;
-    expand_t        ex;
-    brushhull_t*    h;
-    bool            axial;
-
-    brush_faces = b->hulls[0].faces;
-    h = &b->hulls[hullnum];
-
-    ex.b = b;
-    ex.hullnum = hullnum;
-    ex.num_hull_points = 0;
-    ex.num_hull_edges = 0;
-
-    // expand all of the planes
-
-    axial = true;
-
-    // for each of this brushes faces
-    for (f = brush_faces; f; f = f->next)
-    {
-        p = f->plane;
-        if (p->type > last_axial) // ajm: last_axial == (planetypes enum)plane_z == (2)
-        {
-            axial = false;                                 // not an xyz axial plane
-        }
-
-        VectorCopy(p->origin, origin);
-        VectorCopy(p->normal, normal);
-
-        for (x = 0; x < 3; x++)
-        {
-            if (p->normal[x] > 0)
-            {
-                corner = g_hull_size[hullnum][1][x];
-            }
-            else if (p->normal[x] < 0)
-            {
-                corner = -g_hull_size[hullnum][0][x];
-            }
-            else
-            {
-                corner = 0;
-            }
-            origin[x] += p->normal[x] * corner;
-        }
-        nf = (bface_t*)Alloc(sizeof(*nf));                           // TODO: This leaks
-
-        nf->planenum = FindIntPlane(normal, origin);
-        nf->plane = &g_mapplanes[nf->planenum];
-        nf->next = h->faces;
-        nf->contents = CONTENTS_EMPTY;
-        h->faces = nf;
-#ifdef HLCSG_HLBSP_VOIDTEXINFO
-		nf->texinfo = -1;
-#else
-        nf->texinfo = 0;                        // all clip hulls have same texture
-#endif
-//        nf->texinfo = f->texinfo;               // Hack to view clipping hull with textures (might crash halflife)
-    }
-
-    // if this was an axial brush, we are done
-    if (axial)
-    {
-        return;
-    }
-
-    // add any axis planes not contained in the brush to bevel off corners
-    for (x = 0; x < 3; x++)
-    {
-        for (s = -1; s <= 1; s += 2)
-        {
-            // add the plane
-            VectorCopy(vec3_origin, plane.normal);
-            plane.normal[x] = s;
-            if (s == -1)
-            {
-                VectorAdd(b->hulls[0].bounds.m_Mins, g_hull_size[hullnum][0], plane.origin);
-            }
-            else
-            {
-                VectorAdd(b->hulls[0].bounds.m_Maxs, g_hull_size[hullnum][1], plane.origin);
-            }
-            AddBrushPlane(&ex, &plane);
-        }
-    }
-}
-
-#endif //HLCSG_PRECISIONCLIP
 
 // =====================================================================================
 //  MakeHullFaces
@@ -1192,10 +986,8 @@ void            MakeHullFaces(const brush_t* const b, brushhull_t *h)
 {
     bface_t*        f;
     bface_t*        f2;
-#ifdef HLCSG_PRECISIONCLIP //#ifdef HLCSG_PRECISECLIP //vluzacn
 #ifndef HLCSG_CUSTOMHULL
 	bool warned = false;
-#endif
 #endif
 #ifdef HLCSG_SORTSIDES
 	// this will decrease AllocBlock amount
@@ -1230,7 +1022,6 @@ restart:
 #endif
         if (w->getArea() < 0.1)
         {
-#ifdef HLCSG_PRECISIONCLIP //#ifdef HLCSG_PRECISECLIP //vluzacn
 #ifndef HLCSG_CUSTOMHULL // this occurs when there are BEVEL faces.
 			if(w->getArea() == 0 && !warned) //warn user when there's a bad brush (face not contributing)
 			{
@@ -1243,7 +1034,6 @@ restart:
 					);
 				warned = true;
 			}
-#endif
 #endif
             delete w;
             if (h->faces == f)
@@ -1465,10 +1255,8 @@ static contents_t TextureContents(const char* const name)
 
 	if (!strncasecmp(name, "null", 4))
         return CONTENTS_NULL;
-#ifdef HLCSG_PRECISIONCLIP // KGP
 	if(!strncasecmp(name,"bevel",5))
 		return CONTENTS_NULL;
-#endif //precisionclip
 
     return CONTENTS_SOLID;
 }

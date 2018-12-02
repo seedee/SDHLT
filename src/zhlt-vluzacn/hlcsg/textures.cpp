@@ -966,13 +966,11 @@ int             TexinfoForBrushTexture(const plane_t* const plane, brush_texture
 #endif
     memset(&tx, 0, sizeof(tx));
 #ifndef HLCSG_CUSTOMHULL
-#ifdef HLCSG_PRECISIONCLIP
 	if(!strncmp(bt->name,"BEVEL",5))
 	{
 		tx.flags |= TEX_BEVEL;
 		safe_strncpy(bt->name,"NULL",5);
 	}
-#endif
 #endif
 #ifndef HLCSG_AUTOWAD_NEW
 #ifdef HLCSG_AUTOWAD_TEXTURELIST_FIX

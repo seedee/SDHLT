@@ -40,14 +40,12 @@
 #define DEFAULT_CHART       false
 #define DEFAULT_INFO        true
 
-#ifdef HLCSG_PRECISIONCLIP // KGP
 #ifdef HLCSG_CLIPTYPEPRECISE_EPSILON_FIX
 #define FLOOR_Z 0.7 // Quake default
 #else
 #define FLOOR_Z 0.5
 #endif
 #define DEFAULT_CLIPTYPE clip_simple //clip_legacy //--vluzacn
-#endif
 
 #define DEFAULT_NULLTEX     true
 
@@ -326,14 +324,12 @@ extern bool g_bDetailBrushes;
 
 extern bool     g_bClipNazi; 
 
-#ifdef HLCSG_PRECISIONCLIP // KGP
 #define EnumPrint(a) #a
 typedef enum{clip_smallest,clip_normalized,clip_simple,clip_precise,clip_legacy} cliptype;
 extern cliptype g_cliptype;
 extern const char*	GetClipTypeString(cliptype);
 #ifndef HLCSG_CUSTOMHULL
 #define TEX_BEVEL 32768
-#endif
 #endif
 
 #ifdef ZHLT_PROGRESSFILE // AJM

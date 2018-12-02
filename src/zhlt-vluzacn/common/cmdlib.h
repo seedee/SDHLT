@@ -63,7 +63,6 @@
 
 // tool specific settings below only mean a recompile of the tool affected
 
-#define HLCSG_PRECISIONCLIP
 #define HLCSG_FASTFIND
         #define HLCSG_NULLIFY_INVISIBLE //requires null textures as prerequisite
 
@@ -193,11 +192,9 @@
 	#ifdef HLCSG_ONLYENTS_NOWADCHANGE
 #define HLCSG_AUTOWAD_TEXTURELIST_FIX //--vluzacn
 	#endif
-	#ifdef HLCSG_PRECISIONCLIP
 	#ifdef HLCSG_CUSTOMHULL
 	#ifdef HLCSG_AUTOWAD_TEXTURELIST_FIX
 #define HLCSG_HULLBRUSH //--vluzacn
-	#endif
 	#endif
 	#endif
 #define HLCSG_TEXMAP64_FIX //--vluzacn

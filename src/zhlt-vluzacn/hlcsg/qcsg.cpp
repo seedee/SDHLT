@@ -54,9 +54,7 @@ const char*		g_wadconfigname = NULL;
 
 bool            g_bUseNullTex = DEFAULT_NULLTEX;        // "-nonulltex"
 
-#ifdef HLCSG_PRECISIONCLIP // KGP
 cliptype		g_cliptype = DEFAULT_CLIPTYPE;			// "-cliptype <value>"
-#endif
 
 #ifdef HLCSG_NULLIFY_INVISIBLE
 const char*			g_nullfile = NULL;
@@ -230,7 +228,6 @@ void            GetParamsFromEnt(entity_t* mapent)
         g_noclip = false;
     }
     Log("%30s [ %-9s ]\n", "Clipping Hull Generation", g_noclip ? "off" : "on");
-#ifdef HLCSG_PRECISIONCLIP
     // cliptype(choices) : "Clip Hull Type" : 4 = [ 0 : "Smallest" 1 : "Normalized" 2: "Simple" 3 : "Precise" 4 : "Legacy" ]
     iTmp = IntForKey(mapent, "cliptype");
 	switch(iTmp)
@@ -252,7 +249,6 @@ void            GetParamsFromEnt(entity_t* mapent)
 		break;
 	}
     Log("%30s [ %-9s ]\n", "Clip Hull Type", GetClipTypeString(g_cliptype));
-#endif
     /*
     noskyclip(choices) : "No Sky Clip" : 0 =
     [
@@ -276,7 +272,6 @@ void            GetParamsFromEnt(entity_t* mapent)
 }
 
 #ifndef HLCSG_CUSTOMHULL
-#ifdef HLCSG_PRECISIONCLIP
 // =====================================================================================
 // FixBevelTextures
 // =====================================================================================
@@ -289,7 +284,6 @@ void FixBevelTextures()
 		{ g_texinfo[counter].flags &= ~TEX_BEVEL; }
 	}
 }
-#endif
 #endif
 
 // =====================================================================================
@@ -1892,9 +1886,7 @@ static void     Usage()
     Log("    -noclipeconomy   : turn clipnode economy mode off\n");
 #endif
 
-#ifdef HLCSG_PRECISIONCLIP // KGP
 	Log("    -cliptype value  : set to smallest, normalized, simple, precise, or legacy (default)\n");
-#endif
 #ifdef HLCSG_NULLIFY_INVISIBLE // KGP
 	Log("    -nullfile file   : specify list of entities to retexture with NULL\n");
 #endif
@@ -2036,9 +2028,7 @@ static void     Settings()
 
     Log("clipnode economy mode [ %7s ] [ %7s ]\n", g_bClipNazi       ? "on" : "off", DEFAULT_CLIPNAZI     ? "on" : "off");
 
-#ifdef HLCSG_PRECISIONCLIP // KGP
 	Log("clip hull type        [ %7s ] [ %7s ]\n", GetClipTypeString(g_cliptype), GetClipTypeString(DEFAULT_CLIPTYPE));
-#endif
 
     Log("onlyents              [ %7s ] [ %7s ]\n", g_onlyents        ? "on" : "off", DEFAULT_ONLYENTS     ? "on" : "off");
     Log("wadtextures           [ %7s ] [ %7s ]\n", g_wadtextures     ? "on" : "off", DEFAULT_WADTEXTURES  ? "on" : "off");
@@ -2257,7 +2247,6 @@ int             main(const int argc, char** argv)
         }
 #endif
 
-#ifdef HLCSG_PRECISIONCLIP	// KGP: added in -cliptype
 		else if (!strcasecmp(argv[i], "-cliptype"))
 		{
 			if (i + 1 < argc)	//added "1" .--vluzacn
@@ -2280,7 +2269,6 @@ int             main(const int argc, char** argv)
                 Usage();
             }
 		}
-#endif
 
 #ifdef HLCSG_NULLIFY_INVISIBLE
 		else if (!strcasecmp(argv[i], "-nullfile"))
@@ -2774,10 +2762,8 @@ int             main(const int argc, char** argv)
     NamedRunThreadsOnIndividual(g_nummapbrushes, g_estimate, CreateBrush);
     CheckFatal();
 
-#ifdef HLCSG_PRECISIONCLIP // KGP - drop TEX_BEVEL flag
 #ifndef HLCSG_CUSTOMHULL
 	FixBevelTextures();
-#endif
 #endif
 
     // boundworld
