@@ -924,12 +924,10 @@ int             TexinfoForBrushTexture(const plane_t* const plane, brush_texture
     texinfo_t*      tc;
     int             i, j, k;
 
-#ifdef HLCSG_HLBSP_VOIDTEXINFO
 	if (!strncasecmp(bt->name, "NULL", 4))
 	{
 		return -1;
 	}
-#endif
     memset(&tx, 0, sizeof(tx));
 #ifndef HLCSG_AUTOWAD_NEW
 #ifdef HLCSG_AUTOWAD_TEXTURELIST_FIX
@@ -1133,7 +1131,6 @@ skip:;
     return i;
 }
 
-#ifdef HLCSG_HLBSP_VOIDTEXINFO
 // Before WriteMiptex(), for each texinfo in g_texinfo, .miptex is a string rather than texture index, so this function should be used instead of GetTextureByNumber.
 const char *GetTextureByNumber_CSG(int texturenumber)
 {
@@ -1145,4 +1142,3 @@ const char *GetTextureByNumber_CSG(int texturenumber)
 	return texmap64_retrieve (g_texinfo[texturenumber].miptex);
 #endif
 }
-#endif

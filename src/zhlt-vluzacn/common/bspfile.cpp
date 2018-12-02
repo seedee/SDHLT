@@ -1839,15 +1839,11 @@ void CDECL      dtexdata_free()
 //      Touchy function, can fail with a page fault if all the data isnt kosher 
 //      (i.e. map was compiled with missing textures)
 // =====================================================================================
-#ifdef HLCSG_HLBSP_VOIDTEXINFO
 static char emptystring[1] = {'\0'};
-#endif
 char*           GetTextureByNumber(int texturenumber)
 {
-#ifdef HLCSG_HLBSP_VOIDTEXINFO
 	if (texturenumber == -1)
 		return emptystring;
-#endif
     texinfo_t*      info;
     miptex_t*       miptex;
     int             ofs;

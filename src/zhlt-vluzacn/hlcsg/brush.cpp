@@ -162,11 +162,7 @@ void AddHullPlane(brushhull_t* hull, const vec_t* const normal, const vec_t* con
 	new_face->next = hull->faces;
 	new_face->contents = CONTENTS_EMPTY;
 	hull->faces = new_face;
-#ifdef HLCSG_HLBSP_VOIDTEXINFO
 	new_face->texinfo = -1;
-#else
-	new_face->texinfo = 0;
-#endif
 }
 
 // =====================================================================================

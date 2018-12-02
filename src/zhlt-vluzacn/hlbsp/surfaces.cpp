@@ -34,12 +34,10 @@ void            SubdivideFace(face_t* f, face_t** prevptr)
 
     // special (non-surface cached) faces don't need subdivision
 
-#ifdef HLCSG_HLBSP_VOIDTEXINFO
 	if (f->texturenum == -1)
 	{
 		return;
 	}
-#endif
     tex = &g_texinfo[f->texturenum];
 
     if (tex->flags & TEX_SPECIAL) 

@@ -273,9 +273,7 @@ extern int      TexinfoForBrushTexture(const plane_t* const plane, brush_texture
 					, bool shouldhide
 #endif
 					);
-#ifdef HLCSG_HLBSP_VOIDTEXINFO
 extern const char *GetTextureByNumber_CSG(int texturenumber);
-#endif
 
 //=============================================================================
 // brush.c

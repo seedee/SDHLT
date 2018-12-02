@@ -886,25 +886,10 @@ bool            CheckFaceForNull(const face_t* const f)
     // null faces are only of facetype face_null if we are using null texture stripping
     if (g_bUseNullTex)
     {
-#ifdef HLCSG_HLBSP_VOIDTEXINFO
 		const char *name = GetTextureByNumber (f->texturenum);
 		if (!strncasecmp(name, "null", 4))
 			return true;
 		return false;
-#else
-        texinfo_t*      info;
-        miptex_t*       miptex;
-        int             ofs;
-
-        info = &g_texinfo[f->texturenum];
-        ofs = ((dmiptexlump_t*)g_dtexdata)->dataofs[info->miptex];
-        miptex = (miptex_t*)(&g_dtexdata[ofs]);
-
-        if (!strcasecmp(miptex->name, "null"))
-            return true;
-        else if (!strncasecmp(miptex->name, "null", 4))
-            return true;
-#endif
     }
     else // otherwise, under normal cases, null textured faces should be facetype face_normal
     {
@@ -916,25 +901,10 @@ bool            CheckFaceForNull(const face_t* const f)
 // =====================================================================================
 bool            CheckFaceForEnv_Sky(const face_t* const f)
 {
-#ifdef HLCSG_HLBSP_VOIDTEXINFO
 	const char *name = GetTextureByNumber (f->texturenum);
 	if (!strncasecmp (name, "env_sky", 7))
 		return true;
 	return false;
-#else
-        texinfo_t*      info;
-        miptex_t*       miptex;
-        int             ofs;
-
-        info = &g_texinfo[f->texturenum];
-        ofs = ((dmiptexlump_t*)g_dtexdata)->dataofs[info->miptex];
-        miptex = (miptex_t*)(&g_dtexdata[ofs]);
-
-        if (!strcasecmp(miptex->name, "env_sky"))
-            return true;
-        else
-            return false;
-#endif
 }
 // =====================================================================================
 
@@ -965,29 +935,10 @@ bool            CheckFaceForDetail(const face_t* const f)
 // =====================================================================================
 bool            CheckFaceForHint(const face_t* const f)
 {
-#ifdef HLCSG_HLBSP_VOIDTEXINFO
 	const char *name = GetTextureByNumber (f->texturenum);
 	if (!strncasecmp (name, "hint", 4))
 		return true;
 	return false;
-#else
-    texinfo_t*      info;
-    miptex_t*       miptex;
-    int             ofs;
-
-    info = &g_texinfo[f->texturenum];
-    ofs = ((dmiptexlump_t *)g_dtexdata)->dataofs[info->miptex];
-    miptex = (miptex_t *)(&g_dtexdata[ofs]);
-
-    if (!strcasecmp(miptex->name, "hint"))
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-#endif
 }
 
 // =====================================================================================
@@ -996,29 +947,10 @@ bool            CheckFaceForHint(const face_t* const f)
 // =====================================================================================
 bool            CheckFaceForSkip(const face_t* const f)
 {
-#ifdef HLCSG_HLBSP_VOIDTEXINFO
 	const char *name = GetTextureByNumber (f->texturenum);
 	if (!strncasecmp (name, "skip", 4))
 		return true;
 	return false;
-#else
-    texinfo_t*      info;
-    miptex_t*       miptex;
-    int             ofs;
-
-    info = &g_texinfo[f->texturenum];
-    ofs = ((dmiptexlump_t*)g_dtexdata)->dataofs[info->miptex];
-    miptex = (miptex_t*)(&g_dtexdata[ofs]);
-
-    if (!strcasecmp(miptex->name, "skip"))
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-#endif
 }
 
 #ifdef HLCSG_HLBSP_SOLIDHINT
