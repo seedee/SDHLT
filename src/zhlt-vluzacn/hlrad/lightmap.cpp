@@ -3159,9 +3159,6 @@ void            CreateDirectLights()
         {
             if (!VectorAvg(dl->intensity))
             {
-#ifndef HLRAD_ALLOWZEROBRIGHTNESS
-                VectorFill(dl->intensity, 500);
-#endif
             }
             dl->type = emit_spotlight;
             dl->stopdot = FloatForKey(e, "_cone");
@@ -3411,9 +3408,6 @@ void            CreateDirectLights()
         {
             if (!VectorAvg(dl->intensity))
 			{
-#ifndef HLRAD_ALLOWZEROBRIGHTNESS
-                VectorFill(dl->intensity, 300);
-#endif
 			}
             dl->type = emit_point;
         }
@@ -3430,9 +3424,6 @@ void            CreateDirectLights()
         }
     }
 
-#ifndef HLRAD_ALLOWZEROBRIGHTNESS
-    hlassume(numdlights, assume_NoLights);
-#endif
 #ifdef HLRAD_GatherPatchLight
 	int countnormallights = 0, countfastlights = 0;
 	{
@@ -3922,11 +3913,9 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							if (step != step_match)
 								continue;
 #endif
-#ifdef HLRAD_ALLOWZEROBRIGHTNESS
 							// check intensity
 							if (!(l->intensity[0] || l->intensity[1] || l->intensity[2]))
 								continue;
-#endif
 #ifdef HLRAD_SUNSPREAD
 						  // loop over the normals
 						  for (int j = 0; j < l->numsunnormals; j++)
@@ -4195,10 +4184,8 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 						if (step != step_match)
 							continue;
 #endif
-#ifdef HLRAD_ALLOWZEROBRIGHTNESS
 						if (!(l->intensity[0] || l->intensity[1] || l->intensity[2]))
 							continue;
-#endif
 #ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 						VectorCopy (l->origin, testline_origin);
 #endif

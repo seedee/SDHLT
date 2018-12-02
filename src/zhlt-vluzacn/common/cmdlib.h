@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_ALLOWZEROBRIGHTNESS //--vluzacn
 #define HLRAD_OPAQUE_GROUP //--vluzacn //obsolete
 	#ifdef HLRAD_OPAQUE_GROUP
 #define HLRAD_OPAQUE_RANGE //--vluzacn //obsolete
