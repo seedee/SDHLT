@@ -1935,18 +1935,7 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 
                 VectorSubtract(maxs, mins, delta);
                 length = VectorLength(delta);
-#ifdef HLRAD_CHOP_FIX
 				amt = patch->chop;
-#else // loss patches on faces where texture scale < 1 and range < g_chop
-                if (VectorCompare(patch->baselight, vec3_origin))
-                {
-                    amt = g_chop;
-                }
-                else
-                {
-                    amt = g_texchop;
-                }
-#endif
 
                 if (length > amt)
                 {
