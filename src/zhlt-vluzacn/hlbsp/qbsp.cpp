@@ -87,9 +87,7 @@ bool            g_bDetailBrushes = DEFAULT_DETAIL; // "-nodetail"
 char*           g_progressfile = DEFAULT_PROGRESSFILE; // "-progressfile path"
 #endif
 
-#ifdef HLBSP_REMOVEHULL2
 bool g_nohull2 = false;
-#endif
 
 #ifdef HLBSP_VIEWPORTAL
 bool g_viewportal = false;
@@ -1109,10 +1107,8 @@ static surfchain_t* ReadSurfs(FILE* file)
     // read in the polygons
     while (1)
     {
-#ifdef HLBSP_REMOVEHULL2
 		if (file == polyfiles[2] && g_nohull2)
 			break;
-#endif
         line++;
 #ifdef ZHLT_DETAILBRUSH
         r = fscanf(file, "%i %i %i %i %i\n", &detaillevel, &planenum, &g_texinfo, &contents, &numpoints);
@@ -1219,10 +1215,8 @@ static brush_t *ReadBrushes (FILE *file)
 	brush_t *brushes = NULL;
 	while (1)
 	{
-#ifdef HLBSP_REMOVEHULL2
 		if (file == brushfiles[2] && g_nohull2)
 			break;
-#endif
 		int r;
 		int brushinfo;
 		r = fscanf (file, "%i\n", &brushinfo);
@@ -1620,9 +1614,7 @@ static void     Usage()
     Log("    -nodetail      : don't handle detail brushes\n");
 #endif
 
-#ifdef HLBSP_REMOVEHULL2
 	Log("    -nohull2       : Don't generate hull 2 (the clipping hull for large monsters and pushables)\n");
-#endif
 
 #ifdef HLBSP_VIEWPORTAL
 	Log("    -viewportal    : Show portal boundaries in 'mapname_portal.pts' file\n");
@@ -1704,9 +1696,7 @@ static void     Settings()
         g_subdivide_size, DEFAULT_SUBDIVIDE_SIZE, MIN_SUBDIVIDE_SIZE, MAX_SUBDIVIDE_SIZE);
     Log("max node size       [ %7d ] [ %7d ] (Min %d) (Max %d)\n",
         g_maxnode_size, DEFAULT_MAXNODE_SIZE, MIN_MAXNODE_SIZE, MAX_MAXNODE_SIZE);
-#ifdef HLBSP_REMOVEHULL2
 	Log("remove hull 2       [ %7s ] [ %7s ]\n", g_nohull2? "on": "off", "off");
-#endif
     Log("\n\n");
 }
 
@@ -2029,12 +2019,10 @@ int             main(const int argc, char** argv)
         }
 #endif
 
-#ifdef HLBSP_REMOVEHULL2
 		else if (!strcasecmp (argv[i], "-nohull2"))
 		{
 			g_nohull2 = true;
 		}
-#endif
 
 		else if (!strcasecmp(argv[i], "-noopt"))
 		{

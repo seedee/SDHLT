@@ -491,10 +491,8 @@ node_t*         FillOutside(node_t* node, const bool leakfile, const unsigned hu
         Log("skipped\n");
         return node;
     }
-#ifdef HLBSP_REMOVEHULL2
 	if (hullnum == 2 && g_nohull2)
 		return node;
-#endif
 
     //
     // place markers for all entities so

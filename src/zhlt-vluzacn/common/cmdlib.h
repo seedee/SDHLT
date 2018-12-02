@@ -67,7 +67,6 @@
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
-#define HLBSP_REMOVEHULL2 //--vluzacn
 #define HLCSG_CHART_FIX //--vluzacn
 #define HLCSG_TextureContents_FIX //--vluzacn
 #define HLCSG_KEEPLOG //--vluzacn

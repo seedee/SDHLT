@@ -366,9 +366,7 @@ extern bool g_bDetailBrushes;
 
 extern bool     g_bUseNullTex;
 
-#ifdef HLBSP_REMOVEHULL2
 extern bool		g_nohull2;
-#endif
 
 extern face_t*  NewFaceFromFace(const face_t* const in);
 extern void     SplitFace(face_t* in, const dplane_t* const split, face_t** front, face_t** back);
