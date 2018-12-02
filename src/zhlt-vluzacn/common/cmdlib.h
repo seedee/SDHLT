@@ -72,10 +72,7 @@
 
 
 
-#define HLRAD_RGBTRANSFIX //--vluzacn
-	#ifdef HLRAD_RGBTRANSFIX
 #define HLRAD_TRANSWEIRDFIX //--vluzacn
-	#endif
 #define HLRAD_MDL_LIGHT_HACK //--vluzacn
 #define HLRAD_MINLIGHT //--vluzacn
 #define HLRAD_FinalLightFace_VL // Compensate for engine's bug of no gamma correction when adding dynamic light styles together. --vluzacn

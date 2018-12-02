@@ -860,7 +860,6 @@ void            MakeRGBScales(const int threadnum)
 			}
 #endif
 
-#ifdef HLRAD_RGBTRANSFIX
 #ifdef HLRAD_ACCURATEBOUNCE
 			if (trans_one <= 0.0)
 			{
@@ -880,43 +879,6 @@ void            MakeRGBScales(const int threadnum)
 					VectorMultiply(trans, transparency, trans);
 				}
 #endif /*HLRAD_TRANSWEIRDFIX*/
-#else /*HLRAD_RGBTRANSFIX*/
-#ifdef HLRAD_ACCURATEBOUNCE
-            if (VectorAvg(trans) <= 0.0)
-			{
-				continue;
-			}
-#else
-            if (VectorAvg(trans) >= 0)
-#endif
-            {
-            	/////////////////////////////////////////RED
-                send = trans[0] * patch2->area;
-                // Caps light from getting weird
-                if (send > 0.4f) 
-                {
-                    trans[0] = 0.4f / patch2->area;
-                    send = 0.4f;
-                }
-                
-            	/////////////////////////////////////////GREEN
-                send = trans[1] * patch2->area;
-                // Caps light from getting weird
-                if (send > 0.4f) 
-                {
-                    trans[1] = 0.4f / patch2->area;
-                    send = 0.4f;
-                }
-
-            	/////////////////////////////////////////BLUE
-                send = trans[2] * patch2->area;
-                // Caps light from getting weird
-                if (send > 0.4f) 
-                {
-                    trans[2] = 0.4f / patch2->area;
-                    send = 0.4f;
-                }
-#endif /*HLRAD_RGBTRANSFIX*/
 
 #ifdef HLRAD_TRANSFERDATA_COMPRESS
                 VectorScale(trans, patch2 -> area, trans);
