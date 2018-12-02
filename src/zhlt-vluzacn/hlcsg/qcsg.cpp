@@ -1629,12 +1629,6 @@ static void     CheckForNoClip()
 // =====================================================================================
 //  ProcessModels
 // =====================================================================================
-#ifndef HLCSG_SORTBRUSH_FIX
-#define NUM_TYPECONTENTS    5 // AJM: should reflect the number of values below
-int typecontents[NUM_TYPECONTENTS] = { 
-    CONTENTS_WATER, CONTENTS_SLIME, CONTENTS_LAVA, CONTENTS_SKY, CONTENTS_HINT 
-};
-#endif
 
 
 static void     ProcessModels()
@@ -1687,7 +1681,6 @@ static void     ProcessModels()
 		}
 		free (temps);
 #else
-#ifdef HLCSG_SORTBRUSH_FIX
         placed = 0;
 		while (placed < g_entities[i].numbrushes)
 		{
@@ -1713,24 +1706,6 @@ static void     ProcessModels()
 				}
 			}
 		}
-#else
-        placed = 0;
-        for (type = 0; type < NUM_TYPECONTENTS; type++)                 // for each of the contents types
-        {
-            contents = typecontents[type];
-            for (j = placed + 1; j < g_entities[i].numbrushes; j++)     // for each of the model's brushes
-            {
-                // if this brush is of the contents type in this for iteration
-                if (g_mapbrushes[first + j].contents == contents)       
-                {
-                    temp = g_mapbrushes[first + placed];
-                    g_mapbrushes[first + placed] = g_mapbrushes[j];
-                    g_mapbrushes[j] = temp;
-                    placed++;
-                }
-            }
-        }
-#endif
 #endif
 
         // csg them in order

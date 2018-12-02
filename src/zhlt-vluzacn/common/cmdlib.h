@@ -67,7 +67,6 @@
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
-#define HLCSG_SORTBRUSH_FIX //--vluzacn
 #define HLBSP_REMOVEHULL2 //--vluzacn
 #define HLCSG_CHART_FIX //--vluzacn
 #define HLCSG_TextureContents_FIX //--vluzacn
@@ -93,9 +92,7 @@
 #define HLCSG_HLBSP_CUSTOMBOUNDINGBOX //--vluzacn
 #define HLCSG_HLBSP_VOIDTEXINFO //--vluzacn
 	#ifdef HLCSG_HLBSP_VOIDTEXINFO
-	#ifdef HLCSG_SORTBRUSH_FIX
 #define HLCSG_EMPTYBRUSH //--vluzacn
-	#endif
 	#endif
 	#ifdef HLCSG_EMPTYBRUSH
 #define HLCSG_WATERBACKFACE_FIX // remove this if you have fixed the engine's bug of drawing water backface. --vluzacn
