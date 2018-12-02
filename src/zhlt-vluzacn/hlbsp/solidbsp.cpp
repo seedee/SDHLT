@@ -24,9 +24,7 @@
 
 //  Each node or leaf will have a set of portals that completely enclose
 //  the volume of the node and pass into an adjacent node.
-#ifdef HLBSP_FAST_SELECTPARTITION
 #include <vector>
-#endif
 
 int             g_maxnode_size = DEFAULT_MAXNODE_SIZE;
 
@@ -123,7 +121,6 @@ static int      FaceSide(face_t* in, const dplane_t* const split
 	return SIDE_ON;
 }
 
-#ifdef HLBSP_FAST_SELECTPARTITION
 // organize all surfaces into a tree structure to accelerate intersection test
 // can reduce more than 90% compile time for very complicated maps
 
@@ -390,7 +387,6 @@ void DeleteSurfaceTree (surfacetree_t *tree)
 	free (tree);
 }
 
-#endif
 // =====================================================================================
 //  ChooseMidPlaneFromList
 //      When there are a huge number of planes, just choose one closest
@@ -551,7 +547,6 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 	vec_t           value;
 	dplane_t*       plane;
 	face_t*         f;
-#ifdef HLBSP_FAST_SELECTPARTITION
 	double			planecount;
 	double			totalsplit;
 	double			avesplit;
@@ -563,48 +558,7 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 	totalsplit = 0;
 	tmpvalue = (double (*)[2])malloc (g_numplanes * sizeof (double [2]));
 	surfacetree = BuildSurfaceTree (surfaces, ON_EPSILON);
-#endif
 
-#ifndef HLBSP_FAST_SELECTPARTITION
-	double			avesplit;
-	double			planecount;
-	{
-		planecount = 0;
-		double totalsplit = 0;
-		for (p = surfaces; p; p = p->next)
-		{
-			if (p->onnode)
-			{
-				continue;
-			}
-			if (p->detaillevel != detaillevel)
-			{
-				continue;
-			}
-			planecount++;
-			plane = &g_dplanes[p->planenum];
-			for (p2 = surfaces; p2; p2 = p2->next)
-			{
-				if (p2->onnode || p2 == p)
-				{
-					continue;
-				}
-				for (f = p2->faces; f; f = f->next)
-				{
-					if (f->facestyle == face_discardable)
-					{
-						continue;
-					}
-					if (FaceSide (f, plane) == SIDE_ON)
-					{
-						totalsplit++;
-					}
-				}
-			}
-		}
-		avesplit = (double)totalsplit / (double)planecount;
-	}
-#endif
 	//
 	// pick the plane that splits the least
 	//
@@ -621,9 +575,7 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 		{
 			continue;
 		}
-#ifdef HLBSP_FAST_SELECTPARTITION
 		planecount++;
-#endif
 
 		double crosscount = 0; // use double here because we need to perform "crosscount++"
 		double frontcount = 0;
@@ -641,7 +593,6 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 			}
 			coplanarcount++;
 		}
-#ifdef HLBSP_FAST_SELECTPARTITION
 		TestSurfaceTree (surfacetree, plane);
 		{
 			frontcount += surfacetree->result.frontsize;
@@ -653,16 +604,6 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 				{
 					continue;
 				}
-#else
-		for (p2 = surfaces; p2; p2 = p2->next)
-		{
-			if (p2->onnode || p2 == p)
-			{
-				continue;
-			}
-			for (f = p2->faces; f; f = f->next)
-			{
-#endif
 				if (f->facestyle == face_discardable)
 				{
 					FaceSide (f, plane, &epsilonsplit);
@@ -679,9 +620,7 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 					backcount++;
 					break;
 				case SIDE_ON:
-#ifdef HLBSP_FAST_SELECTPARTITION
 					totalsplit++;
-#endif
 					crosscount++;
 					break;
 				}
@@ -698,27 +637,11 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 		// (2) Factors need not adjust across various maps.
 		double frac = (coplanarcount / 2 + crosscount / 2 + frontcount) / (coplanarcount + frontcount + backcount + crosscount);
 		double ent = (0.0001 < frac && frac < 0.9999)? (- frac * log (frac) / log (2.0) - (1 - frac) * log (1 - frac) / log (2.0)): 0.0; // the formula tends to 0 when frac=0,1
-#ifdef HLBSP_FAST_SELECTPARTITION
 		tmpvalue[p->planenum][1] = crosscount * (1 - ent);
-#else
-		value += crosscount * avesplit * (1 - ent);
-#endif
 		value += epsilonsplit * 10000;
 
-#ifdef HLBSP_FAST_SELECTPARTITION
 		tmpvalue[p->planenum][0] = value;
-#else
-		if (value < bestvalue)
-		{
-			//
-			// currently the best!
-			//
-			bestvalue = value;
-			bestsurface = p;
-		}
-#endif
 	}
-#ifdef HLBSP_FAST_SELECTPARTITION
 	avesplit = totalsplit / planecount;
 	for (p = surfaces; p; p = p->next)
 	{
@@ -737,14 +660,11 @@ static surface_t* ChoosePlaneFromList(surface_t* surfaces, const vec3_t mins, co
 			bestsurface = p;
 		}
 	}
-#endif
 
 	if (!bestsurface)
 		Error("ChoosePlaneFromList: no valid planes");
-#ifdef HLBSP_FAST_SELECTPARTITION
 	free (tmpvalue);
 	DeleteSurfaceTree (surfacetree);
-#endif
 	return bestsurface;
 }
 
