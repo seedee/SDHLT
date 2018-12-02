@@ -116,9 +116,6 @@ char            g_source[_MAX_PATH] = "";
 
 char            g_vismatfile[_MAX_PATH] = "";
 bool            g_incremental = DEFAULT_INCREMENTAL;
-#ifndef HLRAD_WHOME
-float           g_qgamma = DEFAULT_GAMMA;
-#endif
 float           g_indirect_sun = DEFAULT_INDIRECT_SUN;
 bool            g_extra = DEFAULT_EXTRA;
 bool            g_texscale = DEFAULT_TEXSCALE;
@@ -138,7 +135,6 @@ bool			g_allow_spread = DEFAULT_ALLOW_SPREAD;
 
 // --------------------------------------------------------------------------
 // Changes by Adam Foster - afoster@compsoc.man.ac.uk
-#ifdef HLRAD_WHOME
 vec3_t		g_colour_qgamma = { DEFAULT_COLOUR_GAMMA_RED, DEFAULT_COLOUR_GAMMA_GREEN, DEFAULT_COLOUR_GAMMA_BLUE };
 vec3_t		g_colour_lightscale = { DEFAULT_COLOUR_LIGHTSCALE_RED, DEFAULT_COLOUR_LIGHTSCALE_GREEN, DEFAULT_COLOUR_LIGHTSCALE_BLUE };
 vec3_t		g_colour_jitter_hack = { DEFAULT_COLOUR_JITTER_HACK_RED, DEFAULT_COLOUR_JITTER_HACK_GREEN, DEFAULT_COLOUR_JITTER_HACK_BLUE };
@@ -150,7 +146,6 @@ bool		g_spotlight_hack = DEFAULT_SPOTLIGHT_HACK;
 #ifndef HLRAD_CUSTOMTEXLIGHT // no softlight hack
 vec3_t		g_softlight_hack = { DEFAULT_SOFTLIGHT_HACK_RED, DEFAULT_SOFTLIGHT_HACK_GREEN, DEFAULT_SOFTLIGHT_HACK_BLUE };
 float		g_softlight_hack_distance = DEFAULT_SOFTLIGHT_HACK_DISTANCE;
-#endif
 #endif
 // --------------------------------------------------------------------------
 
@@ -3896,11 +3891,7 @@ static void     RadWorld()
     PrecompLightmapOffsets();
 
 #ifdef ZHLT_XASH
-#ifdef HLRAD_WHOME
 	g_directionscale = FindDirectionScale (VectorAvg (g_colour_qgamma));
-#else
-	g_directionscale = FindDirectionScale (g_qgamma);
-#endif
 #endif
 #ifdef HLRAD_GROWSAMPLE
 
@@ -4029,7 +4020,6 @@ static void     Usage()
 
     // ------------------------------------------------------------------------
     // Changes by Adam Foster - afoster@compsoc.man.ac.uk
-#ifdef HLRAD_WHOME
 
     // AJM: we dont need this extra crap
     //Log("-= Unofficial features added by Adam Foster (afoster@compsoc.man.ac.uk) =-\n\n");
@@ -4046,7 +4036,6 @@ static void     Usage()
 #endif
     //Log("-= End of unofficial features! =-\n\n" );
 
-#endif
     // ------------------------------------------------------------------------  
     
 #ifdef HLRAD_HULLU
@@ -4264,7 +4253,6 @@ static void     Settings()
     // ------------------------------------------------------------------------
     // Changes by Adam Foster - afoster@compsoc.man.ac.uk
     // replaces the old stuff for displaying current values for gamma and lightscale
-#ifdef HLRAD_WHOME
     safe_snprintf(buf1, sizeof(buf1), "%1.3f %1.3f %1.3f", g_colour_lightscale[0], g_colour_lightscale[1], g_colour_lightscale[2]);
     safe_snprintf(buf2, sizeof(buf2), "%1.3f %1.3f %1.3f", DEFAULT_COLOUR_LIGHTSCALE_RED, DEFAULT_COLOUR_LIGHTSCALE_GREEN, DEFAULT_COLOUR_LIGHTSCALE_BLUE);
     Log("global light scale   [ %17s ] [ %17s ]\n", buf1, buf2);
@@ -4272,18 +4260,12 @@ static void     Settings()
     safe_snprintf(buf1, sizeof(buf1), "%1.3f %1.3f %1.3f", g_colour_qgamma[0], g_colour_qgamma[1], g_colour_qgamma[2]);
     safe_snprintf(buf2, sizeof(buf2), "%1.3f %1.3f %1.3f", DEFAULT_COLOUR_GAMMA_RED, DEFAULT_COLOUR_GAMMA_GREEN, DEFAULT_COLOUR_GAMMA_BLUE);
     Log("global gamma         [ %17s ] [ %17s ]\n", buf1, buf2);
-#endif
     // ------------------------------------------------------------------------
 
     safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_lightscale);
     safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_LIGHTSCALE);
     Log("global light scale   [ %17s ] [ %17s ]\n", buf1, buf2);
 
-#ifndef HLRAD_WHOME
-    safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_qgamma);
-    safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_GAMMA);
-    Log("global gamma amount  [ %17s ] [ %17s ]\n", buf1, buf2);
-#endif
 
     safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_indirect_sun);
     safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_INDIRECT_SUN);
@@ -4301,7 +4283,6 @@ static void     Settings()
     // ------------------------------------------------------------------------
     // Changes by Adam Foster - afoster@compsoc.man.ac.uk
     // displays information on all the brand-new features :)
-#ifdef HLRAD_WHOME
 
     Log("\n");
     safe_snprintf(buf1, sizeof(buf1), "%3.1f %3.1f %3.1f", g_colour_jitter_hack[0], g_colour_jitter_hack[1], g_colour_jitter_hack[2]);
@@ -4322,7 +4303,6 @@ static void     Settings()
     Log("spotlight points     [ %17s ] [ %17s ]\n", g_spotlight_hack ? "on" : "off", DEFAULT_SPOTLIGHT_HACK ? "on" : "off");
 #endif
 
-#endif
     // ------------------------------------------------------------------------
 
 #ifdef HLRAD_HULLU
@@ -4796,14 +4776,10 @@ int             main(const int argc, char** argv)
              	// ------------------------------------------------------------------------
 		        // Changes by Adam Foster - afoster@compsoc.man.ac.uk
 		        // Munge monochrome lightscale into colour one
-#ifdef HLRAD_WHOME
 	    	    i++;
                 g_colour_lightscale[0] = (float)atof(argv[i]);
 		        g_colour_lightscale[1] = (float)atof(argv[i]);
 		        g_colour_lightscale[2] = (float)atof(argv[i]);
-#else
-                g_lightscale = (float)atof(argv[++i]);
-#endif
 		        // ------------------------------------------------------------------------
             }
             else
@@ -4939,14 +4915,10 @@ int             main(const int argc, char** argv)
             	// ------------------------------------------------------------------------
 		        // Changes by Adam Foster - afoster@compsoc.man.ac.uk
 		        // Munge values from original, monochrome gamma into colour gamma
-#ifdef HLRAD_WHOME
 	    	    i++;
                 g_colour_qgamma[0] = (float)atof(argv[i]);
 		        g_colour_qgamma[1] = (float)atof(argv[i]);
 		        g_colour_qgamma[2] = (float)atof(argv[i]);
-#else
-                g_qgamma = (float)atof(argv[++i]);
-#endif
 		        // ------------------------------------------------------------------------
             }
             else
@@ -5110,7 +5082,6 @@ int             main(const int argc, char** argv)
 
         // ------------------------------------------------------------------------
 	    // Changes by Adam Foster - afoster@compsoc.man.ac.uk
-#ifdef HLRAD_WHOME
         else if (!strcasecmp(argv[i], "-colourgamma"))
         {
         	if (i + 3 < argc)
@@ -5190,7 +5161,6 @@ int             main(const int argc, char** argv)
 				Error("expected three color scalers and a distance after '-softlight'\n");
 			}
         }
-#endif
 #endif
         // ------------------------------------------------------------------------
 
@@ -5593,11 +5563,7 @@ int             main(const int argc, char** argv)
 	{
 		Warning ("dscale value should be 1.0 for final compile.\nIf you need to adjust the bounced light, use the '-texreflectscale' and '-texreflectgamma' options instead.");
 	}
-#ifdef HLRAD_WHOME
 	if (g_colour_lightscale[0] != 2.0 || g_colour_lightscale[1] != 2.0 || g_colour_lightscale[2] != 2.0)
-#else
-	if (g_lightscale != 2.0)
-#endif
 	{
 		Warning ("light scale value should be 2.0 for final compile.\nValues other than 2.0 will result in incorrect interpretation of light_environment's brightness when the engine loads the map.");
 	}

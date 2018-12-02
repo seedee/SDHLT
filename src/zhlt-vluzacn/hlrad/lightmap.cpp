@@ -2945,7 +2945,6 @@ void            CreateDirectLights()
 	        // Changes by Adam Foster - afoster@compsoc.man.ac.uk
 	        // mazemaster's l33t backwards lighting (I still haven't a clue
 	        // what it's supposed to be for) :-)
-#ifdef HLRAD_WHOME
 
 	        if (g_softlight_hack[0] || g_softlight_hack[1] || g_softlight_hack[2]) 
             {
@@ -3010,7 +3009,6 @@ void            CreateDirectLights()
 		        dl->intensity[2] *= g_softlight_hack[2];
 	        }
 
-#endif
 	        // --------------------------------------------------------------
 #endif
         }
@@ -3271,7 +3269,6 @@ void            CreateDirectLights()
 				//
 				// What does _sky do for spotlights, anyway?
 				// -----------------------------------------------------------------------------------
-#ifdef HLRAD_WHOME
 				pLight = ValueForKey(e, "_diffuse_light");
         		r = g = b = scaler = 0;
         		argCnt = sscanf(pLight, "%lf %lf %lf %lf", &r, &g, &b, &scaler);
@@ -3304,7 +3301,6 @@ void            CreateDirectLights()
 					dl->diffuse_intensity[1] = dl->intensity[1];
 					dl->diffuse_intensity[2] = dl->intensity[2];
         		}
-#endif
 				// -----------------------------------------------------------------------------------
 #ifdef HLRAD_SUNDIFFUSE
 				pLight = ValueForKey(e, "_diffuse_light2");
@@ -3508,11 +3504,7 @@ void            CreateDirectLights()
 #endif
 						}
 					}
-			#ifdef HLRAD_WHOME
 					if (g_indirect_sun > 0 && !VectorCompare (dl->diffuse_intensity, vec3_origin))
-			#else
-					if (g_indirect_sun > 0 && !VectorCompare (dl->intensity, vec3_origin))
-			#endif
 					{
 			#ifdef HLRAD_SOFTSKY
 						if (g_softsky)
@@ -4087,11 +4079,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							// check intensity
 							if (g_indirect_sun <= 0.0 ||
 								VectorCompare (
-	#ifdef HLRAD_WHOME
 									l->diffuse_intensity,
-	#else
-									l->intensity,
-	#endif
 									vec3_origin)
 	#ifdef HLRAD_SUNDIFFUSE
 								&& VectorCompare (l->diffuse_intensity2, vec3_origin)
@@ -4102,11 +4090,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							vec3_t sky_intensity;
 	#ifndef HLRAD_SUNDIFFUSE
 	#ifndef HLRAD_SOFTSKY
-	#ifdef HLRAD_WHOME
 							VectorScale (l->diffuse_intensity, g_indirect_sun / (NUMVERTEXNORMALS * 2), sky_intensity);
-	#else
-							VectorScale (l->intensity, g_indirect_sun / (NUMVERTEXNORMALS * 2), sky_intensity);
-	#endif
 	#endif
 	#endif
 
@@ -4198,11 +4182,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 					#endif
 				#else
 					#ifdef HLRAD_SOFTSKY
-					#ifdef HLRAD_WHOME
 								VectorScale (l->diffuse_intensity, skyweights[j] * g_indirect_sun / 2, sky_intensity);
-					#else
-								VectorScale (l->intensity, skyweights[j] * g_indirect_sun / 2, sky_intensity);
-					#endif
 					#endif
 				#endif
 								vec3_t add_one;
@@ -4803,11 +4783,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 		// -----------------------------------------------------------------------------------
 		// Changes by Adam Foster - afoster@compsoc.man.ac.uk
 		// Instead of using intensity from sky_used->intensity, get it from the new sky_used->diffuse_intensity
-#ifdef HLRAD_WHOME
 		VectorScale(sky_used->diffuse_intensity, g_indirect_sun / (NUMVERTEXNORMALS * 2), sky_intensity);
-#else
-        VectorScale(sky_used->intensity, g_indirect_sun / (NUMVERTEXNORMALS * 2), sky_intensity);
-#endif
 		// That should be it. Who knows - it might actually work!
         // AJM: It DOES actually work. Havent you ever heard of beta testing....
 		// -----------------------------------------------------------------------------------
@@ -8434,9 +8410,7 @@ void            FinalLightFace(const int facenum)
 
     // ------------------------------------------------------------------------
     // Changes by Adam Foster - afoster@compsoc.man.ac.uk
-#ifdef HLRAD_WHOME
     float           temp_rand;
-#endif
     // ------------------------------------------------------------------------
 
     f = &g_dfaces[facenum];
@@ -8640,13 +8614,9 @@ void            FinalLightFace(const int facenum)
             // ------------------------------------------------------------------------
 	        // Changes by Adam Foster - afoster@compsoc.man.ac.uk
 	        // colour lightscale:
-#ifdef HLRAD_WHOME
 	        lb[0] *= g_colour_lightscale[0];
 	        lb[1] *= g_colour_lightscale[1];
 	        lb[2] *= g_colour_lightscale[2];
-#else
-            VectorScale(lb, g_lightscale, lb);
-#endif
             // ------------------------------------------------------------------------
 
             // clip from the bottom first
@@ -8676,7 +8646,6 @@ void            FinalLightFace(const int facenum)
 
 	        // ------------------------------------------------------------------------
 	        // Changes by Adam Foster - afoster@compsoc.man.ac.uk
-#ifdef HLRAD_WHOME
 
             // AJM: your code is formatted really wierd, and i cant understand a damn thing. 
             //      so i reformatted it into a somewhat readable "normal" fashion. :P
@@ -8733,13 +8702,6 @@ void            FinalLightFace(const int facenum)
 		        }
 	        }
 	#endif
-#else
-            if (g_qgamma != 1.0) {
-	            for (i = 0; i < 3; i++) {
-	                lb[i] = (float) pow(lb[i] / 256.0f, g_qgamma) * 256.0f;
-	            }
-	        }
-#endif
 			
 #ifdef HLRAD_PRESERVELIGHTMAPCOLOR
 			// clip from the top
@@ -8803,7 +8765,6 @@ void            FinalLightFace(const int facenum)
 				VectorScale (direction, 1 / avg, direction);
 			}
 	#endif
-	#ifdef HLRAD_WHOME
 			if (k == 0)
 			{
 				if (g_colour_jitter_hack[0] || g_colour_jitter_hack[1] || g_colour_jitter_hack[2]) 
@@ -8816,7 +8777,6 @@ void            FinalLightFace(const int facenum)
 						lbi[i] += g_jitter_hack[i] * temp_rand;
 				}
 			}
-	#endif
 			for (i = 0; i < 3; ++i)
 			{
 				if (lbi[i] < 0) lbi[i] = 0;

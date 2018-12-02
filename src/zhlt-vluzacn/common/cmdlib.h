@@ -71,7 +71,6 @@
 
 
 
-#define HLRAD_WHOME // encompases all of Adam Foster's changes
 #define HLRAD_HULLU // semi-opaque brush based entities and effects by hullu
 
 #define HLRAD_TRANSNONORMALIZE //--vluzacn
@@ -248,9 +247,7 @@
 #define HLRAD_SUNSPREAD //--vluzacn
 	#endif
 	#ifdef HLRAD_MULTISKYLIGHT
-	#ifdef HLRAD_WHOME
 #define HLRAD_SUNDIFFUSE //--vluzacn
-	#endif
 	#endif
 	#ifdef HLRAD_GatherPatchLight
 #define HLRAD_FASTMODE //--vluzacn

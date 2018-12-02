@@ -97,18 +97,8 @@
 // Changes by Adam Foster - afoster@compsoc.man.ac.uk
 
 // superseded by DEFAULT_COLOUR_LIGHTSCALE_*
-#ifndef HLRAD_WHOME
-   #define DEFAULT_LIGHTSCALE          2.0 //1.0 //vluzacn
-#endif
 
 // superseded by DEFAULT_COLOUR_GAMMA_*
-#ifndef HLRAD_WHOME
-#ifdef HLRAD_REFLECTIVITY
-	#define DEFAULT_GAMMA				0.55
-#else
-   #define DEFAULT_GAMMA               0.5
-#endif
-#endif
 // ------------------------------------------------------------------------
 
 #define DEFAULT_INDIRECT_SUN        1.0
@@ -130,7 +120,6 @@
 
 // ------------------------------------------------------------------------
 // Changes by Adam Foster - afoster@compsoc.man.ac.uk
-#ifdef HLRAD_WHOME
 
 #ifdef HLRAD_REFLECTIVITY
 #define DEFAULT_COLOUR_GAMMA_RED		0.55
@@ -166,7 +155,6 @@
 #define DEFAULT_SOFTLIGHT_HACK_DISTANCE 	0.0
 #endif
 
-#endif
 // ------------------------------------------------------------------------
 
 // O_o ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -318,9 +306,7 @@ typedef struct directlight_s
 	// Changes by Adam Foster - afoster@compsoc.man.ac.uk
 	// Diffuse light_environment light colour
 	// Really horrible hack which probably won't work!
-#ifdef HLRAD_WHOME
 	vec3_t			diffuse_intensity;
-#endif
 	// -----------------------------------------------------------------------------------
 #ifdef HLRAD_SUNDIFFUSE
 	vec3_t			diffuse_intensity2;
@@ -775,7 +761,6 @@ extern char*           g_progressfile ;
 
 // ------------------------------------------------------------------------
 // Changes by Adam Foster - afoster@compsoc.man.ac.uk
-#ifdef HLRAD_WHOME
 
 extern vec3_t	g_colour_qgamma;
 extern vec3_t	g_colour_lightscale;
@@ -791,7 +776,6 @@ extern vec3_t	g_softlight_hack;
 extern float	g_softlight_hack_distance;
 #endif
 
-#endif
 // ------------------------------------------------------------------------
 
 
