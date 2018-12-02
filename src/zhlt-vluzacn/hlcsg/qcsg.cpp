@@ -802,19 +802,11 @@ static void     CSGBrush(int brushnum)
         for (bn = 0; bn < e->numbrushes; bn++)
         {
             // see if b2 needs to clip a chunk out of b1
-#ifdef HLCSG_CSGBrush_BRUSHNUM_FIX
 			if (e->firstbrush + bn == brushnum)
 			{
 				continue;
 			}
             overwrite = e->firstbrush + bn > brushnum;
-#else
-            if (bn == brushnum)  
-            {
-                overwrite = true;                          // later brushes now overwrite
-                continue;
-            }
-#endif
 
             b2 = &g_mapbrushes[e->firstbrush + bn];
             bh2 = &b2->hulls[hull];

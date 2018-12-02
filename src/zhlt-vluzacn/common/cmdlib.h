@@ -67,7 +67,6 @@
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
-#define HLCSG_CSGBrush_BRUSHNUM_FIX //--vluzacn
 #define HLBSP_TJUNC_PRECISION_FIX //--vluzacn
 #define HLBSP_BALANCE //--vluzacn
 #define HLBSP_TryMerge_PLANENUM_FIX //--vluzacn
@@ -84,9 +83,7 @@
 //#define HLBSP_SUBDIVIDE_INMID // this may contribute to 'AllocBlock: full' problem though it may generate fewer faces. --vluzacn
 #define HLCSG_HLBSP_SOLIDHINT //--vluzacn
 #define HLCSG_SORTSIDES //--vluzacn
-	#ifdef HLCSG_CSGBrush_BRUSHNUM_FIX
 #define ZHLT_DETAILBRUSH //--vluzacn
-	#endif
 #define HLBSP_VIEWPORTAL //--vluzacn
 #define HLBSP_EDGESHARE_SAMESIDE //--vluzacn
 #define HLBSP_MarkLeakTrail_FIX //--vluzacn
