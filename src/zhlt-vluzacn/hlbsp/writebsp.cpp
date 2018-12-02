@@ -270,12 +270,6 @@ static int		WriteDrawLeaf (node_t *node, const node_t *portalleaf)
 				{
 					ishidden = true;
 				}
-#ifdef ZHLT_HIDDENSOUNDTEXTURE
-				if (f->texturenum >= 0 && (g_texinfo[f->texturenum].flags & TEX_SHOULDHIDE))
-				{
-					ishidden = true;
-				}
-#endif
 			}
 			if (ishidden)
 			{
@@ -920,12 +914,6 @@ void            FinishBSPFile()
 #endif
 	}
 	
-#ifdef ZHLT_HIDDENSOUNDTEXTURE
-	for (int i = 0; i < g_numtexinfo; i++)
-	{
-		g_texinfo[i].flags &= ~TEX_SHOULDHIDE;
-	}
-#endif
 #ifdef PLATFORM_CAN_CALC_EXTENT
 	WriteExtentFile (g_extentfilename);
 #else

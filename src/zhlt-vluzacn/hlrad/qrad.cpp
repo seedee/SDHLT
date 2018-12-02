@@ -1435,25 +1435,6 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 					}
 				}
 			}
-	#ifdef ZHLT_HIDDENSOUNDTEXTURE
-			// if the face is a world face and it's not referenced by any leaf, it must be a hidden face, and shouldn't reflect light
-			if (g_dmodels[0].firstface <= fn && fn < g_dmodels[0].firstface + g_dmodels[0].numfaces)
-			{
-				bool found = false;
-				for (int x = 0; x < g_nummarksurfaces; x++)
-				{
-					if (g_dmarksurfaces[x] == fn)
-					{
-						found = true;
-						break;
-					}
-				}
-				if (!found)
-				{
-					opacity = 0.0;
-				}
-			}
-	#endif
 			VectorScale (patch->texturereflectivity, opacity, patch->bouncereflectivity);
 		}
 		patch->bouncestyle = bouncestyle;

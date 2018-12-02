@@ -722,9 +722,6 @@ void            WriteMiptex()
 //  TexinfoForBrushTexture
 // =====================================================================================
 int             TexinfoForBrushTexture(const plane_t* const plane, brush_texture_t* bt, const vec3_t origin
-#ifdef ZHLT_HIDDENSOUNDTEXTURE
-					, bool shouldhide
-#endif
 					)
 {
     vec3_t          vecs[2];
@@ -760,12 +757,6 @@ int             TexinfoForBrushTexture(const plane_t* const plane, brush_texture
 		// actually only 'sky' and 'aaatrigger' needs this. --vluzacn
         tx.flags |= TEX_SPECIAL;
     }
-#ifdef ZHLT_HIDDENSOUNDTEXTURE
-	if (shouldhide)
-	{
-		tx.flags |= TEX_SHOULDHIDE;
-	}
-#endif
 
     if (bt->txcommand)
     {

@@ -238,9 +238,6 @@ static void ParseBrush(entity_t* mapent)
         b->numsides++;
 
 		side->bevel = false;
-#ifdef ZHLT_HIDDENSOUNDTEXTURE
-		side->shouldhide = false;
-#endif
         // read the three point plane definition
         for (i = 0; i < 3; i++)
         {
@@ -946,20 +943,6 @@ bool            ParseMapEntity()
 		|| !strcmp("func_detail", ValueForKey (mapent, "classname"))
 		)
     {
-#ifdef ZHLT_HIDDENSOUNDTEXTURE
-		if (IntForKey (mapent,"zhlt_hidden"))
-		{
-			for (int i = 0; i < mapent->numbrushes; i++)
-			{
-				brush_t *b = &g_mapbrushes[mapent->firstbrush + i];
-				for (int j = 0; j < b->numsides; j++)
-				{
-					side_t *s = &g_brushsides[b->firstside + j];
-					s->shouldhide = true;
-				}
-			}
-		}
-#endif
         // this is pretty gross, because the brushes are expected to be
         // in linear order for each entity
         brush_t*        temp;

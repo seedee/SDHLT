@@ -887,9 +887,6 @@ bool            MakeBrushPlanes(brush_t* b)
         f->next = b->hulls[0].faces;
         b->hulls[0].faces = f;
         f->texinfo = g_onlyents ? 0 : TexinfoForBrushTexture(f->plane, &s->td, origin
-#ifdef ZHLT_HIDDENSOUNDTEXTURE
-						, s->shouldhide
-#endif
 						);
 		f->bevel = b->bevel || s->bevel;
     }

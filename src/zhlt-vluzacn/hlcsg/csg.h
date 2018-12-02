@@ -117,9 +117,6 @@ typedef struct side_s
 {
     brush_texture_t td;
 	bool			bevel;
-#ifdef ZHLT_HIDDENSOUNDTEXTURE
-	bool			shouldhide;
-#endif
     vec_t           planepts[3][3];
 } side_t;
 
@@ -241,9 +238,6 @@ extern std::deque< std::string > g_WadInclude;  // List of substrings to wadincl
 
 extern void     WriteMiptex();
 extern int      TexinfoForBrushTexture(const plane_t* const plane, brush_texture_t* bt, const vec3_t origin
-#ifdef ZHLT_HIDDENSOUNDTEXTURE
-					, bool shouldhide
-#endif
 					);
 extern const char *GetTextureByNumber_CSG(int texturenumber);
 

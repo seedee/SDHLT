@@ -244,9 +244,6 @@ typedef struct texinfo_s
 texinfo_t;
 
 #define TEX_SPECIAL     1                                  // sky or slime or null, no lightmap or 256 subdivision
-#ifdef ZHLT_HIDDENSOUNDTEXTURE
-#define TEX_SHOULDHIDE  16384 // this flag is temporary; it might be set after CSG, but will be dropped after BSP
-#endif
 
 // note that edge 0 is never used, because negative edge nums are used for
 // counterclockwise use of the edge in a face
