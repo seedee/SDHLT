@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_FARPATCH_FIX //--vluzacn
 #define HLRAD_TRANSPARENCY_FAST //--vluzacn
 
 #if defined (ZHLT_XASH) || defined (ZHLT_XASH2)

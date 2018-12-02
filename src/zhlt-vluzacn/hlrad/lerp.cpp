@@ -1095,7 +1095,6 @@ static bool TestLineSegmentIntersectWall (const facetriangulation_t *facetrian, 
 
 	return false;
 }
-#ifdef HLRAD_FARPATCH_FIX
 
 static bool TestFarPatch (const localtriangulation_t *lt, const vec3_t p2, const Winding &p2winding)
 {
@@ -1132,7 +1131,6 @@ static bool TestFarPatch (const localtriangulation_t *lt, const vec3_t p2, const
 
 	return dist > 1.4 * (size1 + size2);
 }
-#endif
 
 #define TRIANGLE_SHAPE_THRESHOLD (115.0*Q_PI/180)
 // If one of the angles in a triangle exceeds this threshold, the most distant point will be removed or the triangle will break into a convex-type wedge.
@@ -1177,12 +1175,10 @@ static void GatherPatches (localtriangulation_t *lt, const facetriangulation_t *
 			{
 				continue;
 			}
-#ifdef HLRAD_FARPATCH_FIX
 			if (TestFarPatch (lt, v, *patch2->winding))
 			{
 				continue;
 			}
-#endif
 
 			// Store the adapted position of the patch
 			if (!CalcAdaptedSpot (lt, v, facenum2, point.leftspot))
