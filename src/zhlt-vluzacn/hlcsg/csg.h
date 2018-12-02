@@ -60,9 +60,7 @@
 #ifdef ZHLT_PROGRESSFILE // AJM
 #define DEFAULT_PROGRESSFILE NULL // progress file is only used if g_progressfile is non-null
 #endif
-#ifdef HLCSG_SCALESIZE
 #define DEFAULT_SCALESIZE -1.0 //dont scale
-#endif
 #ifdef HLCSG_KEEPLOG
 #define DEFAULT_RESETLOG true
 #endif
@@ -322,9 +320,7 @@ extern const char*	GetClipTypeString(cliptype);
 #ifdef ZHLT_PROGRESSFILE // AJM
 extern char*    g_progressfile ;
 #endif
-#ifdef HLCSG_SCALESIZE
 extern vec_t g_scalesize;
-#endif
 #ifdef HLCSG_KEEPLOG
 extern bool g_resetlog;
 #endif

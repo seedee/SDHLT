@@ -69,9 +69,7 @@ bool            g_bDetailBrushes = DEFAULT_DETAIL; // "-detail"
 #ifdef ZHLT_PROGRESSFILE // AJM
 char*           g_progressfile = DEFAULT_PROGRESSFILE; // "-progressfile path"
 #endif
-#ifdef HLCSG_SCALESIZE
 vec_t g_scalesize = DEFAULT_SCALESIZE;
-#endif
 #ifdef HLCSG_KEEPLOG
 bool g_resetlog = DEFAULT_RESETLOG;
 #endif
@@ -1902,9 +1900,7 @@ static void     Usage()
 
     Log("    -wadautodetect   : Force auto-detection of wadfiles\n");
 
-#ifdef HLCSG_SCALESIZE
 	Log("    -scale #         : Scale the world. Use at your own risk.\n");
-#endif
     Log("    mapfile          : The mapfile to compile\n\n");
 
     exit(1);
@@ -2020,7 +2016,6 @@ static void     Settings()
         safe_snprintf(default_brush_union, sizeof(default_brush_union), "%3.3f", DEFAULT_BRUSH_UNION_THRESHOLD);
         Log("brush union threshold [ %7s ] [ %7s ]\n", brush_union, default_brush_union);
     }
-#ifdef HLCSG_SCALESIZE
     {
         char            buf1[10];
         char            buf2[10];
@@ -2035,7 +2030,6 @@ static void     Settings()
 			strcpy (buf2, "None");
         Log("map scaling           [ %7s ] [ %7s ]\n", buf1, buf2);
     }
-#endif
 #ifdef HLCSG_OPTIMIZELIGHTENTITY
     Log("light name optimize   [ %7s ] [ %7s ]\n", !g_nolightopt? "on" : "off", !DEFAULT_NOLIGHTOPT? "on" : "off");
 #endif
@@ -2364,7 +2358,6 @@ int             main(const int argc, char** argv)
 				Usage ();
 			}
 		}
-#ifdef HLCSG_SCALESIZE
         else if (!strcasecmp(argv[i], "-scale"))
         {
             if (i + 1 < argc)
@@ -2376,7 +2369,6 @@ int             main(const int argc, char** argv)
                 Usage();
             }
         }
-#endif
 		else if (!strcasecmp (argv[i], "-lang"))
 		{
 			if (i + 1 < argc)

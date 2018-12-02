@@ -816,7 +816,6 @@ bool            ParseMapEntity()
 		mapent->numbrushes = 0;
 	}
 #endif
-#ifdef HLCSG_SCALESIZE
 #ifdef HLCSG_HULLBRUSH
 	if (strcmp (ValueForKey (mapent, "classname"), "info_hullshape")) // info_hullshape is not affected by '-scale'
 #endif
@@ -1027,7 +1026,6 @@ bool            ParseMapEntity()
 			}
 		}
 	}
-#endif
 
 
 #ifndef HLCSG_HLBSP_ALLOWEMPTYENTITY
