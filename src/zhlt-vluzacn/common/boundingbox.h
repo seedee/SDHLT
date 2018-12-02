@@ -28,21 +28,12 @@ public:
     // Tests if other box is completely outside of this box
     bool testDisjoint(const BoundingBox& other) const
     {
-#ifdef ZHLT_BOUNDINGBOX_PRECISION_FIX
         if ((m_Mins[0] > other.m_Maxs[0] + ON_EPSILON) ||
             (m_Mins[1] > other.m_Maxs[1] + ON_EPSILON) ||
             (m_Mins[2] > other.m_Maxs[2] + ON_EPSILON) ||
             (m_Maxs[0] < other.m_Mins[0] - ON_EPSILON) ||
             (m_Maxs[1] < other.m_Mins[1] - ON_EPSILON) ||
             (m_Maxs[2] < other.m_Mins[2] - ON_EPSILON))
-#else
-        if ((m_Mins[0] > other.m_Maxs[0]) ||
-            (m_Mins[1] > other.m_Maxs[1]) ||
-            (m_Mins[2] > other.m_Maxs[2]) ||
-            (m_Maxs[0] < other.m_Mins[0]) ||
-            (m_Maxs[1] < other.m_Mins[1]) ||
-            (m_Maxs[2] < other.m_Mins[2]))
-#endif
         {
             return true;
         }

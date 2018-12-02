@@ -50,7 +50,6 @@
 //#define ZHLT_DETAIL                         // HLCSG, HLBSP - detail brushes     //should never turn on
 //#define ZHLT_PROGRESSFILE                   // ALL TOOLS - estimate progress reporting to -progressfile //should never turn on
 //#define ZHLT_NSBOB //should never turn on
-#define ZHLT_BOUNDINGBOX_PRECISION_FIX //--vluzacn
 #define ZHLT_ENTITY_LIGHTSURFACE //--vluzacn
 #define ZHLT_CHART_AllocBlock //--vluzacn
 #define ZHLT_TEXNAME_CHARSET //--vluzacn
