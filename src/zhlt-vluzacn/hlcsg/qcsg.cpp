@@ -1583,7 +1583,6 @@ static void     ProcessModels()
 
         // sort the contents down so stone bites water, etc
         first = g_entities[i].firstbrush;
-#ifdef HLCSG_SORTBRUSH_KEEPORDER
 		brush_t *temps = (brush_t *)malloc (g_entities[i].numbrushes * sizeof (brush_t));
 		hlassume (temps, assume_NoMemory);
 		for (j = 0; j < g_entities[i].numbrushes; j++)
@@ -1618,33 +1617,6 @@ static void     ProcessModels()
 			placedcontents = contents;
 		}
 		free (temps);
-#else
-        placed = 0;
-		while (placed < g_entities[i].numbrushes)
-		{
-			for (j = placed; j < g_entities[i].numbrushes; j++)
-			{
-				if (j == placed)
-				{
-					contents = g_mapbrushes[first + j].contents;
-				}
-				else
-				{
-					contents = qmin(g_mapbrushes[first + j].contents, contents);
-				}
-			}
-			for (j = placed; j < g_entities[i].numbrushes; j++)
-			{
-				if (g_mapbrushes[first + j].contents == contents)
-				{
-					temp = g_mapbrushes[first + placed];
-					g_mapbrushes[first + placed] = g_mapbrushes[first + j];
-					g_mapbrushes[first + j] = temp;
-					placed++;
-				}
-			}
-		}
-#endif
 
         // csg them in order
         if (i == 0) // if its worldspawn....
