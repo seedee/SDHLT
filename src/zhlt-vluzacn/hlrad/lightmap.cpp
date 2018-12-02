@@ -2078,13 +2078,11 @@ void            CreateDirectLights()
 			{
 				dl->topatch = true;
 			}
-#ifdef HLRAD_TEXLIGHT_SPOTS_FIX
 			dl->patch_area = p->area;
 	#ifdef HLRAD_ACCURATEBOUNCE_TEXLIGHT
 			dl->patch_emitter_range = p->emitter_range;
 			dl->patch = p;
 	#endif
-#endif
 #ifdef HLRAD_TEXLIGHTGAP
 			dl->texlightgap = g_texlightgap;
 			if (g_face_texlights[p->faceNumber] && *ValueForKey (g_face_texlights[p->faceNumber], "_texlightgap"))
@@ -3272,7 +3270,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							}
 	#endif
 							
-#ifdef HLRAD_TEXLIGHT_SPOTS_FIX
 							// analogous to the one in MakeScales
 							// 0.4f is tested to be able to fully eliminate bright spots
 							if (ratio * l->patch_area > 0.4f)
@@ -3331,7 +3328,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							}
 		#endif
 	#endif
-#endif
                             VectorScale(l->intensity, ratio, add);
                             break;
                         }

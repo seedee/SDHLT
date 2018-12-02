@@ -72,14 +72,11 @@
 
 
 
-#define HLRAD_TEXLIGHT_SPOTS_FIX //--vluzacn
 #define HLRAD_BOUNCE_STYLE //--vluzacn
 #define HLRAD_BLUR //--vluzacn
 #define HLRAD_ACCURATEBOUNCE //--vluzacn
-	#ifdef HLRAD_TEXLIGHT_SPOTS_FIX
 	#ifdef HLRAD_ACCURATEBOUNCE
 #define HLRAD_ACCURATEBOUNCE_TEXLIGHT // note: this reduces the compile time in '-extra' mode //--vluzacn
-	#endif
 	#endif
 #define HLRAD_ACCURATEBOUNCE_SAMPLELIGHT //--vluzacn
 	#ifdef HLRAD_ACCURATEBOUNCE_TEXLIGHT
