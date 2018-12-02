@@ -72,10 +72,7 @@
 
 
 
-#define HLRAD_STYLE_CORING //--vluzacn
-	#ifdef HLRAD_STYLE_CORING
 #define HLRAD_OPAQUE_STYLE //--vluzacn
-	#endif
 #define HLRAD_CheckVisBitNoVismatrix_NOSWAP //--vluzacn
 	#ifdef HLRAD_OPAQUE_STYLE
 	#ifdef HLRAD_CheckVisBitNoVismatrix_NOSWAP
@@ -182,10 +179,8 @@
 	#endif
 	#endif
 #define HLRAD_REDUCELIGHTMAP //--vluzacn
-	#ifdef HLRAD_STYLE_CORING
 	#ifdef HLRAD_REDUCELIGHTMAP
 #define HLRAD_AUTOCORING //--vluzacn
-	#endif
 	#endif
 #define HLRAD_OPAQUEINSKY_FIX //--vluzacn
 	#ifdef HLRAD_SOFTSKY

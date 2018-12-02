@@ -204,9 +204,7 @@ unsigned        g_max_opaque_face_count = 0;               // Current array maxi
 opaqueGroup_t	g_opaque_group_list[MAX_OPAQUE_GROUP_COUNT];
 unsigned		g_opaque_group_count = 0;
 #endif
-#ifdef HLRAD_STYLE_CORING
 vec_t			g_corings[ALLSTYLES];
-#endif
 #ifdef HLRAD_TRANSLUCENT
 vec3_t*			g_translucenttextures = NULL;
 vec_t			g_translucentdepth = DEFAULT_TRANSLUCENTDEPTH;
@@ -1690,13 +1688,11 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 			style = IntForKey (g_face_texlights[fn], "style");
 			if (style < 0)
 				style = -style;
-#ifdef HLRAD_STYLE_CORING
 			style = (unsigned char)style;
 			if (style >= ALLSTYLES)
 			{
 				Error ("invalid light style: style (%d) >= ALLSTYLES (%d)", style, ALLSTYLES);
 			}
-#endif
 		}
 #endif
         patch_t*        patch;
@@ -2119,13 +2115,11 @@ static void		LoadOpaqueEntities()
 						opaquestyle = IntForKey (lightent, "style");
 						if (opaquestyle < 0)
 							opaquestyle = -opaquestyle;
-	#ifdef HLRAD_STYLE_CORING
 						opaquestyle = (unsigned char)opaquestyle;
 						if (opaquestyle >= ALLSTYLES)
 						{
 							Error ("invalid light style: style (%d) >= ALLSTYLES (%d)", opaquestyle, ALLSTYLES);
 						}
-	#endif
 						break;
 					}
 				}
@@ -2382,13 +2376,11 @@ static void     MakePatches()
 			style = 0;
 		}
         //LRC (ends)
-	#ifdef HLRAD_STYLE_CORING
 		style = (unsigned char)style;
 		if (style >= ALLSTYLES)
 		{
 			Error ("invalid light style: style (%d) >= ALLSTYLES (%d)", style, ALLSTYLES);
 		}
-	#endif
 #ifndef HLRAD_OPAQUE_NODE
 #ifdef HLRAD_OPAQUE_STYLE
 		int opaquestyle = -1;
@@ -2402,13 +2394,11 @@ static void     MakePatches()
 				opaquestyle = IntForKey (lightent, "style");
 				if (opaquestyle < 0)
 					opaquestyle = -opaquestyle;
-	#ifdef HLRAD_STYLE_CORING
 				opaquestyle = (unsigned char)opaquestyle;
 				if (opaquestyle >= ALLSTYLES)
 				{
 					Error ("invalid light style: style (%d) >= ALLSTYLES (%d)", opaquestyle, ALLSTYLES);
 				}
-	#endif
 				break;
 			}
 		}
@@ -2428,13 +2418,11 @@ static void     MakePatches()
 					bouncestyle = IntForKey (lightent, "style");
 					if (bouncestyle < 0)
 						bouncestyle = -bouncestyle;
-	#ifdef HLRAD_STYLE_CORING
 					bouncestyle = (unsigned char)bouncestyle;
 					if (bouncestyle >= ALLSTYLES)
 					{
 						Error ("invalid light style: style (%d) >= ALLSTYLES (%d)", bouncestyle, ALLSTYLES);
 					}
-	#endif
 					break;
 				}
 			}
@@ -2702,7 +2690,6 @@ static void     GatherLight(int threadnum)
     transfer_data_t* tData;
     transfer_index_t* tIndex;
 	float f;
-#ifdef HLRAD_STYLE_CORING
 #ifndef HLRAD_AUTOCORING
 	int				style_index;
 #endif
@@ -2711,7 +2698,6 @@ static void     GatherLight(int threadnum)
 	vec3_t			adds_direction[ALLSTYLES];
 #endif
 	int				style;
-#endif
 #ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 	unsigned int	fastfind_index = 0;
 #endif
@@ -2723,11 +2709,9 @@ static void     GatherLight(int threadnum)
         {
             break;
         }
-#ifdef HLRAD_STYLE_CORING
 		memset (adds, 0, ALLSTYLES * sizeof(vec3_t));
 #ifdef ZHLT_XASH
 		memset (adds_direction, 0, ALLSTYLES * sizeof (vec3_t));
-#endif
 #endif
 
         patch = &g_patches[j];
@@ -2834,7 +2818,6 @@ static void     GatherLight(int threadnum)
 #endif
 				for (emitstyle = 0; emitstyle < MAXLIGHTMAPS && emitpatch->totalstyle[emitstyle] != 255; emitstyle++)
 				{
-#ifdef HLRAD_STYLE_CORING
 					VectorScale(emitlight[patchnum][emitstyle], f, v);
 	#ifdef HLRAD_REFLECTIVITY
 					VectorMultiply(v, emitpatch->bouncereflectivity, v);
@@ -2877,52 +2860,6 @@ static void     GatherLight(int threadnum)
 						Verbose("GatherLight, v (%4.3f %4.3f %4.3f)@(%4.3f %4.3f %4.3f)\n",
 							v[0], v[1], v[2], patch->origin[0], patch->origin[1], patch->origin[2]);
 					}
-#else
-					// find the matching style on this (destination) patch
-					for (m = 0; m < MAXLIGHTMAPS && patch->totalstyle[m] != 255; m++)
-					{
-						if (patch->totalstyle[m] == emitpatch->totalstyle[emitstyle])
-						{
-							break;
-						}
-					}
-
-					if (m == MAXLIGHTMAPS)
-					{
-#ifdef HLRAD_READABLE_EXCEEDSTYLEWARNING
-						if (++stylewarningcount >= stylewarningnext)
-						{
-							stylewarningnext = stylewarningcount * 2;
-							Warning("Too many direct light styles on a face(?,?,?)");
-							Warning(" total %d warnings for too many styles", stylewarningcount);
-						}
-#else
-						Warning("Too many direct light styles on a face(?,?,?)");
-#endif
-					}
-					else
-					{
-						if (patch->totalstyle[m] == 255)
-						{
-							patch->totalstyle[m] = emitpatch->totalstyle[emitstyle];
-//							Log("Granting new style %d to patch at idx %d\n", patch->totalstyle[m], m);
-						}
-						float_decompress (g_transfer_compress_type, tData, &f);
-						VectorScale(emitlight[patchnum][emitstyle], f, v);
-	#ifdef HLRAD_REFLECTIVITY
-						VectorMultiply(v, emitpatch->bouncereflectivity, v);
-	#endif
-						if (isPointFinite(v))
-						{
-							VectorAdd(addlight[j][m], v, addlight[j][m]);
-						}
-						else
-						{
-							Verbose("GatherLight, v (%4.3f %4.3f %4.3f)@(%4.3f %4.3f %4.3f)\n",
-								v[0], v[1], v[2], patch->origin[0], patch->origin[1], patch->origin[2]);
-						}
-					}
-#endif
 				}
                 //LRC (ends)
             }
@@ -2982,7 +2919,6 @@ static void     GatherLight(int threadnum)
 		}
 #else
         //LRC        VectorCopy(sum, addlight[j]);
-#ifdef HLRAD_STYLE_CORING
 		for (style = 0; style < ALLSTYLES; ++style)
 		{
 			if (VectorMaximum(adds[style]) > g_corings[style] * BOUNCE_CORING_SCALE)
@@ -3019,7 +2955,6 @@ static void     GatherLight(int threadnum)
 			}
 		}
 #endif
-#endif
     }
 }
 
@@ -3036,7 +2971,6 @@ static void     GatherRGBLight(int threadnum)
     rgb_transfer_data_t* tRGBData;
     transfer_index_t* tIndex;
 	float f[3];
-#ifdef HLRAD_STYLE_CORING
 #ifndef HLRAD_AUTOCORING
 	int				style_index;
 #endif
@@ -3045,7 +2979,6 @@ static void     GatherRGBLight(int threadnum)
 	vec3_t			adds_direction[ALLSTYLES];
 #endif
 	int				style;
-#endif
 #ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 	unsigned int	fastfind_index = 0;
 #endif
@@ -3057,11 +2990,9 @@ static void     GatherRGBLight(int threadnum)
         {
             break;
         }
-#ifdef HLRAD_STYLE_CORING
 		memset (adds, 0, ALLSTYLES * sizeof(vec3_t));
 #ifdef ZHLT_XASH
 		memset (adds_direction, 0, ALLSTYLES * sizeof (vec3_t));
-#endif
 #endif
 
         patch = &g_patches[j];
@@ -3167,7 +3098,6 @@ static void     GatherRGBLight(int threadnum)
 #endif
 				for (emitstyle = 0; emitstyle < MAXLIGHTMAPS && emitpatch->totalstyle[emitstyle] != 255; emitstyle++)
 				{
-#ifdef HLRAD_STYLE_CORING
 					VectorMultiply(emitlight[patchnum][emitstyle], f, v);
 	#ifdef HLRAD_REFLECTIVITY
 					VectorMultiply(v, emitpatch->bouncereflectivity, v);
@@ -3210,52 +3140,6 @@ static void     GatherRGBLight(int threadnum)
 						Verbose("GatherLight, v (%4.3f %4.3f %4.3f)@(%4.3f %4.3f %4.3f)\n",
 							v[0], v[1], v[2], patch->origin[0], patch->origin[1], patch->origin[2]);
 					}
-#else
-					// find the matching style on this (destination) patch
-					for (m = 0; m < MAXLIGHTMAPS && patch->totalstyle[m] != 255; m++)
-					{
-						if (patch->totalstyle[m] == emitpatch->totalstyle[emitstyle])
-						{
-							break;
-						}
-					}
-
-					if (m == MAXLIGHTMAPS)
-					{
-#ifdef HLRAD_READABLE_EXCEEDSTYLEWARNING
-						if (++stylewarningcount >= stylewarningnext)
-						{
-							stylewarningnext = stylewarningcount * 2;
-							Warning("Too many direct light styles on a face(?,?,?)");
-							Warning(" total %d warnings for too many styles", stylewarningcount);
-						}
-#else
-						Warning("Too many direct light styles on a face(?,?,?)");
-#endif
-					}
-					else
-					{
-						if (patch->totalstyle[m] == 255)
-						{
-							patch->totalstyle[m] = emitpatch->totalstyle[emitstyle];
-//							Log("Granting new style %d to patch at idx %d\n", patch->totalstyle[m], m);
-						}
-						vector_decompress (g_rgbtransfer_compress_type, tRGBData, &f[0], &f[1], &f[2]);
-						VectorMultiply(emitlight[patchnum][emitstyle], f, v);
-	#ifdef HLRAD_REFLECTIVITY
-						VectorMultiply(v, emitpatch->bouncereflectivity, v);
-	#endif
-						if (isPointFinite(v))
-						{
-							VectorAdd(addlight[j][m], v, addlight[j][m]);
-						}
-						else
-						{
-							Verbose("GatherLight, v (%4.3f %4.3f %4.3f)@(%4.3f %4.3f %4.3f)\n",
-								v[0], v[1], v[2], patch->origin[0], patch->origin[1], patch->origin[2]);
-						}
-					}
-#endif
 				}
                 //LRC (ends)
             }
@@ -3315,7 +3199,6 @@ static void     GatherRGBLight(int threadnum)
 		}
 #else
         //LRC        VectorCopy(sum, addlight[j]);
-#ifdef HLRAD_STYLE_CORING
 		for (style = 0; style < ALLSTYLES; ++style)
 		{
 			if (VectorMaximum(adds[style]) > g_corings[style] * BOUNCE_CORING_SCALE)
@@ -3351,7 +3234,6 @@ static void     GatherRGBLight(int threadnum)
 				}
 			}
 		}
-#endif
 #endif
     }
 }
@@ -5367,7 +5249,6 @@ int             main(const int argc, char** argv)
 #ifdef HLRAD_CUSTOMSMOOTH
     g_smoothing_threshold_2 = g_smoothing_value_2 < 0 ? g_smoothing_threshold : (float)cos(g_smoothing_value_2 * (Q_PI / 180.0));
 #endif
-#ifdef HLRAD_STYLE_CORING
 	{
 		int style;
 		for (style = 0; style < ALLSTYLES; ++style)
@@ -5375,7 +5256,6 @@ int             main(const int argc, char** argv)
 			g_corings[style] = style? g_coring: 0;
 		}
 	}
-#endif
 #ifdef HLRAD_ARG_MISC
 	if (g_direct_scale != 1.0)
 	{

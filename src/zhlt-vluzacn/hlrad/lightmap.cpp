@@ -3014,7 +3014,6 @@ void            CreateDirectLights()
         name = ValueForKey(e, "classname");
         if (strncmp(name, "light", 5))
             continue;
-#ifdef HLRAD_STYLE_CORING
 		{
 			int style = IntForKey (e, "style");
 			if (style < 0)
@@ -3027,7 +3026,6 @@ void            CreateDirectLights()
 				g_corings[style] = FloatForKey (e, "zhlt_stylecoring");
 			}
 		}
-#endif
 #ifdef HLRAD_OPAQUE_STYLE
 		if (!strcmp (name, "light_shadow")
 	#ifdef HLRAD_BOUNCE_STYLE
@@ -3077,13 +3075,11 @@ void            CreateDirectLights()
         dl->style = IntForKey(e, "style");
         if (dl->style < 0) 
             dl->style = -dl->style; //LRC
-#ifdef HLRAD_STYLE_CORING
 		dl->style = (unsigned char)dl->style;
 		if (dl->style >= ALLSTYLES)
 		{
 			Error ("invalid light style: style (%d) >= ALLSTYLES (%d)", dl->style, ALLSTYLES);
 		}
-#endif
 #ifdef HLRAD_STYLEREPORT
 		if (dl->style >= 0 && dl->style < ALLSTYLES)
 		{
@@ -3816,7 +3812,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 #ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 	vec3_t			testline_origin;
 #endif
-#ifdef HLRAD_STYLE_CORING
 	vec3_t			adds[ALLSTYLES];
 #ifdef ZHLT_XASH
 	vec3_t			adds_direction[ALLSTYLES];
@@ -3825,7 +3820,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 	memset (adds, 0, ALLSTYLES * sizeof(vec3_t));
 #ifdef ZHLT_XASH
 	memset (adds_direction, 0, ALLSTYLES * sizeof (vec3_t));
-#endif
 #endif
 #ifdef HLRAD_DIVERSE_LIGHTING
 	bool			lighting_diversify;
@@ -4553,9 +4547,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                     } // end emit_skylight
 
 #ifndef HLRAD_OPAQUE_STYLE
-#ifndef HLRAD_STYLE_CORING
-                    if (VectorMaximum(add) > (l->style ? g_coring : 0))
-#endif
                     {
                  	    vec3_t transparency = {1.0,1.0,1.0};
 
@@ -4592,7 +4583,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                         //VectorScale(add, l_opacity, add);
 #endif
 
-#ifdef HLRAD_STYLE_CORING
 						if (l->type != emit_skylight)
 						{
 							VectorMultiply (add, transparency, add);
@@ -4608,38 +4598,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 #ifdef ZHLT_XASH
 						VectorAdd (adds_direction[l->style], add_direction, adds_direction[l->style]);
 #endif
-#else
-                        for (style_index = 0; style_index < MAXLIGHTMAPS; style_index++)
-                        {
-                            if (styles[style_index] == l->style || styles[style_index] == 255)
-                            {
-                                break;
-                            }
-                        }
-
-                        if (style_index == MAXLIGHTMAPS)
-                        {
-#ifdef HLRAD_READABLE_EXCEEDSTYLEWARNING
-							if (++stylewarningcount >= stylewarningnext)
-							{
-								stylewarningnext = stylewarningcount * 2;
-								Warning("Too many direct light styles on a face(%f,%f,%f)", pos[0], pos[1], pos[2]);
-								Warning(" total %d warnings for too many styles", stylewarningcount);
-							}
-#else
-                            Warning("Too many direct light styles on a face(%f,%f,%f)", pos[0], pos[1], pos[2]);
-#endif
-                            continue;
-                        }
-
-                        if (styles[style_index] == 255)
-                        {
-                            styles[style_index] = l->style;
-                        }
-
-                        VectorMultiply(add,transparency,add);
-                        VectorAdd(sample[style_index], add, sample[style_index]);
-#endif
                     }
 #endif /*#ifndef HLRAD_OPAQUE_STYLE*/
                 }
@@ -4647,7 +4605,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
         }
     }
 
-#ifdef HLRAD_STYLE_CORING
 	for (style = 0; style < ALLSTYLES; ++style)
 	{
 #ifdef HLRAD_AUTOCORING
@@ -4713,7 +4670,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 		}
 #endif
 	}
-#endif
 }
 
 // =====================================================================================
@@ -5655,7 +5611,6 @@ void            BuildFacelights(const int facenum)
 #else
     f->styles[0] = 0;                                      // Everyone gets the style zero map.
 #endif
-#ifdef HLRAD_STYLE_CORING
 	if (g_face_patches[facenum] && g_face_patches[facenum]->emitstyle)
 	{
 #ifdef HLRAD_AUTOCORING
@@ -5664,7 +5619,6 @@ void            BuildFacelights(const int facenum)
 		f->styles[1] = g_face_patches[facenum]->emitstyle;
 #endif
 	}
-#endif
 
     memset(&l, 0, sizeof(l));
 
@@ -7226,12 +7180,7 @@ void            PrecompLightmapOffsets()
 		}
 #else
         		//LRC - find all the patch lightstyles, and add them to the ones used by this face
-#ifdef HLRAD_STYLE_CORING
 		for (patch = g_face_patches[facenum]; patch; patch = patch->next)
-#else
-		patch = g_face_patches[facenum];
-		if (patch)
-#endif
 		{
 			for (i = 0; i < MAXLIGHTMAPS && patch->totalstyle[i] != 255; i++)
 			{
@@ -8009,7 +7958,6 @@ void AddPatchLights (int facenum)
 										f_other->styles[k]); //LRC
 #endif
 
-	#ifdef HLRAD_STYLE_CORING
 					VectorAdd (samp->light, v, v);
 		#ifdef ZHLT_XASH
 					VectorAdd (samp->light_direction, v_direction, v_direction);
@@ -8036,9 +7984,6 @@ void AddPatchLights (int facenum)
 						}
 		#endif
 					}
-	#else
-					VectorAdd (samp->light, v, samp->light);
-	#endif
 				}
 			} // loop samples
 		}
@@ -8236,7 +8181,6 @@ void            FinalLightFace(const int facenum)
 
                 if (isPointFinite(v))
                 {
-#ifdef HLRAD_STYLE_CORING
 					VectorAdd (lb, v, v);
 	#ifdef ZHLT_XASH
 					VectorAdd (direction, v_direction, v_direction);
@@ -8263,9 +8207,6 @@ void            FinalLightFace(const int facenum)
 						}
 					}
 	#endif
-#else
-                    VectorAdd(lb, v, lb);
-#endif
                 }
                 else
                 {

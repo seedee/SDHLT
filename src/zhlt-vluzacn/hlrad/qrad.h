@@ -235,9 +235,7 @@
 #endif
 
 #ifndef HLRAD_AUTOCORING
-#ifdef HLRAD_STYLE_CORING
 	#define BOUNCE_CORING_SCALE 0.5f
-#endif
 #endif
 
 #define ALLSTYLES 64 // HL limit. //--vluzacn
@@ -406,11 +404,7 @@ typedef struct patch_s
 #ifdef HLRAD_BOUNCE_STYLE
 	int				bouncestyle; // light reflected from this patch must convert to this style. -1 = normal (don't convert)
 #endif
-#ifdef HLRAD_STYLE_CORING
 	unsigned char	emitstyle;
-#else
-	int				emitstyle;							   //LRC - for switchable texlights
-#endif
     vec3_t          baselight;                             // emissivity only, uses emitstyle
 #ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
 	bool			emitmode;								// texlight emit mode. 1 for normal, 0 for fast.
@@ -748,9 +742,7 @@ extern float	g_softlight_hack_distance;
 #ifdef HLRAD_AVOIDWALLBLEED
 	extern bool g_drawnudge;
 #endif
-#ifdef HLRAD_STYLE_CORING
 	extern float g_corings[ALLSTYLES];
-#endif
 #ifdef HLRAD_READABLE_EXCEEDSTYLEWARNING
 	extern int stylewarningcount; // not thread safe
 	extern int stylewarningnext; // not thread safe
