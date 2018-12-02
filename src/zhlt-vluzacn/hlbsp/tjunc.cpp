@@ -254,7 +254,6 @@ static wedge_t *FindEdge(const vec3_t p1, const vec3_t p2, vec_t* t1, vec_t* t2)
     for (w = wedge_hash[h]; w; w = w->next)
 #endif
     {
-#ifdef HLBSP_TJUNC_PRECISION_FIX
 		if (fabs (w->origin[0] - origin[0]) > EQUAL_EPSILON ||
 			fabs (w->origin[1] - origin[1]) > EQUAL_EPSILON ||
 			fabs (w->origin[2] - origin[2]) > EQUAL_EPSILON )
@@ -267,39 +266,6 @@ static wedge_t *FindEdge(const vec3_t p1, const vec3_t p2, vec_t* t1, vec_t* t2)
 		{
 			continue;
 		}
-#else
-        temp = w->origin[0] - origin[0];
-        if (temp < -EQUAL_EPSILON || temp > EQUAL_EPSILON)
-        {
-            continue;
-        }
-        temp = w->origin[1] - origin[1];
-        if (temp < -EQUAL_EPSILON || temp > EQUAL_EPSILON)
-        {
-            continue;
-        }
-        temp = w->origin[2] - origin[2];
-        if (temp < -EQUAL_EPSILON || temp > EQUAL_EPSILON)
-        {
-            continue;
-        }
-
-        temp = w->dir[0] - dir[0];
-        if (temp < -EQUAL_EPSILON || temp > EQUAL_EPSILON)
-        {
-            continue;
-        }
-        temp = w->dir[1] - dir[1];
-        if (temp < -EQUAL_EPSILON || temp > EQUAL_EPSILON)
-        {
-            continue;
-        }
-        temp = w->dir[2] - dir[2];
-        if (temp < -EQUAL_EPSILON || temp > EQUAL_EPSILON)
-        {
-            continue;
-        }
-#endif
 
         return w;
     }
