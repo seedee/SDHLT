@@ -3004,14 +3004,10 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							VectorScale (l->normal, -BOGUS_RANGE, delta);
 	#endif
 							VectorAdd(pos, delta, delta);
-	#ifdef HLRAD_OPAQUEINSKY_FIX
 							vec3_t skyhit;
 							VectorCopy (delta, skyhit);
-	#endif
 							if (TestLine(pos, delta
-	#ifdef HLRAD_OPAQUEINSKY_FIX
 								, skyhit
-	#endif
 								) != CONTENTS_SKY)
 							{
 								continue;                      // occluded
@@ -3020,11 +3016,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							vec3_t transparency;
 							int opaquestyle;
 							if (TestSegmentAgainstOpaqueList(pos, 
-	#ifdef HLRAD_OPAQUEINSKY_FIX
 								skyhit
-	#else
-								delta
-	#endif
 								, transparency
 								, opaquestyle
 								))
@@ -3114,14 +3106,10 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								// search back to see if we can hit a sky brush
 								VectorScale (skynormals[j], -BOGUS_RANGE, delta);
 								VectorAdd(pos, delta, delta);
-					#ifdef HLRAD_OPAQUEINSKY_FIX
 								vec3_t skyhit;
 								VectorCopy (delta, skyhit);
-					#endif
 								if (TestLine(pos, delta
-					#ifdef HLRAD_OPAQUEINSKY_FIX
 									, skyhit
-					#endif
 									) != CONTENTS_SKY)
 								{
 									continue;                                  // occluded
@@ -3130,11 +3118,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								vec3_t transparency;
 								int opaquestyle;
 								if (TestSegmentAgainstOpaqueList(pos, 
-					#ifdef HLRAD_OPAQUEINSKY_FIX
 									skyhit
-					#else
-									delta
-					#endif
 									, transparency
 									, opaquestyle
 									))

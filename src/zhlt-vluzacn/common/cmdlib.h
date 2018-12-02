@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_OPAQUEINSKY_FIX //--vluzacn
 #define HLRAD_SUNSPREAD //--vluzacn
 #define HLRAD_SUNDIFFUSE //--vluzacn
 #define HLRAD_FASTMODE //--vluzacn

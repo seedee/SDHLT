@@ -310,9 +310,7 @@ void            MakeTnodes(dmodel_t* /*bm*/)
 
 int             TestLine_r(const int node, const vec3_t start, const vec3_t stop
 						   , int &linecontent
-#ifdef HLRAD_OPAQUEINSKY_FIX
 						   , vec_t *skyhit
-#endif
 						   )
 {
     tnode_t*        tnode;
@@ -326,7 +324,6 @@ int             TestLine_r(const int node, const vec3_t start, const vec3_t stop
 	{
 		if (node == linecontent)
 			return CONTENTS_EMPTY;
-#ifdef HLRAD_OPAQUEINSKY_FIX
 		if (node == CONTENTS_SOLID)
 		{
 			return CONTENTS_SOLID;
@@ -339,10 +336,6 @@ int             TestLine_r(const int node, const vec3_t start, const vec3_t stop
 			}
 			return CONTENTS_SKY;
 		}
-#else
-		if (node == CONTENTS_SOLID || node == CONTENTS_SKY)
-			return node;
-#endif
 		if (linecontent)
 		{
 			return CONTENTS_SOLID;
@@ -376,35 +369,27 @@ int             TestLine_r(const int node, const vec3_t start, const vec3_t stop
 	{
 		return TestLine_r(tnode->children[0], start, stop
 			, linecontent
-#ifdef HLRAD_OPAQUEINSKY_FIX
 			, skyhit
-#endif
 			);
 	}
 	if (front < -ON_EPSILON/2 && back < -ON_EPSILON/2)
 	{
 		return TestLine_r(tnode->children[1], start, stop
 			, linecontent
-#ifdef HLRAD_OPAQUEINSKY_FIX
 			, skyhit
-#endif
 			);
 	}
 	if (fabs(front) <= ON_EPSILON && fabs(back) <= ON_EPSILON)
 	{
 		int r1 = TestLine_r(tnode->children[0], start, stop
 			, linecontent
-#ifdef HLRAD_OPAQUEINSKY_FIX
 			, skyhit
-#endif
 			);
 		if (r1 == CONTENTS_SOLID)
 			return CONTENTS_SOLID;
 		int r2 = TestLine_r(tnode->children[1], start, stop
 			, linecontent
-#ifdef HLRAD_OPAQUEINSKY_FIX
 			, skyhit
-#endif
 			);
 		if (r2 == CONTENTS_SOLID)
 			return CONTENTS_SOLID;
@@ -421,32 +406,24 @@ int             TestLine_r(const int node, const vec3_t start, const vec3_t stop
 	mid[2] = start[2] + (stop[2] - start[2]) * frac;
 	r = TestLine_r(tnode->children[side], start, mid
 		, linecontent
-#ifdef HLRAD_OPAQUEINSKY_FIX
 		, skyhit
-#endif
 		);
 	if (r != CONTENTS_EMPTY)
 		return r;
 	return TestLine_r(tnode->children[!side], mid, stop
 		, linecontent
-#ifdef HLRAD_OPAQUEINSKY_FIX
 		, skyhit
-#endif
 		);
 }
 
 int             TestLine(const vec3_t start, const vec3_t stop
-#ifdef HLRAD_OPAQUEINSKY_FIX
 						 , vec_t *skyhit
-#endif
 						 )
 {
 	int linecontent = 0;
     return TestLine_r(0, start, stop
 		, linecontent
-#ifdef HLRAD_OPAQUEINSKY_FIX
 		, skyhit
-#endif
 		);
 }
 
