@@ -179,7 +179,6 @@
 
 #define BOGUS_RANGE 131072
 
-#ifdef HLRAD_GROWSAMPLE
 typedef struct
 {
 	vec_t v[4][3];
@@ -193,7 +192,6 @@ matrix_t;
 //  | Z |    | v[0][2] v[1][2] v[2][2] v[3][2] | | Z |
 //  \ 1 /    \    0       0       0       1    / \ 1 /
 
-#endif
 //
 // LIGHTMAP.C STUFF
 //
@@ -353,9 +351,7 @@ typedef struct
     bool            coplanar;
 	bool			smooth;
 	facelist_t*		vertex_facelist[2]; //possible smooth faces, not include faces[0] and faces[1]
-#ifdef HLRAD_GROWSAMPLE
 	matrix_t		textotex[2]; // how we translate texture coordinates from one face to the other face
-#endif
 } edgeshare_t;
 
 extern edgeshare_t g_edgeshare[MAX_MAP_EDGES];
@@ -465,10 +461,6 @@ extern entity_t* g_face_entity[MAX_MAP_FACES];
 extern vec3_t   g_face_offset[MAX_MAP_FACES];              // for models with origins
 extern eModelLightmodes g_face_lightmode[MAX_MAP_FACES];
 extern vec3_t   g_face_centroids[MAX_MAP_EDGES];
-#ifndef HLRAD_GROWSAMPLE
-extern vec3_t   g_face_texnormals[MAX_MAP_FACES];
-extern bool		GetIntertexnormal (int facenum1, int facenum2, vec_t *out = NULL);
-#endif
 extern entity_t* g_face_texlights[MAX_MAP_FACES];
 #ifdef HLRAD_MORE_PATCHES
 extern patch_t* g_patches; // shrinked to its real size, because 1048576 patches * 256 bytes = 256MB will be too big
@@ -585,12 +577,10 @@ extern void     BuildFacelights(int facenum);
 extern void     PrecompLightmapOffsets();
 extern void		ReduceLightmap ();
 extern void     FinalLightFace(int facenum);
-#ifdef HLRAD_GROWSAMPLE
 extern void		ScaleDirectLights (); // run before AddPatchLights
 extern void		CreateFacelightDependencyList (); // run before AddPatchLights
 extern void		AddPatchLights (int facenum);
 extern void		FreeFacelightDependencyList ();
-#endif
 extern int      TestLine(const vec3_t start, const vec3_t stop
 						 , vec_t *skyhitout = NULL
 						 );
@@ -649,7 +639,6 @@ extern const dplane_t* getPlaneFromFace(const dface_t* const face);
 extern const dplane_t* getPlaneFromFaceNumber(unsigned int facenum);
 extern void     getAdjustedPlaneFromFaceNumber(unsigned int facenum, dplane_t* plane);
 extern dleaf_t* HuntForWorld(vec_t* point, const vec_t* plane_offset, const dplane_t* plane, int hunt_size, vec_t hunt_scale, vec_t hunt_offset);
-#ifdef HLRAD_GROWSAMPLE
 extern void		ApplyMatrix (const matrix_t &m, const vec3_t in, vec3_t &out);
 extern void		ApplyMatrixOnPlane (const matrix_t &m_inverse, const vec3_t in_normal, vec_t in_dist, vec3_t &out_normal, vec_t &out_dist);
 extern void		MultiplyMatrix (const matrix_t &m_left, const matrix_t &m_right, matrix_t &m);
@@ -666,7 +655,6 @@ extern bool		FindNearestPosition (int facenum, const Winding *texwinding, const 
 									, bool *nudged
 #endif
 									);
-#endif
 
 // makescales.c
 extern void     MakeScalesVismatrix();

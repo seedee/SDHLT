@@ -2831,18 +2831,14 @@ static void     RadWorld()
 
     Log("\n");
 	
-#ifdef HLRAD_GROWSAMPLE
 	// generate a position map for each face
 	NamedRunThreadsOnIndividual(g_numfaces, g_estimate, FindFacePositions);
 
-#endif
     // build initial facelights
     NamedRunThreadsOnIndividual(g_numfaces, g_estimate, BuildFacelights);
 
-#ifdef HLRAD_GROWSAMPLE
 	FreePositionMaps ();
 
-#endif
     // free up the direct lights now that we have facelights
     DeleteDirectLights();
 
@@ -2893,7 +2889,6 @@ static void     RadWorld()
 #ifdef ZHLT_XASH
 	g_directionscale = FindDirectionScale (VectorAvg (g_colour_qgamma));
 #endif
-#ifdef HLRAD_GROWSAMPLE
 
 	ScaleDirectLights ();
 
@@ -2906,7 +2901,6 @@ static void     RadWorld()
 		FreeFacelightDependencyList ();
 	}
 
-#endif
 #ifdef HLRAD_LOCALTRIANGULATION
 	FreeTriangulations ();
 

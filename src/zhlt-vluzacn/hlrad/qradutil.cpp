@@ -256,7 +256,6 @@ dleaf_t*        HuntForWorld(vec_t* point, const vec_t* plane_offset, const dpla
     VectorCopy(best_point, point);
     return best_leaf;
 }
-#ifdef HLRAD_GROWSAMPLE
 
 // ApplyMatrix: (x y z 1)T -> matrix * (x y z 1)T
 void ApplyMatrix (const matrix_t &m, const vec3_t in, vec3_t &out)
@@ -979,4 +978,3 @@ bool FindNearestPosition (int facenum, const Winding *texwinding, const dplane_t
 }
 
 
-#endif

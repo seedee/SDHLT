@@ -2495,7 +2495,6 @@ static void     AddPatchToTriangulation(lerpTriangulation_t* trian, patch_t* pat
 			p1.dist += DotProduct (p1.normal, g_face_offset[trian->facenum]);
 			dplane_t p2 = *getPlaneFromFaceNumber (patch->faceNumber);
 			p2.dist += DotProduct (p2.normal, g_face_offset[patch->faceNumber]);
-#ifdef HLRAD_GROWSAMPLE
 			// we have abandoned the texnormal approach, since the lighting should not be affected by the texnormal: it should only rely on the s,t coordinate of vertices, which doesn't include texnormal information
 			VectorAdd (p1.normal, p2.normal, snapdir);
 			if (!VectorNormalize (snapdir)) // normal2 = -normal1
@@ -2503,13 +2502,6 @@ static void     AddPatchToTriangulation(lerpTriangulation_t* trian, patch_t* pat
 				// skip this patch
 				return;
 			}
-#else
-			VectorCopy (p1.normal, snapdir);
-			if (!GetIntertexnormal (patch->faceNumber, trian->facenum, snapdir))
-			{
-				Warning ("AddPatchToTriangulation: internal error 1.");
-			}
-#endif
 			VectorMA (trian->points_pos[pnum], -PATCH_HUNT_OFFSET, p2.normal, trian->points_pos[pnum]);
 			vec_t dist = (DotProduct (trian->points_pos[pnum], p1.normal) - p1.dist) / DotProduct (snapdir, p1.normal);
 			VectorMA (trian->points_pos[pnum], -dist, snapdir, trian->points_pos[pnum]);

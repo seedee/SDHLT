@@ -72,20 +72,15 @@
 
 
 
-#define HLRAD_GROWSAMPLE //--vluzacn
 #define HLRAD_AVOIDNORMALFLIP //--vluzacn
-	#ifdef HLRAD_GROWSAMPLE
 #define HLRAD_BLUR_MINIMALSQUARE //--vluzacn
-	#endif
 	#ifdef HLRAD_BLUR_MINIMALSQUARE
 #define HLRAD_AVOIDWALLBLEED //--vluzacn
 	#endif
 #define HLRAD_PRESERVELIGHTMAPCOLOR //--vluzacn
 #define HLRAD_MORE_PATCHES //--vluzacn
 #define HLRAD_SPARSEVISMATRIX_FAST //--vluzacn
-	#ifdef HLRAD_GROWSAMPLE
 #define HLRAD_LOCALTRIANGULATION //--vluzacn
-	#endif
 	#ifdef HLRAD_LOCALTRIANGULATION
 #define HLRAD_BILINEARINTERPOLATION //--vluzacn
 	#endif

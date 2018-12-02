@@ -3,33 +3,9 @@
 edgeshare_t     g_edgeshare[MAX_MAP_EDGES];
 vec3_t          g_face_centroids[MAX_MAP_EDGES]; // BUG: should this be [MAX_MAP_FACES]?
 bool            g_sky_lighting_fix = DEFAULT_SKY_LIGHTING_FIX;
-#ifndef HLRAD_GROWSAMPLE
-vec3_t          g_face_texnormals[MAX_MAP_FACES];
-#endif
 
 //#define TEXTURE_STEP   16.0
 
-#ifndef HLRAD_GROWSAMPLE
-bool GetIntertexnormal (int facenum1, int facenum2, vec_t *out)
-{
-	vec3_t normal;
-	const dplane_t *p1 = getPlaneFromFaceNumber (facenum1);
-	const dplane_t *p2 = getPlaneFromFaceNumber (facenum2);
-	VectorAdd (g_face_texnormals[facenum1], g_face_texnormals[facenum2], normal);
-	if (!VectorNormalize (normal)
-		|| DotProduct (normal, p1->normal) <= NORMAL_EPSILON
-		|| DotProduct (normal, p2->normal) <= NORMAL_EPSILON
-		)
-	{
-		return false;
-	}
-	if (out)
-	{
-		VectorCopy (normal, out);
-	}
-	return true;
-}
-#endif
 // =====================================================================================
 //  PairEdges
 // =====================================================================================
@@ -212,7 +188,6 @@ int AddFaceForVertexNormal (const int edgeabs, int &edgeabsnext, const int edgee
 	}
 	return 0;
 }
-#ifdef HLRAD_GROWSAMPLE
 
 static bool TranslateTexToTex (int facenum, int edgenum, int facenum2, matrix_t &m, matrix_t &m_inverse)
 	// This function creates a matrix that can translate texture coords in face1 into texture coords in face2.
@@ -282,7 +257,6 @@ static bool TranslateTexToTex (int facenum, int edgenum, int facenum2, matrix_t 
 	return true;
 }
 
-#endif
 void            PairEdges()
 {
     int             i, j, k;
@@ -294,20 +268,6 @@ void            PairEdges()
     f = g_dfaces;
     for (i = 0; i < g_numfaces; i++, f++)
     {
-#ifndef HLRAD_GROWSAMPLE
-		{
-			const dplane_t *fp = getPlaneFromFace (f);
-			vec3_t texnormal;
-			const texinfo_t *tex = &g_texinfo[f->texinfo];
-			CrossProduct (tex->vecs[1], tex->vecs[0], texnormal);
-			VectorNormalize (texnormal);
-			if (DotProduct (texnormal, fp->normal) < 0)
-			{
-				VectorSubtract (vec3_origin, texnormal, texnormal);
-			}
-			VectorCopy (texnormal, g_face_texnormals[i]);
-		}
-#endif
 		if (g_texinfo[f->texinfo].flags & TEX_SPECIAL)
 		{
 			// special textures don't have lightmaps
@@ -394,15 +354,6 @@ void            PairEdges()
 				{
 					e->smooth = true;
 				}
-#ifndef HLRAD_GROWSAMPLE
-				if (!GetIntertexnormal (e->faces[0] - g_dfaces, e->faces[1] - g_dfaces))
-				{
-					e->coplanar = false;
-					VectorClear (e->interface_normal);
-					e->smooth = false;
-				}
-#endif
-#ifdef HLRAD_GROWSAMPLE
 				if (e->smooth)
 				{
 					// compute the matrix in advance
@@ -416,7 +367,6 @@ void            PairEdges()
 						Developer (DEVELOPER_LEVEL_MEGASPAM, "TranslateTexToTex failed on face %d and %d @(%f,%f,%f)", (int)(e->faces[0] - g_dfaces), (int)(e->faces[1] - g_dfaces), dv->point[0], dv->point[1], dv->point[2]);
 					}
 				}
-#endif
             }
         }
     }
@@ -493,10 +443,6 @@ void            PairEdges()
 							}
 							if (DotProduct (edgenormal, normal) < qmax (smoothvalue - NORMAL_EPSILON, NORMAL_EPSILON))
 								break;
-#ifndef HLRAD_GROWSAMPLE
-							if (!GetIntertexnormal (fcurrent - g_dfaces, e->faces[0] - g_dfaces) || !GetIntertexnormal (fcurrent - g_dfaces, e->faces[1] - g_dfaces))
-								break;
-#endif
 							if (fcurrent != e->faces[0] && fcurrent != e->faces[1] &&
 								(TestFaceIntersect (test0, fcurrent - g_dfaces) || TestFaceIntersect (test1, fcurrent - g_dfaces)))
 							{
@@ -581,10 +527,8 @@ typedef struct
 
     int             numsurfpt;
     vec3_t          surfpt[MAX_SINGLEMAP];
-#ifdef HLRAD_GROWSAMPLE
 	vec3_t*			surfpt_position; //[MAX_SINGLEMAP] // surfpt_position[] are valid positions for light tracing, while surfpt[] are positions for getting phong normal and doing patch interpolation
 	int*			surfpt_surface; //[MAX_SINGLEMAP] // the face that owns this position
-#endif
 	bool			surfpt_lightoutside[MAX_SINGLEMAP];
 
     vec3_t          texorg;
@@ -762,11 +706,9 @@ static void     CalcFaceExtents(lightinfo_t* l)
 		l->lmcache_wallflags = (int *)malloc (l->lmcachewidth * l->lmcacheheight * sizeof (int));
 		hlassume (l->lmcache_wallflags != NULL, assume_NoMemory);
 #endif
-#ifdef HLRAD_GROWSAMPLE
 		l->surfpt_position = (vec3_t *)malloc (MAX_SINGLEMAP * sizeof (vec3_t));
 		l->surfpt_surface = (int *)malloc (MAX_SINGLEMAP * sizeof (int));
 		hlassume (l->surfpt_position != NULL && l->surfpt_surface != NULL, assume_NoMemory);
-#endif
 	}
 }
 
@@ -846,11 +788,7 @@ static void     CalcFaceVectors(lightinfo_t* l)
     }
 
     // project back to the face plane
-#ifdef HLRAD_GROWSAMPLE
     dist = DotProduct(l->texorg, l->facenormal) - l->facedist;
-#else
-    dist = DotProduct(l->texorg, l->facenormal) - l->facedist - DEFAULT_HUNT_OFFSET;
-#endif
     dist *= distscale;
     VectorMA(l->texorg, -dist, texnormal, l->texorg);
 	VectorCopy (texnormal, l->texnormal);
@@ -891,77 +829,6 @@ light_flag_t;
 //      For each texture aligned grid point, back project onto the plane
 //      to get the world xyz value of the sample point
 // =====================================================================================
-#ifndef HLRAD_GROWSAMPLE
-static int		PointInFace(const lightinfo_t *l, const vec_t* point)
-{
-	int facenum = l->surfnum;
-	const dface_t* f = &g_dfaces[facenum];
-	Winding *w;
-	dplane_t plane;
-	VectorCopy (l->texnormal, plane.normal);
-	const dplane_t *p = &plane;
-	vec3_t new_point;
-	VectorSubtract (point, g_face_offset[facenum], new_point);
-	w = new Winding (*f);
-	if (point_in_winding (*w, *p, new_point))
-	{
-		delete w;
-		return facenum;
-	}
-	delete w;
-
-	int j;
-	for (j = 0; j < f->numedges; j++)
-	{
-		int e;
-		edgeshare_t *es;
-		dface_t* f2;
-		e = g_dsurfedges[f->firstedge + j];
-		es = &g_edgeshare[abs(e)];
-		if (!es->smooth)
-			continue;
-		f2 = es->faces[!(e<0)];
-		const dplane_t *p2 = getPlaneFromFace (f2);
-		if (DotProduct (p->normal, p2->normal) < NORMAL_EPSILON)
-			continue;
-		w = new Winding (*f2);
-		if (point_in_winding (*w, *p, new_point))
-		{
-			delete w;
-			return f2 - g_dfaces;
-		}
-		delete w;
-	}
-	for (j = 0; j < f->numedges; j++)
-	{
-		int e;
-		edgeshare_t *es;
-		dface_t* f2;
-		e = g_dsurfedges[f->firstedge + j];
-		es = &g_edgeshare[abs(e)];
-		if (!es->smooth)
-			continue;
-		for (int edgeend = 0; edgeend < 2; edgeend++)
-		{
-			for (facelist_t *l = es->vertex_facelist[edgeend]; l; l = l->next)
-			{
-				f2 = l->face;
-				const dplane_t *p2 = getPlaneFromFace (f2);
-				if (DotProduct (p->normal, p2->normal) < NORMAL_EPSILON)
-					continue;
-				w = new Winding (*f2);
-				if (point_in_winding (*w, *p, new_point))
-				{
-					delete w;
-					return f2 - g_dfaces;
-				}
-				delete w;
-			}
-		}
-	}
-	return facenum;
-}
-#endif
 static void		SetSTFromSurf(const lightinfo_t* const l, const vec_t* surf, vec_t& s, vec_t& t)
 {
     const int       facenum = l->surfnum;
@@ -974,7 +841,6 @@ static void		SetSTFromSurf(const lightinfo_t* const l, const vec_t* surf, vec_t&
 		t += (surf[j] - g_face_offset[facenum][j] - l->texorg[j]) * l->worldtotex[1][j];
 	}
 }
-#ifdef HLRAD_GROWSAMPLE
 
 typedef struct
 {
@@ -1514,26 +1380,20 @@ static void DeleteSampleFrag (samplefraginfo_t *fraginfo)
 	free (fraginfo);
 }
 
-#endif
 static light_flag_t SetSampleFromST(vec_t* const point,
-#ifdef HLRAD_GROWSAMPLE
 									vec_t* const position, // a valid world position for light tracing
 									int* const surface, // the face used for phong normal and patch interpolation
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 									bool *nudged,
 #endif
 									const lightinfo_t* const l, const vec_t original_s, const vec_t original_t,
-#ifdef HLRAD_GROWSAMPLE
 #ifdef HLRAD_BLUR_MINIMALSQUARE
 									const vec_t square[2][2], // {smin, tmin}, {smax, tmax}
 #else
 									const vec_t reach, // the size of the square that grows
 #endif
-#endif
 									eModelLightmodes lightmode)
 {
-#ifdef HLRAD_GROWSAMPLE
 	light_flag_t LuxelFlag;
 	int facenum;
 	dface_t *face;
@@ -1674,187 +1534,6 @@ static light_flag_t SetSampleFromST(vec_t* const point,
 	
 	return LuxelFlag;
 
-#else
-	light_flag_t	LuxelFlag = LightOutside;
-	int				huntsize = 3;
-	vec_t			huntscale = 0.2;
-	vec_t			width = DEFAULT_EDGE_WIDTH;
-
-	int				facenum = l->surfnum;
-	const vec_t*	face_delta = g_face_offset[facenum];
-
-	const dface_t*	f = &g_dfaces[facenum];
-	const dplane_t*	p = getPlaneFromFace (f);
-	Winding			*wd = new Winding (*f);
-	{
-		int				j;
-		for (j = 0; j < wd->m_NumPoints; j++)
-		{
-			VectorAdd (wd->m_Points[j], face_delta, wd->m_Points[j]);
-		}
-	}
-
-	const vec_t*	face_centroid = g_face_centroids[facenum];
-	vec_t			mids, midt;
-	SetSTFromSurf (l, face_centroid, mids, midt);
-
-	vec3_t			surf_original;
-	dleaf_t*		leaf_original;
-	SetSurfFromST (l, surf_original, original_s, original_t);
-	leaf_original = HuntForWorld (surf_original, face_delta, p, 1, 0.0, DEFAULT_HUNT_OFFSET);
-
-	int				facenum_tosnap = PointInFace (l, surf_original);
-	const dface_t*	f_tosnap = &g_dfaces[facenum_tosnap];
-	const dplane_t*	p_tosnap = getPlaneFromFace (f_tosnap);
-	vec3_t			snapdir;
-	if (!GetIntertexnormal (facenum, facenum_tosnap, snapdir))
-	{
-		facenum_tosnap = facenum;
-		f_tosnap = f;
-		p_tosnap = p;
-	}
-
-	vec3_t			surf_direct;
-	dleaf_t*		leaf_direct;
-	VectorCopy (surf_original, surf_direct);
-	{
-		vec_t dist;
-		vec_t scale;
-		scale = DotProduct (snapdir, p_tosnap->normal);
-		dist = DotProduct (surf_direct, p_tosnap->normal) - DotProduct (face_delta, p_tosnap->normal) - p_tosnap->dist - DEFAULT_HUNT_OFFSET;
-		VectorMA (surf_direct, - dist / scale, snapdir, surf_direct);
-	}
-	leaf_direct = HuntForWorld (surf_direct, face_delta, p_tosnap, huntsize, huntscale, DEFAULT_HUNT_OFFSET);
-
-	if (LuxelFlag == LightOutside)
-	{
-		if (leaf_direct && point_in_winding_noedge (*wd, *p, surf_direct, width))
-		{
-			LuxelFlag = LightNormal;
-			VectorCopy (surf_direct, point);
-		}
-	}
-
-	if (LuxelFlag == LightOutside)
-	{
-		bool	blocked_direct;
-		bool	blocked_inwinding;
-		bool	blocked_inwinding_noedge;
-		vec3_t	surf_inwinding;
-		vec3_t	surf_inwinding_noedge;
-		dleaf_t*leaf_inwinding;
-		dleaf_t*leaf_inwinding_noedge;
-		vec3_t transparency = { 1.0, 1.0, 1.0 };
-		int opaquestyle;
-		{
-			blocked_direct = (leaf_direct == NULL);
-			if (!point_in_winding (*wd, *p, surf_original))
-			{
-				VectorCopy (surf_original, surf_inwinding);
-				snap_to_winding (*wd, *p, surf_inwinding);
-				leaf_inwinding = HuntForWorld (surf_inwinding, face_delta, p, huntsize, huntscale, DEFAULT_HUNT_OFFSET);
-				if ( blocked_direct
-					|| !leaf_inwinding
-					|| TestLine (surf_direct, surf_inwinding) != CONTENTS_EMPTY
-					|| TestSegmentAgainstOpaqueList (surf_direct, surf_inwinding
-						, transparency
-						, opaquestyle
-						) == true
-					|| opaquestyle != -1
-					|| l->translucent_b
-					)
-				{
-					blocked_direct = true;
-				}
-			}
-			else
-			{
-				VectorCopy (surf_original, surf_inwinding);
-				leaf_inwinding = leaf_original;
-			}
-			blocked_inwinding = (leaf_inwinding == NULL);
-			if (!point_in_winding_noedge (*wd, *p, surf_inwinding, width))
-			{
-				VectorCopy (surf_inwinding, surf_inwinding_noedge);
-				snap_to_winding_noedge (*wd, *p, surf_inwinding_noedge, width, 4 * width);
-				leaf_inwinding_noedge = HuntForWorld (surf_inwinding_noedge, face_delta, p, huntsize, huntscale, DEFAULT_HUNT_OFFSET);
-				if ( blocked_inwinding
-					|| !leaf_inwinding_noedge
-					|| TestLine (surf_inwinding, surf_inwinding_noedge) != CONTENTS_EMPTY
-					|| TestSegmentAgainstOpaqueList (surf_inwinding, surf_inwinding_noedge
-						, transparency
-						, opaquestyle
-						) == true
-					|| opaquestyle != -1
-					)
-				{
-					blocked_inwinding = true;
-				}
-			}
-			else
-			{
-				VectorCopy (surf_inwinding, surf_inwinding_noedge);
-				leaf_inwinding_noedge = leaf_inwinding;
-			}
-			blocked_inwinding_noedge = (leaf_inwinding_noedge == NULL);
-			if (blocked_inwinding_noedge == true)
-			{
-				blocked_inwinding = true;
-			}
-			if (blocked_inwinding == true)
-			{
-				blocked_direct = true;
-			}
-		}
-		if (!blocked_direct)
-		{
-			LuxelFlag = LightNormal;
-			VectorCopy (surf_direct, point);
-		}
-		else if (!blocked_inwinding)
-		{
-			LuxelFlag = LightPulledInside;
-			VectorCopy (surf_inwinding, point);
-		}
-		else if (!blocked_inwinding_noedge)
-		{
-			LuxelFlag = LightPulledInside;
-			VectorCopy (surf_inwinding_noedge, point);
-		}
-	}
-
-	if (LuxelFlag == LightOutside)
-	{
-		// this part is very slow
-		const int numnudges = 13;
-		vec_t nudgelist[numnudges][2] = {{0,0},{0.6,0},{0,0.6},{-0.6,0},{0,-0.6},{1.1,1.1},{1.1,-1.1},{-1.1,1.1},{-1.1,-1.1},{1.6,0},{0,1.6},{-1.6,0},{0,-1.6}};
-		vec_t nudgescale_s, nudgescale_t;
-		nudgescale_s = original_s <= mids? TEXTURE_STEP: -TEXTURE_STEP;
-		nudgescale_t = original_t <= midt? TEXTURE_STEP: -TEXTURE_STEP;
-		int i;
-		for (i = 0; i < numnudges; i++)
-		{
-			vec_t s1 = original_s + nudgelist[i][0] * nudgescale_s;
-			vec_t t1 = original_t + nudgelist[i][1] * nudgescale_t;
-			vec3_t surf;
-			SetSurfFromST(l, surf, s1, t1);
-			if (point_in_winding (*wd, *p, surf) && HuntForWorld (surf, face_delta, p, 2, 0.5, DEFAULT_HUNT_OFFSET) && point_in_winding (*wd, *p, surf))
-			{
-				LuxelFlag = LightSimpleNudge;
-				VectorCopy (surf, point);
-				break;
-			}
-		}
-	}
-
-	if (LuxelFlag == LightOutside)
-	{
-		VectorCopy (surf_original, point);
-	}
-
-	delete wd;
-	return LuxelFlag;
-#endif
 }
 static void		CalcPoints(lightinfo_t* l)
 {
@@ -1892,19 +1571,15 @@ static void		CalcPoints(lightinfo_t* l)
 			bool nudged;
 #endif
 			*pLuxelFlags = SetSampleFromST (surf,
-#ifdef HLRAD_GROWSAMPLE
 											l->surfpt_position[s+w*t], &l->surfpt_surface[s+w*t],
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 											&nudged,
 #endif
 											l, us, ut,
-#ifdef HLRAD_GROWSAMPLE
 #ifdef HLRAD_BLUR_MINIMALSQUARE
 											square,
 #else
 											TEXTURE_STEP,
-#endif
 #endif
 											lightmode);
 		}
@@ -1943,10 +1618,8 @@ static void		CalcPoints(lightinfo_t* l)
 						{
 							*pLuxelFlags = LightShifted;
 							VectorCopy (surf_other, surf);
-	#ifdef HLRAD_GROWSAMPLE
 							VectorCopy (l->surfpt_position[s_other+w*t_other], l->surfpt_position[s+w*t]);
 							l->surfpt_surface[s+w*t] = l->surfpt_surface[s_other+w*t_other];
-	#endif
 							adjusted = true;
 							break;
 						}
@@ -1980,9 +1653,7 @@ typedef struct
 {
     vec3_t          pos;
     vec3_t          light;
-#ifdef HLRAD_GROWSAMPLE
 	int				surface; // this sample can grow into another face
-#endif
 #ifdef ZHLT_XASH
 	// this increases the maximum (at 100% AllocBlock, 4 light styles) possible usage of memory of all light samples from 100MB to 200MB
 	vec3_t			light_direction; // sum of light direction * light contribution (rgb averaged)
@@ -3685,7 +3356,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 		vec_t s_vec, t_vec;
 		int nearest_s, nearest_t;
 		vec3_t spot;
-	#ifdef HLRAD_GROWSAMPLE
 	#ifdef HLRAD_BLUR_MINIMALSQUARE
 		vec_t square[2][2];  // the max possible range in which this sample point affects the lighting on a face
 	#else
@@ -3693,7 +3363,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 	#endif
 		vec3_t surfpt; // the point on the surface (with no HUNT_OFFSET applied), used for getting phong normal and doing patch interpolation
 		int surface;
-	#endif
 		vec3_t pointnormal;
 		bool blocked;
 		vec3_t spot2;
@@ -3728,7 +3397,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 	#ifdef HLRAD_AVOIDWALLBLEED
 			wallflags_out = &l->lmcache_wallflags[i];
 	#endif
-	#ifdef HLRAD_GROWSAMPLE
 	#ifdef HLRAD_BLUR_MINIMALSQUARE
 //
 // The following graph illustrates the range in which a sample point can affect the lighting of a face when g_blur = 1.5 and g_extra = on
@@ -3774,38 +3442,21 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 	#else
 			reach = (0.5 / (vec_t)l->lmcache_density) * TEXTURE_STEP + 0.5 * g_blur * TEXTURE_STEP + TEXTURE_STEP;
 	#endif
-	#endif
 		}
 		// find world's position for the sample
 		{
-#ifndef HLRAD_GROWSAMPLE
-			if (i == (nearest_s * l->lmcache_density + l->lmcache_offset)
-				+ l->lmcachewidth * (nearest_t * l->lmcache_density + l->lmcache_offset)) // almost always true when compiled with no '-extra'
-			{
-				j = nearest_s + (l->texsize[0] + 1) * nearest_t;
-				VectorCopy (l->surfpt[j], spot);
-				blocked = l->surfpt_lightoutside[j];
-			}
-			else
-#endif
 			{
 				blocked = false;
 				if (SetSampleFromST (
-	#ifdef HLRAD_GROWSAMPLE
 									surfpt, spot, &surface,
-	#else
-									spot,
-	#endif
 	#ifdef HLRAD_AVOIDWALLBLEED
 									&nudged,
 	#endif
 									l, s_vec, t_vec,
-	#ifdef HLRAD_GROWSAMPLE
 	#ifdef HLRAD_BLUR_MINIMALSQUARE
 									square,
 	#else
 									reach,
-	#endif
 	#endif
 									g_face_lightmode[facenum]) == LightOutside)
 				{
@@ -3816,20 +3467,15 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 					}
 					else
 					{
-	#ifdef HLRAD_GROWSAMPLE
 						// the area this light sample has effect on is completely covered by solid, so take whatever valid position.
 						VectorCopy (l->surfpt[j], surfpt);
 						VectorCopy (l->surfpt_position[j], spot);
 						surface = l->surfpt_surface[j];
-	#else
-						VectorCopy(l->surfpt[j], spot);
-	#endif
 					}
 				}
 			}
 			if (l->translucent_b)
 			{
-#ifdef HLRAD_GROWSAMPLE
 				const dplane_t *surfaceplane = getPlaneFromFaceNumber (surface);
 				Winding *surfacewinding = new Winding (g_dfaces[surface]);
 				
@@ -3845,13 +3491,6 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 				VectorMA (spot2, -(g_translucentdepth + 2 * DEFAULT_HUNT_OFFSET), surfaceplane->normal, spot2);
 
 				delete surfacewinding;
-#else
-				vec3_t delta;
-				VectorSubtract (g_face_centroids[facenum], spot, delta);
-				VectorNormalize (delta);
-				VectorMA (spot, 0.2, delta, spot2);
-				VectorMA (spot2, -(g_translucentdepth + 2*DEFAULT_HUNT_OFFSET), l->facenormal, spot2);
-#endif
 			}
 	#ifdef HLRAD_AVOIDWALLBLEED
 			*wallflags_out = WALLFLAG_NONE;
@@ -3867,19 +3506,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 		}
 		// calculate normal for the sample
 		{
-#ifdef HLRAD_GROWSAMPLE
 			GetPhongNormal (surface, surfpt, pointnormal);
-#else
-			vec3_t pos_original;
-			SetSurfFromST (l, pos_original, s_vec, t_vec);
-			{
-				// adjust sample's offset to 0
-				vec_t scale;
-				scale = DotProduct (l->texnormal, l->facenormal);
-				VectorMA (pos_original, - DEFAULT_HUNT_OFFSET / scale, l->texnormal, pos_original);
-			}
-			GetPhongNormal(facenum, pos_original, pointnormal);
-#endif
 			if (l->translucent_b)
 			{
 				VectorSubtract (vec3_origin, pointnormal, pointnormal2);
@@ -3954,11 +3581,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 					, 0
 					, l->miptex
 	#ifdef HLRAD_TEXLIGHTGAP
-		#ifdef HLRAD_GROWSAMPLE
 					, surface
-		#else
-					, facenum
-		#endif
 	#endif
 					);
 			}
@@ -3980,11 +3603,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 						, 0
 						, l->miptex
 	#ifdef HLRAD_TEXLIGHTGAP
-		#ifdef HLRAD_GROWSAMPLE
 						, surface
-		#else
-						, facenum
-		#endif
 	#endif
 						);
 				}
@@ -4161,28 +3780,10 @@ void            BuildFacelights(const int facenum)
     for (i = 0; i < l.numsurfpt; i++, spot += 3)
     {
 
-#ifndef HLRAD_GROWSAMPLE
-		vec3_t spot_original;
-		{
-			vec_t s_vec = l.texmins[0] * TEXTURE_STEP + (i % lightmapwidth) * TEXTURE_STEP;
-			vec_t t_vec = l.texmins[1] * TEXTURE_STEP + (i / lightmapwidth) * TEXTURE_STEP;
-			SetSurfFromST (&l, spot_original, s_vec, t_vec);
-			{
-				// adjust sample's offset to 0
-				vec_t scale;
-				scale = DotProduct (l.texnormal, l.facenormal);
-				VectorMA (spot_original, - DEFAULT_HUNT_OFFSET / scale, l.texnormal, spot_original);
-			}
-		}
-#endif
         for (k = 0; k < ALLSTYLES; k++)
         {
-#ifdef HLRAD_GROWSAMPLE
             VectorCopy(spot, fl_samples[k][i].pos);
 			fl_samples[k][i].surface = l.surfpt_surface[i];
-#else
-            VectorCopy(spot_original, fl_samples[k][i].pos);
-#endif
         }
 
 		int s, t, pos;
@@ -4809,10 +4410,8 @@ void            BuildFacelights(const int facenum)
 #ifdef HLRAD_AVOIDWALLBLEED
 	free (l.lmcache_wallflags);
 #endif
-#ifdef HLRAD_GROWSAMPLE
 	free (l.surfpt_position);
 	free (l.surfpt_surface);
-#endif
 }
 
 // =====================================================================================
@@ -5374,7 +4973,6 @@ void MdlLightHack ()
 		Log ("Adjust mdl light: modified %d samples for %d entities\n", countsample, countent);
 }
 
-#ifdef HLRAD_GROWSAMPLE
 
 typedef struct facelightlist_s
 {
@@ -5595,7 +5193,6 @@ void AddPatchLights (int facenum)
 #endif
 }
 
-#endif /*HLRAD_GROWSAMPLE*/
 // =====================================================================================
 //  FinalLightFace
 //      Add the indirect lighting on top of the direct lighting and save into final map format
@@ -5642,9 +5239,6 @@ void            FinalLightFace(const int facenum)
     float           minlight;
     int             lightstyles;
     dface_t*        f;
-#ifndef HLRAD_GROWSAMPLE
-    lerpTriangulation_t* trian = NULL;
-#endif
 	vec3_t			*original_basiclight;
 	int				(*final_basiclight)[3];
 	int				lbi[3];
@@ -5689,11 +5283,6 @@ void            FinalLightFace(const int facenum)
     //
     // set up the triangulation
     //
-#ifndef HLRAD_GROWSAMPLE
-    {
-        trian = CreateTriangulation(facenum);
-    }
-#endif
     //
     // sample the triangulation
     //
@@ -5742,66 +5331,10 @@ void            FinalLightFace(const int facenum)
 				VectorSubtract (vec3_origin, directionnormals[1], directionnormals[1]);
 			}
 #endif
-#ifdef HLRAD_GROWSAMPLE
 			VectorCopy (samp->light, lb);
 	#ifdef ZHLT_XASH
 			VectorCopy (samp->light_direction, direction);
 	#endif
-#else
-            // Should be a VectorCopy, but we scale by 2 to compensate for an earlier lighting flaw
-            // Specifically, the directlight contribution was included in the bounced light AND the directlight
-            // Since many of the levels were built with this assumption, this "fudge factor" compensates for it.
-
-			// Default direct_scale has been changed from 2 to 1 and default scale has been changed from 1 to 2. --vluzacn
-            VectorScale(samp->light, g_direct_scale, lb);
-#ifdef ZHLT_XASH
-			VectorScale (samp->light_direction, g_direct_scale, direction);
-			vec3_t v_direction;
-#endif
-
-            {
-                SampleTriangulation(trian, samp->pos, v, 
-	#ifdef ZHLT_XASH
-					v_direction, 
-	#endif
-					f->styles[k]); //LRC
-
-                if (isPointFinite(v))
-                {
-					VectorAdd (lb, v, v);
-	#ifdef ZHLT_XASH
-					VectorAdd (direction, v_direction, v_direction);
-	#endif
-					if (VectorMaximum (v) >= g_corings[f->styles[k]])
-					{
-						VectorCopy (v, lb);
-	#ifdef ZHLT_XASH
-						VectorCopy (v_direction, direction);
-	#endif
-					}
-					else
-					{
-						if (VectorMaximum (v) > g_maxdiscardedlight + NORMAL_EPSILON)
-						{
-							ThreadLock ();
-							if (VectorMaximum (v) > g_maxdiscardedlight + NORMAL_EPSILON)
-							{
-								g_maxdiscardedlight = VectorMaximum (v);
-								VectorCopy (samp->pos, g_maxdiscardedpos);
-							}
-							ThreadUnlock ();
-						}
-					}
-                }
-                else
-                {
-                    Warning("point (%4.3f %4.3f %4.3f) infinite v (%4.3f %4.3f %4.3f)\n",
-                            samp->pos[0], samp->pos[1], samp->pos[2], v[0], v[1], v[2]);
-                }
-
-
-            }
-#endif
 			if (f->styles[0] != 0)
 			{
 				Warning ("wrong f->styles[0]");
@@ -6007,11 +5540,6 @@ void            FinalLightFace(const int facenum)
 	free (final_basicdirection);
 #endif
 
-#ifndef HLRAD_GROWSAMPLE
-    {
-        FreeTriangulation(trian);
-    }
-#endif
 }
 
 
