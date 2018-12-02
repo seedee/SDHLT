@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_SMOOTH_FACELIST //--vluzacn
 #define HLRAD_SortPatches_FIX // Important!! --vluzacn
 #define HLRAD_GatherPatchLight //--vluzacn
 	#ifdef HLRAD_GatherPatchLight
@@ -84,9 +83,7 @@
 #define HLRAD_OPAQUE_BLOCK //--vluzacn
 	#endif
 #define HLRAD_EDGESHARE_NOSPECIAL //--vluzacn
-	#ifdef HLRAD_SMOOTH_FACELIST
 #define HLRAD_SMOOTH_TEXNORMAL //--vluzacn
-	#endif
 #define HLRAD_TEXTURE //--vluzacn
 	#ifdef HLRAD_TEXTURE
 #define HLRAD_REFLECTIVITY //--vluzacn
@@ -113,9 +110,7 @@
 	#endif
 #define HLRAD_WATERBLOCKLIGHT //--vluzacn
 #define HLRAD_MDL_LIGHT_HACK_NEW //--vluzacn
-	#ifdef HLRAD_SMOOTH_FACELIST
 #define HLRAD_LERP_FACELIST //--vluzacn
-	#endif
 #define HLRAD_WATERBACKFACE_FIX // remove this if you have fixed the engine's bug of drawing water backface. --vluzacn
 	#ifdef HLRAD_SMOOTH_TEXNORMAL
 #define HLRAD_LERP_TEXNORMAL //--vluzacn
@@ -179,10 +174,8 @@
 	#ifdef HLRAD_VISMATRIX_NOMARKSURFACES
 #define HLRAD_SPARSEVISMATRIX_FAST //--vluzacn
 	#endif
-	#ifdef HLRAD_SMOOTH_FACELIST
 	#ifdef HLRAD_GROWSAMPLE
 #define HLRAD_LOCALTRIANGULATION //--vluzacn
-	#endif
 	#endif
 	#ifdef HLRAD_LOCALTRIANGULATION
 #define HLRAD_BILINEARINTERPOLATION //--vluzacn

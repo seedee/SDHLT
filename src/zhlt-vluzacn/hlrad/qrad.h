@@ -442,13 +442,11 @@ vec3_t* GetTotalLight(patch_t* patch, int style
 #endif
 	);
 
-#ifdef HLRAD_SMOOTH_FACELIST
 typedef struct facelist_s
 {
 	dface_t*		face;
 	facelist_s*	next;
 } facelist_t;
-#endif
 typedef struct
 {
     dface_t*        faces[2];
@@ -457,9 +455,7 @@ typedef struct
     vec_t           cos_normals_angle; // HLRAD_GetPhongNormal_VL: this field must be set when smooth==true
     bool            coplanar;
 	bool			smooth;
-#ifdef HLRAD_SMOOTH_FACELIST
 	facelist_t*		vertex_facelist[2]; //possible smooth faces, not include faces[0] and faces[1]
-#endif
 #ifdef HLRAD_GROWSAMPLE
 	matrix_t		textotex[2]; // how we translate texture coordinates from one face to the other face
 #endif

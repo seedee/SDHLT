@@ -37,7 +37,6 @@ bool GetIntertexnormal (int facenum1, int facenum2, vec_t *out)
 // =====================================================================================
 //  PairEdges
 // =====================================================================================
-#ifdef HLRAD_SMOOTH_FACELIST
 typedef struct
 {
 	int numclipplanes;
@@ -113,7 +112,6 @@ void FreeIntersectTest (intersecttest_t *t)
 	free (t->clipplanes);
 	free (t);
 }
-#endif
 void AddFaceForVertexNormal_printerror (const int edgeabs, const int edgeend, dface_t *const f)
 {
 	if (DEVELOPER_LEVEL_WARNING <= g_developer)
@@ -466,10 +464,8 @@ void            PairEdges()
 			{
 				const dplane_t *p0 = getPlaneFromFace (e->faces[0]);
 				const dplane_t *p1 = getPlaneFromFace (e->faces[1]);
-#ifdef HLRAD_SMOOTH_FACELIST
 				intersecttest_t *test0 = CreateIntersectTest (p0, e->faces[0] - g_dfaces);
 				intersecttest_t *test1 = CreateIntersectTest (p1, e->faces[1] - g_dfaces);
-#endif
 				for (edgeend = 0; edgeend < 2; edgeend++)
 				{
 					vec3_t errorpos;
@@ -519,17 +515,14 @@ void            PairEdges()
 								break;
 	#endif
 #endif
-	#ifdef HLRAD_SMOOTH_FACELIST
 							if (fcurrent != e->faces[0] && fcurrent != e->faces[1] &&
 								(TestFaceIntersect (test0, fcurrent - g_dfaces) || TestFaceIntersect (test1, fcurrent - g_dfaces)))
 							{
 								Developer (DEVELOPER_LEVEL_WARNING, "Overlapping faces around corner (%f,%f,%f)\n", errorpos[0], errorpos[1], errorpos[2]);
 								break;
 							}
-	#endif
 							angles += angle;
 							VectorMA(normals, angle, normal, normals);
-	#ifdef HLRAD_SMOOTH_FACELIST
 							{
 								bool in = false;
 								if (fcurrent == e->faces[0] || fcurrent == e->faces[1])
@@ -552,7 +545,6 @@ void            PairEdges()
 									e->vertex_facelist[edgeend] = l;
 								}
 							}
-	#endif
 							if (r != 0 || fnext == f)
 								break;
 						}
@@ -569,10 +561,8 @@ void            PairEdges()
 						VectorCopy(normals, e->vertex_normal[edgeend]);
 					}
 				}
-#ifdef HLRAD_SMOOTH_FACELIST
 				FreeIntersectTest (test0);
 				FreeIntersectTest (test1);
-#endif
 			}
 			if (e->coplanar)
 			{
@@ -995,7 +985,6 @@ static int		PointInFace(const lightinfo_t *l, const vec_t* point)
 		}
 		delete w;
 	}
-#ifdef HLRAD_SMOOTH_FACELIST
 	for (j = 0; j < f->numedges; j++)
 	{
 		int e;
@@ -1023,7 +1012,6 @@ static int		PointInFace(const lightinfo_t *l, const vec_t* point)
 			}
 		}
 	}
-#endif
 	return facenum;
 }
 #endif
