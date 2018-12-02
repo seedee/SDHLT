@@ -2454,7 +2454,6 @@ void            CreateDirectLights()
 
                 dl->type = emit_skylight;
                 dl->stopdot2 = FloatForKey(e, "_sky");     // hack stopdot2 to a sky key number
-#ifdef HLRAD_SUNSPREAD
 				dl->sunspreadangle = FloatForKey (e, "_spread");
 				if (!g_allow_spread)
 				{
@@ -2537,7 +2536,6 @@ void            CreateDirectLights()
 					VectorCopy (dl->normal, dl->sunnormals[0]);
 					dl->sunnormalweights[0] = 1.0;
 				}
-#endif
             }
         }
         else
@@ -2590,24 +2588,20 @@ void            CreateDirectLights()
 						if (dl->topatch)
 						{
 							countfastlights++;
-#ifdef HLRAD_SUNSPREAD
 							if (dl->sunspreadangle > 0.0)
 							{
 								countfastlights--;
 								countfastlights += dl->numsunnormals;
 							}
-#endif
 						}
 						else
 						{
 							countnormallights++;
-#ifdef HLRAD_SUNSPREAD
 							if (dl->sunspreadangle > 0.0)
 							{
 								countnormallights--;
 								countnormallights += dl->numsunnormals;
 							}
-#endif
 						}
 					}
 					if (g_indirect_sun > 0 && !VectorCompare (dl->diffuse_intensity, vec3_origin))
@@ -2981,28 +2975,18 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							// check intensity
 							if (!(l->intensity[0] || l->intensity[1] || l->intensity[2]))
 								continue;
-#ifdef HLRAD_SUNSPREAD
 						  // loop over the normals
 						  for (int j = 0; j < l->numsunnormals; j++)
 						  {
-#endif
 							// make sure the angle is okay
-	#ifdef HLRAD_SUNSPREAD
 							dot = -DotProduct (normal, l->sunnormals[j]);
-	#else
-							dot = -DotProduct (normal, l->normal);
-	#endif
 							if (dot <= NORMAL_EPSILON) //ON_EPSILON / 10 //--vluzacn
 							{
 								continue;
 							}
 
 							// search back to see if we can hit a sky brush
-	#ifdef HLRAD_SUNSPREAD
 							VectorScale (l->sunnormals[j], -BOGUS_RANGE, delta);
-	#else
-							VectorScale (l->normal, -BOGUS_RANGE, delta);
-	#endif
 							VectorAdd(pos, delta, delta);
 							vec3_t skyhit;
 							VectorCopy (delta, skyhit);
@@ -3026,11 +3010,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 
 		#ifdef ZHLT_XASH
 							vec3_t direction;
-			#ifdef HLRAD_SUNSPREAD
 							VectorCopy (l->sunnormals[j], direction);
-			#else
-							VectorCopy (l->normal, direction);
-			#endif
 		#endif
 							vec3_t add_one;
 	#ifdef HLRAD_DIVERSE_LIGHTING
@@ -3039,11 +3019,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								dot = lighting_scale * pow (dot, lighting_power);
 							}
 	#endif
-	#ifdef HLRAD_SUNSPREAD
 							VectorScale (l->intensity, dot * l->sunnormalweights[j], add_one);
-	#else
-							VectorScale(l->intensity, dot, add_one);
-	#endif
 							VectorMultiply(add_one, transparency, add_one);
 							// add to the total brightness of this sample
 							style = l->style;
@@ -3059,9 +3035,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							vec_t avg = VectorAvg (add_one);
 							VectorMA (adds_direction[style], avg, direction, adds_direction[style]);
 		#endif
-#ifdef HLRAD_SUNSPREAD
 						  } // (loop over the normals)
-#endif
 						}
 						while (0);
 						do // add sky light

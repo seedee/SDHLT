@@ -90,9 +90,7 @@
 #define DEFAULT_CHART               false
 #define DEFAULT_INFO                true
 #define DEFAULT_ALLOW_OPAQUES       true
-#ifdef HLRAD_SUNSPREAD
 #define DEFAULT_ALLOW_SPREAD		true
-#endif
 
 // ------------------------------------------------------------------------
 // Changes by Adam Foster - afoster@compsoc.man.ac.uk
@@ -243,12 +241,10 @@ typedef struct directlight_s
 #ifdef HLRAD_SUNDIFFUSE
 	vec3_t			diffuse_intensity2;
 #endif
-#ifdef HLRAD_SUNSPREAD
 	vec_t			sunspreadangle;
 	int				numsunnormals;
 	vec3_t*			sunnormals;
 	vec_t*			sunnormalweights;
-#endif
 
 #ifdef HLRAD_TEXLIGHT_SPOTS_FIX
 	vec_t			patch_area;
@@ -540,9 +536,7 @@ extern char     g_source[_MAX_PATH];
 extern vec_t    g_fade;
 extern bool     g_incremental;
 extern bool     g_circus;
-#ifdef HLRAD_SUNSPREAD
 extern bool		g_allow_spread;
-#endif
 extern bool     g_sky_lighting_fix;
 extern vec_t    g_chop;    // Chop value for normal textures
 extern vec_t    g_texchop; // Chop value for texture lights
@@ -616,10 +610,8 @@ extern void     PairEdges();
 #define SKYLEVELMAX 8
 #define SKYLEVEL_SOFTSKYON 7
 #define SKYLEVEL_SOFTSKYOFF 4
-#ifdef HLRAD_SUNSPREAD
 #define SUNSPREAD_SKYLEVEL 7
 #define SUNSPREAD_THRESHOLD 15.0
-#endif
 extern int		g_numskynormals[SKYLEVELMAX+1]; // 0, 6, 18, 66, 258, 1026, 4098, 16386, 65538
 extern vec3_t*	g_skynormals[SKYLEVELMAX+1]; //[numskynormals]
 extern vec_t*	g_skynormalsizes[SKYLEVELMAX+1]; // the weight of each normal

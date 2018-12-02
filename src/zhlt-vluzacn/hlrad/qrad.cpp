@@ -113,9 +113,7 @@ float			g_smoothing_value_2 = DEFAULT_SMOOTHING2_VALUE;
 
 bool            g_circus = DEFAULT_CIRCUS;
 bool            g_allow_opaques = DEFAULT_ALLOW_OPAQUES;
-#ifdef HLRAD_SUNSPREAD
 bool			g_allow_spread = DEFAULT_ALLOW_SPREAD;
-#endif
 
 // --------------------------------------------------------------------------
 // Changes by Adam Foster - afoster@compsoc.man.ac.uk
@@ -3196,9 +3194,7 @@ static void     Usage()
     Log("    -limiter #      : Set light clipping threshold (-1=None)\n");
 #endif
     Log("    -circus         : Enable 'circus' mode for locating unlit lightmaps\n");
-#ifdef HLRAD_SUNSPREAD
 	Log("    -nospread       : Disable sunlight spread angles for this compile\n");
-#endif
     Log("    -nopaque        : Disable the opaque zhlt_lightflags for this compile\n\n");
     Log("    -smooth #       : Set smoothing threshold for blending (in degrees)\n");
 	Log("    -smooth2 #      : Set smoothing threshold between different textures\n");
@@ -3431,9 +3427,7 @@ static void     Settings()
     Log("global sky diffusion [ %17s ] [ %17s ]\n", buf1, buf2);
 
     Log("\n");
-#ifdef HLRAD_SUNSPREAD
 	Log("spread angles        [ %17s ] [ %17s ]\n", g_allow_spread ? "on" : "off", DEFAULT_ALLOW_SPREAD ? "on" : "off");
-#endif
     Log("opaque entities      [ %17s ] [ %17s ]\n", g_allow_opaques ? "on" : "off", DEFAULT_ALLOW_OPAQUES ? "on" : "off");
     Log("sky lighting fix     [ %17s ] [ %17s ]\n", g_sky_lighting_fix ? "on" : "off", DEFAULT_SKY_LIGHTING_FIX ? "on" : "off");
     Log("incremental          [ %17s ] [ %17s ]\n", g_incremental ? "on" : "off", DEFAULT_INCREMENTAL ? "on" : "off");
@@ -4128,12 +4122,10 @@ int             main(const int argc, char** argv)
 				Usage ();
 			}
 		}
-#ifdef HLRAD_SUNSPREAD
 		else if (!strcasecmp (argv[i], "-nospread"))
 		{
 			g_allow_spread = false;
 		}
-#endif
         else if (!strcasecmp(argv[i], "-nopaque")
 			|| !strcasecmp(argv[i], "-noopaque")) //--vluzacn
         {
