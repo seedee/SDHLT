@@ -707,14 +707,12 @@ extern float	g_softlight_hack_distance;
 #ifdef HLRAD_OPAQUE_BLOCK
 	extern int g_blockopaque;
 #endif
-#ifdef HLRAD_DEBUG_DRAWPOINTS
 	extern bool g_drawpatch;
 	extern bool g_drawsample;
 	extern vec3_t g_drawsample_origin;
 	extern vec_t g_drawsample_radius;
 	extern bool g_drawedge;
 	extern bool g_drawlerp;
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 	extern bool g_drawnudge;
 #endif

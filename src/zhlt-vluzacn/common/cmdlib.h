@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_DEBUG_DRAWPOINTS //--vluzacn
 #define HLRAD_SubdividePatch_NOTMIDDLE //--vluzacn
 #define HLRAD_PHONG_FROMORIGINAL //--vluzacn
 #define HLRAD_SMOOTH_FACELIST //--vluzacn
@@ -184,9 +183,7 @@
 	#endif
 	#ifdef HLRAD_SMOOTH_FACELIST
 	#ifdef HLRAD_GROWSAMPLE
-	#ifdef HLRAD_DEBUG_DRAWPOINTS
 #define HLRAD_LOCALTRIANGULATION //--vluzacn
-	#endif
 	#endif
 	#endif
 	#ifdef HLRAD_LOCALTRIANGULATION

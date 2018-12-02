@@ -760,7 +760,6 @@ void FindFacePositions (int facenum)
 
 void FreePositionMaps ()
 {
-#ifdef HLRAD_DEBUG_DRAWPOINTS
 	if (g_drawsample)
 	{
 		char name[_MAX_PATH+20];
@@ -802,7 +801,6 @@ void FreePositionMaps ()
 		else
 			Log ("Error.\n");
 	}
-#endif
 	for (int facenum = 0; facenum < g_numfaces; facenum++)
 	{
 		positionmap_t *map = &g_face_positions[facenum];

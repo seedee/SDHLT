@@ -7099,7 +7099,6 @@ void AddPatchLights (int facenum)
 // =====================================================================================
 void            FinalLightFace(const int facenum)
 {
-#ifdef HLRAD_DEBUG_DRAWPOINTS
 	if (facenum == 0 && g_drawsample)
 	{
 		char name[_MAX_PATH+20];
@@ -7133,7 +7132,6 @@ void            FinalLightFace(const int facenum)
 		else
 			Log ("Error.\n");
 	}
-#endif
     int             i, j, k;
     vec3_t          lb, v;
     facelight_t*    fl;

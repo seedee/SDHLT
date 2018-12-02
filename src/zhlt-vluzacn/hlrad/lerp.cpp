@@ -2371,10 +2371,8 @@ void            SampleTriangulation(const lerpTriangulation_t* const trian, cons
 	#endif
 				pt1, pt2, pt3, style))
 		{
-	#ifdef HLRAD_DEBUG_DRAWPOINTS
 			if (g_drawlerp)
 				result[0] = 100, result[1] = 100, result[2] = 100;
-	#endif
 			return;
 		}
 		if (trian->numpoints >= 4 && trian->dists[3].invalid <= 0)
@@ -2386,11 +2384,9 @@ void            SampleTriangulation(const lerpTriangulation_t* const trian, cons
 	#endif
 					pt1, pt2, pt4, style))
 			{
-	#ifdef HLRAD_DEBUG_DRAWPOINTS
 				if (g_drawlerp)
 					result[0] = 100, result[1] = 100, result[2] = 0;
 				return;
-	#endif
 			}
 			if (LerpTriangle (trian, point, result, 
 	#ifdef ZHLT_XASH
@@ -2398,10 +2394,8 @@ void            SampleTriangulation(const lerpTriangulation_t* const trian, cons
 	#endif
 					pt1, pt3, pt4, style))
 			{
-	#ifdef HLRAD_DEBUG_DRAWPOINTS
 				if (g_drawlerp)
 					result[0] = 100, result[1] = 0, result[2] = 100;
-	#endif
 				return;
 			}
 			if (trian->numpoints >= 5 && trian->dists[4].invalid <= 0)
@@ -2413,10 +2407,8 @@ void            SampleTriangulation(const lerpTriangulation_t* const trian, cons
 	#endif
 						pt1, pt2, pt5, style))
 				{
-	#ifdef HLRAD_DEBUG_DRAWPOINTS
 					if (g_drawlerp)
 						result[0] = 100, result[1] = 0, result[2] = 0;
-	#endif
 					return;
 				}
 				if (LerpTriangle (trian, point, result, 
@@ -2425,10 +2417,8 @@ void            SampleTriangulation(const lerpTriangulation_t* const trian, cons
 	#endif
 						pt1, pt3, pt5, style))
 				{
-	#ifdef HLRAD_DEBUG_DRAWPOINTS
 					if (g_drawlerp)
 						result[0] = 100, result[1] = 0, result[2] = 0;
-	#endif
 					return;
 				}
 				if (LerpTriangle (trian, point, result, 
@@ -2437,10 +2427,8 @@ void            SampleTriangulation(const lerpTriangulation_t* const trian, cons
 	#endif
 						pt1, pt4, pt5, style))
 				{
-	#ifdef HLRAD_DEBUG_DRAWPOINTS
 					if (g_drawlerp)
 						result[0] = 100, result[1] = 0, result[2] = 0;
-	#endif
 					return;
 				}
 			}
@@ -2456,10 +2444,8 @@ void            SampleTriangulation(const lerpTriangulation_t* const trian, cons
 	#endif
 				pt1, pt2, style))
 		{
-	#ifdef HLRAD_DEBUG_DRAWPOINTS
 			if (g_drawlerp)
 				result[0] = 0, result[1] = 100, result[2] = 100;
-	#endif
 			return;
 		}
 		if (trian->numpoints >= 3 && trian->dists[2].invalid <= 0 )
@@ -2471,10 +2457,8 @@ void            SampleTriangulation(const lerpTriangulation_t* const trian, cons
 	#endif
 					pt1, pt3, style))
 			{
-	#ifdef HLRAD_DEBUG_DRAWPOINTS
 				if (g_drawlerp)
 					result[0] = 0, result[1] = 100, result[2] = 0;
-	#endif
 				return;
 			}
 		}
@@ -2488,10 +2472,8 @@ void            SampleTriangulation(const lerpTriangulation_t* const trian, cons
 	#endif
 				pt1, style))
 		{
-	#ifdef HLRAD_DEBUG_DRAWPOINTS
 			if (g_drawlerp)
 				result[0] = 0, result[1] = 0, result[2] = 100;
-	#endif
 			return;
 		}
 	}

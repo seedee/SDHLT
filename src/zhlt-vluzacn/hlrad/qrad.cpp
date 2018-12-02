@@ -167,14 +167,12 @@ vec_t g_texreflectscale = DEFAULT_TEXREFLECTSCALE;
 #ifdef HLRAD_AVOIDWALLBLEED
 bool g_bleedfix = DEFAULT_BLEEDFIX;
 #endif
-#ifdef HLRAD_DEBUG_DRAWPOINTS
 bool g_drawpatch = false;
 bool g_drawsample = false;
 vec3_t g_drawsample_origin = {0,0,0};
 vec_t g_drawsample_radius = 0;
 bool g_drawedge = false;
 bool g_drawlerp = false;
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 bool g_drawnudge = false;
 #endif
@@ -3374,7 +3372,6 @@ static void     RadWorld()
 
     // turn each face into a single patch
     MakePatches();
-#ifdef HLRAD_DEBUG_DRAWPOINTS
 	if (g_drawpatch)
 	{
 		char name[_MAX_PATH+20];
@@ -3403,11 +3400,9 @@ static void     RadWorld()
 		else
 			Log ("Error.\n");
 	}
-#endif
     CheckMaxPatches();                                     // Check here for exceeding max patches, to prevent a lot of work from occuring before an error occurs
     SortPatches();                                         // Makes the runs in the Transfer Compression really good
     PairEdges();
-#ifdef HLRAD_DEBUG_DRAWPOINTS
 	if (g_drawedge)
 	{
 		char name[_MAX_PATH+20];
@@ -3441,7 +3436,6 @@ static void     RadWorld()
 		else
 			Log ("Error.\n");
 	}
-#endif
 
 #ifdef HLRAD_SOFTSKY
 	BuildDiffuseNormals ();
@@ -3721,12 +3715,10 @@ static void     Usage()
 #ifdef HLRAD_AVOIDWALLBLEED
 	Log("   -nobleedfix    : Don't fix wall bleeding problem for large blur value.\n");
 #endif
-#ifdef HLRAD_DEBUG_DRAWPOINTS
 	Log("   -drawpatch     : Export light patch positions to file 'mapname_patch.pts'.\n");
 	Log("   -drawsample x y z r    : Export light sample positions in an area to file 'mapname_sample.pts'.\n");
 	Log("   -drawedge      : Export smooth edge positions to file 'mapname_edge.pts'.\n");
 	Log("   -drawlerp      : Show bounce light triangulation status.\n");
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 	Log("   -drawnudge     : Show nudged samples.\n");
 #endif
@@ -4828,7 +4820,6 @@ int             main(const int argc, char** argv)
 		}
 #endif
 
-#ifdef HLRAD_DEBUG_DRAWPOINTS
 		else if (!strcasecmp(argv[i], "-drawpatch"))
 		{
 			g_drawpatch = true;
@@ -4856,7 +4847,6 @@ int             main(const int argc, char** argv)
 		{
 			g_drawlerp = true;
 		}
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 		else if (!strcasecmp(argv[i], "-drawnudge"))
 		{
@@ -5143,12 +5133,10 @@ int             main(const int argc, char** argv)
 		Warning ("light scale value should be 2.0 for final compile.\nValues other than 2.0 will result in incorrect interpretation of light_environment's brightness when the engine loads the map.");
 	}
 #endif
-#ifdef HLRAD_DEBUG_DRAWPOINTS
 	if (g_drawlerp)
 	{
 		g_direct_scale = 0.0;
 	}
-#endif
     
     if (!g_visdatasize)
     {
