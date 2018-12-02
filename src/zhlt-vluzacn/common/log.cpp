@@ -29,11 +29,9 @@
 #include "log.h"
 #include "filelib.h"
 
-#ifdef ZHLT_CONSOLE
 #ifdef SYSTEM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#endif
 #endif
 
 #ifdef ZHLT_LANGFILE
@@ -53,11 +51,9 @@ unsigned long   g_nextclientid = 0;
 static FILE*    CompileLog = NULL;
 static bool     fatal = false;
 
-#ifdef ZHLT_CONSOLE
 bool twice = false;
 bool useconsole = false;
 FILE *conout = NULL;
-#endif
 
 #ifdef ZHLT_LANGFILE
 int				g_lang_count = 0;
@@ -210,7 +206,6 @@ void            LogError(const char* const message)
             fprintf(stderr, "ERROR: Could not open error logfile %s", logfilename);
 #endif
             fflush(stderr);
-#ifdef ZHLT_CONSOLE
 			if (twice)
 			{
 #ifdef ZHLT_LANGFILE
@@ -220,7 +215,6 @@ void            LogError(const char* const message)
 #endif
 				fflush (conout);
 			}
-#endif
         }
     }
 }
@@ -273,7 +267,6 @@ void CDECL      OpenLog(const int clientid)
             fprintf(stderr, "ERROR: Could not open logfile %s", logfilename);
 #endif
             fflush(stderr);
-#ifdef ZHLT_CONSOLE
 			if (twice)
 			{
 #ifdef ZHLT_LANGFILE
@@ -283,7 +276,6 @@ void CDECL      OpenLog(const int clientid)
 #endif
 				fflush (conout);
 			}
-#endif
         }
     }
 }
@@ -348,13 +340,11 @@ void            WriteLog(const char* const message)
 
     fprintf(stdout, "%s", message); //fprintf(stdout, message); //--vluzacn
     fflush(stdout);
-#ifdef ZHLT_CONSOLE
 	if (twice)
 	{
 		fprintf (conout, "%s", message);
 		fflush (conout);
 	}
-#endif
 }
 
 // =====================================================================================
@@ -767,7 +757,6 @@ void LogTimeElapsed(float elapsed_time)
     }
 }
 
-#ifdef ZHLT_CONSOLE
 #ifdef SYSTEM_WIN32
 void wait ()
 {
@@ -845,7 +834,6 @@ void CDECL FORMAT_PRINTF(1,2) PrintConsole(const char* const warning, ...)
 		fprintf (stdout, "%s", message);
 	}
 }
-#endif
 
 #ifdef ZHLT_LANGFILE
 int loadlangfileline (char *line, int n, FILE *f)

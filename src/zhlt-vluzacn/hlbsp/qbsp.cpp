@@ -1585,9 +1585,7 @@ static void     Usage()
     Banner();
 
     Log("\n-= %s Options =-\n\n", g_Program);
-#ifdef ZHLT_CONSOLE
 	Log("    -console #     : Set to 0 to turn off the pop-up console (default is 1)\n");
-#endif
 #ifdef ZHLT_LANGFILE
 	Log("    -lang file     : localization file\n");
 #endif
@@ -1884,10 +1882,8 @@ int             main(const int argc, char** argv)
 		ParseParamFile (argcold, argvold, argc, argv);
 		{
 #endif
-#ifdef ZHLT_CONSOLE
 	if (InitConsole (argc, argv) < 0)
 		Usage();
-#endif
     // if we dont have any command line argvars, print out usage and die
     if (argc == 1)
         Usage();
@@ -1912,7 +1908,6 @@ int             main(const int argc, char** argv)
                 Usage();
             }
         }
-#ifdef ZHLT_CONSOLE
 		else if (!strcasecmp(argv[i], "-console"))
 		{
 #ifndef SYSTEM_WIN32
@@ -1923,7 +1918,6 @@ int             main(const int argc, char** argv)
 			else
 				Usage();
 		}
-#endif
         else if (!strcasecmp(argv[i], "-notjunc"))
         {
             g_notjunc = true;

@@ -86,11 +86,7 @@ int             GetThreadWork()
     f = THREADTIMES_SIZE * dispatch / workcount;
     if (pacifier)
     {
-#ifdef ZHLT_CONSOLE
 		PrintConsole
-#else
-        printf
-#endif
 			("\r%6d /%6d", dispatch, workcount);
 #ifdef ZHLT_PROGRESSFILE // AJM
         if (g_progressfile)
@@ -121,11 +117,7 @@ int             GetThreadWork()
 
                 if (finish > 1.0)
                 {
-#ifdef ZHLT_CONSOLE
 					PrintConsole
-#else
-                    printf
-#endif
 #ifdef ZHLT_LANGFILE
 						(s1, f, (long)(finish), (long)(finish2),
                            (long)(finish3));
@@ -143,11 +135,7 @@ int             GetThreadWork()
                 }
                 else
                 {
-#ifdef ZHLT_CONSOLE
 					PrintConsole
-#else
-                    printf
-#endif
 #ifdef ZHLT_LANGFILE
 						(s2, f);
 #else
@@ -194,11 +182,7 @@ int             GetThreadWork()
             case 85:
             case 95:
 */
-#ifdef ZHLT_CONSOLE
 				PrintConsole
-#else
-                printf
-#endif
 					("%d%%...", f);
             default:
                 break;
@@ -461,11 +445,7 @@ void            RunThreadsOn(int workcnt, bool showpacifier, q_threadfunction fu
     end = I_FloatTime();
     if (pacifier)
     {
-#ifdef ZHLT_CONSOLE
 		PrintConsole
-#else
-        printf
-#endif
 			("\r%60s\r", "");
     }
     Log(" (%.2f seconds)\n", end - start);
@@ -640,11 +620,7 @@ void            RunThreadsOn(int workcnt, bool showpacifier, q_threadfunction fu
     end = I_FloatTime();
     if (pacifier)
     {
-#ifdef ZHLT_CONSOLE
 		PrintConsole
-#else
-        printf
-#endif
 			("\r%60s\r", "");
     }
 
@@ -717,11 +693,7 @@ void            RunThreadsOn(int workcnt, bool showpacifier, q_threadfunction fu
 
     if (pacifier)
     {
-#ifdef ZHLT_CONSOLE
 		PrintConsole
-#else
-        printf
-#endif
 			("\r%60s\r", "");
     }
 

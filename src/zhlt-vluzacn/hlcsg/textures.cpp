@@ -103,12 +103,7 @@ static void texmap_clear ()
         ThreadLock();
         if (tex_max64 >= MAX_MAP_BRUSHES)   // no assert?
         {
-#ifdef ZHLT_CONSOLE
 			Error ("MAX_MAP_BRUSHES exceeded!");
-#else
-            printf("MAX_MAP_BRUSHES exceeded!\n");
-            exit(-1);
-#endif
         }
         curr_tex = tex_max64;
         texmap64[tex_max64] = texname;
@@ -121,12 +116,7 @@ static void texmap_clear ()
     {
         if(index > tex_max64)
         {
-#ifdef ZHLT_CONSOLE
 			Error ("retrieving bogus texture index %d", index);
-#else
-            printf("retrieving bogus texture index %d\n", index);
-            exit(-1);
-#endif
         }
         return texmap64[index];
     }

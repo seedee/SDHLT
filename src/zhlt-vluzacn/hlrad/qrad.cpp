@@ -3547,11 +3547,7 @@ static void     BounceLight()
 
     for (i = 0; i < g_numbounce; i++)
     {
-#ifdef ZHLT_CONSOLE
         Log("Bounce %u ", i + 1);
-#else
-        printf("Bounce %u ", i + 1);
-#endif
 #ifdef HLRAD_HULLU
 	if(g_rgb_transfers)
 	       	{NamedRunThreadsOn(g_num_patches, g_estimate, GatherRGBLight);}
@@ -3998,9 +3994,7 @@ static void     Usage()
     Banner();
 
     Log("\n-= %s Options =-\n\n", g_Program);
-#ifdef ZHLT_CONSOLE
 	Log("    -console #      : Set to 0 to turn off the pop-up console (default is 1)\n");
-#endif
 #ifdef ZHLT_LANGFILE
 	Log("    -lang file      : localization file\n");
 #endif
@@ -4687,10 +4681,8 @@ int             main(const int argc, char** argv)
 		ParseParamFile (argcold, argvold, argc, argv);
 		{
 #endif
-#ifdef ZHLT_CONSOLE
 	if (InitConsole (argc, argv) < 0)
 		Usage();
-#endif
     if (argc == 1)
         Usage();
 
@@ -4700,7 +4692,6 @@ int             main(const int argc, char** argv)
         {
             g_dumppatches = true;
         }
-#ifdef ZHLT_CONSOLE
 		else if (!strcasecmp(argv[i], "-console"))
 		{
 #ifndef SYSTEM_WIN32
@@ -4711,7 +4702,6 @@ int             main(const int argc, char** argv)
 			else
 				Usage();
 		}
-#endif
         else if (!strcasecmp(argv[i], "-bounce"))
         {
             if (i + 1 < argc)	//added "1" .--vluzacn
