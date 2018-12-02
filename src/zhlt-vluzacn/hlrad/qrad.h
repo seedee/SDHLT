@@ -450,7 +450,6 @@ typedef struct patch_s
 	vec3_t			bouncereflectivity;
 #endif
 
-#ifdef ZHLT_TEXLIGHT
 #ifdef HLRAD_GatherPatchLight
 	unsigned char	totalstyle[MAXLIGHTMAPS];
 #else
@@ -506,27 +505,17 @@ typedef struct patch_s
 	vec3_t*			directlight_all_direction;
 #endif
 #endif
-#else
-    vec3_t          totallight;                            // accumulated by radiosity does NOT include light accounted for by direct lighting
-    vec3_t          baselight;                             // emissivity only
-    vec3_t          directlight;                           // direct light value
-
-    vec3_t          samplelight;
-    int             samples;                               // for averaging direct light
-#endif
 #ifdef HLRAD_ENTITYBOUNCE_FIX
 	int				leafnum;
 #endif
 } patch_t;
 
-#ifdef ZHLT_TEXLIGHT
 //LRC
 vec3_t* GetTotalLight(patch_t* patch, int style
 #ifdef ZHLT_XASH
 	, const vec3_t *&direction_out
 #endif
 	);
-#endif
 
 #ifdef HLRAD_SMOOTH_FACELIST
 typedef struct facelist_s
@@ -1066,7 +1055,6 @@ extern void InterpolateSampleLight (const vec3_t position, int surface, int nums
 				);
 extern void FreeTriangulations ();
 #else
-#ifdef ZHLT_TEXLIGHT
 #ifdef HLRAD_LERP_VL
 extern void     SampleTriangulation(const lerpTriangulation_t* const trian, const vec3_t point, vec3_t result, 
 #ifdef ZHLT_XASH
@@ -1075,9 +1063,6 @@ extern void     SampleTriangulation(const lerpTriangulation_t* const trian, cons
 					int style); //LRC
 #else
 extern void     SampleTriangulation(const lerpTriangulation_t* const trian, vec3_t point, vec3_t result, int style); //LRC
-#endif
-#else
-extern void     SampleTriangulation(const lerpTriangulation_t* const trian, vec3_t point, vec3_t result);
 #endif
 extern void     DestroyTriangulation(lerpTriangulation_t* trian);
 extern lerpTriangulation_t* CreateTriangulation(unsigned int facenum);

@@ -1357,9 +1357,7 @@ static void     SetLightStyles()
     char            value[10];
     char            lighttargets[MAX_SWITCHED_LIGHTS][MAX_LIGHTTARGETS_NAME];
 
-#ifdef ZHLT_TEXLIGHT
     	bool			newtexlight = false;
-#endif
 
     // any light that is controlled (has a targetname)
     // must have a unique style number generated for it
@@ -1372,7 +1370,6 @@ static void     SetLightStyles()
         t = ValueForKey(e, "classname");
         if (strncasecmp(t, "light", 5))
         {
-#ifdef ZHLT_TEXLIGHT
             //LRC:
 			// if it's not a normal light entity, allocate it a new style if necessary.
 	        t = ValueForKey(e, "style");
@@ -1396,9 +1393,6 @@ static void     SetLightStyles()
 				// don't 'continue', fall out
 			}
 	        //LRC (ends)
-#else
-            continue;
-#endif
         }
         t = ValueForKey(e, "targetname");
 #ifdef HLCSG_STYLEHACK

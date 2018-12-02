@@ -68,7 +68,6 @@ entity_t*		g_face_texlights[MAX_MAP_FACES];
 #endif
 unsigned        g_num_patches;
 
-#ifdef ZHLT_TEXLIGHT
 #ifdef HLRAD_MORE_PATCHES
 static vec3_t   (*emitlight)[MAXLIGHTMAPS]; //LRC
 static vec3_t   (*addlight)[MAXLIGHTMAPS]; //LRC
@@ -90,15 +89,6 @@ static vec3_t	addlight_direction[MAX_PATCHES][MAXLIGHTMAPS];
 static unsigned char (*newstyles)[MAXLIGHTMAPS];
 #else
 static unsigned char newstyles[MAX_PATCHES][MAXLIGHTMAPS];
-#endif
-#endif
-#else
-#ifdef HLRAD_MORE_PATCHES
-static vec3_t   (*emitlight);
-static vec3_t   (*addlight);
-#else
-static vec3_t   emitlight[MAX_PATCHES];
-static vec3_t   addlight[MAX_PATCHES];
 #endif
 #endif
 
@@ -1741,19 +1731,11 @@ static vec_t    getChop(const patch_t* const patch)
 // =====================================================================================
 //  MakePatchForFace
 // =====================================================================================
-#ifdef ZHLT_TEXLIGHT
 static void     MakePatchForFace(const int fn, Winding* w, int style
 #ifdef HLRAD_BOUNCE_STYLE
 	, int bouncestyle
 #endif
 	) //LRC
-#else
-static void     MakePatchForFace(const int fn, Winding* w
-#ifdef HLRAD_BOUNCE_STYLE
-	, int bouncestyle
-#endif
-	)
-#endif
 {
     const dface_t*  f = g_dfaces + fn;
 
@@ -1761,14 +1743,11 @@ static void     MakePatchForFace(const int fn, Winding* w
     if (!IsSpecial(f))
     {
 #ifdef HLRAD_CUSTOMTEXLIGHT
-#ifdef ZHLT_TEXLIGHT
 		if (g_face_texlights[fn])
 		{
 			style = IntForKey (g_face_texlights[fn], "style");
-#ifdef ZHLT_TEXLIGHT
 			if (style < 0)
 				style = -style;
-#endif
 #ifdef HLRAD_STYLE_CORING
 			style = (unsigned char)style;
 			if (style >= ALLSTYLES)
@@ -1777,7 +1756,6 @@ static void     MakePatchForFace(const int fn, Winding* w
 			}
 #endif
 		}
-#endif
 #endif
         patch_t*        patch;
         vec3_t          light;
@@ -1816,14 +1794,9 @@ static void     MakePatchForFace(const int fn, Winding* w
 #endif
 
         BaseLightForFace(f, light);
-#ifdef ZHLT_TEXLIGHT
         //LRC        VectorCopy(light, patch->totallight);
-#else
-        VectorCopy(light, patch->totallight);
-#endif
         VectorCopy(light, patch->baselight);
 
-#ifdef ZHLT_TEXLIGHT
 #ifdef HLRAD_AUTOCORING
 		patch->emitstyle = style;
 #else
@@ -1839,7 +1812,6 @@ static void     MakePatchForFace(const int fn, Winding* w
 			patch->emitstyle = patch->totalstyle[1] = style;
 		}
         //LRC (ends)
-#endif
 #endif
 
 #ifdef HLRAD_REFLECTIVITY
@@ -2228,10 +2200,8 @@ static void		LoadOpaqueEntities()
 						&& !strcmp (ValueForKey (lightent, "target"), ValueForKey (ent, "targetname")))
 					{
 						opaquestyle = IntForKey (lightent, "style");
-	#ifdef ZHLT_TEXLIGHT
 						if (opaquestyle < 0)
 							opaquestyle = -opaquestyle;
-	#endif
 	#ifdef HLRAD_STYLE_CORING
 						opaquestyle = (unsigned char)opaquestyle;
 						if (opaquestyle >= ALLSTYLES)
@@ -2364,9 +2334,7 @@ static void     MakePatches()
     bool            b_model_center;
     eModelLightmodes lightmode;
 
-#ifdef ZHLT_TEXLIGHT
     int				style; //LRC
-#endif
 
 #ifndef HLRAD_OPAQUE_NODE
 #ifdef HLRAD_HULLU
@@ -2491,7 +2459,6 @@ static void     MakePatches()
             VectorSubtract(light_origin, model_center, origin);
         }
 
-#ifdef ZHLT_TEXLIGHT        
 		//LRC:
 		if (*(s = ValueForKey(ent, "style")))
 		{
@@ -2511,7 +2478,6 @@ static void     MakePatches()
 			Error ("invalid light style: style (%d) >= ALLSTYLES (%d)", style, ALLSTYLES);
 		}
 	#endif
-#endif
 #ifndef HLRAD_OPAQUE_NODE
 #ifdef HLRAD_OPAQUE_STYLE
 		int opaquestyle = -1;
@@ -2523,10 +2489,8 @@ static void     MakePatches()
 				&& !strcmp (ValueForKey (lightent, "target"), ValueForKey (ent, "targetname")))
 			{
 				opaquestyle = IntForKey (lightent, "style");
-	#ifdef ZHLT_TEXLIGHT
 				if (opaquestyle < 0)
 					opaquestyle = -opaquestyle;
-	#endif
 	#ifdef HLRAD_STYLE_CORING
 				opaquestyle = (unsigned char)opaquestyle;
 				if (opaquestyle >= ALLSTYLES)
@@ -2551,10 +2515,8 @@ static void     MakePatches()
 					&& !strcmp (ValueForKey (lightent, "target"), ValueForKey (ent, "targetname")))
 				{
 					bouncestyle = IntForKey (lightent, "style");
-	#ifdef ZHLT_TEXLIGHT
 					if (bouncestyle < 0)
 						bouncestyle = -bouncestyle;
-	#endif
 	#ifdef HLRAD_STYLE_CORING
 					bouncestyle = (unsigned char)bouncestyle;
 					if (bouncestyle >= ALLSTYLES)
@@ -2602,19 +2564,11 @@ static void     MakePatches()
                 }
             }
 #endif
-#ifdef ZHLT_TEXLIGHT
             MakePatchForFace(fn, w, style
 #ifdef HLRAD_BOUNCE_STYLE
 				, bouncestyle
 #endif
 				); //LRC
-#else
-            MakePatchForFace(fn, w
-#ifdef HLRAD_BOUNCE_STYLE
-				, bouncestyle
-#endif
-				);
-#endif
         }
     }
 
@@ -2747,17 +2701,10 @@ static void     WriteWorld(const char* const name)
         Log("%i\n", w->m_NumPoints);
         for (i = 0; i < w->m_NumPoints; i++)
         {
-#ifdef ZHLT_TEXLIGHT
             Log("%5.2f %5.2f %5.2f %5.3f %5.3f %5.3f\n",
                 w->m_Points[i][0],
                 w->m_Points[i][1],
                 w->m_Points[i][2], patch->totallight[0][0] / 256, patch->totallight[0][1] / 256, patch->totallight[0][2] / 256); //LRC
-#else
-            Log("%5.2f %5.2f %5.2f %5.3f %5.3f %5.3f\n",
-                w->m_Points[i][0],
-                w->m_Points[i][1],
-                w->m_Points[i][2], patch->totallight[0] / 256, patch->totallight[1] / 256, patch->totallight[2] / 256);
-#endif
         }
         Log("\n");
     }
@@ -2770,9 +2717,7 @@ static void     WriteWorld(const char* const name)
 // =====================================================================================
 static void     CollectLight()
 {
-#ifdef ZHLT_TEXLIGHT
     unsigned        j; //LRC
-#endif
     unsigned        i;
     patch_t*        patch;
 
@@ -2820,7 +2765,6 @@ static void     CollectLight()
 			}
 		}
 #else
-#ifdef ZHLT_TEXLIGHT
          //LRC
 		for (j = 0; j < MAXLIGHTMAPS && patch->totalstyle[j] != 255; j++)
 		{
@@ -2832,15 +2776,6 @@ static void     CollectLight()
 	#endif
 			VectorClear(addlight[i][j]);
 		}
-#else
-        VectorAdd(patch->totallight, addlight[i], patch->totallight);
-	#ifdef HLRAD_TRANSFERDATA_COMPRESS
-        VectorCopy(addlight[i], emitlight[i]);
-	#else
-        VectorScale(addlight[i], TRANSFER_SCALE, emitlight[i]);
-	#endif
-        VectorClear(addlight[i]);
-#endif
 #endif
     }
 }
@@ -2859,13 +2794,8 @@ static void     GatherLight(int threadnum)
     int             j;
     patch_t*        patch;
 
-#ifdef ZHLT_TEXLIGHT
     unsigned        k,m; //LRC
 //LRC    vec3_t          sum;
-#else
-    unsigned        k;
-    vec3_t          sum;
-#endif
 
     unsigned        iIndex;
     transfer_data_t* tData;
@@ -2874,7 +2804,6 @@ static void     GatherLight(int threadnum)
 	float f;
 #endif
 #ifdef HLRAD_STYLE_CORING
-#ifdef ZHLT_TEXLIGHT
 #ifndef HLRAD_AUTOCORING
 	int				style_index;
 #endif
@@ -2883,7 +2812,6 @@ static void     GatherLight(int threadnum)
 	vec3_t			adds_direction[ALLSTYLES];
 #endif
 	int				style;
-#endif
 #endif
 #ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 	unsigned int	fastfind_index = 0;
@@ -2897,11 +2825,9 @@ static void     GatherLight(int threadnum)
             break;
         }
 #ifdef HLRAD_STYLE_CORING
-#ifdef ZHLT_TEXLIGHT
 		memset (adds, 0, ALLSTYLES * sizeof(vec3_t));
 #ifdef ZHLT_XASH
 		memset (adds_direction, 0, ALLSTYLES * sizeof (vec3_t));
-#endif
 #endif
 #endif
 
@@ -2911,16 +2837,12 @@ static void     GatherLight(int threadnum)
         tIndex = patch->tIndex;
         iIndex = patch->iIndex;
 
-#ifdef ZHLT_TEXLIGHT
 #ifndef HLRAD_AUTOCORING
   		//LRC
         for (m = 0; m < MAXLIGHTMAPS && patch->totalstyle[m] != 255; m++)
 		{
 			VectorClear(addlight[j][m]);
 		}
-#endif
-#else
-        VectorClear(sum);
 #endif
 #ifdef HLRAD_AUTOCORING
 		for (m = 0; m < MAXLIGHTMAPS && patch->totalstyle[m] != 255; m++)
@@ -2950,7 +2872,6 @@ static void     GatherLight(int threadnum)
 	#endif
             {
                 vec3_t          v;
-#ifdef ZHLT_TEXLIGHT
                  //LRC:
 				patch_t*		emitpatch = &g_patches[patchnum];
 				unsigned		emitstyle;
@@ -3127,26 +3048,6 @@ static void     GatherLight(int threadnum)
 #endif
 				}
                 //LRC (ends)
-#else
-	#ifdef HLRAD_TRANSFERDATA_COMPRESS
-				float_decompress (g_transfer_compress_type, tData, &f);
-                VectorScale(emitlight[patchnum], f, v);
-	#else
-                VectorScale(emitlight[patchnum], (*tData), v);
-	#endif
-	#ifdef HLRAD_REFLECTIVITY
-				VectorMultiply(v, emitpatch->bouncereflectivity, v);
-	#endif
-                if (isPointFinite(v))
-                {
-                    VectorAdd(sum, v, sum);
-                }
-                else
-                {
-                    Verbose("GatherLight, v (%4.3f %4.3f %4.3f)@(%4.3f %4.3f %4.3f)\n",
-                            v[0], v[1], v[2], patch->origin[0], patch->origin[1], patch->origin[2]);
-                }
-#endif
             }
         }
 
@@ -3203,7 +3104,6 @@ static void     GatherLight(int threadnum)
 			}
 		}
 #else
-#ifdef ZHLT_TEXLIGHT
         //LRC        VectorCopy(sum, addlight[j]);
 #ifdef HLRAD_STYLE_CORING
 		for (style = 0; style < ALLSTYLES; ++style)
@@ -3242,9 +3142,6 @@ static void     GatherLight(int threadnum)
 			}
 		}
 #endif
-#else
-        VectorCopy(sum, addlight[j]);
-#endif
 #endif
     }
 }
@@ -3256,13 +3153,8 @@ static void     GatherRGBLight(int threadnum)
     int             j;
     patch_t*        patch;
 
-#ifdef ZHLT_TEXLIGHT
     unsigned        k,m; //LRC
 //LRC    vec3_t          sum;
-#else
-    unsigned        k;
-    vec3_t          sum;
-#endif
 
     unsigned        iIndex;
     rgb_transfer_data_t* tRGBData;
@@ -3271,7 +3163,6 @@ static void     GatherRGBLight(int threadnum)
 	float f[3];
 #endif
 #ifdef HLRAD_STYLE_CORING
-#ifdef ZHLT_TEXLIGHT
 #ifndef HLRAD_AUTOCORING
 	int				style_index;
 #endif
@@ -3280,7 +3171,6 @@ static void     GatherRGBLight(int threadnum)
 	vec3_t			adds_direction[ALLSTYLES];
 #endif
 	int				style;
-#endif
 #endif
 #ifdef HLRAD_OPAQUE_STYLE_BOUNCE
 	unsigned int	fastfind_index = 0;
@@ -3294,11 +3184,9 @@ static void     GatherRGBLight(int threadnum)
             break;
         }
 #ifdef HLRAD_STYLE_CORING
-#ifdef ZHLT_TEXLIGHT
 		memset (adds, 0, ALLSTYLES * sizeof(vec3_t));
 #ifdef ZHLT_XASH
 		memset (adds_direction, 0, ALLSTYLES * sizeof (vec3_t));
-#endif
 #endif
 #endif
 
@@ -3308,16 +3196,12 @@ static void     GatherRGBLight(int threadnum)
         tIndex = patch->tIndex;
         iIndex = patch->iIndex;
 
-#ifdef ZHLT_TEXLIGHT
 #ifndef HLRAD_AUTOCORING
   		//LRC
         for (m = 0; m < MAXLIGHTMAPS && patch->totalstyle[m] != 255; m++)
 		{
 			VectorClear(addlight[j][m]);
 		}
-#endif
-#else
-        VectorClear(sum);
 #endif
 #ifdef HLRAD_AUTOCORING
 		for (m = 0; m < MAXLIGHTMAPS && patch->totalstyle[m] != 255; m++)
@@ -3346,7 +3230,6 @@ static void     GatherRGBLight(int threadnum)
 	#endif
             {
                 vec3_t          v;
-#ifdef ZHLT_TEXLIGHT
                  //LRC:
 				patch_t*		emitpatch = &g_patches[patchnum];
 				unsigned		emitstyle;
@@ -3525,26 +3408,6 @@ static void     GatherRGBLight(int threadnum)
 #endif
 				}
                 //LRC (ends)
-#else
-	#ifdef HLRAD_TRANSFERDATA_COMPRESS
-				vector_decompress (g_rgbtransfer_compress_type, tRGBData, &f[0], &f[1], &f[2]);
-                VectorMultiply(emitlight[patchnum], (*tRGBData), v);
-	#else
-                VectorMultiply(emitlight[patchnum], (*tRGBData), v);
-	#endif
-	#ifdef HLRAD_REFLECTIVITY
-				VectorMultiply(v, emitpatch->bouncereflectivity, v);
-	#endif
-                if (isPointFinite(v))
-                {
-                    VectorAdd(sum, v, sum);
-                }
-                else
-                {
-                    Verbose("GatherLight, v (%4.3f %4.3f %4.3f)@(%4.3f %4.3f %4.3f)\n",
-                            v[0], v[1], v[2], patch->origin[0], patch->origin[1], patch->origin[2]);
-                }
-#endif
             }
         }
 
@@ -3601,7 +3464,6 @@ static void     GatherRGBLight(int threadnum)
 			}
 		}
 #else
-#ifdef ZHLT_TEXLIGHT
         //LRC        VectorCopy(sum, addlight[j]);
 #ifdef HLRAD_STYLE_CORING
 		for (style = 0; style < ALLSTYLES; ++style)
@@ -3640,9 +3502,6 @@ static void     GatherRGBLight(int threadnum)
 			}
 		}
 #endif
-#else
-        VectorCopy(sum, addlight[j]);
-#endif
 #endif
     }
 }
@@ -3660,9 +3519,7 @@ static void     BounceLight()
     unsigned        i;
     char            name[64];
 
-#ifdef ZHLT_TEXLIGHT
     unsigned        j; //LRC
-#endif
 
     for (i = 0; i < g_num_patches; i++)
     {
@@ -3676,7 +3533,6 @@ static void     BounceLight()
 #endif
 		}
 #else
-#ifdef ZHLT_TEXLIGHT
         //LRC
 		for (j = 0; j < MAXLIGHTMAPS && g_patches[i].totalstyle[j] != 255; j++)
 		{
@@ -3686,13 +3542,6 @@ static void     BounceLight()
 	        VectorScale(g_patches[i].totallight[j], TRANSFER_SCALE, emitlight[i][j]);
 	#endif
 		}
-#else
-	#ifdef HLRAD_TRANSFERDATA_COMPRESS
-        VectorCopy(g_patches[i].totallight, emitlight[i]);
-	#else
-        VectorScale(g_patches[i].totallight, TRANSFER_SCALE, emitlight[i]);
-	#endif
-#endif
 #endif
     }
 
@@ -3905,9 +3754,7 @@ static void ExtendLightmapBuffer ()
 static void     RadWorld()
 {
     unsigned        i;
-#ifdef ZHLT_TEXLIGHT
     unsigned        j;
-#endif
 
     MakeBackplanes();
     MakeParents(0, -1);
@@ -4022,7 +3869,6 @@ static void     RadWorld()
 
 #ifdef HLRAD_MORE_PATCHES
 		// these arrays are only used in CollectLight, GatherLight and BounceLight
-	#ifdef ZHLT_TEXLIGHT
 		emitlight = (vec3_t (*)[MAXLIGHTMAPS])AllocBlock ((g_num_patches + 1) * sizeof (vec3_t [MAXLIGHTMAPS]));
 		addlight = (vec3_t (*)[MAXLIGHTMAPS])AllocBlock ((g_num_patches + 1) * sizeof (vec3_t [MAXLIGHTMAPS]));
 	#ifdef ZHLT_XASH
@@ -4032,10 +3878,6 @@ static void     RadWorld()
 	#ifdef HLRAD_AUTOCORING
 		newstyles = (unsigned char (*)[MAXLIGHTMAPS])AllocBlock ((g_num_patches + 1) * sizeof (unsigned char [MAXLIGHTMAPS]));
 	#endif
-	#else
-		emitlight = (vec3_t *)AllocBlock ((g_num_patches + 1) * sizeof (vec3_t));
-		addlight = (vec3_t *)AllocBlock ((g_num_patches + 1) * sizeof (vec3_t));
-	#endif
 #endif
         // spread light around
         BounceLight();
@@ -4043,18 +3885,13 @@ static void     RadWorld()
 #ifndef HLRAD_AUTOCORING
         for (i = 0; i < g_num_patches; i++)
         {
-#ifdef ZHLT_TEXLIGHT// AJM
             for (j = 0; j < MAXLIGHTMAPS && g_patches[i].totalstyle[j] != 255; j++)
 			{
 	            VectorSubtract(g_patches[i].totallight[j], g_patches[i].directlight[j], g_patches[i].totallight[j]);
 			}
-#else
-            VectorSubtract(g_patches[i].totallight, g_patches[i].directlight, g_patches[i].totallight);
-#endif
         }
 #endif
 #ifdef HLRAD_MORE_PATCHES
-	#ifdef ZHLT_TEXLIGHT
 		FreeBlock (emitlight);
 		emitlight = NULL;
 		FreeBlock (addlight);
@@ -4069,12 +3906,6 @@ static void     RadWorld()
 		FreeBlock (newstyles);
 		newstyles = NULL;
 	#endif
-	#else
-		FreeBlock (emitlight);
-		emitlight = NULL;
-		FreeBlock (addlight);
-		addlight = NULL;
-	#endif
 #endif
     }
 #ifndef HLRAD_AUTOCORING
@@ -4083,14 +3914,10 @@ static void     RadWorld()
 	{
         for (i = 0; i < g_num_patches; i++)
         {
-#ifdef ZHLT_TEXLIGHT// AJM
             for (j = 0; j < MAXLIGHTMAPS && g_patches[i].totalstyle[j] != 255; j++)
 			{
 	            VectorSubtract(g_patches[i].totallight[j], g_patches[i].directlight[j], g_patches[i].totallight[j]);
 			}
-#else
-            VectorSubtract(g_patches[i].totallight, g_patches[i].directlight, g_patches[i].totallight);
-#endif
         }
 	}
 #endif

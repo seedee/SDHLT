@@ -47,7 +47,6 @@
 
 // ZHLT_* features are spread across more than one tool. Hence, changing
 //      one of these settings probably means recompiling the whole set
-#define ZHLT_TEXLIGHT                       // HLCSG, HLRAD - triggerable texlights by LRC
 #define ZHLT_GENERAL                        // ALL TOOLS - general changes
 #define ZHLT_NEW_FILE_FUNCTIONS             // ALL TOOLS - file path/extension extraction functions
 //#define ZHLT_DETAIL                         // HLCSG, HLBSP - detail brushes     //should never turn on
@@ -387,10 +386,8 @@
 #define HLRAD_DPLANEOFFSET_MISCFIX //--vluzacn
 #define HLRAD_NEGATIVEDIVIDEND_MISCFIX //--vluzacn
 #define HLRAD_LERP_FIX //--vluzacn
-	#ifdef ZHLT_TEXLIGHT
 	#ifdef HLRAD_LERP_FIX
 #define HLRAD_LERP_VL //--vluzacn
-	#endif
 	#endif
 	#ifdef HLRAD_LERP_VL
 #define HLRAD_LERP_TRY5POINTS //--vluzacn
@@ -435,9 +432,7 @@
 	#endif
 	#endif
 	#ifdef HLRAD_GatherPatchLight
-	#ifdef ZHLT_TEXLIGHT
 #define HLRAD_TEXLIGHTTHRESHOLD_FIX //--vluzacn
-	#endif
 	#endif
 	#ifdef HLRAD_REFLECTIVITY
 	#ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
@@ -468,10 +463,8 @@
 	#endif
 #define HLRAD_REDUCELIGHTMAP //--vluzacn
 	#ifdef HLRAD_STYLE_CORING
-	#ifdef ZHLT_TEXLIGHT
 	#ifdef HLRAD_REDUCELIGHTMAP
 #define HLRAD_AUTOCORING //--vluzacn
-	#endif
 	#endif
 	#endif
 #define HLRAD_OPAQUEINSKY_FIX //--vluzacn
@@ -510,11 +503,9 @@
 #define HLRAD_ACCURATEBOUNCE_TEXLIGHT // note: this reduces the compile time in '-extra' mode //--vluzacn
 	#endif
 	#endif
-	#ifdef ZHLT_TEXLIGHT
 	#ifdef HLRAD_CalcPoints_NEW
 	#ifdef HLRAD_AUTOCORING
 #define HLRAD_ACCURATEBOUNCE_SAMPLELIGHT //--vluzacn
-	#endif
 	#endif
 	#endif
 	#ifdef HLRAD_ACCURATEBOUNCE_TEXLIGHT
@@ -537,10 +528,8 @@
 	#ifdef HLRAD_CalcPoints_NEW
 	#ifdef HLRAD_BLUR
 	#ifdef HLRAD_GetPhongNormal_VL
-	#ifdef ZHLT_TEXLIGHT
 	#ifdef HLRAD_SNAPTOWINDING
 #define HLRAD_GROWSAMPLE //--vluzacn
-	#endif
 	#endif
 	#endif
 	#endif
@@ -582,7 +571,7 @@
 #define HLRAD_TRANSPARENCY_FAST //--vluzacn
 
 #if defined (ZHLT_XASH) || defined (ZHLT_XASH2)
-#if !defined (ZHLT_TEXLIGHT) || !defined (HLRAD_LERP_VL) || !defined (HLRAD_AUTOCORING) || !defined (HLRAD_MULTISKYLIGHT) || !defined (HLRAD_FinalLightFace_VL) || !defined (HLRAD_AVOIDNORMALFLIP)
+#if !defined (HLRAD_LERP_VL) || !defined (HLRAD_AUTOCORING) || !defined (HLRAD_MULTISKYLIGHT) || !defined (HLRAD_FinalLightFace_VL) || !defined (HLRAD_AVOIDNORMALFLIP)
 #error "ZHLT_XASH has not been implemented for current configuration"
 #endif
 #endif

@@ -2822,7 +2822,6 @@ void            CreateDirectLights()
     //
     for (i = 0, p = g_patches; i < g_num_patches; i++, p++)
     {
-#ifdef ZHLT_TEXLIGHT
 #ifdef HLRAD_STYLEREPORT
 		if (p->emitstyle >= 0 && p->emitstyle < ALLSTYLES)
 		{
@@ -2850,16 +2849,6 @@ void            CreateDirectLights()
 				&& FloatForKey (g_face_texlights[p->faceNumber], "_scale") <= 0)
 	#endif
 			) //LRC
-#else
-        if (
-	#ifdef HLRAD_REFLECTIVITY
-			DotProduct (p->totallight, p->texturereflectivity) / 3
-	#else
-			VectorAvg(p->totallight)
-	#endif
-			>= g_dlight_threshold
-			)
-#endif
         {
             numdlights++;
             dl = (directlight_t*)calloc(1, sizeof(directlight_t));
@@ -2873,9 +2862,7 @@ void            CreateDirectLights()
 
             dl->next = directlights[leafnum];
             directlights[leafnum] = dl;
-#ifdef ZHLT_TEXLIGHT
             dl->style = p->emitstyle; //LRC
-#endif
 #ifdef HLRAD_GatherPatchLight
 			dl->topatch = false;
 	#ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
@@ -2929,11 +2916,7 @@ void            CreateDirectLights()
 
             dl->type = emit_surface;
             VectorCopy(getPlaneFromFaceNumber(p->faceNumber)->normal, dl->normal);
-#ifdef ZHLT_TEXLIGHT
             VectorCopy(p->baselight, dl->intensity); //LRC
-#else
-            VectorCopy(p->totallight, dl->intensity);
-#endif
 #ifdef HLRAD_CUSTOMTEXLIGHT
 			if (g_face_texlights[p->faceNumber])
 			{
@@ -3025,11 +3008,7 @@ void            CreateDirectLights()
 		        VectorAdd(dl->origin, temp_normal, dl->origin);
 		        VectorScale(dl->normal, -1, dl->normal);
 
-#ifdef ZHLT_TEXLIGHT
                 VectorCopy(p->baselight, dl->intensity); //LRC
-#else
-		        VectorCopy(p->totallight, dl->intensity);
-#endif
 		        VectorScale(dl->intensity, p->area, dl->intensity);
 #ifdef HLRAD_ACCURATEBOUNCE_REDUCEAREA
 				VectorScale (dl->intensity, p->exposure, dl->intensity);
@@ -3051,11 +3030,7 @@ void            CreateDirectLights()
 #endif
         }
 
-#ifdef ZHLT_TEXLIGHT
         //LRC        VectorClear(p->totallight[0]);
-#else
-        VectorClear(p->totallight);
-#endif
     }
 
     //
@@ -3075,12 +3050,10 @@ void            CreateDirectLights()
 #ifdef HLRAD_STYLE_CORING
 		{
 			int style = IntForKey (e, "style");
-	#ifdef ZHLT_TEXLIGHT
 			if (style < 0)
 			{
 				style = -style;
 			}
-	#endif
 			style = (unsigned char)style;
 			if (style > 0 && style < ALLSTYLES && *ValueForKey (e, "zhlt_stylecoring"))
 			{
@@ -3097,12 +3070,10 @@ void            CreateDirectLights()
 		{
 #ifdef HLRAD_STYLEREPORT
 			int style = IntForKey (e, "style");
-	#ifdef ZHLT_TEXLIGHT
 			if (style < 0)
 			{
 				style = -style;
 			}
-	#endif
 			style = (unsigned char)style;
 			if (style >= 0 && style < ALLSTYLES)
 			{
@@ -3137,10 +3108,8 @@ void            CreateDirectLights()
         directlights[leafnum] = dl;
 
         dl->style = IntForKey(e, "style");
-#ifdef ZHLT_TEXLIGHT
         if (dl->style < 0) 
             dl->style = -dl->style; //LRC
-#endif
 #ifdef HLRAD_STYLE_CORING
 		dl->style = (unsigned char)dl->style;
 		if (dl->style >= ALLSTYLES)
@@ -5176,11 +5145,7 @@ static void AddSamplesToPatches (const sample_t **samples, const unsigned char *
 	free (texwindings);
 }
 #else
-#ifdef ZHLT_TEXLIGHT
 static void     AddSampleToPatch(const sample_t* const s, const int facenum, int style) //LRC
-#else
-static void     AddSampleToPatch(const sample_t* const s, const int facenum)
-#endif
 {
     patch_t*        patch;
     BoundingBox     bounds;
@@ -5216,7 +5181,6 @@ static void     AddSampleToPatch(const sample_t* const s, const int facenum)
 #endif
 
         // add the sample to the patch
-#ifdef ZHLT_TEXLIGHT
         //LRC:
 	#ifdef HLRAD_AUTOCORING
 		for (i = 0; i < ALLSTYLES && patch->totalstyle_all[i] != 255; i++)
@@ -5267,10 +5231,6 @@ static void     AddSampleToPatch(const sample_t* const s, const int facenum)
 	#endif
 		}
         //LRC (ends)
-#else
-        patch->samples++;
-        VectorAdd(patch->samplelight, s->light, patch->samplelight);
-#endif
         //return;
 
       nextpatch:;
@@ -6004,7 +5964,6 @@ void            BuildFacelights(const int facenum)
     f->styles[0] = 0;                                      // Everyone gets the style zero map.
 #endif
 #ifdef HLRAD_STYLE_CORING
-#ifdef ZHLT_TEXLIGHT
 	if (g_face_patches[facenum] && g_face_patches[facenum]->emitstyle)
 	{
 #ifdef HLRAD_AUTOCORING
@@ -6013,7 +5972,6 @@ void            BuildFacelights(const int facenum)
 		f->styles[1] = g_face_patches[facenum]->emitstyle;
 #endif
 	}
-#endif
 #endif
 
     memset(&l, 0, sizeof(l));
@@ -6380,18 +6338,11 @@ void            BuildFacelights(const int facenum)
 				VectorScale (facelight[facenum].samples[j][i].light, 1.0 / subsamples, facelight[facenum].samples[j][i].light);
 	#endif
 	#ifndef HLRAD_ACCURATEBOUNCE_SAMPLELIGHT
-	#ifdef ZHLT_TEXLIGHT
 		#ifdef HLRAD_AUTOCORING
 				AddSampleToPatch (&fl_samples[j][i], facenum, f_styles[j]); //LRC
 		#else
 				AddSampleToPatch(&facelight[facenum].samples[j][i], facenum, f->styles[j]); //LRC
 		#endif
-	#else
-				if (f->styles[j] == 0)
-				{
-					AddSampleToPatch(&facelight[facenum].samples[j][i], facenum);
-				}
-	#endif
 	#endif
 			}
 		}
@@ -6848,18 +6799,11 @@ void            BuildFacelights(const int facenum)
 #endif
 
 #ifndef HLRAD_ACCURATEBOUNCE_SAMPLELIGHT
-#ifdef ZHLT_TEXLIGHT
 	#ifdef HLRAD_AUTOCORING
 			AddSampleToPatch (&fl_samples[j][i], facenum, f_styles[j]); //LRC
 	#else
             AddSampleToPatch(&facelight[facenum].samples[j][i], facenum, f->styles[j]); //LRC
 	#endif
-#else
-            if (f->styles[j] == 0)
-            {
-                AddSampleToPatch(&facelight[facenum].samples[j][i], facenum);
-            }
-#endif
 #endif
         }
 #ifdef ZHLT_XASH
@@ -6884,7 +6828,6 @@ void            BuildFacelights(const int facenum)
     {
         for (patch = g_face_patches[facenum]; patch; patch = patch->next)
         {
-#ifdef ZHLT_TEXLIGHT
             //LRC:
 			unsigned istyle;
 	#ifdef HLRAD_AUTOCORING
@@ -6919,16 +6862,6 @@ void            BuildFacelights(const int facenum)
 			}
 	#endif
             //LRC (ends)
-#else
-            if (patch->samples)
-            {
-                vec3_t          v;                         // BUGBUG: Use a weighted average instead?
-
-                VectorScale(patch->samplelight, (1.0f / patch->samples), v);
-                VectorAdd(patch->totallight, v, patch->totallight);
-                VectorAdd(patch->directlight, v, patch->directlight);
-            }
-#endif
         }
     }
 #ifdef HLRAD_GatherPatchLight
@@ -7205,7 +7138,6 @@ void            BuildFacelights(const int facenum)
 
     // if( VectorAvg( face_patches[facenum]->baselight ) >= dlight_threshold)       // Now all lighted surfaces glow
     {
-#ifdef ZHLT_TEXLIGHT
         //LRC:
 		if (g_face_patches[facenum])
 		{
@@ -7269,23 +7201,6 @@ void            BuildFacelights(const int facenum)
 			}
 		}
         //LRC (ends)
-#else
-        for (j = 0; j < MAXLIGHTMAPS && f->styles[j] != 255; j++)
-        {
-            if (f->styles[j] == 0)
-            {
-                if (g_face_patches[facenum])
-                {
-                    s = facelight[facenum].samples[j];
-                    for (i = 0; i < l.numsurfpt; i++, s++)
-                    {
-                        VectorAdd(s->light, g_face_patches[facenum]->baselight, s->light);
-                    }
-                    break;
-                }
-            }
-        }
-#endif
     }
 #ifdef HLRAD_AUTOCORING
 	// samples
@@ -7508,10 +7423,8 @@ void            PrecompLightmapOffsets()
     facelight_t*    fl;
     int             lightstyles;
 
-#ifdef ZHLT_TEXLIGHT
     int             i; //LRC
 	patch_t*        patch; //LRC
-#endif
 
     g_lightdatasize = 0;
 #ifdef ZHLT_XASH
@@ -7664,7 +7577,6 @@ void            PrecompLightmapOffsets()
 			}
 		}
 #else
-#ifdef ZHLT_TEXLIGHT
         		//LRC - find all the patch lightstyles, and add them to the ones used by this face
 #ifdef HLRAD_STYLE_CORING
 		for (patch = g_face_patches[facenum]; patch; patch = patch->next)
@@ -7701,7 +7613,6 @@ void            PrecompLightmapOffsets()
 			}
 		}
 		//LRC (ends)
-#endif
 #endif
 
         for (lightstyles = 0; lightstyles < MAXLIGHTMAPS; lightstyles++)
@@ -8677,7 +8588,6 @@ void            FinalLightFace(const int facenum)
 			vec3_t v_direction;
 #endif
 
-#ifdef ZHLT_TEXLIGHT
 #ifndef HLRAD_GatherPatchLight
             if (g_numbounce)//LRC && (k == 0))
 #endif
@@ -8687,15 +8597,6 @@ void            FinalLightFace(const int facenum)
 					v_direction, 
 	#endif
 					f->styles[k]); //LRC
-#else
-            if (
-#ifndef HLRAD_GatherPatchLight
-				g_numbounce &&
-#endif
-				(k == 0))
-            {
-                SampleTriangulation(trian, samp->pos, v);
-#endif
 
                 if (isPointFinite(v))
                 {
@@ -9034,7 +8935,6 @@ void            FinalLightFace(const int facenum)
 }
 
 
-#ifdef ZHLT_TEXLIGHT
 //LRC
 vec3_t    totallight_default = { 0, 0, 0 };
 #ifdef ZHLT_XASH
@@ -9065,4 +8965,3 @@ vec3_t* GetTotalLight(patch_t* patch, int style
 	return &totallight_default;
 }
 
-#endif

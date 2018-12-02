@@ -2256,11 +2256,7 @@ static bool LerpTriangle(const lerpTriangulation_t* trian, const vec3_t point, v
 	return true;
 }
 #else
-#ifdef ZHLT_TEXLIGHT
 static void     LerpTriangle(const lerpTriangulation_t* const trian, const vec3_t point, vec3_t result, const unsigned pt1, const unsigned pt2, const unsigned pt3, int style) //LRC
-#else
-static void     LerpTriangle(const lerpTriangulation_t* const trian, const vec3_t point, vec3_t result, const unsigned pt1, const unsigned pt2, const unsigned pt3)
-#endif
 {
     patch_t*        p1;
     patch_t*        p2;
@@ -2280,15 +2276,9 @@ static void     LerpTriangle(const lerpTriangulation_t* const trian, const vec3_
     p2 = trian->points[pt2];
     p3 = trian->points[pt3];
 
-#ifdef ZHLT_TEXLIGHT
     VectorCopy(*GetTotalLight(p1, style), base); //LRC
     VectorSubtract(*GetTotalLight(p2, style), base, d1); //LRC
     VectorSubtract(*GetTotalLight(p3, style), base, d2); //LRC
-#else
-    VectorCopy(p1->totallight, base);
-    VectorSubtract(p2->totallight, base, d1);
-    VectorSubtract(p3->totallight, base, d2);
-#endif
 
     // Get edge normals
     VectorSubtract(p1->origin, p2->origin, v);
@@ -2357,11 +2347,7 @@ static bool LerpNearest(const lerpTriangulation_t* trian, const vec3_t point, ve
 	return true;
 }
 #else
-#ifdef ZHLT_TEXLIGHT
 static void     LerpNearest(const lerpTriangulation_t* const trian, vec3_t result, int style) //LRC
-#else
-static void     LerpNearest(const lerpTriangulation_t* const trian, vec3_t result)
-#endif
 {
     unsigned        x;
     unsigned        numpoints = trian->numpoints;
@@ -2374,11 +2360,7 @@ static void     LerpNearest(const lerpTriangulation_t* const trian, vec3_t resul
 
         if (patch->faceNumber == trian->facenum)
         {
-	#ifdef ZHLT_TEXLIGHT
             VectorCopy(*GetTotalLight(patch, style), result); //LRC
-	#else
-            VectorCopy(patch->totallight, result);
-	#endif
             return;
         }
     }
@@ -2386,11 +2368,7 @@ static void     LerpNearest(const lerpTriangulation_t* const trian, vec3_t resul
     // If none in nearest face, settle for nearest
     if (numpoints)
     {
-	#ifdef ZHLT_TEXLIGHT 
         VectorCopy(*GetTotalLight(trian->points[trian->dists[0].patch], style), result); //LRC
-	#else
-        VectorCopy(trian->points[trian->dists[0].patch]->totallight, result);
-	#endif
     }
     else
     {
@@ -2481,11 +2459,7 @@ static bool		LerpEdge(const lerpTriangulation_t* trian, const vec3_t point, vec3
 	return true;
 }
 #else
-#ifdef ZHLT_TEXLIGHT
 static bool     LerpEdge(const lerpTriangulation_t* const trian, const vec3_t point, vec3_t result, int style) //LRC
-#else
-static bool     LerpEdge(const lerpTriangulation_t* const trian, const vec3_t point, vec3_t result)
-#endif
 {
     patch_t*        p1;
     patch_t*        p2;
@@ -2545,15 +2519,11 @@ static bool     LerpEdge(const lerpTriangulation_t* const trian, const vec3_t po
 
             for (i = 0; i < 3; i++)
             {
-#ifdef ZHLT_TEXLIGHT
 	#ifdef HLRAD_LERP_FIX
                 result[i] = (((*GetTotalLight(p1, style))[i] * length2) + ((*GetTotalLight(p2, style))[i] * length1)) / total_length; //LRC
 	#else
 				result[i] = (((*GetTotalLight(p1, style))[i] * length2) + ((*GetTotalLight(p1, style))[i] * length1)) / total_length; //LRC
 	#endif
-#else
-                result[i] = ((p1->totallight[i] * length2) + (p2->totallight[i] * length1)) / total_length;
-#endif
             }
             return true;
         }
@@ -2595,11 +2565,7 @@ static bool     LerpEdge(const lerpTriangulation_t* const trian, const vec3_t po
 
             for (i = 0; i < 3; i++)
             {
-	#ifdef ZHLT_TEXLIGHT
                 result[i] = (((*GetTotalLight(p1, style))[i] * length2) + ((*GetTotalLight(p3, style))[i] * length1)) / total_length; //LRC
-	#else
-                result[i] = ((p1->totallight[i] * length2) + (p3->totallight[i] * length1)) / total_length;
-	#endif
             }
             return true;
         }
@@ -2720,7 +2686,6 @@ static void     FindDists(const lerpTriangulation_t* const trian, const vec3_t p
 // =====================================================================================
 //  SampleTriangulation
 // =====================================================================================
-#ifdef ZHLT_TEXLIGHT
 #ifdef HLRAD_LERP_VL
 void            SampleTriangulation(const lerpTriangulation_t* const trian, const vec3_t point, vec3_t result, 
 	#ifdef ZHLT_XASH
@@ -2729,9 +2694,6 @@ void            SampleTriangulation(const lerpTriangulation_t* const trian, cons
 					int style)
 #else
 void            SampleTriangulation(const lerpTriangulation_t* const trian, vec3_t point, vec3_t result, int style) //LRC
-#endif
-#else
-void            SampleTriangulation(const lerpTriangulation_t* const trian, vec3_t point, vec3_t result)
 #endif
 {
     FindDists(trian, point);
@@ -2903,32 +2865,20 @@ void            SampleTriangulation(const lerpTriangulation_t* const trian, vec3
         {                                                  // TODO check edges/tri for blocking by wall
             if (!TestWallIntersectTri(trian, p1, p2, p3) && !TestTriIntersectWall(trian, p1, p2, p3))
             {
-#ifdef ZHLT_TEXLIGHT
                 LerpTriangle(trian, point, result, pt1, pt2, pt3, style); //LRC
-#else
-                LerpTriangle(trian, point, result, pt1, pt2, pt3);
-#endif
                 return;
             }
         }
         else
         {
-#ifdef ZHLT_TEXLIGHT
             if (LerpEdge(trian, point, result, style)) //LRC
-#else
-            if (LerpEdge(trian, point, result))
-#endif
             {
                 return;
             }
         }
     }
 
-#ifdef ZHLT_TEXLIGHT
     LerpNearest(trian, result, style); //LRC
-#else
-    LerpNearest(trian, result);
-#endif
 #endif
 }
 
