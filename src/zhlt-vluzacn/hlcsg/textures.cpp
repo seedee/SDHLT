@@ -636,11 +636,7 @@ int             LoadLump(const lumpinfo_t* const source, byte* dest, int* texsiz
         }
     }
 
-#ifdef HLCSG_ERROR_MISSINGTEXTURE
 	Error("::LoadLump() texture %s not found!", source->name);
-#else
-    Warning("::LoadLump() texture %s not found!", source->name);
-#endif
     return 0;
 }
 
