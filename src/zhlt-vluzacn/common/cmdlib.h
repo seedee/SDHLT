@@ -72,10 +72,7 @@
 
 
 
-#define HLRAD_GatherPatchLight //--vluzacn
-	#ifdef HLRAD_GatherPatchLight
 #define HLRAD_SOFTSKY //--vluzacn
-	#endif
 #define HLRAD_OPAQUE_NODE //--vluzacn
 #define HLRAD_TRANSLUCENT //--vluzacn
 	#ifdef HLRAD_OPAQUE_NODE
@@ -94,9 +91,7 @@
 #define HLRAD_OPAQUE_ALPHATEST //--vluzacn
 	#endif
 	#endif
-	#ifdef HLRAD_GatherPatchLight
 #define HLRAD_TEXLIGHTTHRESHOLD_FIX //--vluzacn
-	#endif
 	#ifdef HLRAD_REFLECTIVITY
 	#ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
 #define HLRAD_CUSTOMTEXLIGHT //--vluzacn
@@ -123,9 +118,7 @@
 #define HLRAD_SUNSPREAD //--vluzacn
 	#endif
 #define HLRAD_SUNDIFFUSE //--vluzacn
-	#ifdef HLRAD_GatherPatchLight
 #define HLRAD_FASTMODE //--vluzacn
-	#endif
 #define HLRAD_OVERWRITEVERTEX_FIX //--vluzacn
 	#ifdef HLRAD_CUSTOMTEXLIGHT
 #define HLRAD_TEXLIGHT_SPOTS_FIX //--vluzacn

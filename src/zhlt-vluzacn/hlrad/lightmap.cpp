@@ -2143,7 +2143,6 @@ void            CreateDirectLights()
             dl->next = directlights[leafnum];
             directlights[leafnum] = dl;
             dl->style = p->emitstyle; //LRC
-#ifdef HLRAD_GatherPatchLight
 			dl->topatch = false;
 	#ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
 			if (!p->emitmode)
@@ -2156,7 +2155,6 @@ void            CreateDirectLights()
 			{
 				dl->topatch = true;
 			}
-#endif
 #endif
 #ifdef HLRAD_TEXLIGHT_SPOTS_FIX
 			dl->patch_area = p->area;
@@ -2256,7 +2254,6 @@ void            CreateDirectLights()
 		        dl->next = directlights[leafnum];
 		        directlights[leafnum] = dl;
 
-#ifdef HLRAD_GatherPatchLight
 				dl->topatch = false;
 	#ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
 				if (!p->emitmode)
@@ -2269,7 +2266,6 @@ void            CreateDirectLights()
 				{
 					dl->topatch = true;
 				}
-#endif
 #endif
 #ifdef HLRAD_TEXLIGHT_SPOTS_FIX
 				dl->patch_area = p->area;
@@ -2395,7 +2391,6 @@ void            CreateDirectLights()
 				numstyles++;
 			}
 		}
-#ifdef HLRAD_GatherPatchLight
 		dl->topatch = false;
 		if (IntForKey (e, "_fast") == 1)
 		{
@@ -2406,7 +2401,6 @@ void            CreateDirectLights()
 		{
 			dl->topatch = true;
 		}
-#endif
 #endif
         pLight = ValueForKey(e, "_light");
         // scanf into doubles, then assign, so it is vec_t size independent
@@ -2725,7 +2719,6 @@ void            CreateDirectLights()
         }
     }
 
-#ifdef HLRAD_GatherPatchLight
 	int countnormallights = 0, countfastlights = 0;
 	{
 		int l;
@@ -2808,9 +2801,6 @@ void            CreateDirectLights()
 		}
 	}
     Log("%i direct lights and %i fast direct lights\n", countnormallights, countfastlights);
-#else
-    Log("%i direct lights\n", numdlights);
-#endif
 	Log("%i light styles\n", numstyles);
 	// move all emit_skylight to leaf 0 (the solid leaf)
 	if (g_sky_lighting_fix)
@@ -3079,9 +3069,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								  , vec3_t* sample_direction
 #endif
 								  , byte* styles
-#ifdef HLRAD_GatherPatchLight
 								  , int step
-#endif
 #ifdef HLRAD_DIVERSE_LIGHTING
 								  , int miptex
 #endif
@@ -3100,9 +3088,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
     float           l_opacity;
 #endif
     int             style_index;
-#ifdef HLRAD_GatherPatchLight
 	int				step_match;
-#endif
 	bool			sky_used = false;
 #ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
 	vec3_t			testline_origin;
@@ -3176,12 +3162,10 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 						}
 						do // add sun light
 						{
-#ifdef HLRAD_GatherPatchLight
 							// check step
 							step_match = (int)l->topatch;
 							if (step != step_match)
 								continue;
-#endif
 							// check intensity
 							if (!(l->intensity[0] || l->intensity[1] || l->intensity[2]))
 								continue;
@@ -3278,7 +3262,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 						while (0);
 						do // add sky light
 						{
-#ifdef HLRAD_GatherPatchLight
 							// check step
 							step_match = 0;
 	#ifdef HLRAD_SOFTSKY
@@ -3291,7 +3274,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 	#endif
 							if (step != step_match)
 								continue;
-#endif
 							// check intensity
 							if (g_indirect_sun <= 0.0 ||
 								VectorCompare (
@@ -3422,11 +3404,9 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                     }
                     else // not emit_skylight
                     {
-#ifdef HLRAD_GatherPatchLight
 						step_match = (int)l->topatch;
 						if (step != step_match)
 							continue;
-#endif
 						if (!(l->intensity[0] || l->intensity[1] || l->intensity[2]))
 							continue;
 #ifdef HLRAD_ACCURATEBOUNCE_ALTERNATEORIGIN
@@ -3862,12 +3842,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 #ifdef HLRAD_ACCURATEBOUNCE_SAMPLELIGHT
 static void AddSamplesToPatches (const sample_t **samples, const unsigned char *styles, int facenum, const lightinfo_t *l)
 {
-#ifndef HLRAD_GatherPatchLight
-    if (g_numbounce == 0)
-    {
-        return;
-    }
-#endif
 	patch_t *patch;
 	int i, j, m, k;
 	int numtexwindings;
@@ -3984,12 +3958,6 @@ static void     AddSampleToPatch(const sample_t* const s, const int facenum, int
     BoundingBox     bounds;
     int             i;
 
-#ifndef HLRAD_GatherPatchLight
-    if (g_numbounce == 0)
-    {
-        return;
-    }
-#endif
 
     for (patch = g_face_patches[facenum]; patch; patch = patch->next)
     {
@@ -4545,9 +4513,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 					, sampled_direction
 	#endif
 					, styles
-	#ifdef HLRAD_GatherPatchLight
 					, 0
-	#endif
 	#ifdef HLRAD_DIVERSE_LIGHTING
 					, l->miptex
 	#endif
@@ -4581,9 +4547,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 						, sampled2_direction
 	#endif
 						, styles
-	#ifdef HLRAD_GatherPatchLight
 						, 0
-	#endif
 	#ifdef HLRAD_DIVERSE_LIGHTING
 						, l->miptex
 	#endif
@@ -5232,9 +5196,7 @@ void            BuildFacelights(const int facenum)
 #else
 							f->styles
 #endif
-#ifdef HLRAD_GatherPatchLight
 							, 0
-#endif
 #ifdef HLRAD_DIVERSE_LIGHTING
 							, l.miptex
 #endif
@@ -5278,9 +5240,7 @@ void            BuildFacelights(const int facenum)
 #else
 								f->styles
 #endif
-	#ifdef HLRAD_GatherPatchLight
 								, 0
-	#endif
 #ifdef HLRAD_DIVERSE_LIGHTING
 								, l.miptex
 #endif
@@ -5385,9 +5345,7 @@ void            BuildFacelights(const int facenum)
 #else
 				f->styles
 #endif
-#ifdef HLRAD_GatherPatchLight
 				, 0
-#endif
 #ifdef HLRAD_DIVERSE_LIGHTING
 				, l.miptex
 #endif
@@ -5425,9 +5383,7 @@ void            BuildFacelights(const int facenum)
 #else
 					f->styles
 #endif
-	#ifdef HLRAD_GatherPatchLight
 					, 0
-	#endif
 #ifdef HLRAD_DIVERSE_LIGHTING
 					, l.miptex
 #endif
@@ -5508,9 +5464,6 @@ void            BuildFacelights(const int facenum)
 #ifdef HLRAD_ACCURATEBOUNCE_SAMPLELIGHT
 	AddSamplesToPatches ((const sample_t **)fl_samples, f_styles, facenum, &l);
 #endif
-#ifndef HLRAD_GatherPatchLight
-    if (g_numbounce > 0)
-#endif
     {
         for (patch = g_face_patches[facenum]; patch; patch = patch->next)
         {
@@ -5550,7 +5503,6 @@ void            BuildFacelights(const int facenum)
             //LRC (ends)
         }
     }
-#ifdef HLRAD_GatherPatchLight
 	for (patch = g_face_patches[facenum]; patch; patch = patch->next)
 	{
 		// get the PVS for the pos to limit the number of checks
@@ -5744,7 +5696,6 @@ void            BuildFacelights(const int facenum)
 			);
 #endif
 	}
-#endif
 
     // add an ambient term if desired
     if (g_ambient[0] || g_ambient[1] || g_ambient[2])
@@ -7169,9 +7120,6 @@ void            FinalLightFace(const int facenum)
     // set up the triangulation
     //
 #ifndef HLRAD_GROWSAMPLE
-#ifndef HLRAD_GatherPatchLight
-    if (g_numbounce)
-#endif
     {
         trian = CreateTriangulation(facenum);
     }
@@ -7241,9 +7189,6 @@ void            FinalLightFace(const int facenum)
 			vec3_t v_direction;
 #endif
 
-#ifndef HLRAD_GatherPatchLight
-            if (g_numbounce)//LRC && (k == 0))
-#endif
             {
                 SampleTriangulation(trian, samp->pos, v, 
 	#ifdef ZHLT_XASH
@@ -7495,9 +7440,6 @@ void            FinalLightFace(const int facenum)
 #endif
 
 #ifndef HLRAD_GROWSAMPLE
-#ifndef HLRAD_GatherPatchLight
-    if (g_numbounce)
-#endif
     {
         FreeTriangulation(trian);
     }

@@ -309,9 +309,7 @@ typedef struct directlight_s
 #ifdef HLRAD_TEXLIGHTGAP
 	vec_t			texlightgap;
 #endif
-#ifdef HLRAD_GatherPatchLight
 	bool			topatch;
-#endif
 } directlight_t;
 
 
@@ -379,11 +377,7 @@ typedef struct patch_s
 	vec3_t			bouncereflectivity;
 #endif
 
-#ifdef HLRAD_GatherPatchLight
 	unsigned char	totalstyle[MAXLIGHTMAPS];
-#else
-	int				totalstyle[MAXLIGHTMAPS];				//LRC - gives the styles for use by the new switchable totallight values
-#endif
 #ifdef HLRAD_AUTOCORING
 	unsigned char	directstyle[MAXLIGHTMAPS];
 #endif

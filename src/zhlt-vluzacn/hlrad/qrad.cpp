@@ -3493,7 +3493,6 @@ static void     RadWorld()
 #endif
     }
 #ifndef HLRAD_AUTOCORING
-#ifdef HLRAD_GatherPatchLight
 	if (g_numbounce <= 0)
 	{
         for (i = 0; i < g_num_patches; i++)
@@ -3504,7 +3503,6 @@ static void     RadWorld()
 			}
         }
 	}
-#endif
 #endif
 
     FreeTransfers();
@@ -3524,9 +3522,6 @@ static void     RadWorld()
 
 	ScaleDirectLights ();
 
-#ifndef HLRAD_GatherPatchLight
-    if (g_numbounce)
-#endif
 	{
 
 		CreateFacelightDependencyList ();
