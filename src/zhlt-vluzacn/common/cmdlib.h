@@ -67,7 +67,6 @@
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
-#define HLBSP_ChoosePlane_VL //--vluzacn
 #define HLBSP_DELETELEAKFILE //--vluzacn
 #define HLBSP_FILL //--vluzacn
 #define HLBSP_WARNMIXEDCONTENTS //--vluzacn
@@ -89,9 +88,7 @@
 #define HLCSG_STYLEHACK //--vluzacn
 #define HLCSG_CSGBrush_BRUSHNUM_FIX //--vluzacn
 #define HLBSP_TJUNC_PRECISION_FIX //--vluzacn
-	#ifdef HLBSP_ChoosePlane_VL
 #define HLBSP_BALANCE //--vluzacn
-	#endif
 #define HLBSP_TryMerge_PLANENUM_FIX //--vluzacn
 #define HLCSG_SORTBRUSH_KEEPORDER //--vluzacn
 #define HLCSG_FACENORMALEPSILON //--vluzacn
@@ -101,14 +98,10 @@
 #define HLBSP_REMOVECOLINEARPOINTS //--vluzacn
 #define HLBSP_SubdivideFace_FIX //--vluzacn
 #define HLCSG_HLBSP_DOUBLEPLANE //--vluzacn
-	#ifdef HLBSP_ChoosePlane_VL
 #define HLBSP_AVOIDEPSILONSPLIT //--vluzacn
-	#endif
 #define HLCSG_HULLFILE_AUTOPATH //--vluzacn
 //#define HLBSP_SUBDIVIDE_INMID // this may contribute to 'AllocBlock: full' problem though it may generate fewer faces. --vluzacn
-	#ifdef HLBSP_ChoosePlane_VL
 #define HLCSG_HLBSP_SOLIDHINT //--vluzacn
-	#endif
 #define HLCSG_SORTSIDES //--vluzacn
 	#ifdef HLCSG_CSGBrush_BRUSHNUM_FIX
 	#ifdef HLCSG_HLBSP_VOIDTEXINFO
@@ -135,10 +128,8 @@
 	#ifdef HLBSP_BRINKHACK
 #define HLBSP_BRINKNOTUSEDBYLEAF_FIX //--vluzacn
 	#endif
-	#ifdef HLBSP_ChoosePlane_VL
 	#ifdef HLBSP_BALANCE
 #define HLBSP_FAST_SELECTPARTITION //--vluzacn
-	#endif
 	#endif
 	#ifdef ZHLT_DETAILBRUSH
 #define HLBSP_DETAILBRUSH_CULL //--vluzacn
