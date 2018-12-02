@@ -733,10 +733,8 @@ extern float	g_softlight_hack_distance;
 	extern bool g_drawnudge;
 #endif
 	extern float g_corings[ALLSTYLES];
-#ifdef HLRAD_READABLE_EXCEEDSTYLEWARNING
 	extern int stylewarningcount; // not thread safe
 	extern int stylewarningnext; // not thread safe
-#endif
 #ifdef HLRAD_TRANSLUCENT
 	extern vec3_t *g_translucenttextures;
 	extern vec_t g_translucentdepth;

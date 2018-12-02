@@ -220,10 +220,8 @@ vec_t			g_texlightgap = DEFAULT_TEXLIGHTGAP;
 // Misc
 int             leafparents[MAX_MAP_LEAFS];
 int             nodeparents[MAX_MAP_NODES];
-#ifdef HLRAD_READABLE_EXCEEDSTYLEWARNING
 int				stylewarningcount = 0;
 int				stylewarningnext = 1;
-#endif
 #ifdef HLRAD_AUTOCORING
 vec_t g_maxdiscardedlight = 0;
 vec3_t g_maxdiscardedpos = {0, 0, 0};
@@ -2893,16 +2891,12 @@ static void     GatherLight(int threadnum)
 
 				if (style_index == MAXLIGHTMAPS)
 				{
-#ifdef HLRAD_READABLE_EXCEEDSTYLEWARNING
 					if (++stylewarningcount >= stylewarningnext)
 					{
 						stylewarningnext = stylewarningcount * 2;
 						Warning("Too many indirect light styles on a face(%f,%f,%f)", patch->origin[0], patch->origin[1], patch->origin[2]);
 						Warning(" total %d warnings for too many styles", stylewarningcount);
 					}
-#else
-					Warning("Too many indirect light styles on a face(%f,%f,%f)", patch->origin[0], patch->origin[1], patch->origin[2]);
-#endif
 				}
 				else
 				{
@@ -3153,16 +3147,12 @@ static void     GatherRGBLight(int threadnum)
 
 				if (style_index == MAXLIGHTMAPS)
 				{
-#ifdef HLRAD_READABLE_EXCEEDSTYLEWARNING
 					if (++stylewarningcount >= stylewarningnext)
 					{
 						stylewarningnext = stylewarningcount * 2;
 						Warning("Too many indirect light styles on a face(%f,%f,%f)", patch->origin[0], patch->origin[1], patch->origin[2]);
 						Warning(" total %d warnings for too many styles", stylewarningcount);
 					}
-#else
-					Warning("Too many indirect light styles on a face(%f,%f,%f)", patch->origin[0], patch->origin[1], patch->origin[2]);
-#endif
 				}
 				else
 				{

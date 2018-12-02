@@ -4488,16 +4488,12 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 			if (style_index == MAXLIGHTMAPS)
 	#endif
 			{
-#ifdef HLRAD_READABLE_EXCEEDSTYLEWARNING
 				if (++stylewarningcount >= stylewarningnext)
 				{
 					stylewarningnext = stylewarningcount * 2;
 					Warning("Too many direct light styles on a face(%f,%f,%f)", pos[0], pos[1], pos[2]);
 					Warning(" total %d warnings for too many styles", stylewarningcount);
 				}
-#else
-				Warning("Too many direct light styles on a face(%f,%f,%f)", pos[0], pos[1], pos[2]);
-#endif
 				return;
 			}
 
@@ -4621,16 +4617,12 @@ static void AddSamplesToPatches (const sample_t **samples, const unsigned char *
 					}
 					if (k == ALLSTYLES)
 					{
-			#ifdef HLRAD_READABLE_EXCEEDSTYLEWARNING
 						if (++stylewarningcount >= stylewarningnext)
 						{
 							stylewarningnext = stylewarningcount * 2;
 							Warning("Too many direct light styles on a face(?,?,?)\n");
 							Warning(" total %d warnings for too many styles", stylewarningcount);
 						}
-			#else
-						Warning("Too many direct light styles on a face(?,?,?)\n");
-			#endif
 					}
 					else
 					{
@@ -4709,16 +4701,12 @@ static void     AddSampleToPatch(const sample_t* const s, const int facenum, int
 		if (i == MAXLIGHTMAPS)
 	#endif
 		{
-#ifdef HLRAD_READABLE_EXCEEDSTYLEWARNING
 			if (++stylewarningcount >= stylewarningnext)
 			{
 				stylewarningnext = stylewarningcount * 2;
 				Warning("Too many direct light styles on a face(?,?,?)\n");
 				Warning(" total %d warnings for too many styles", stylewarningcount);
 			}
-#else
-			Warning("Too many direct light styles on a face(?,?,?)\n");
-#endif
 		}
 		else
 		{
@@ -6578,16 +6566,12 @@ void            BuildFacelights(const int facenum)
 			if (j == MAXLIGHTMAPS)
 	#endif
 			{
-#ifdef HLRAD_READABLE_EXCEEDSTYLEWARNING
 				if (++stylewarningcount >= stylewarningnext)
 				{
 					stylewarningnext = stylewarningcount * 2;
 					Warning("Too many direct light styles on a face(?,?,?)");
 					Warning(" total %d warnings for too many styles", stylewarningcount);
 				}
-#else
-				Warning("Too many direct light styles on a face(?,?,?)");
-#endif
 			}
 			else
 			{
@@ -7003,16 +6987,12 @@ void            PrecompLightmapOffsets()
 				}
 				if (lightstyles == MAXLIGHTMAPS)
 				{
-#ifdef HLRAD_READABLE_EXCEEDSTYLEWARNING
 					if (++stylewarningcount >= stylewarningnext)
 					{
 						stylewarningnext = stylewarningcount * 2;
 						Warning("Too many direct light styles on a face(?,?,?)\n");
 						Warning(" total %d warnings for too many styles", stylewarningcount);
 					}
-#else
-					Warning("Too many direct light styles on a face(?,?,?)\n");
-#endif
 				}
 				else if (f->styles[lightstyles] == 255)
 				{
