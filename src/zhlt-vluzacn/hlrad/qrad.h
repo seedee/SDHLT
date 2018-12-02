@@ -216,9 +216,7 @@
 #define DEFAULT_HUNT_SIZE   11
 // DEFAULT_HUNT_SCALE amount to grow from origin point per iteration of DEFAULT_HUNT_SIZE in HuntForWorld
 #define DEFAULT_HUNT_SCALE 0.1
-#ifdef HLRAD_SNAPTOWINDING
 #define DEFAULT_EDGE_WIDTH 0.8
-#endif
 
 #define PATCH_HUNT_OFFSET 0.5 //--vluzacn
 #define HUNT_WALL_EPSILON (3 * ON_EPSILON) // place sample at least this distance away from any wall //--vluzacn
@@ -944,15 +942,11 @@ extern bool     intersect_line_plane(const dplane_t* const plane, const vec_t* c
 extern bool     intersect_linesegment_plane(const dplane_t* const plane, const vec_t* const p1, const vec_t* const p2,vec3_t point);
 extern void     plane_from_points(const vec3_t p1, const vec3_t p2, const vec3_t p3, dplane_t* plane);
 extern bool     point_in_winding(const Winding& w, const dplane_t& plane, const vec_t* point
-#ifdef HLRAD_SNAPTOWINDING
 					, vec_t epsilon = 0.0
-#endif
 					);
 extern bool     point_in_winding_noedge(const Winding& w, const dplane_t& plane, const vec_t* point, vec_t width);
-#ifdef HLRAD_SNAPTOWINDING
 extern void     snap_to_winding(const Winding& w, const dplane_t& plane, vec_t* point);
 extern vec_t	snap_to_winding_noedge(const Winding& w, const dplane_t& plane, vec_t* point, vec_t width, vec_t maxmove);
-#endif
 #ifndef HLRAD_OPAQUE_NODE
 extern bool		point_in_winding_percentage(const Winding& w, const dplane_t& plane, const vec3_t point, const vec3_t ray, double &percentage);
 #endif

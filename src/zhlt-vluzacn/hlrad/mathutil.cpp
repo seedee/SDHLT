@@ -1,6 +1,5 @@
 #include "qrad.h"
 
-#ifdef HLRAD_SNAPTOWINDING
 // =====================================================================================
 //  point_in_winding
 //      returns whether the point is in the winding (including its edges)
@@ -32,35 +31,6 @@ bool            point_in_winding(const Winding& w, const dplane_t& plane, const 
 	return true;
 }
 
-#else
-// =====================================================================================
-//  point_in_winding
-// =====================================================================================
-bool            point_in_winding(const Winding& w, const dplane_t& plane, const vec_t* const point)
-{
-    unsigned        numpoints = w.m_NumPoints;
-    int             x;
-
-    for (x = 0; x < numpoints; x++)
-    {
-        vec3_t          A;
-        vec3_t          B;
-        vec3_t          normal;
-
-        VectorSubtract(w.m_Points[(x + 1) % numpoints], point, A);
-        VectorSubtract(w.m_Points[x], point, B);
-        CrossProduct(A, B, normal);
-
-        if (DotProduct(normal, plane.normal) < 0.0)
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-#endif
 // =====================================================================================
 //  point_in_winding_noedge
 //      assume a ball is created from the point, this function checks whether the ball is entirely inside the winding
@@ -92,7 +62,6 @@ bool            point_in_winding_noedge(const Winding& w, const dplane_t& plane,
 	return true;
 }
 
-#ifdef HLRAD_SNAPTOWINDING
 // =====================================================================================
 //  snap_to_winding
 //      moves the point to the nearest point inside the winding
@@ -258,7 +227,6 @@ vec_t			snap_to_winding_noedge(const Winding& w, const dplane_t& plane, vec_t* c
 	return bestwidth;
 }
 
-#endif
 #ifndef HLRAD_OPAQUE_NODE
 bool			point_in_winding_percentage(const Winding& w, const dplane_t& plane, const vec3_t point, const vec3_t ray, double &percentage)
 {

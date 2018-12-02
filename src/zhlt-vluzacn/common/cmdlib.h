@@ -72,12 +72,9 @@
 
 
 
-#define HLRAD_SNAPTOWINDING //--vluzacn
 #define HLRAD_HuntForWorld_FIX //--vluzacn
 	#ifdef HLRAD_HuntForWorld_FIX
-	#ifdef HLRAD_SNAPTOWINDING
 #define HLRAD_CalcPoints_NEW // --vluzacn
-	#endif
 	#endif
 #define HLRAD_DPLANEOFFSET_MISCFIX //--vluzacn
 #define HLRAD_NEGATIVEDIVIDEND_MISCFIX //--vluzacn
@@ -195,9 +192,7 @@
 #define HLRAD_DIVERSE_LIGHTING //--vluzacn
 	#ifdef HLRAD_CalcPoints_NEW
 	#ifdef HLRAD_BLUR
-	#ifdef HLRAD_SNAPTOWINDING
 #define HLRAD_GROWSAMPLE //--vluzacn
-	#endif
 	#endif
 	#endif
 	#ifdef HLRAD_BLUR

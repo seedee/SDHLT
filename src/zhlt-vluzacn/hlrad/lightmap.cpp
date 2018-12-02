@@ -2369,7 +2369,6 @@ static void     CalcPoints(lightinfo_t* l)
 				{
 					VectorAdd (wd->m_Points[j], face_delta, wd->m_Points[j]);
 				}
-#ifdef HLRAD_SNAPTOWINDING
 				bool nudge_succeeded = false;
 				SetSurfFromST(l, surf, us, ut);
 				leaf_surf = HuntForWorld(surf, face_delta, p, DEFAULT_HUNT_SIZE, DEFAULT_HUNT_SCALE, DEFAULT_HUNT_OFFSET);
@@ -2395,46 +2394,6 @@ static void     CalcPoints(lightinfo_t* l)
 					}
 				}
 
-#else
-				// Pull the sample points towards the facemid if visibility is blocked
-				// and the facemid is inside the world
-				int             nudge_divisor = 4 * qmax(qmax(w, h), 4);
-				int             max_nudge = nudge_divisor + 1;
-				bool            nudge_succeeded = false;
-
-				vec_t           nudge_s = (mids - us) / (vec_t)nudge_divisor;
-				vec_t           nudge_t = (midt - ut) / (vec_t)nudge_divisor;
-
-				// if a line can be traced from surf to facemid, the point is good
-				for (i = 0; i < max_nudge; i++)
-				{
-					// Make sure we are "in the world"(Not the zero leaf)
-						SetSurfFromST(l, surf, us, ut);
-						leaf_surf =
-							HuntForWorld(surf, face_delta, p, DEFAULT_HUNT_SIZE, DEFAULT_HUNT_SCALE,
-										 DEFAULT_HUNT_OFFSET);
-
-						if (leaf_surf)
-						{
-							if (point_in_winding_noedge (*wd, *p, surf, 1.0))
-							{
-								if (i)
-								{
-									*pLuxelFlags = LightPulledInside;
-								}
-								else
-								{
-									*pLuxelFlags = LightNormal;
-								}
-								nudge_succeeded = true;
-								break;
-							}
-						}
-
-					us += nudge_s;
-					ut += nudge_t;
-				}
-#endif /*HLRAD_SNAPTOWINDING*/
 
                 if (!nudge_succeeded)
                 {
