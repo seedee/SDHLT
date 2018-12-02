@@ -1,0 +1,119 @@
+
+// This file is loaded each time the compiler start. It can modify the command line parameters.
+// This file can be used to alter default parameters without changing the binaries.
+
+
+// How does this file work :
+//   Basically, it directly modifies the command line when the program starts.
+//   The command line is treated as a sequence of parameters.
+//     For example, the command line
+//            tools\hlrad.exe "My Maps\mymap" -extra -texchop 64
+//       is converted into 5 parameters:
+//            "<hlrad>"        (the first parameter will always be replaced by the program name)
+//            "My Maps\mymap"
+//            "-extra"
+//            "-texchop"
+//            "64"
+//       .
+//   This file is composed of commands. Each word that begins with '#' is a command. Some commands can be followed with a sequence of parameters (denote as A B C).
+//   If a parameter has space in itself, it should be quoted by '"'.
+//   List of commands:
+//     #ifdef A B C           If there is a sequence of parameters in the command line that matches A B C, execute the following commands till an '#else' or '#endif'.
+//     #ifndef A B C          If there is not a sequence of parameters in the command line that matches A B C, execute the following commands till an '#else' or '#endif'.
+//     #else                  If previous commands has been skipped, execute the following commands till an '#else' or '#endif'.
+//     #define A B C          Add parameters A B C to the end of the command line.
+//     #undef A B C           Remove any sequence of patamenters in the command line that matches A B C.
+//   Special kinds of parameter:
+//     First character is '*' Match any parameter that ends with certain word.
+//     Last character is '*'  Match any parameter that begins with certain word.
+
+
+
+// List of frequently used parameters:
+// 
+// Shared:
+//   -low
+//   -estimate
+//   -chart
+// 
+// HLCSG:
+//   -onlyents
+//   -wadautodetect
+//   -nowadtextures
+//   -wadinclude #
+//   -wadcfgfile #
+// 
+// HLBSP:
+//   -maxnodesize #
+// 
+// HLVIS:
+//   -fast
+//   -full
+// 
+// HLRAD:
+//   -limiter #
+//   -fast
+//   -extra
+//   -blur #
+//   -smooth #
+//   -smooth2 #
+//   -texreflectscale #
+//   -chop #
+//   -texchop #
+//   -drawoverload
+//   -gamma #
+//   -minlight #
+// 
+// RIPENT:
+//   -export
+//   -import
+//   -parse
+//   -textureexport
+//   -textureimport
+//   -textureparse
+
+
+
+#ifndef <ripent>              // CSG\BSP\VIS\RAD
+  #ifndef -high
+    #ifndef -low
+      #define -low
+    #endif
+  #endif
+  #ifndef -console 0
+  //#define -estimate
+  #endif
+#endif
+
+#ifdef <hlcsg>                // CSG
+  #ifndef -wadautodetect
+    #define -wadautodetect
+  #endif
+#endif
+
+#ifdef <hlbsp>                // BSP
+  #ifndef -chart
+    #define -chart
+  #endif
+#endif
+
+#ifdef <hlvis>                // VIS
+  #ifndef -full
+  //#define -full
+  #endif
+#endif
+
+#ifdef <hlrad>                // RAD
+  #ifdef -sparse
+    #undef -sparse
+    #define -vismatrix sparse
+  #endif
+  #ifdef -nomatrix
+    #undef -nomatrix
+    #define -vismatrix off
+  #endif
+#endif
+
+#ifdef <ripent>               // RIPENT
+#endif
+
