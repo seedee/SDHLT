@@ -1937,17 +1937,9 @@ static void     MakeNodePortal(node_t* node)
         }
 
         w->Clip(clipplane, true);
-#ifdef ZHLT_WINDING_RemoveColinearPoints_VL
 		if (w->m_NumPoints == 0)
-#else
-        if (!w)
-#endif
         {
-#ifdef ZHLT_WINDING_RemoveColinearPoints_VL
 			Developer (DEVELOPER_LEVEL_WARNING, 
-#else
-            Warning(
-#endif
 				"MakeNodePortal:new portal was clipped away from node@(%.0f,%.0f,%.0f)-(%.0f,%.0f,%.0f)",
                     node->mins[0], node->mins[1], node->mins[2], node->maxs[0], node->maxs[1], node->maxs[2]);
             FreePortal(new_portal);
@@ -2003,12 +1995,10 @@ static void     SplitNodePortals(node_t *node)
         // cut the portal into two portals, one on each side of the cut plane
         p->winding->Divide(*plane, &frontwinding, &backwinding);
 
-#ifdef ZHLT_WINDING_RemoveColinearPoints_VL
 		if (!frontwinding && !backwinding)
 		{
 			continue;
 		}
-#endif
         if (!frontwinding)
         {
             if (side == 0)

@@ -32,11 +32,7 @@
 #endif
 
 #define DEFAULT_BRUSH_UNION_THRESHOLD 0.0f
-#ifdef ZHLT_WINDING_RemoveColinearPoints_VL
 #define DEFAULT_TINY_THRESHOLD        0.0
-#else
-#define DEFAULT_TINY_THRESHOLD        0.5
-#endif
 #define DEFAULT_NOCLIP      false
 #define DEFAULT_ONLYENTS    false
 #define DEFAULT_WADTEXTURES true

@@ -50,7 +50,6 @@
 //#define ZHLT_DETAIL                         // HLCSG, HLBSP - detail brushes     //should never turn on
 //#define ZHLT_PROGRESSFILE                   // ALL TOOLS - estimate progress reporting to -progressfile //should never turn on
 //#define ZHLT_NSBOB //should never turn on
-#define ZHLT_WINDING_RemoveColinearPoints_VL //Important //--vluzacn
 #define ZHLT_WINDING_EPSILON //--vluzacn
 #define ZHLT_BOUNDINGBOX_PRECISION_FIX //--vluzacn
 #define ZHLT_ENTITY_LIGHTSURFACE //--vluzacn
@@ -155,9 +154,7 @@
 	#endif
 #define HLCSG_VIEWSURFACE //--vluzacn
 #define HLBSP_TryMerge_PRECISION_FIX //--vluzacn
-	#ifdef ZHLT_WINDING_RemoveColinearPoints_VL
 #define HLBSP_REMOVECOLINEARPOINTS //--vluzacn
-	#endif
 #define HLBSP_SubdivideFace_FIX //--vluzacn
 #define HLCSG_HLBSP_DOUBLEPLANE //--vluzacn
 	#ifdef HLBSP_ChoosePlane_VL
