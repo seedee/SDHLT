@@ -26,9 +26,7 @@
 */
 
 static FILE*    out[NUM_HULLS]; // pointer to each of the hull out files (.p0, .p1, ect.)  
-#ifdef HLCSG_VIEWSURFACE
 static FILE*    out_view[NUM_HULLS];
-#endif
 #ifdef ZHLT_DETAILBRUSH
 static FILE*    out_detailbrush[NUM_HULLS];
 #endif
@@ -78,9 +76,7 @@ bool g_noutf8 = DEFAULT_NOUTF8;
 #ifdef HLCSG_NULLIFYAAATRIGGER
 bool g_nullifytrigger = DEFAULT_NULLIFYTRIGGER;
 #endif
-#ifdef HLCSG_VIEWSURFACE
 bool g_viewsurface = false;
-#endif
 
 // =====================================================================================
 //  GetParamsFromEnt
@@ -394,7 +390,6 @@ void            WriteFace(const int hull, const bface_t* const f
 
     // put in an extra line break
     fprintf(out[hull], "\n");
-#ifdef HLCSG_VIEWSURFACE
 	if (g_viewsurface)
 	{
 		static bool side = false;
@@ -418,7 +413,6 @@ void            WriteFace(const int hull, const bface_t* const f
 			fprintf (out_view[hull], "%5.2f %5.2f %5.2f\n", center2[0], center2[1], center2[2]);
 		}
 	}
-#endif
 
     ThreadUnlock();
 }
@@ -2271,12 +2265,10 @@ int             main(const int argc, char** argv)
 			g_noutf8 = true;
 		}
 #endif
-#ifdef HLCSG_VIEWSURFACE
 		else if (!strcasecmp (argv[i], "-viewsurface"))
 		{
 			g_viewsurface = true;
 		}
-#endif
 #ifdef HLCSG_NULLIFYAAATRIGGER
 		else if (!strcasecmp (argv[i], "-nonullifytrigger"))
 		{
@@ -2593,7 +2585,6 @@ int             main(const int argc, char** argv)
 		if (!out_detailbrush[i])
 			Error("Couldn't open %s", name);
 #endif
-#ifdef HLCSG_VIEWSURFACE
 		if (g_viewsurface)
 		{
 			safe_snprintf (name, _MAX_PATH, "%s_surface%i.pts", g_Mapname, i);
@@ -2601,7 +2592,6 @@ int             main(const int argc, char** argv)
 			if (!out[i])
 				Error ("Counldn't open %s", name);
 		}
-#endif
     }
 	{
 		FILE			*f;
@@ -2639,12 +2629,10 @@ int             main(const int argc, char** argv)
 #ifdef ZHLT_DETAILBRUSH
 		fclose (out_detailbrush[i]);
 #endif
-#ifdef HLCSG_VIEWSURFACE
 		if (g_viewsurface)
 		{
 			fclose (out_view[i]);
 		}
-#endif
 	}
 
     EmitPlanes();
