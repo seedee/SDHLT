@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_TestSegmentAgainstOpaqueList_VL //--vluzacn
 #define HLRAD_ENTSTRIPRAD //--vluzacn
 #define HLRAD_CHOP_FIX //--vluzacn
 #define HLRAD_CUSTOMCHOP // don't use this --vluzacn
@@ -83,14 +82,10 @@
 #define HLRAD_MDL_LIGHT_HACK //--vluzacn
 #define HLRAD_MINLIGHT //--vluzacn
 #define HLRAD_FinalLightFace_VL // Compensate for engine's bug of no gamma correction when adding dynamic light styles together. --vluzacn
-	#ifdef HLRAD_TestSegmentAgainstOpaqueList_VL
 #define HLRAD_POINT_IN_EDGE_FIX	//--vluzacn
-	#endif
 #define HLRAD_MULTISKYLIGHT //--vluzacn
 #define HLRAD_ALLOWZEROBRIGHTNESS //--vluzacn
-	#ifdef HLRAD_TestSegmentAgainstOpaqueList_VL
 #define HLRAD_OPAQUE_GROUP //--vluzacn //obsolete
-	#endif
 	#ifdef HLRAD_OPAQUE_GROUP
 #define HLRAD_OPAQUE_RANGE //--vluzacn //obsolete
 	#endif
@@ -100,12 +95,10 @@
 	#endif
 #define HLRAD_TRANCPARENCYLOSS_FIX //--vluzacn
 #define HLRAD_STYLE_CORING //--vluzacn
-	#ifdef HLRAD_TestSegmentAgainstOpaqueList_VL
 	#ifdef HLRAD_STYLE_CORING
 	#ifdef HLRAD_MULTISKYLIGHT
 	#ifdef HLRAD_FinalLightFace_VL
 #define HLRAD_OPAQUE_STYLE //--vluzacn
-	#endif
 	#endif
 	#endif
 	#endif

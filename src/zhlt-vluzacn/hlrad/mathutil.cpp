@@ -403,7 +403,6 @@ bool            point_in_tri(const vec3_t point, const dplane_t* const plane, co
 }
 #endif
 
-#ifdef HLRAD_TestSegmentAgainstOpaqueList_VL
 bool			intersect_linesegment_plane(const dplane_t* const plane, const vec_t* const p1, const vec_t* const p2, vec3_t point)
 {
 	vec_t			part1;
@@ -417,68 +416,6 @@ bool			intersect_linesegment_plane(const dplane_t* const plane, const vec_t* con
 		point[i] = (part1 * p2[i] - part2 * p1[i]) / (part1 - part2);
 	return true;
 }
-#else /*HLRAD_TestSegmentAgainstOpaqueList_VL*/
-// =====================================================================================
-//  intersect_line_plane
-//      returns true if line hits plane, and parameter 'point' is filled with where
-// =====================================================================================
-bool            intersect_line_plane(const dplane_t* const plane, const vec_t* const p1, const vec_t* const p2, vec3_t point)
-{
-    vec3_t          pop;
-    vec3_t          line_vector;                           // normalized vector for the line;
-    vec3_t          tmp;
-    vec3_t          scaledDir;
-    vec_t           partial;
-    vec_t           total;
-    vec_t           perc;
-
-    // Get a normalized vector for the ray
-    VectorSubtract(p1, p2, line_vector);
-    VectorNormalize(line_vector);
-
-    VectorScale(plane->normal, plane->dist, pop);
-    VectorSubtract(pop, p1, tmp);
-    partial = DotProduct(tmp, plane->normal);
-    total = DotProduct(line_vector, plane->normal);
-
-    if (total == 0.0)
-    {
-        VectorClear(point);
-        return false;
-    }
-
-    perc = partial / total;
-    VectorScale(line_vector, perc, scaledDir);
-    VectorAdd(p1, scaledDir, point);
-    return true;
-}
-
-// =====================================================================================
-//  intersect_linesegment_plane
-//      returns true if line hits plane, and parameter 'point' is filled with where
-// =====================================================================================
-bool            intersect_linesegment_plane(const dplane_t* const plane, const vec_t* const p1, const vec_t* const p2, vec3_t point)
-{
-    unsigned        count = 0;
-    if (DotProduct(plane->normal, p1) <= plane->dist)
-    {
-        count++;
-    }
-    if (DotProduct(plane->normal, p2) <= plane->dist)
-    {
-        count++;
-    }
-
-    if (count == 1)
-    {
-        return intersect_line_plane(plane, p1, p2, point);
-    }
-    else
-    {
-        return false;
-    }
-}
-#endif /*HLRAD_TestSegmentAgainstOpaqueList_VL*/
 
 // =====================================================================================
 //  plane_from_points
@@ -572,13 +509,11 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
     vec3_t          point;
     const dplane_t* plane;
     const Winding*  winding;
-#ifdef HLRAD_TestSegmentAgainstOpaqueList_VL
 	int				i;
 	vec3_t			scale_one;
 	vec3_t			direction;
 	VectorSubtract (p1, p2, direction);
 	VectorNormalize (direction);
-#endif
 
     vec3_t	    scale = {1.0, 1.0, 1.0};
 #ifdef HLRAD_POINT_IN_EDGE_FIX
@@ -630,19 +565,13 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 
 		        if(g_opaque_face_list[x].transparency)
 		        {
-#ifdef HLRAD_TestSegmentAgainstOpaqueList_VL
 					VectorCopy (g_opaque_face_list[x].transparency_scale, scale_one);
-#endif
 	#ifdef HLRAD_POINT_IN_EDGE_FIX
 					if (percentage != 1.0)
 						for (i = 0; i < 3; ++i)
 							scale_one[i] = pow (scale_one[i], percentage);
 	#endif
-#ifdef HLRAD_TestSegmentAgainstOpaqueList_VL
 			        VectorMultiply(scale, scale_one, scale);
-#else
-			        VectorMultiply(scale, g_opaque_face_list[x].transparency_scale, scale);
-#endif
 		        }
                 else
                 {
@@ -658,11 +587,7 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 						opaquestyleout = g_opaque_face_list[x].style;
 					}
 #else
-	#ifdef HLRAD_TestSegmentAgainstOpaqueList_VL
 					VectorCopy(vec3_origin, scaleout);
-	#else
-                    VectorCopy(scale, scaleout);
-	#endif
                 	return true;
 #endif
                 }
