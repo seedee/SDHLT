@@ -5617,10 +5617,6 @@ void            BuildFacelights(const int facenum)
 	int				thisoffset2 = -1, lastoffset2 = -1;
 #endif
 
-#ifndef HLRAD_TRANCPARENCYLOSS_FIX
-    bool            b_transparency_loss = false;
-    vec_t           light_left_for_facelight = 1.0;
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 	int				*sample_wallflags;
 #endif
@@ -5681,29 +5677,6 @@ void            BuildFacelights(const int facenum)
 #endif
 #ifdef HLRAD_DIVERSE_LIGHTING
 	l.miptex = g_texinfo[f->texinfo].miptex;
-#endif
-#ifndef HLRAD_TRANCPARENCYLOSS_FIX
-    //
-    // get transparency loss (part of light go through transparency faces.. reduce facelight on these)
-    //
-#ifndef HLRAD_OPAQUE_NODE
-    for(unsigned int m = 0; m < g_opaque_face_count; m++)
-    {
-        opaqueList_t* opaque = &g_opaque_face_list[m];
-        if(opaque->facenum == facenum && opaque->transparency)
-        {
-            vec_t transparency = VectorAvg (opaque->transparency_scale); //vec_t transparency = opaque->transparency; //--vluzacn
-            
-            b_transparency_loss = true;
-            
-            light_left_for_facelight = 1.0 - transparency;
-            if( light_left_for_facelight < 0.0 ) light_left_for_facelight = 0.0;
-            if( light_left_for_facelight > 1.0 ) light_left_for_facelight = 1.0;
-            
-            break;
-        }
-    }
-#endif
 #endif
 
     //
@@ -6474,19 +6447,6 @@ void            BuildFacelights(const int facenum)
             VectorCopy(sampled[j], facelight[facenum].samples[j][i].light);
 #endif
 
-#ifndef HLRAD_TRANCPARENCYLOSS_FIX
-            if(b_transparency_loss)
-            {
-#ifdef HLRAD_AUTOCORING
-				VectorScale (fl_samples[j][i].light, light_left_for_facelight, fl_samples[j][i].light);
-#ifdef ZHLT_XASH
-				VectorScale (fl_samples[j][i].light_direction, light_left_for_facelight, fl_samples[j][i].light_direction);
-#endif
-#else
-            	 VectorScale(facelight[facenum].samples[j][i].light, light_left_for_facelight, facelight[facenum].samples[j][i].light);
-#endif
-            }
-#endif
 
 #ifndef HLRAD_ACCURATEBOUNCE_SAMPLELIGHT
 	#ifdef HLRAD_AUTOCORING

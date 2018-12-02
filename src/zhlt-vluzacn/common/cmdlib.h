@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_TRANCPARENCYLOSS_FIX //--vluzacn
 #define HLRAD_STYLE_CORING //--vluzacn
 	#ifdef HLRAD_STYLE_CORING
 #define HLRAD_OPAQUE_STYLE //--vluzacn
