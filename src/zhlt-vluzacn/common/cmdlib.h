@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_OPAQUE_ALPHATEST //--vluzacn
 #define HLRAD_TEXLIGHTTHRESHOLD_FIX //--vluzacn
 	#ifdef HLRAD_TEXLIGHTTHRESHOLD_FIX
 #define HLRAD_CUSTOMTEXLIGHT //--vluzacn

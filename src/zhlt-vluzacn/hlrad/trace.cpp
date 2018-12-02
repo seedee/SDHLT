@@ -3,9 +3,7 @@
 #include "bspfile.h"
 #include "log.h" //--vluzacn
 #include "winding.h"
-#ifdef HLRAD_OPAQUE_ALPHATEST
 #include "qrad.h"
-#endif
 
 // #define      ON_EPSILON      0.001
 
@@ -494,14 +492,12 @@ typedef struct
 	dplane_t plane;
 	int numedges;
 	dplane_t *edges;
-#ifdef HLRAD_OPAQUE_ALPHATEST
 	int texinfo;
 	bool tex_alphatest;
 	vec_t tex_vecs[2][4];
 	int tex_width;
 	int tex_height;
 	const byte *tex_canvas;
-#endif
 } opaqueface_t;
 opaqueface_t *opaquefaces;
 
@@ -539,12 +535,10 @@ bool TryMerge (opaqueface_t *f, const opaqueface_t *f2)
 	{
 		return false;
 	}
-#ifdef HLRAD_OPAQUE_ALPHATEST
 	if ((f->tex_alphatest || f2->tex_alphatest) && f->texinfo != f2->texinfo)
 	{
 		return false;
 	}
-#endif
 
 	Winding *w = f->winding;
 	const Winding *w2 = f2->winding;
@@ -732,7 +726,6 @@ void CreateOpaqueNodes ()
 			VectorInverse (of->plane.normal);
 			of->plane.dist = -of->plane.dist;
 		}
-#ifdef HLRAD_OPAQUE_ALPHATEST
 		of->texinfo = df->texinfo;
 		texinfo_t *info = &g_texinfo[of->texinfo];
 		for (j = 0; j < 2; j++)
@@ -747,7 +740,6 @@ void CreateOpaqueNodes ()
 		of->tex_width = tex->width;
 		of->tex_height = tex->height;
 		of->tex_canvas = tex->canvas;
-#endif
 	}
 	for (i = 0; i < g_numnodes; i++)
 	{
@@ -811,7 +803,6 @@ int TestLineOpaque_face (int facenum, const vec3_t hit)
 			return 0;
 		}
 	}
-#ifdef HLRAD_OPAQUE_ALPHATEST
 	if (thisface->tex_alphatest)
 	{
 		double x, y;
@@ -826,7 +817,6 @@ int TestLineOpaque_face (int facenum, const vec3_t hit)
 			return 0;
 		}
 	}
-#endif
 	return 1;
 }
 
