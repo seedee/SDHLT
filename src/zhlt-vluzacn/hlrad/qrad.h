@@ -475,12 +475,8 @@ extern edgeshare_t g_edgeshare[MAX_MAP_EDGES];
 typedef struct lerprect_s
 {
     dplane_t        plane; // all walls will be perpindicular to face normal in some direction
-#ifdef HLRAD_LERP_VL
 	vec3_t			increment;
 	vec3_t			vertex0, vertex1;
-#else
-    vec3_t          vertex[4];
-#endif
 }
 lerpWall_t;
 
@@ -488,10 +484,8 @@ typedef struct lerpdist_s
 {
     vec_t           dist;
     unsigned        patch;
-#ifdef HLRAD_LERP_VL
 	vec3_t			pos;
 	int				invalid;
-#endif
 } lerpDist_t;
 
 // Valve's default was 2048 originally.
@@ -913,15 +907,11 @@ extern void InterpolateSampleLight (const vec3_t position, int surface, int nums
 				);
 extern void FreeTriangulations ();
 #else
-#ifdef HLRAD_LERP_VL
 extern void     SampleTriangulation(const lerpTriangulation_t* const trian, const vec3_t point, vec3_t result, 
 #ifdef ZHLT_XASH
 					vec3_t &result_direction, 
 #endif
 					int style); //LRC
-#else
-extern void     SampleTriangulation(const lerpTriangulation_t* const trian, vec3_t point, vec3_t result, int style); //LRC
-#endif
 extern void     DestroyTriangulation(lerpTriangulation_t* trian);
 extern lerpTriangulation_t* CreateTriangulation(unsigned int facenum);
 extern void     FreeTriangulation(lerpTriangulation_t* trian);

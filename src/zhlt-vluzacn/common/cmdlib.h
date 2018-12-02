@@ -72,10 +72,7 @@
 
 
 
-#define HLRAD_LERP_VL //--vluzacn
-	#ifdef HLRAD_LERP_VL
 #define HLRAD_LERP_TRY5POINTS //--vluzacn
-	#endif
 #define HLRAD_DEBUG_DRAWPOINTS //--vluzacn
 #define HLRAD_SubdividePatch_NOTMIDDLE //--vluzacn
 #define HLRAD_PHONG_FROMORIGINAL //--vluzacn
@@ -120,16 +117,12 @@
 	#endif
 #define HLRAD_WATERBLOCKLIGHT //--vluzacn
 #define HLRAD_MDL_LIGHT_HACK_NEW //--vluzacn
-	#ifdef HLRAD_LERP_VL
 	#ifdef HLRAD_SMOOTH_FACELIST
 #define HLRAD_LERP_FACELIST //--vluzacn
 	#endif
-	#endif
 #define HLRAD_WATERBACKFACE_FIX // remove this if you have fixed the engine's bug of drawing water backface. --vluzacn
 	#ifdef HLRAD_SMOOTH_TEXNORMAL
-	#ifdef HLRAD_LERP_VL
 #define HLRAD_LERP_TEXNORMAL //--vluzacn
-	#endif
 	#endif
 #define HLRAD_REDUCELIGHTMAP //--vluzacn
 	#ifdef HLRAD_REDUCELIGHTMAP
@@ -190,12 +183,10 @@
 	#ifdef HLRAD_VISMATRIX_NOMARKSURFACES
 #define HLRAD_SPARSEVISMATRIX_FAST //--vluzacn
 	#endif
-	#ifdef HLRAD_LERP_VL
 	#ifdef HLRAD_SMOOTH_FACELIST
 	#ifdef HLRAD_GROWSAMPLE
 	#ifdef HLRAD_DEBUG_DRAWPOINTS
 #define HLRAD_LOCALTRIANGULATION //--vluzacn
-	#endif
 	#endif
 	#endif
 	#endif
@@ -209,7 +200,7 @@
 #define HLRAD_TRANSPARENCY_FAST //--vluzacn
 
 #if defined (ZHLT_XASH) || defined (ZHLT_XASH2)
-#if !defined (HLRAD_LERP_VL) || !defined (HLRAD_AUTOCORING) || !defined (HLRAD_AVOIDNORMALFLIP)
+#if !defined (HLRAD_AUTOCORING) || !defined (HLRAD_AVOIDNORMALFLIP)
 #error "ZHLT_XASH has not been implemented for current configuration"
 #endif
 #endif
