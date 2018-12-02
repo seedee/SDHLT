@@ -3475,11 +3475,7 @@ static void     RadWorld()
 			vec3_t v;
 			for (j = 0, es = g_edgeshare; j < MAX_MAP_EDGES; j++, es++)
 			{
-#ifdef HLRAD_GetPhongNormal_VL
 				if (es->smooth)
-#else
-				if (es->coplanar || !VectorCompare (es->interface_normal, vec3_origin))
-#endif
 				{
 					int v0 = g_dedges[j].v[0], v1 = g_dedges[j].v[1];
 					VectorAdd (g_dvertexes[v0].point, g_dvertexes[v1].point, v);

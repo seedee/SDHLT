@@ -114,7 +114,6 @@ void FreeIntersectTest (intersecttest_t *t)
 	free (t);
 }
 #endif
-#ifdef HLRAD_GetPhongNormal_VL
 void AddFaceForVertexNormal_printerror (const int edgeabs, const int edgeend, dface_t *const f)
 {
 	if (DEVELOPER_LEVEL_WARNING <= g_developer)
@@ -219,7 +218,6 @@ int AddFaceForVertexNormal (const int edgeabs, int &edgeabsnext, const int edgee
 	}
 	return 0;
 }
-#endif
 #ifdef HLRAD_GROWSAMPLE
 
 static bool TranslateTexToTex (int facenum, int edgenum, int facenum2, matrix_t &m, matrix_t &m_inverse)
@@ -351,10 +349,8 @@ void            PairEdges()
 #endif
 					) {
 						e->coplanar = true;
-#ifdef HLRAD_GetPhongNormal_VL
 						VectorCopy(getPlaneFromFace(e->faces[0])->normal, e->interface_normal);
 						e->cos_normals_angle = 1.0;
-#endif
 				} else {
                     // see if they fall into a "smoothing group" based on angle of the normals
                     vec3_t          normals[2];
@@ -381,10 +377,8 @@ void            PairEdges()
                     if (e->cos_normals_angle > (1.0 - NORMAL_EPSILON))
                     {
                         e->coplanar = true;
-#ifdef HLRAD_GetPhongNormal_VL
 						VectorCopy(getPlaneFromFace(e->faces[0])->normal, e->interface_normal);
 						e->cos_normals_angle = 1.0;
-#endif
                     }
 #ifdef HLRAD_CUSTOMSMOOTH
                     else if (e->cos_normals_angle >= qmax (smoothvalue - NORMAL_EPSILON, NORMAL_EPSILON))
@@ -420,7 +414,6 @@ void            PairEdges()
 					}
 				}
 #endif
-#ifdef HLRAD_GetPhongNormal_VL
 				if (!VectorCompare(e->interface_normal, vec3_origin))
 				{
 					e->smooth = true;
@@ -450,11 +443,9 @@ void            PairEdges()
 					}
 				}
 #endif
-#endif
             }
         }
     }
-#ifdef HLRAD_GetPhongNormal_VL
 	{
 		int edgeabs, edgeabsnext;
 		int edgeend, edgeendnext;
@@ -604,7 +595,6 @@ void            PairEdges()
 			}
 		}
 	}
-#endif
 }
 
 #define MAX_SINGLEMAP ((MAX_SURFACE_EXTENT+1)*(MAX_SURFACE_EXTENT+1)) //#define	MAX_SINGLEMAP	(18*18*4) //--vluzacn
@@ -4779,9 +4769,7 @@ static void     AddSampleToPatch(const sample_t* const s, const int facenum, int
 void            GetPhongNormal(int facenum, const vec3_t spot, vec3_t phongnormal)
 {
     int             j;
-#ifdef HLRAD_GetPhongNormal_VL
 	int				s; // split every edge into two parts
-#endif
     const dface_t*  f = g_dfaces + facenum;
     const dplane_t* p = getPlaneFromFace(f);
     vec3_t          facenormal;
@@ -4850,16 +4838,7 @@ void            GetPhongNormal(int facenum, const vec3_t spot, vec3_t phongnorma
             es1 = &g_edgeshare[abs(e1)];
             es2 = &g_edgeshare[abs(e2)];
 
-#ifdef HLRAD_GetPhongNormal_VL
 			if ((!es->smooth || es->coplanar) && (!es1->smooth || es1->coplanar) && (!es2->smooth || es2->coplanar))
-#else
-            if (
-                (es->coplanar && es1->coplanar && es2->coplanar)
-                ||
-                (VectorCompare(es->interface_normal, vec3_origin) &&
-                 VectorCompare(es1->interface_normal, vec3_origin) &&
-                 VectorCompare(es2->interface_normal, vec3_origin)))
-#endif
             {
                 continue;
             }
@@ -4878,7 +4857,6 @@ void            GetPhongNormal(int facenum, const vec3_t spot, vec3_t phongnorma
             // Adjust for origin-based models
             VectorAdd(p1, g_face_offset[facenum], p1);
             VectorAdd(p2, g_face_offset[facenum], p2);
-#ifdef HLRAD_GetPhongNormal_VL
 		for (s = 0; s < 2; s++)
 		{
 			vec3_t s1, s2;
@@ -4896,12 +4874,6 @@ void            GetPhongNormal(int facenum, const vec3_t spot, vec3_t phongnorma
 
             VectorSubtract(s1, g_face_centroids[facenum], v1);
             VectorSubtract(s2, g_face_centroids[facenum], v2);
-#else
-
-            // Build vectors from the middle of the face to the edge vertexes and the sample pos.
-            VectorSubtract(p1, g_face_centroids[facenum], v1);
-            VectorSubtract(p2, g_face_centroids[facenum], v2);
-#endif
             VectorSubtract(spot, g_face_centroids[facenum], vspot);
 
             aa = DotProduct(v1, v1);
@@ -4911,17 +4883,12 @@ void            GetPhongNormal(int facenum, const vec3_t spot, vec3_t phongnorma
             a2 = (DotProduct(vspot, v2) - a1 * ab) / bb;
 
             // Test center to sample vector for inclusion between center to vertex vectors (Use dot product of vectors)
-#ifdef HLRAD_GetPhongNormal_VL
             if (a1 >= -0.01 && a2 >= -0.01)
-#else
-            if (a1 >= 0.0 && a2 >= 0.0)
-#endif
             {
                 // calculate distance from edge to pos
                 vec3_t          n1, n2;
                 vec3_t          temp;
 
-#ifdef HLRAD_GetPhongNormal_VL
 				if (es->smooth)
 					if (s == 0)
 					{VectorCopy(es->vertex_normal[e>0?0:1], n1);}
@@ -4938,23 +4905,6 @@ void            GetPhongNormal(int facenum, const vec3_t spot, vec3_t phongnorma
 				{VectorCopy(es->interface_normal, n2);}
 				else
 				{VectorCopy(facenormal, n2);}
-#else
-                VectorAdd(es->interface_normal, es1->interface_normal, n1)
-
-                if (VectorCompare(n1, vec3_origin))
-                {
-                    VectorCopy(facenormal, n1);
-                }
-                VectorNormalize(n1);
-
-                VectorAdd(es->interface_normal, es2->interface_normal, n2);
-
-                if (VectorCompare(n2, vec3_origin))
-                {
-                    VectorCopy(facenormal, n2);
-                }
-                VectorNormalize(n2);
-#endif
 
                 // Interpolate between the center and edge normals based on sample position
                 VectorScale(facenormal, 1.0 - a1 - a2, phongnormal);
@@ -4965,9 +4915,7 @@ void            GetPhongNormal(int facenum, const vec3_t spot, vec3_t phongnorma
                 VectorNormalize(phongnormal);
                 break;
             }
-#ifdef HLRAD_GetPhongNormal_VL
 		} // s=0,1
-#endif
         }
     }
 }

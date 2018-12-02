@@ -3062,11 +3062,7 @@ static void     CreateWalls(lerpTriangulation_t* trian, const dface_t* const fac
         }
 
         // Build Wall for non-coplanar neighbhors
-#ifdef HLRAD_GetPhongNormal_VL
         if (f2 && !es->smooth)
-#else
-        if (f2 && !es->coplanar && VectorCompare(vec3_origin, es->interface_normal))
-#endif
         {
             const dplane_t* plane = getPlaneFromFace(f2);
 
@@ -3303,11 +3299,7 @@ lerpTriangulation_t* CreateTriangulation(const unsigned int facenum)
             f2 = es->faces[0];
         }
 
-#ifdef HLRAD_GetPhongNormal_VL
 		if (!es->smooth)
-#else
-        if (!es->coplanar && VectorCompare(vec3_origin, es->interface_normal))
-#endif
         {
             continue;
         }

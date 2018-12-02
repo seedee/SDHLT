@@ -457,14 +457,10 @@ typedef struct
 {
     dface_t*        faces[2];
     vec3_t          interface_normal; // HLRAD_GetPhongNormal_VL: this field must be set when smooth==true
-#ifdef HLRAD_GetPhongNormal_VL
 	vec3_t			vertex_normal[2];
-#endif
     vec_t           cos_normals_angle; // HLRAD_GetPhongNormal_VL: this field must be set when smooth==true
     bool            coplanar;
-#ifdef HLRAD_GetPhongNormal_VL
 	bool			smooth;
-#endif
 #ifdef HLRAD_SMOOTH_FACELIST
 	facelist_t*		vertex_facelist[2]; //possible smooth faces, not include faces[0] and faces[1]
 #endif

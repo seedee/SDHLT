@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_GetPhongNormal_VL //--vluzacn
 #define HLRAD_CUSTOMSMOOTH //--vluzacn
 #define HLRAD_READABLE_EXCEEDSTYLEWARNING //--vluzacn
 #define HLRAD_NUDGE_SMALLSTEP //--vluzacn
@@ -90,10 +89,8 @@
 #define HLRAD_HuntForWorld_FIX //--vluzacn
 	#ifdef HLRAD_HuntForWorld_FIX
 	#ifdef HLRAD_HuntForWorld_EDGE_FIX
-	#ifdef HLRAD_GetPhongNormal_VL
 	#ifdef HLRAD_SNAPTOWINDING
 #define HLRAD_CalcPoints_NEW // --vluzacn
-	#endif
 	#endif
 	#endif
 	#endif
@@ -111,9 +108,7 @@
 	#ifdef HLRAD_CalcPoints_NEW
 #define HLRAD_PHONG_FROMORIGINAL //--vluzacn
 	#endif
-	#ifdef HLRAD_GetPhongNormal_VL
 #define HLRAD_SMOOTH_FACELIST //--vluzacn
-	#endif
 #define HLRAD_SortPatches_FIX // Important!! --vluzacn
 #define HLRAD_GatherPatchLight //--vluzacn
 	#ifdef HLRAD_GatherPatchLight
@@ -217,10 +212,8 @@
 #define HLRAD_DIVERSE_LIGHTING //--vluzacn
 	#ifdef HLRAD_CalcPoints_NEW
 	#ifdef HLRAD_BLUR
-	#ifdef HLRAD_GetPhongNormal_VL
 	#ifdef HLRAD_SNAPTOWINDING
 #define HLRAD_GROWSAMPLE //--vluzacn
-	#endif
 	#endif
 	#endif
 	#endif
