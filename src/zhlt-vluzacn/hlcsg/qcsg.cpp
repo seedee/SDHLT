@@ -284,72 +284,6 @@ void            FreeFace(bface_t* f)
     Free(f);
 }
 
-#ifndef HLCSG_NOFAKESPLITS
-// =====================================================================================
-//  ClipFace
-//      Clips a faces by a plane, returning the fragment on the backside and adding any 
-//      fragment to the outside.
-//      Faces exactly on the plane will stay inside unless overdrawn by later brush.
-//      Frontside is the side of the plane that holds the outside list.
-//      Precedence is necesary to handle overlapping coplanar faces.
-#define	SPLIT_EPSILON	0.3
-// =====================================================================================
-static bface_t* ClipFace(bface_t* f, bface_t** outside, const int splitplane, const bool precedence)
-{
-    bface_t*        front;  // clip face
-    Winding*        fw;     // forward wind
-    Winding*        bw;     // back wind
-    plane_t*        split; // plane to clip on
-
-    // handle exact plane matches special
-
-    if (f->planenum == (splitplane ^ 1)) 
-        return f;    // opposite side, so put on inside list
-
-    if (f->planenum == splitplane)  // coplanar
-    {       
-        // this fragment will go to the inside, because
-        //   the earlier one was clipped to the outside
-        if (precedence)
-            return f;
-
-        f->next = *outside;
-        *outside = f;
-        return NULL;
-    }
-
-    split = &g_mapplanes[splitplane];
-    f->w->Clip(split->normal, split->dist, &fw, &bw);
-
-    if (!fw)
-    {
-        delete bw;
-        return f;
-    }
-    else if (!bw)
-    {
-        delete fw;
-        f->next = *outside;
-        *outside = f;
-        return NULL;
-    }
-    else
-    {
-        delete f->w;
-    
-        front = NewFaceFromFace(f);
-        front->w = fw;
-        fw->getBounds(front->bounds);
-        front->next = *outside;
-        *outside = front;
-    
-        f->w = bw;
-        bw->getBounds(f->bounds);
-    
-        return f;
-    }
-}
-#endif
 
 // =====================================================================================
 //  WriteFace
@@ -710,13 +644,7 @@ static void     CSGBrush(int brushnum)
     bface_t*        f;
     bface_t*        f2;
     bface_t*        next;
-#ifndef HLCSG_NOFAKESPLITS
-    bface_t*        fcopy;
-#endif
     bface_t*        outside;
-#ifndef HLCSG_NOFAKESPLITS
-    bface_t*        oldoutside;
-#endif
     entity_t*       e;
     vec_t           area;
 
@@ -859,14 +787,9 @@ static void     CSGBrush(int brushnum)
 					}
 				}
 
-#ifndef HLCSG_NOFAKESPLITS
-                oldoutside = outside;
-                fcopy = CopyFace(f);                       // save to avoid fake splits
-#endif
 
                 // throw pieces on the front sides of the planes
                 // into the outside list, return the remains on the inside
-#ifdef HLCSG_NOFAKESPLITS
 				// find the fragment inside brush2
 				Winding *w = new Winding (*f->w);
 				for (f2 = bh2->faces; f2; f2 = f2->next)
@@ -960,12 +883,6 @@ static void     CSGBrush(int brushnum)
 					f = NULL;
 				}
 				delete w;
-#else
-                for (f2 = bh2->faces; f2 && f; f2 = f2->next)
-                {
-                    f = ClipFace(f, &outside, f2->planenum, overwrite);
-                }
-#endif
 
                 area = f ? f->w->getArea() : 0;
                 if (f && area < g_tiny_threshold)
@@ -981,9 +898,6 @@ static void     CSGBrush(int brushnum)
                 {
                     // there is one convex fragment of the original
                     // face left inside brush2
-#ifndef HLCSG_NOFAKESPLITS
-                    FreeFace(fcopy);
-#endif
 
 					if (
 #ifdef ZHLT_CLIPNODEDETAILLEVEL
@@ -1049,26 +963,6 @@ static void     CSGBrush(int brushnum)
                         FreeFace(f);                       // throw it away
                     }
                 }
-#ifndef HLCSG_NOFAKESPLITS
-                else
-                {                                          // the entire thing was on the outside, even
-                    // though the bounding boxes intersected,
-                    // which will never happen with axial planes
-
-                    // free the fragments chopped to the outside
-                    while (outside != oldoutside)
-                    {
-                        f2 = outside->next;
-                        FreeFace(outside);
-                        outside = f2;
-                    }
-
-                    // revert to the original face to avoid
-                    // unneeded false cuts
-                    fcopy->next = outside;
-                    outside = fcopy;
-                }
-#endif
             }
 
         }
