@@ -926,9 +926,7 @@ extern bool CheckVisBitBackwards(unsigned receiver, unsigned emitter, const vec3
 								, vec3_t &transparency_out
 								);
 #endif
-#ifdef HLRAD_MDL_LIGHT_HACK
 extern void	    MdlLightHack(void);
-#endif
 
 // qradutil.c
 extern vec_t    PatchPlaneDist(const patch_t* const patch);

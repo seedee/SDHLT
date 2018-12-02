@@ -679,7 +679,6 @@ typedef struct
 #endif
 }
 lightinfo_t;
-#ifdef HLRAD_MDL_LIGHT_HACK
 #ifndef HLRAD_MDL_LIGHT_HACK_NEW
 typedef struct
 {
@@ -691,7 +690,6 @@ typedef struct
 }
 facesampleinfo_t;
 static facesampleinfo_t facesampleinfo[MAX_MAP_FACES];
-#endif
 #endif
 
 // =====================================================================================
@@ -5902,7 +5900,6 @@ void            BuildFacelights(const int facenum)
 #endif
 		);
 #endif
-#ifdef HLRAD_MDL_LIGHT_HACK
 #ifndef HLRAD_MDL_LIGHT_HACK_NEW
 	VectorCopy (g_face_offset[facenum], facesampleinfo[facenum].offset);
 	for (i=0; i<2; ++i)
@@ -5913,7 +5910,6 @@ void            BuildFacelights(const int facenum)
 		VectorCopy (l.worldtotex[i], facesampleinfo[facenum].worldtotex[i]);
 	}
 	VectorCopy (l.texorg, facesampleinfo[facenum].texorg);
-#endif
 #endif
 
     lightmapwidth = l.texsize[0] + 1;
@@ -7634,7 +7630,6 @@ void ReduceLightmap ()
 }
 #endif
 
-#ifdef HLRAD_MDL_LIGHT_HACK
 
 // Change the sample light right under a mdl file entity's origin.
 // Use this when "mdl" in shadow has incorrect brightness.
@@ -8041,7 +8036,6 @@ void MdlLightHack ()
 		Log("Mdl Light Hack: %d entities %d samples (%.2f seconds)\n", countent, countsample, end - start);
 #endif
 }
-#endif /*HLRAD_MDL_LIGHT_HACK*/
 
 #ifdef HLRAD_GROWSAMPLE
 

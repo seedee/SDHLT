@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_MDL_LIGHT_HACK //--vluzacn
 #define HLRAD_MINLIGHT //--vluzacn
 #define HLRAD_FinalLightFace_VL // Compensate for engine's bug of no gamma correction when adding dynamic light styles together. --vluzacn
 #define HLRAD_POINT_IN_EDGE_FIX	//--vluzacn
@@ -186,9 +185,7 @@
 #define HLRAD_VISMATRIX_NOMARKSURFACES //--vluzacn
 	#endif
 #define HLRAD_WATERBLOCKLIGHT //--vluzacn
-	#ifdef HLRAD_MDL_LIGHT_HACK
 #define HLRAD_MDL_LIGHT_HACK_NEW //--vluzacn
-	#endif
 	#ifdef HLRAD_LERP_VL
 	#ifdef HLRAD_SMOOTH_FACELIST
 #define HLRAD_LERP_FACELIST //--vluzacn

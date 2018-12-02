@@ -3876,9 +3876,7 @@ static void     RadWorld()
 		Verbose ("Maximum brightness loss (too many light styles on a face) = %f @(%f, %f, %f)\n", g_maxdiscardedlight, g_maxdiscardedpos[0], g_maxdiscardedpos[1], g_maxdiscardedpos[2]);
 	}
 #endif
-#ifdef HLRAD_MDL_LIGHT_HACK
 	MdlLightHack ();
-#endif
 #ifdef HLRAD_REDUCELIGHTMAP
 	ReduceLightmap();
 	if (g_lightdatasize == 0)
