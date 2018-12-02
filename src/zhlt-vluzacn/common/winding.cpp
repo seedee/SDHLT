@@ -877,7 +877,6 @@ void Winding::Divide(const dplane_t& split, Winding** front, Winding** back
 
     *front = *back = NULL;
 
-#ifdef HLBSP_SPLITFACE_FIX
 	if (!counts[0] && !counts[1])
 	{
 		vec_t sum = 0.0;
@@ -897,7 +896,6 @@ void Winding::Divide(const dplane_t& split, Winding** front, Winding** back
 		}
 		return;
 	}
-#endif
     if (!counts[0])
     {
         *back = this;   // Makes this function non-const

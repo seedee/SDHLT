@@ -268,7 +268,6 @@ static void     SplitFaceTmp(face_t* in, const dplane_t* const split, face_t** f
     sides[i] = sides[0];
     dists[i] = dists[0];
 
-#ifdef HLBSP_SPLITFACE_FIX
 	if (!counts[0] && !counts[1])
 	{
 		if (in->detaillevel)
@@ -309,7 +308,6 @@ static void     SplitFaceTmp(face_t* in, const dplane_t* const split, face_t** f
 		}
 		return;
 	}
-#endif
     if (!counts[0])
     {
         *front = NULL;
