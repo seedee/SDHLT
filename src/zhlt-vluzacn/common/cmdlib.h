@@ -72,15 +72,12 @@
 
 
 
-#define HLRAD_HuntForWorld_EDGE_FIX // similar to HLRAD_TestLine_EDGE_FIX. --vluzacn
 #define HLRAD_WITHOUTVIS //--vluzacn
 #define HLRAD_SNAPTOWINDING //--vluzacn
 #define HLRAD_HuntForWorld_FIX //--vluzacn
 	#ifdef HLRAD_HuntForWorld_FIX
-	#ifdef HLRAD_HuntForWorld_EDGE_FIX
 	#ifdef HLRAD_SNAPTOWINDING
 #define HLRAD_CalcPoints_NEW // --vluzacn
-	#endif
 	#endif
 	#endif
 #define HLRAD_DPLANEOFFSET_MISCFIX //--vluzacn

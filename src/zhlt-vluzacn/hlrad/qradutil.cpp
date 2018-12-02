@@ -2,7 +2,6 @@
 
 static dplane_t backplanes[MAX_MAP_PLANES];
 
-#ifdef HLRAD_HuntForWorld_EDGE_FIX
 dleaf_t*		PointInLeaf_Worst_r(int nodenum, const vec3_t point)
 {
 	vec_t			dist;
@@ -51,7 +50,6 @@ dleaf_t*		PointInLeaf_Worst(const vec3_t point)
 {
 	return PointInLeaf_Worst_r(0, point);
 }
-#endif
 dleaf_t*        PointInLeaf(const vec3_t point)
 {
     int             nodenum;
@@ -250,11 +248,7 @@ dleaf_t*        HuntForWorld(vec_t* point, const vec_t* plane_offset, const dpla
 #endif
                     if (dist < best_dist)
                     {
-#ifdef HLRAD_HuntForWorld_EDGE_FIX
                         if ((leaf = PointInLeaf_Worst(current_point)) != g_dleafs)
-#else
-                        if ((leaf = PointInLeaf(current_point)) != g_dleafs)
-#endif
                         {
                             if ((leaf->contents != CONTENTS_SKY) && (leaf->contents != CONTENTS_SOLID))
                             {
