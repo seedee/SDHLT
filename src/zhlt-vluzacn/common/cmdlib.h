@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_AVOIDNORMALFLIP //--vluzacn
 #define HLRAD_BLUR_MINIMALSQUARE //--vluzacn
 	#ifdef HLRAD_BLUR_MINIMALSQUARE
 #define HLRAD_AVOIDWALLBLEED //--vluzacn
@@ -91,9 +90,6 @@
 #define HLRAD_TRANSPARENCY_FAST //--vluzacn
 
 #if defined (ZHLT_XASH) || defined (ZHLT_XASH2)
-#if !defined (HLRAD_AVOIDNORMALFLIP)
-#error "ZHLT_XASH has not been implemented for current configuration"
-#endif
 #endif
 //=====================================================================
 

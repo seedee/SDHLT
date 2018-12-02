@@ -549,9 +549,7 @@ typedef struct
 #ifdef ZHLT_XASH
 	vec3_t			(*lmcache_direction)[ALLSTYLES];
 #endif
-#ifdef HLRAD_AVOIDNORMALFLIP
 	vec3_t			*lmcache_normal; // record the phong normals
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 	int				*lmcache_wallflags; // wallflag_t
 #endif
@@ -698,10 +696,8 @@ static void     CalcFaceExtents(lightinfo_t* l)
 #ifdef ZHLT_XASH
 		hlassume (l->lmcache_direction != NULL, assume_NoMemory);
 #endif
-#ifdef HLRAD_AVOIDNORMALFLIP
 		l->lmcache_normal = (vec3_t *)malloc (l->lmcachewidth * l->lmcacheheight * sizeof (vec3_t));
 		hlassume (l->lmcache_normal != NULL, assume_NoMemory);
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 		l->lmcache_wallflags = (int *)malloc (l->lmcachewidth * l->lmcacheheight * sizeof (int));
 		hlassume (l->lmcache_wallflags != NULL, assume_NoMemory);
@@ -3371,9 +3367,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 	#ifdef ZHLT_XASH
 		vec3_t *sampled_direction;
 	#endif
-	#ifdef HLRAD_AVOIDNORMALFLIP
 		vec3_t *normal_out;
-	#endif
 	#ifdef HLRAD_AVOIDWALLBLEED
 		bool nudged;
 		int *wallflags_out;
@@ -3391,9 +3385,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 	#ifdef ZHLT_XASH
 			sampled_direction = l->lmcache_direction[i];
 	#endif
-	#ifdef HLRAD_AVOIDNORMALFLIP
 			normal_out = &l->lmcache_normal[i];
-	#endif
 	#ifdef HLRAD_AVOIDWALLBLEED
 			wallflags_out = &l->lmcache_wallflags[i];
 	#endif
@@ -3511,9 +3503,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 			{
 				VectorSubtract (vec3_origin, pointnormal, pointnormal2);
 			}
-#ifdef HLRAD_AVOIDNORMALFLIP
 			VectorCopy (pointnormal, *normal_out);
-#endif
 		}
 		// calculate visibility for the sample
 		{
@@ -3790,10 +3780,8 @@ void            BuildFacelights(const int facenum)
 		int s_center, t_center;
 		vec_t sizehalf;
 		vec_t weighting, subsamples;
-#ifdef HLRAD_AVOIDNORMALFLIP
 		vec3_t centernormal;
 		vec_t weighting_correction;
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 		int pass;
 #endif
@@ -3801,9 +3789,7 @@ void            BuildFacelights(const int facenum)
 		t_center = (i / lightmapwidth) * l.lmcache_density + l.lmcache_offset;
 		sizehalf = 0.5 * g_blur * l.lmcache_density;
 		subsamples = 0.0;
-#ifdef HLRAD_AVOIDNORMALFLIP
 		VectorCopy (l.lmcache_normal[s_center + l.lmcachewidth * t_center], centernormal);
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 		if (g_bleedfix && !g_drawnudge)
 		{
@@ -3889,7 +3875,6 @@ void            BuildFacelights(const int facenum)
 				}
 #endif
 				pos = s + l.lmcachewidth * t;
-	#ifdef HLRAD_AVOIDNORMALFLIP
 				// when blur distance (g_blur) is large, the subsample can be very far from the original lightmap sample (aligned with interval TEXTURE_STEP (16.0))
 				// in some cases such as a thin cylinder, the subsample can even grow into the opposite side
 				// as a result, when exposed to a directional light, the light on the cylinder may "leak" into the opposite dark side
@@ -3898,7 +3883,6 @@ void            BuildFacelights(const int facenum)
 				weighting_correction = DotProduct (l.lmcache_normal[pos], centernormal);
 				weighting_correction = (weighting_correction > 0)? weighting_correction * weighting_correction: 0;
 				weighting = weighting * weighting_correction;
-	#endif
 				for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
 				{
 					VectorMA (fl_samples[j][i].light, weighting, l.lmcache[pos][j], fl_samples[j][i].light);
@@ -4404,9 +4388,7 @@ void            BuildFacelights(const int facenum)
 #ifdef ZHLT_XASH
 	free (l.lmcache_direction);
 #endif
-#ifdef HLRAD_AVOIDNORMALFLIP
 	free (l.lmcache_normal);
-#endif
 #ifdef HLRAD_AVOIDWALLBLEED
 	free (l.lmcache_wallflags);
 #endif
