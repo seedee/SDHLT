@@ -1485,7 +1485,6 @@ bool            ParseEntity()
 		SetKeyValue (mapent, "classname", ValueForKey (mapent, "convertfrom"));
 		SetKeyValue (mapent, "convertfrom", "");
 	}
-#ifdef ZHLT_ENTITY_INFOSUNLIGHT
 	if (!strcmp (ValueForKey (mapent, "classname"), "light_environment") &&
 		!strcmp (ValueForKey (mapent, "convertfrom"), "info_sunlight"))
 	{
@@ -1502,7 +1501,6 @@ bool            ParseEntity()
 	{
 		SetKeyValue (mapent, "classname", "info_sunlight");
 	}
-#endif
 
     return true;
 }
@@ -1525,7 +1523,6 @@ void            ParseEntities()
 //  UnparseEntities
 //      Generates the dentdata string from all the entities
 // =====================================================================================
-#ifdef ZHLT_ENTITY_INFOSUNLIGHT
 int anglesforvector (float angles[3], const float vector[3])
 {
 	float z = vector[2], r = sqrt (vector[0] * vector[0] + vector[1] * vector[1]);
@@ -1575,7 +1572,6 @@ int anglesforvector (float angles[3], const float vector[3])
 	angles[2] = 0;
 	return 0;
 }
-#endif
 void            UnparseEntities()
 {
     char*           buf;
@@ -1588,7 +1584,6 @@ void            UnparseEntities()
     end = buf;
     *end = 0;
 
-#ifdef ZHLT_ENTITY_INFOSUNLIGHT
 	for (i = 0; i < g_numentities; i++)
 	{
 		entity_t *mapent = &g_entities[i];
@@ -1635,7 +1630,6 @@ void            UnparseEntities()
 			}
 		}
 	}
-#endif
     for (i = 0; i < g_numentities; i++)
 	{
 		entity_t *mapent = &g_entities[i];

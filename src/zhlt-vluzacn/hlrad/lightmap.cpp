@@ -3597,7 +3597,6 @@ void            CreateDirectLights()
 		directlights[0] = skylights;
 	}
 #endif
-#ifdef ZHLT_ENTITY_INFOSUNLIGHT
 #ifdef HLRAD_MULTISKYLIGHT
 	if (g_sky_lighting_fix)
 	{
@@ -3622,7 +3621,6 @@ void            CreateDirectLights()
 			Warning ("More than one light_environments are in use. Add entity info_sunlight to clarify the sunlight's brightness for in-game model(.mdl) rendering.");
 		}
 	}
-#endif
 #endif
 }
 
