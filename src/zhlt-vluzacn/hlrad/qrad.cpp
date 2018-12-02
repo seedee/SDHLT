@@ -152,9 +152,7 @@ float		g_softlight_hack_distance = DEFAULT_SOFTLIGHT_HACK_DISTANCE;
 bool		g_customshadow_with_bouncelight = DEFAULT_CUSTOMSHADOW_WITH_BOUNCELIGHT;
 bool		g_rgb_transfers = DEFAULT_RGB_TRANSFERS;
 
-#ifdef HLRAD_TRANSTOTAL_HACK
 float		g_transtotal_hack = DEFAULT_TRANSTOTAL_HACK;
-#endif
 #ifdef HLRAD_MINLIGHT
 unsigned char g_minlight = DEFAULT_MINLIGHT;
 #endif
@@ -4013,10 +4011,8 @@ static void     Usage()
     Log("   -customshadowwithbounce : Enables custom shadows with bounce light\n");
     Log("   -rgbtransfers           : Enables RGB Transfers (for custom shadows)\n\n");
 
-#ifdef HLRAD_TRANSTOTAL_HACK
 #ifndef HLRAD_REFLECTIVITY
 	Log("   -bscale        : Scaling light on every bounce\n\n");
-#endif
 #endif
 #ifdef HLRAD_MINLIGHT
 	Log("   -minlight #    : Minimum final light (integer from 0 to 255)\n");
@@ -4280,12 +4276,10 @@ static void     Settings()
         "                     [ %17s ] [ %17s ]\n", g_customshadow_with_bouncelight ? "on" : "off", DEFAULT_CUSTOMSHADOW_WITH_BOUNCELIGHT ? "on" : "off");
     Log("rgb transfers        [ %17s ] [ %17s ]\n", g_rgb_transfers ? "on" : "off", DEFAULT_RGB_TRANSFERS ? "on" : "off"); 
 
-#ifdef HLRAD_TRANSTOTAL_HACK
 #ifndef HLRAD_REFLECTIVITY
 	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_transtotal_hack);
 	safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_TRANSTOTAL_HACK);
 	Log("bounce scale         [ %17s ] [ %17s ]\n", buf1, buf2);
-#endif
 #endif
 #ifdef HLRAD_MINLIGHT
 	Log("minimum final light  [ %17d ] [ %17d ]\n", (int)g_minlight, (int)DEFAULT_MINLIGHT);
@@ -5156,7 +5150,6 @@ int             main(const int argc, char** argv)
         }
 #endif
 
-#ifdef HLRAD_TRANSTOTAL_HACK
 		else if (!strcasecmp(argv[i], "-bscale"))
 		{
 #ifdef HLRAD_REFLECTIVITY
@@ -5171,7 +5164,6 @@ int             main(const int argc, char** argv)
                 Usage();
             }
 		}
-#endif
 
 #ifdef HLRAD_MINLIGHT
 		else if (!strcasecmp(argv[i], "-minlight"))

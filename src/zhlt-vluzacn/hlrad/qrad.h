@@ -168,9 +168,7 @@
 	#define DEFAULT_RGB_TRANSFERS false
 // o_O ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#ifdef HLRAD_TRANSTOTAL_HACK
 	#define DEFAULT_TRANSTOTAL_HACK 0.2 //0.5 //vluzacn
-#endif
 #ifdef HLRAD_MINLIGHT
 	#define DEFAULT_MINLIGHT 0
 #endif
@@ -777,9 +775,7 @@ extern float	g_softlight_hack_distance;
 	extern const vec3_t vec3_one;
 #endif
 
-#ifdef HLRAD_TRANSTOTAL_HACK
 	extern float g_transtotal_hack;
-#endif
 #ifdef HLRAD_MINLIGHT
 	extern unsigned char g_minlight;
 #endif

@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_TRANSTOTAL_HACK //--vluzacn
 #define HLRAD_TRANSPARENCY_CPP //--vluzacn
 	#ifdef HLRAD_TRANSPARENCY_CPP
 #define HLRAD_TestSegmentAgainstOpaqueList_VL //--vluzacn

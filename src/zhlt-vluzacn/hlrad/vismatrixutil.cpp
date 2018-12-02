@@ -548,11 +548,7 @@ void            MakeScales(const int threadnum)
 #ifdef HLRAD_REFLECTIVITY
 			total = 1 / Q_PI;
 #else
-	#ifdef HLRAD_TRANSTOTAL_HACK
 			total = g_transtotal_hack / Q_PI;
-	#else
-			total = 0.5 / Q_PI;
-	#endif
 #endif
             {
 #ifdef HLRAD_TRANSFERDATA_COMPRESS
@@ -1004,11 +1000,7 @@ void            MakeRGBScales(const int threadnum)
 #ifdef HLRAD_REFLECTIVITY
 			total = 1 / Q_PI;
 #else
-	#ifdef HLRAD_TRANSTOTAL_HACK
 			total = g_transtotal_hack / Q_PI;
-	#else
-			total = 0.5 / Q_PI;
-	#endif
 #endif
             {
 #ifdef HLRAD_TRANSFERDATA_COMPRESS
