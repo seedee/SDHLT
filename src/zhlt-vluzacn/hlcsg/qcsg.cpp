@@ -2341,7 +2341,6 @@ int             main(const int argc, char** argv)
     //  before settings are finalised and printed out, so that the info_compile_parameters
     //  entity can be dealt with effectively
     start = I_FloatTime();
-#ifdef HLCSG_HULLFILE_AUTOPATH
 	if (g_hullfile)
 	{
 		char temp[_MAX_PATH];
@@ -2394,7 +2393,6 @@ int             main(const int argc, char** argv)
 			}
 		}
 	}
-#endif
 	if (g_wadcfgfile)
 	{
 		char temp[_MAX_PATH];
