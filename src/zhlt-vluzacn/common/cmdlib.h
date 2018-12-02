@@ -72,12 +72,9 @@
 
 
 
-#define HLRAD_TRANSNONORMALIZE //--vluzacn
 #define HLRAD_OPAQUE_DIFFUSE_FIX //--vluzacn
-	#ifdef HLRAD_TRANSNONORMALIZE
 #define HLRAD_NOSWAP //--vluzacn
 #define HLRAD_TRANSTOTAL_HACK //--vluzacn
-	#endif
 #define HLRAD_TRANSPARENCY_CPP //--vluzacn
 	#ifdef HLRAD_TRANSPARENCY_CPP
 #define HLRAD_TestSegmentAgainstOpaqueList_VL //--vluzacn
@@ -86,10 +83,8 @@
 #define HLRAD_CHOP_FIX //--vluzacn
 #define HLRAD_CUSTOMCHOP // don't use this --vluzacn
 #define HLRAD_RGBTRANSFIX //--vluzacn
-	#ifdef HLRAD_TRANSNONORMALIZE
 	#ifdef HLRAD_RGBTRANSFIX
 #define HLRAD_TRANSWEIRDFIX //--vluzacn
-	#endif
 	#endif
 #define HLRAD_MDL_LIGHT_HACK //--vluzacn
 #define HLRAD_MINLIGHT //--vluzacn

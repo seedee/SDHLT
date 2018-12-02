@@ -276,9 +276,6 @@ void            MakeScales(const int threadnum)
         patch->iIndex = 0;
         patch->iData = 0;
 
-#ifndef HLRAD_TRANSNONORMALIZE
-        total = 0.0;
-#endif
 
         tIndex = tIndex_All;
         tData = tData_All;
@@ -503,9 +500,6 @@ void            MakeScales(const int threadnum)
                 }
 #endif /*HLRAD_TRANSWEIRDFIX*/
 
-#ifndef HLRAD_TRANSNONORMALIZE
-                total += send;
-#endif
 
 #ifdef HLRAD_TRANSFERDATA_COMPRESS
 				trans = trans * patch2->area;
@@ -575,20 +569,11 @@ void            MakeScales(const int threadnum)
 #ifdef HLRAD_REFLECTIVITY
 			total = 1 / Q_PI;
 #else
-#ifdef HLRAD_TRANSNONORMALIZE
 	#ifdef HLRAD_TRANSTOTAL_HACK
 			total = g_transtotal_hack / Q_PI;
 	#else
 			total = 0.5 / Q_PI;
 	#endif
-#else // BAD assumption when there is SKY.
-            //
-            // normalize all transfers so exactly 50% of the light
-            // is transfered to the surroundings
-            //
-
-            total = 0.5 / total;
-#endif
 #endif
             {
 #ifdef HLRAD_TRANSFERDATA_COMPRESS
@@ -762,9 +747,6 @@ void            MakeRGBScales(const int threadnum)
         patch->iIndex = 0;
         patch->iData = 0;
 
-#ifndef HLRAD_TRANSNONORMALIZE
-        total = 0.0;
-#endif
 
         tIndex = tIndex_All;
         tRGBData = tRGBData_All;
@@ -999,9 +981,6 @@ void            MakeRGBScales(const int threadnum)
 					VectorMultiply(trans, transparency, trans);
 				}
 #endif /*HLRAD_TRANSWEIRDFIX*/
-	#ifndef HLRAD_TRANSNONORMALIZE
-				total += send;
-	#endif
 #else /*HLRAD_RGBTRANSFIX*/
 #ifdef HLRAD_ACCURATEBOUNCE
             if (VectorAvg(trans) <= 0.0)
@@ -1020,9 +999,6 @@ void            MakeRGBScales(const int threadnum)
                     trans[0] = 0.4f / patch2->area;
                     send = 0.4f;
                 }
-	#ifndef HLRAD_TRANSNONORMALIZE
-                total += send / 3.0f;
-	#endif
                 
             	/////////////////////////////////////////GREEN
                 send = trans[1] * patch2->area;
@@ -1032,9 +1008,6 @@ void            MakeRGBScales(const int threadnum)
                     trans[1] = 0.4f / patch2->area;
                     send = 0.4f;
                 }
-	#ifndef HLRAD_TRANSNONORMALIZE
-                total += send / 3.0f;
-	#endif
 
             	/////////////////////////////////////////BLUE
                 send = trans[2] * patch2->area;
@@ -1044,9 +1017,6 @@ void            MakeRGBScales(const int threadnum)
                     trans[2] = 0.4f / patch2->area;
                     send = 0.4f;
                 }
-	#ifndef HLRAD_TRANSNONORMALIZE
-                total += send / 3.0f;
-	#endif
 #endif /*HLRAD_RGBTRANSFIX*/
 
 #ifdef HLRAD_TRANSFERDATA_COMPRESS
@@ -1127,19 +1097,11 @@ void            MakeRGBScales(const int threadnum)
 #ifdef HLRAD_REFLECTIVITY
 			total = 1 / Q_PI;
 #else
-#ifdef HLRAD_TRANSNONORMALIZE
 	#ifdef HLRAD_TRANSTOTAL_HACK
 			total = g_transtotal_hack / Q_PI;
 	#else
 			total = 0.5 / Q_PI;
 	#endif
-#else
-            //
-            // normalize all transfers so exactly 50% of the light
-            // is transfered to the surroundings
-            //
-            total = 0.5 / total;
-#endif
 #endif
             {
 #ifdef HLRAD_TRANSFERDATA_COMPRESS
