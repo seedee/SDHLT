@@ -502,9 +502,7 @@ lumpinfo_t*     FindTexture(const lumpinfo_t* const source)
 //  LoadLump
 // =====================================================================================
 int             LoadLump(const lumpinfo_t* const source, byte* dest, int* texsize
-#ifdef HLCSG_FILEREADFAILURE_FIX
 						, int dest_maxsize
-#endif
 						, byte *&writewad_data, int &writewad_datasize
 						)
 {
@@ -518,9 +516,7 @@ int             LoadLump(const lumpinfo_t* const source, byte* dest, int* texsiz
         if (fseek(texfiles[source->iTexFile], source->filepos, SEEK_SET))
         {
             Warning("fseek to %d failed\n", source->filepos);
-#ifdef HLCSG_FILEREADFAILURE_FIX
 			Error ("File read failure");
-#endif
         }
         *texsize = source->disksize;
 
@@ -543,9 +539,7 @@ int             LoadLump(const lumpinfo_t* const source, byte* dest, int* texsiz
             // We will load the entire texture from the WAD at engine runtime
             int             i;
             miptex_t*       miptex = (miptex_t*)dest;
-#ifdef HLCSG_FILEREADFAILURE_FIX
 			hlassume ((int)sizeof (miptex_t) <= dest_maxsize, assume_MAX_MAP_MIPTEX);
-#endif
             SafeRead(texfiles[source->iTexFile], dest, sizeof(miptex_t));
 
             for (i = 0; i < MIPLEVELS; i++)
@@ -562,9 +556,7 @@ int             LoadLump(const lumpinfo_t* const source, byte* dest, int* texsiz
         {
 			Developer(DEVELOPER_LEVEL_MESSAGE,"Including texture %s\n",source->name);
             // Load the entire texture here so the BSP contains the texture
-#ifdef HLCSG_FILEREADFAILURE_FIX
 			hlassume (source->disksize <= dest_maxsize, assume_MAX_MAP_MIPTEX);
-#endif
             SafeRead(texfiles[source->iTexFile], dest, source->disksize);
             return source->disksize;
         }
@@ -802,9 +794,7 @@ void            WriteMiptex()
 			byte *writewad_data;
 			int writewad_datasize;
 			len = LoadLump (miptex + i, data, &texsize
-#ifdef HLCSG_FILEREADFAILURE_FIX
 							, &g_dtexdata[g_max_map_miptex] - data
-#endif
 							, writewad_data, writewad_datasize);
 			if (writewad_data)
 			{
