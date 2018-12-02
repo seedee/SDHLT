@@ -1232,9 +1232,7 @@ contents_t      CheckBrushContents(const brush_t* const b)
     if ((b->entitynum == 0) || (strcmp("func_group", ValueForKey(&g_entities[b->entitynum], "classname"))==0))
     {
         if (contents == CONTENTS_ORIGIN
-#ifdef HLCSG_FUNCGROUP_FIX
 				&& b->entitynum == 0
-#endif
 #ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 			|| contents == CONTENTS_BOUNDINGBOX
 #endif

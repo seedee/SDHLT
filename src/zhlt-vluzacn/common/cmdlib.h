@@ -67,7 +67,6 @@
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
 	#endif
-#define HLCSG_FUNCGROUP_FIX //--vluzacn
 #define HLCSG_COUNT_NEW //--vluzacn
 #define HLCSG_ALLOWHINTINENTITY //--vluzacn
 #define HLCSG_PRICISION_FIX // Important!! --vluzacn
@@ -123,11 +122,9 @@
 	#endif
 	#endif
 #define HLCSG_SORTSIDES //--vluzacn
-	#ifdef HLCSG_FUNCGROUP_FIX
 	#ifdef HLCSG_CSGBrush_BRUSHNUM_FIX
 	#ifdef HLCSG_HLBSP_VOIDTEXINFO
 #define ZHLT_DETAILBRUSH //--vluzacn
-	#endif
 	#endif
 	#endif
 #define HLBSP_VIEWPORTAL //--vluzacn

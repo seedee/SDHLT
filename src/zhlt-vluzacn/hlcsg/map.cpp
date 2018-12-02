@@ -1120,17 +1120,11 @@ bool            ParseMapEntity()
 
     GetVectorForKey(mapent, "origin", mapent->origin);
 
-#ifdef HLCSG_FUNCGROUP_FIX
 	if (!strcmp("func_group", ValueForKey(mapent, "classname"))
 #ifdef ZHLT_DETAILBRUSH
 		|| !strcmp("func_detail", ValueForKey (mapent, "classname"))
 #endif
 		)
-#else
-    // group entities are just for editor convenience
-    // toss all brushes into the world entity
-    if (!g_onlyents && !strcmp("func_group", ValueForKey(mapent, "classname")))
-#endif
     {
 #ifdef ZHLT_HIDDENSOUNDTEXTURE
 		if (IntForKey (mapent,"zhlt_hidden"))
@@ -1162,9 +1156,7 @@ bool            ParseMapEntity()
         for (i = 0; i < newbrushes; i++)
         {
             temp[i].entitynum = 0;
-#ifdef HLCSG_FUNCGROUP_FIX
 			temp[i].brushnum += worldbrushes;
-#endif
         }
 
         // make space to move the brushes (overlapped copy)
@@ -1183,9 +1175,7 @@ bool            ParseMapEntity()
         }
         memset(mapent, 0, sizeof(*mapent));
         Free(temp);
-#ifdef HLCSG_FUNCGROUP_FIX
 		return true;
-#endif
     }
 
 #ifdef HLCSG_HULLBRUSH
