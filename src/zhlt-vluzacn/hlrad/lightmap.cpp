@@ -625,18 +625,6 @@ typedef struct
 #endif
 }
 lightinfo_t;
-#ifndef HLRAD_MDL_LIGHT_HACK_NEW
-typedef struct
-{
-	vec3_t			texorg;
-	vec3_t			offset;
-	vec3_t			textoworld[2];
-	vec3_t			worldtotex[2];
-	int				texmins[2], texsize[2];
-}
-facesampleinfo_t;
-static facesampleinfo_t facesampleinfo[MAX_MAP_FACES];
-#endif
 
 // =====================================================================================
 //  TextureNameFromFace
@@ -4453,17 +4441,6 @@ void            BuildFacelights(const int facenum)
 #endif
 		);
 #endif
-#ifndef HLRAD_MDL_LIGHT_HACK_NEW
-	VectorCopy (g_face_offset[facenum], facesampleinfo[facenum].offset);
-	for (i=0; i<2; ++i)
-	{
-		facesampleinfo[facenum].texmins[i] = l.texmins[i];
-		facesampleinfo[facenum].texsize[i] = l.texsize[i];
-		VectorCopy (l.textoworld[i], facesampleinfo[facenum].textoworld[i]);
-		VectorCopy (l.worldtotex[i], facesampleinfo[facenum].worldtotex[i]);
-	}
-	VectorCopy (l.texorg, facesampleinfo[facenum].texorg);
-#endif
 
     lightmapwidth = l.texsize[0] + 1;
     lightmapheight = l.texsize[1] + 1;
@@ -6092,7 +6069,6 @@ typedef struct
 	int facecount;
 } mdllight_t;
 
-#ifdef HLRAD_MDL_LIGHT_HACK_NEW
 int MLH_AddFace (mdllight_t *ml, int facenum)
 {
 	dface_t *f = &g_dfaces[facenum];
@@ -6251,145 +6227,6 @@ void MLH_mdllightCreate (mdllight_t *ml)
 	end[2] -= 2048;
 	MLH_GetSamples_r (ml, 0, p, end);
 }
-#else
-void MLH_mdllightCreate (mdllight_t *ml)
-{
-	int i, j, k;
-	vec_t height, minheight = BOGUS_RANGE;
-	ml->facecount = 0;
-	for (i = 0; i < g_numfaces; ++i)
-	{
-		if (strcasecmp (ValueForKey (g_face_entity[i], "classname"), "worldspawn"))
-			continue;
-		const dface_t *f = &g_dfaces[i];
-		const dplane_t *p = getPlaneFromFace(f);
-		Winding *w=new Winding (*f);
-		for (j = 0;j < w->m_NumPoints; j++)
-		{
-			VectorAdd(w->m_Points[j], g_face_offset[i], w->m_Points[j]);
-		}
-		vec3_t delta , sect;
-		VectorCopy (ml->origin, delta);
-		delta[2] -= BOGUS_RANGE;
-		if (intersect_linesegment_plane(p, ml->origin, delta, sect) && point_in_winding (*w, *p, sect))
-		{
-			height = ml->origin[2] - sect[2];
-			if (height >= 0 && height <= minheight)
-				minheight = height;
-		}
-		delete w;
-	}
-	VectorCopy (ml->origin, ml->floor);
-	ml->floor[2] -= minheight;
-	for (i = 0; i < g_numfaces; ++i)
-	{
-		if (strcasecmp (ValueForKey (g_face_entity[i], "classname"), "worldspawn"))
-			continue;
-		const dface_t *f = &g_dfaces[i];
-		const dplane_t *p = getPlaneFromFace(f);
-		Winding *w=new Winding (*f);
-		if (g_texinfo[f->texinfo].flags & TEX_SPECIAL)
-		{
-			continue;                                            // non-lit texture
-		}
-		for (j = 0;j < w->m_NumPoints; j++)
-		{
-			VectorAdd(w->m_Points[j], g_face_offset[i], w->m_Points[j]);
-		}
-		vec3_t delta , sect;
-		VectorCopy (ml->origin, delta);
-		delta[2] -= BOGUS_RANGE;
-		if (intersect_linesegment_plane(p, ml->origin, delta, sect) && VectorCompare (sect, ml->floor))
-		{
-			bool inlightmap = false;
-			{
-				vec3_t v;
-				facesampleinfo_t *info = &facesampleinfo[i];
-				int w = info->texsize[0] + 1;
-				int h = info->texsize[1] + 1;
-				vec_t vs, vt;
-				int s1, s2, t1, t2, s, t;
-				VectorCopy (ml->floor, v);
-				VectorSubtract (v, info->offset, v);
-				VectorSubtract (v, info->texorg, v);
-				vs = DotProduct (v, info->worldtotex[0]);
-				vt = DotProduct (v, info->worldtotex[1]);
-				s1 = (int)floor((vs-MLH_LEFT)/TEXTURE_STEP) - info->texmins[0];
-				s2 = (int)floor((vs+MLH_RIGHT)/TEXTURE_STEP) - info->texmins[0];
-				t1 = (int)floor((vt-MLH_LEFT)/TEXTURE_STEP) - info->texmins[1];
-				t2 = (int)floor((vt+MLH_RIGHT)/TEXTURE_STEP) - info->texmins[1];
-				for (s=s1; s<=s2; ++s)
-					for (t=t1; t<=t2; ++t)
-						if (s>=0 && s<w && t>=0 && t<h)
-							inlightmap = true;
-			}
-			if (inlightmap && ml->facecount < MLH_MAXFACECOUNT)
-			{
-				ml->face[ml->facecount].num = i;
-				ml->facecount++;
-			}
-		}
-		delete w;
-	}
-	for (i = 0; i < ml->facecount; ++i)
-	{
-		const dface_t *f = &g_dfaces[ml->face[i].num];
-		for (j = 0; j < ALLSTYLES; ++j)
-			ml->face[i].style[j].exist = false;
-		for (j = 0; j < MAXLIGHTMAPS && f->styles[j] != 255; ++j)
-		{
-			ml->face[i].style[f->styles[j]].exist = true;
-			ml->face[i].style[f->styles[j]].seq = j;
-		}
-		ml->face[i].samplecount = 0;
-		if (j == 0)
-			continue;
-
-	    const facelight_t *fl=&facelight[ml->face[i].num];
-		{
-			vec3_t v;
-			facesampleinfo_t *info = &facesampleinfo[ml->face[i].num];
-			int w = info->texsize[0] + 1;
-			int h = info->texsize[1] + 1;
-			vec_t vs, vt;
-			int s1, s2, t1, t2, s, t;
-			VectorCopy (ml->floor, v);
-			VectorSubtract (v, info->offset, v);
-			VectorSubtract (v, info->texorg, v);
-			vs = DotProduct (v, info->worldtotex[0]);
-			vt = DotProduct (v, info->worldtotex[1]);
-			s1 = (int)floor((vs-MLH_LEFT)/TEXTURE_STEP) - info->texmins[0];
-			s2 = (int)floor((vs+MLH_RIGHT)/TEXTURE_STEP) - info->texmins[0];
-			t1 = (int)floor((vt-MLH_LEFT)/TEXTURE_STEP) - info->texmins[1];
-			t2 = (int)floor((vt+MLH_RIGHT)/TEXTURE_STEP) - info->texmins[1];
-			for (s=s1; s<=s2; ++s)
-				for (t=t1; t<=t2; ++t)
-					if (s>=0 && s<w && t>=0 && t<h)
-						if (ml->face[i].samplecount < MLH_MAXSAMPLECOUNT)
-						{
-							ml->face[i].sample[ml->face[i].samplecount].num = s + t * w;
-							VectorAdd (info->offset, info->texorg, v);
-							vs = TEXTURE_STEP * (s + info->texmins[0]);
-							vt = TEXTURE_STEP * (t + info->texmins[1]);
-							VectorMA (v, vs, info->textoworld[0], v);
-							VectorMA (v, vt, info->textoworld[1], v);
-							VectorCopy (v, ml->face[i].sample[ml->face[i].samplecount].pos);
-							ml->face[i].samplecount++;
-						}
-		}
-
-		for (j = 0; j < ml->face[i].samplecount; ++j)
-		{
-			for (k = 0; k < ALLSTYLES; ++k)
-				if (ml->face[i].style[k].exist)
-				{
-					ml->face[i].sample[j].style[k] = 
-						&g_dlightdata[f->lightofs + ml->face[i].style[k].seq * fl->numsamples * 3 + ml->face[i].sample[j].num * 3];
-				}
-		}
-	}
-}
-#endif
 
 int MLH_CopyLight (const vec3_t from, const vec3_t to)
 {
@@ -6422,13 +6259,7 @@ void MdlLightHack ()
 	entity_t *ent1, *ent2;
 	vec3_t origin1, origin2;
 	const char *target;
-#ifndef HLRAD_MDL_LIGHT_HACK_NEW
-    double start, end;
-#endif
 	int used = 0, countent = 0, countsample = 0, r;
-#ifndef HLRAD_MDL_LIGHT_HACK_NEW
-    start = I_FloatTime();
-#endif
 	for (ient = 0; ient < g_numentities; ++ient)
 	{
 		ent1 = &g_entities[ient];
@@ -6453,15 +6284,8 @@ void MdlLightHack ()
 			countsample += r;
 		}
 	}
-#ifndef HLRAD_MDL_LIGHT_HACK_NEW
-    end = I_FloatTime();
-#endif
 	if (used)
-#ifdef HLRAD_MDL_LIGHT_HACK_NEW
 		Log ("Adjust mdl light: modified %d samples for %d entities\n", countsample, countent);
-#else
-		Log("Mdl Light Hack: %d entities %d samples (%.2f seconds)\n", countent, countsample, end - start);
-#endif
 }
 
 #ifdef HLRAD_GROWSAMPLE

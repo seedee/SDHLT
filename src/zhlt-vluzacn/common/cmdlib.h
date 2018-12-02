@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_MDL_LIGHT_HACK_NEW //--vluzacn
 #define HLRAD_LERP_FACELIST //--vluzacn
 #define HLRAD_WATERBACKFACE_FIX // remove this if you have fixed the engine's bug of drawing water backface. --vluzacn
 #define HLRAD_LERP_TEXNORMAL //--vluzacn
