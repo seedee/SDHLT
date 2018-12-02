@@ -4387,7 +4387,6 @@ static void     Settings()
     Log("\n\n");
 }
 
-#ifdef HLRAD_INFO_TEXLIGHTS
 // AJM: added in
 // =====================================================================================
 //  ReadInfoTexlights
@@ -4455,7 +4454,6 @@ void            ReadInfoTexlights()
 #endif
     }
 }
-#endif
 
 
 const char* lights_rad = "lights.rad";
@@ -4582,9 +4580,7 @@ void            LoadRadFiles(const char* const mapname, const char* const user_r
         }
     }
 
-#ifdef HLRAD_INFO_TEXLIGHTS
     ReadInfoTexlights(); // AJM
-#endif
 }
 #ifdef ZHLT_XASH
 void WriteDlitData (const char *filename)

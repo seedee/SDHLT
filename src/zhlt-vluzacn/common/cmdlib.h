@@ -71,7 +71,6 @@
 
 
 
-#define HLRAD_INFO_TEXLIGHTS
 #define HLRAD_WHOME // encompases all of Adam Foster's changes
 #define HLRAD_HULLU // semi-opaque brush based entities and effects by hullu
 
