@@ -495,11 +495,7 @@ void ExpandBrush(brush_t* brush, const int hullnum)
 		if(current_plane->type <= last_axial)
 		{
 			//flag case where bounding box shouldn't expand
-#ifdef HLCSG_CUSTOMHULL
 			if (current_face->bevel)
-#else
-			if((g_texinfo[current_face->texinfo].flags & TEX_BEVEL))
-#endif
 			{
 				switch(current_plane->type)
 				{
@@ -529,11 +525,7 @@ void ExpandBrush(brush_t* brush, const int hullnum)
 		//preciseclip is turned off to allow backward compatability -- some of the improperly beveled edges
 		//grow using the new origins, and might cause additional problems.
 
-#ifdef HLCSG_CUSTOMHULL
 		if (current_face->bevel)
-#else
-		if((g_texinfo[current_face->texinfo].flags & TEX_BEVEL))
-#endif
 		{
 			//don't adjust origin - we'll correct g_texinfo's flags in a later step
 		}
@@ -836,9 +828,6 @@ void            MakeHullFaces(const brush_t* const b, brushhull_t *h)
 {
     bface_t*        f;
     bface_t*        f2;
-#ifndef HLCSG_CUSTOMHULL
-	bool warned = false;
-#endif
 #ifdef HLCSG_SORTSIDES
 	// this will decrease AllocBlock amount
 	SortSides (h);
@@ -872,19 +861,6 @@ restart:
 #endif
         if (w->getArea() < 0.1)
         {
-#ifndef HLCSG_CUSTOMHULL // this occurs when there are BEVEL faces.
-			if(w->getArea() == 0 && !warned) //warn user when there's a bad brush (face not contributing)
-			{
-				Warning("Illegal Brush (plane doesn't contribute to final shape): Entity %i, Brush %i\n",
-#ifdef HLCSG_COUNT_NEW
-					b->originalentitynum, b->originalbrushnum
-#else
-					b->entitynum, b->brushnum
-#endif
-					);
-				warned = true;
-			}
-#endif
             delete w;
             if (h->faces == f)
             {
@@ -999,9 +975,7 @@ bool            MakeBrushPlanes(brush_t* b)
 						, s->shouldhide
 #endif
 						);
-#ifdef HLCSG_CUSTOMHULL
 		f->bevel = b->bevel || s->bevel;
-#endif
     }
 
     return true;
@@ -1074,10 +1048,6 @@ static contents_t TextureContents(const char* const name)
 		return CONTENTS_BOUNDINGBOX;
 #endif
 
-#ifndef HLCSG_CUSTOMHULL
-    if (!strncasecmp(name, "clip", 4))
-        return CONTENTS_CLIP;
-#endif
 
 #ifdef HLCSG_HLBSP_SOLIDHINT
 	if (!strncasecmp(name, "solidhint", 9))
@@ -1135,10 +1105,6 @@ const char*     ContentsToString(const contents_t type)
 #ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 	case CONTENTS_BOUNDINGBOX:
 		return "BOUNDINGBOX";
-#endif
-#ifndef HLCSG_CUSTOMHULL
-    case CONTENTS_CLIP:
-        return "CLIP";
 #endif
     case CONTENTS_CURRENT_0:
         return "CURRENT_0";
@@ -1329,9 +1295,6 @@ contents_t      CheckBrushContents(const brush_t* const b)
 #ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 		case CONTENTS_BOUNDINGBOX:
 #endif
-#ifndef HLCSG_CUSTOMHULL
-        case CONTENTS_CLIP:
-#endif
 #ifdef HLCSG_ALLOWHINTINENTITY
 		case CONTENTS_HINT:
 #endif
@@ -1362,7 +1325,6 @@ contents_t      CheckBrushContents(const brush_t* const b)
 //  CreateBrush
 //      makes a brush!
 // =====================================================================================
-#ifdef HLCSG_CUSTOMHULL
 void CreateBrush(const int brushnum) //--vluzacn
 {
 	brush_t*        b;
@@ -1424,64 +1386,6 @@ void CreateBrush(const int brushnum) //--vluzacn
 		}
 	}
 }
-#else /*HLCSG_CUSTOMHULL*/
-void CreateBrush(const int brushnum)
-{
-    brush_t*        b;
-    int             contents;
-    int             h;
-
-    b = &g_mapbrushes[brushnum];
-
-    contents = b->contents;
-
-    if (contents == CONTENTS_ORIGIN)
-        return;
-#ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
-	if (contents == CONTENTS_BOUNDINGBOX)
-		return;
-#endif
-
-    //  HULL 0
-    MakeBrushPlanes(b);
-    MakeHullFaces(b, &b->hulls[0]);
-
-    // these brush types do not need to be represented in the clipping hull
-    switch (contents)
-    {
-        case CONTENTS_LAVA:
-        case CONTENTS_SLIME:
-        case CONTENTS_WATER:
-        case CONTENTS_TRANSLUCENT:
-        case CONTENTS_HINT:
-            return;
-    }
-#ifdef HLCSG_EMPTYBRUSH
-	if (contents == CONTENTS_TOEMPTY)
-		return;
-#endif
-
-    if (b->noclip)
-        return;
-
-    // HULLS 1-3
-    if (!g_noclip)
-    {
-        for (h = 1; h < NUM_HULLS; h++)
-        {
-			ExpandBrush(b, h);
-            MakeHullFaces(b, &b->hulls[h]);
-        }
-    }
-
-    // clip brushes don't stay in the drawing hull
-    if (contents == CONTENTS_CLIP)
-    {
-        b->hulls[0].faces = NULL;
-        b->contents = CONTENTS_SOLID;
-    }
-}
-#endif /*HLCSG_CUSTOMHULL*/
 #ifdef HLCSG_HULLBRUSH
 hullbrush_t *CreateHullBrush (const brush_t *b)
 {

@@ -965,13 +965,6 @@ int             TexinfoForBrushTexture(const plane_t* const plane, brush_texture
 	}
 #endif
     memset(&tx, 0, sizeof(tx));
-#ifndef HLCSG_CUSTOMHULL
-	if(!strncmp(bt->name,"BEVEL",5))
-	{
-		tx.flags |= TEX_BEVEL;
-		safe_strncpy(bt->name,"NULL",5);
-	}
-#endif
 #ifndef HLCSG_AUTOWAD_NEW
 #ifdef HLCSG_AUTOWAD_TEXTURELIST_FIX
 	ThreadLock ();
@@ -1001,9 +994,6 @@ int             TexinfoForBrushTexture(const plane_t* const plane, brush_texture
         || !strncasecmp(bt->name, "env_sky", 5)
 // =====================================================================================
 
-#ifndef HLCSG_CUSTOMHULL
-        || !strncasecmp(bt->name, "clip", 4)
-#endif
         || !strncasecmp(bt->name, "origin", 6)
         || !strncasecmp(bt->name, "null", 4)
         || !strncasecmp(bt->name, "aaatrigger", 10)

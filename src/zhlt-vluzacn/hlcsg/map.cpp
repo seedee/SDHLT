@@ -128,99 +128,6 @@ void            TextureAxisFromPlane(const plane_t* const pln, vec3_t xv, vec3_t
 
 #define ScaleCorrection	(1.0/128.0)
 
-#ifndef HLCSG_CUSTOMHULL
-// =====================================================================================
-//  CopySKYtoCLIP
-//      clips a particluar sky brush
-// =====================================================================================
-static void     CopySKYtoCLIP(const brush_t* const b)
-{
-    int             i;
-    entity_t*       mapent;
-    brush_t*        newbrush;
-
-    if (b->contents != CONTENTS_SKY)
-		Error("[MOD] CopySKYtoCLIP: Got a NON-SKY for passed brush! (%s)",b->contents ); //Error("[MOD] CopySKYtoCLIP: Got a NON-SKY for passed brush! (%d)",b->contents ); //--vluzacn
-
-    hlassert(b->contents == CONTENTS_SKY);                 // Only SKY brushes should be passed down to this function(sanity check)
-    hlassert(b->entitynum == 0);                           // SKY must be in worldspawn entity
-
-    mapent = &g_entities[b->entitynum];
-    mapent->numbrushes++;
-
-    newbrush = &g_mapbrushes[g_nummapbrushes];
-#ifdef HLCSG_COUNT_NEW
-	newbrush->originalentitynum = b->originalentitynum;
-	newbrush->originalbrushnum = b->originalbrushnum;
-#endif
-    newbrush->entitynum = b->entitynum;
-    newbrush->brushnum = g_nummapbrushes - mapent->firstbrush;
-    newbrush->firstside = g_numbrushsides;
-    newbrush->numsides = b->numsides;
-    newbrush->contents = CONTENTS_CLIP;
-    newbrush->noclip = 0;
-#ifdef ZHLT_DETAILBRUSH
-	newbrush->detaillevel = b->detaillevel;
-	newbrush->chopdown = b->chopdown;
-	newbrush->chopup = b->chopup;
-#ifdef ZHLT_CLIPNODEDETAILLEVEL
-	newbrush->clipnodedetaillevel = b->clipnodedetaillevel;
-#endif
-#ifdef HLCSG_COPLANARPRIORITY
-	newbrush->coplanarpriority = b->coplanarpriority;
-#endif
-#endif
-
-    for (i = 0; i < b->numsides; i++)
-    {
-        int             j;
-
-        side_t*         side = &g_brushsides[g_numbrushsides];
-
-        *side = g_brushsides[b->firstside + i];
-#ifdef HLCSG_CUSTOMHULL
-        safe_strncpy(side->td.name, "NULL", sizeof(side->td.name));
-#else
-        safe_strncpy(side->td.name, "CLIP", sizeof(side->td.name));
-#endif
-
-        for (j = 0; j < NUM_HULLS; j++)
-        {
-            newbrush->hulls[j].faces = NULL;
-            newbrush->hulls[j].bounds = b->hulls[j].bounds;
-        }
-
-        g_numbrushsides++;
-        hlassume(g_numbrushsides < MAX_MAP_SIDES, assume_MAX_MAP_SIDES);
-    }
-
-    g_nummapbrushes++;
-    hlassume(g_nummapbrushes < MAX_MAP_BRUSHES, assume_MAX_MAP_BRUSHES);
-}
-
-// =====================================================================================
-//  HandleSKYCLIP
-//      clips the whole sky, unconditional of g_skyclip
-// =====================================================================================
-static void     HandleSKYCLIP()
-{
-    int             i;
-    int             last;
-    entity_t*       e = &g_entities[0];
-
-    for (i = e->firstbrush, last = e->firstbrush + e->numbrushes; i < last; i++)
-    {
-        if (g_mapbrushes[i].contents == CONTENTS_SKY
-#ifdef HLCSG_CUSTOMHULL
-			&& g_mapbrushes[i].noclip == false
-#endif
-			)
-        {
-            CopySKYtoCLIP(&g_mapbrushes[i]);
-        }
-    }
-}
-#endif
 
 // =====================================================================================
 //  CheckForInvisible
@@ -269,16 +176,12 @@ static void ParseBrush(entity_t* mapent)
     b->brushnum = g_nummapbrushes - mapent->firstbrush - 1;
 
     b->noclip = 0;
-#ifdef HLCSG_CUSTOMHULL
 	if (IntForKey(mapent, "zhlt_noclip"))
 	{
 		b->noclip = 1;
 	}
-#endif
-#ifdef HLCSG_CUSTOMHULL
 	b->cliphull = 0;
 	b->bevel = false;
-#endif
 #ifdef ZHLT_DETAILBRUSH
 	{
 		b->detaillevel = IntForKey (mapent, "zhlt_detaillevel");
@@ -360,9 +263,7 @@ static void ParseBrush(entity_t* mapent)
 
         b->numsides++;
 
-#ifdef HLCSG_CUSTOMHULL
 		side->bevel = false;
-#endif
 #ifdef ZHLT_HIDDENSOUNDTEXTURE
 		side->shouldhide = false;
 #endif
@@ -406,7 +307,6 @@ static void ParseBrush(entity_t* mapent)
         // read the     texturedef
         GetToken(false);
         _strupr(g_token);
-#ifdef HLCSG_CUSTOMHULL
 		{
 			if (!strncasecmp (g_token, "NOCLIP", 6) || !strncasecmp (g_token, "NULLNOCLIP", 10))
 			{
@@ -446,7 +346,6 @@ static void ParseBrush(entity_t* mapent)
 #endif
 			}
 		}
-#endif
         safe_strncpy(side->td.name, g_token, sizeof(side->td.name));
 
         if (g_nMapFileVersion < 220)                       // Worldcraft 2.1-, Radiant
@@ -579,7 +478,6 @@ static void ParseBrush(entity_t* mapent)
 
         side->td.txcommand = g_TXcommand;                  // Quark stuff, but needs setting always
     };
-#ifdef HLCSG_CUSTOMHULL
 	if (b->cliphull != 0) // has CLIP* texture
 	{
 		unsigned int mask_anyhull = 0;
@@ -592,7 +490,6 @@ static void ParseBrush(entity_t* mapent)
 			b->cliphull |= mask_anyhull; // CLIP all hulls
 		}
 	}
-#endif
 
     b->contents = contents = CheckBrushContents(b);
 	for (j = 0; j < b->numsides; j++)
@@ -769,7 +666,6 @@ static void ParseBrush(entity_t* mapent)
 		}
     }
 #endif
-#ifdef HLCSG_CUSTOMHULL
 	if (g_skyclip && b->contents == CONTENTS_SKY && !b->noclip)
 	{
 		brush_t *newb = CopyCurrentBrush (mapent, b);
@@ -781,7 +677,6 @@ static void ParseBrush(entity_t* mapent)
 			strcpy (side->td.name, "NULL");
 		}
 	}
-#endif
 #ifdef HLCSG_PASSBULLETSBRUSH
 	if (b->cliphull != 0 && b->contents == CONTENTS_TOEMPTY)
 	{
@@ -896,11 +791,7 @@ bool            ParseMapEntity()
 		{
 			brush_t *brush = &g_mapbrushes[mapent->firstbrush + i];
 			if (
-	#ifdef HLCSG_CUSTOMHULL
 				brush->cliphull == 0
-	#else
-				brush->contents != CONTENTS_CLIP
-	#endif
 				&& brush->contents != CONTENTS_ORIGIN
 	#ifdef HLCSG_HLBSP_CUSTOMBOUNDINGBOX
 				&& brush->contents != CONTENTS_BOUNDINGBOX
@@ -1218,13 +1109,6 @@ bool            ParseMapEntity()
         GetParamsFromEnt(mapent);
     }
 
-#ifndef HLCSG_CUSTOMHULL
-    // if its the worldspawn entity and we need to skyclip, then do it
-    if ((this_entity == 0) && g_skyclip)                  // first entitiy
-    {
-        HandleSKYCLIP();
-    }
-#endif
 
 #ifndef HLCSG_HLBSP_ALLOWEMPTYENTITY
     // if the given entity only has one brush and its an origin brush

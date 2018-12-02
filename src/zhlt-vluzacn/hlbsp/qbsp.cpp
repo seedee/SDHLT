@@ -910,13 +910,8 @@ bool            CheckFaceForNull(const face_t* const f)
 
         if (!strcasecmp(miptex->name, "null"))
             return true;
-	#ifdef HLCSG_CUSTOMHULL
         else if (!strncasecmp(miptex->name, "null", 4))
             return true;
-	#else
-        else
-            return false;
-	#endif
 #endif
     }
     else // otherwise, under normal cases, null textured faces should be facetype face_normal

@@ -64,7 +64,6 @@
 // tool specific settings below only mean a recompile of the tool affected
 
 
-#define HLCSG_CUSTOMHULL //--vluzacn
 #define HLCSG_SCALESIZE //--vluzacn
 #define HLCSG_SEARCHWADPATH_VL //--vluzacn
 	#ifdef SYSTEM_WIN32
@@ -138,7 +137,6 @@
 	#endif
 	#endif
 #define HLCSG_SORTSIDES //--vluzacn
-	#ifdef HLCSG_CUSTOMHULL
 	#ifdef HLCSG_FUNCGROUP_FIX
 	#ifdef HLCSG_CSGBrush_BRUSHNUM_FIX
 	#ifdef HLCSG_HLBSP_VOIDTEXINFO
@@ -146,15 +144,12 @@
 	#endif
 	#endif
 	#endif
-	#endif
 #define HLBSP_VIEWPORTAL //--vluzacn
 #define HLBSP_EDGESHARE_SAMESIDE //--vluzacn
 #define HLBSP_MarkLeakTrail_FIX //--vluzacn
 #define HLCSG_NULLIFYAAATRIGGER //--vluzacn
-	#ifdef HLCSG_CUSTOMHULL
 	#ifdef HLCSG_CUSTOMCONTENT
 #define HLCSG_PASSBULLETSBRUSH //--vluzacn
-	#endif
 	#endif
 #define HLCSG_ONLYENTS_NOWADCHANGE //--vluzacn
 #define HLCSG_NOFAKESPLITS //--vluzacn
@@ -183,10 +178,8 @@
 	#ifdef HLCSG_ONLYENTS_NOWADCHANGE
 #define HLCSG_AUTOWAD_TEXTURELIST_FIX //--vluzacn
 	#endif
-	#ifdef HLCSG_CUSTOMHULL
 	#ifdef HLCSG_AUTOWAD_TEXTURELIST_FIX
 #define HLCSG_HULLBRUSH //--vluzacn
-	#endif
 	#endif
 #define HLCSG_TEXMAP64_FIX //--vluzacn
 	#ifdef HLBSP_FAST_SELECTPARTITION

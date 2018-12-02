@@ -49,11 +49,7 @@
 
 #define DEFAULT_NULLTEX     true
 
-#ifdef HLCSG_CUSTOMHULL // default clip economy off
 #define DEFAULT_CLIPNAZI    false
-#else
-#define DEFAULT_CLIPNAZI    true
-#endif
 
 #define DEFAULT_WADAUTODETECT false
 
@@ -140,9 +136,7 @@ typedef struct
 typedef struct side_s
 {
     brush_texture_t td;
-#ifdef HLCSG_CUSTOMHULL
 	bool			bevel;
-#endif
 #ifdef ZHLT_HIDDENSOUNDTEXTURE
 	bool			shouldhide;
 #endif
@@ -159,9 +153,7 @@ typedef struct bface_s
     bool            used;                                  // just for face counting
     int             contents;
     int             backcontents;
-#ifdef HLCSG_CUSTOMHULL
 	bool			bevel; //used for ExpandBrush
-#endif
     BoundingBox     bounds;
 } bface_t;
 
@@ -187,10 +179,8 @@ typedef struct brush_s
     int             numsides;
 
     unsigned int    noclip; // !!!FIXME: this should be a flag bitfield so we can use it for other stuff (ie. is this a detail brush...)
-#ifdef HLCSG_CUSTOMHULL
 	unsigned int	cliphull;
 	bool			bevel;
-#endif
 #ifdef ZHLT_DETAILBRUSH
 	int				detaillevel;
 	int				chopdown; // allow this brush to chop brushes of lower detail level
@@ -328,9 +318,6 @@ extern bool     g_bClipNazi;
 typedef enum{clip_smallest,clip_normalized,clip_simple,clip_precise,clip_legacy} cliptype;
 extern cliptype g_cliptype;
 extern const char*	GetClipTypeString(cliptype);
-#ifndef HLCSG_CUSTOMHULL
-#define TEX_BEVEL 32768
-#endif
 
 #ifdef ZHLT_PROGRESSFILE // AJM
 extern char*    g_progressfile ;

@@ -196,9 +196,6 @@ typedef enum
     CONTENTS_LAVA = -5,
     CONTENTS_SKY = -6,
     CONTENTS_ORIGIN = -7,                                  // removed at csg time
-#ifndef HLCSG_CUSTOMHULL
-    CONTENTS_CLIP = -8,                                    // changed to contents_solid
-#endif
 
     CONTENTS_CURRENT_0 = -9,
     CONTENTS_CURRENT_90 = -10,

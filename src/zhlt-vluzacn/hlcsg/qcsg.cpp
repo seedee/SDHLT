@@ -269,20 +269,6 @@ void            GetParamsFromEnt(entity_t* mapent)
     Log("\n");
 }
 
-#ifndef HLCSG_CUSTOMHULL
-// =====================================================================================
-// FixBevelTextures
-// =====================================================================================
-
-void FixBevelTextures()
-{
-	for(int counter = 0; counter < g_numtexinfo; counter++)
-	{
-		if(g_texinfo[counter].flags & TEX_BEVEL)
-		{ g_texinfo[counter].flags &= ~TEX_BEVEL; }
-	}
-}
-#endif
 
 // =====================================================================================
 //  NewFaceFromFace
@@ -1587,9 +1573,7 @@ static void     CheckForNoClip()
 
     char            entclassname[MAX_KEY]; 
     int             spawnflags;
-#ifdef HLCSG_CUSTOMHULL
 	int				count = 0;
-#endif
 
     if (!g_bClipNazi) 
         return; // NO CLIP FOR YOU!!!
@@ -1608,15 +1592,6 @@ static void     CheckForNoClip()
         spawnflags = atoi(ValueForKey(ent, "spawnflags"));
 		int skin = IntForKey(ent, "skin"); //vluzacn
 
-#ifndef HLCSG_CUSTOMHULL
-		// condition 0, it's marked noclip (KGP)
-		if(strlen(ValueForKey(ent,"zhlt_noclip")) && strcmp(ValueForKey(ent,"zhlt_noclip"),"0"))
-		{ 
-			MarkEntForNoclip(ent);
-		}
-        // condition 1 //modified. --vluzacn
-        else
-#endif
 		if ((skin != -16) &&
 			(
 				!strcmp(entclassname, "env_bubbles")
@@ -1640,9 +1615,7 @@ static void     CheckForNoClip()
 			))
 		{
 			MarkEntForNoclip(ent);
-#ifdef HLCSG_CUSTOMHULL
 			count++;
-#endif
 		}
         /*
         // condition 6: its a func_wall, while we noclip it, we remake the clipnodes manually 
@@ -1656,11 +1629,7 @@ static void     CheckForNoClip()
 */
     }
 
-#ifdef HLCSG_CUSTOMHULL
     Log("%i entities discarded from clipping hulls\n", count);
-#else
-    Log("%i brushes (totalling %i sides) discarded from clipping hulls\n", BrushClipHullsDiscarded, ClipNodesDiscarded);
-#endif
 }
 
 // =====================================================================================
@@ -1878,11 +1847,7 @@ static void     Usage()
     Log("    -wadinclude file : place textures used from wad specified into bsp\n");
     Log("    -noclip          : don't create clipping hull\n");
     
-#ifdef HLCSG_CUSTOMHULL // default clip economy off
     Log("    -clipeconomy     : turn clipnode economy mode on\n");
-#else
-    Log("    -noclipeconomy   : turn clipnode economy mode off\n");
-#endif
 
 	Log("    -cliptype value  : set to smallest, normalized, simple, precise, or legacy (default)\n");
 	Log("    -nullfile file   : specify list of entities to retexture with NULL\n");
@@ -2229,17 +2194,10 @@ int             main(const int argc, char** argv)
             g_bUseNullTex = false;
         }
 
-#ifdef HLCSG_CUSTOMHULL // default clip economy off
         else if (!strcasecmp(argv[i], "-clipeconomy"))
         {
             g_bClipNazi = true;
         }
-#else
-        else if (!strcasecmp(argv[i], "-noclipeconomy"))
-        {
-            g_bClipNazi = false;
-        }
-#endif
 
 		else if (!strcasecmp(argv[i], "-cliptype"))
 		{
@@ -2752,9 +2710,6 @@ int             main(const int argc, char** argv)
     NamedRunThreadsOnIndividual(g_nummapbrushes, g_estimate, CreateBrush);
     CheckFatal();
 
-#ifndef HLCSG_CUSTOMHULL
-	FixBevelTextures();
-#endif
 
     // boundworld
     BoundWorld();
