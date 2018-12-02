@@ -48,11 +48,9 @@ static wadpath_t* texwadpathes[MAX_TEXFILES]; // maps index of the wad to its pa
 
 #ifdef HLCSG_TEXMAP64_FIX
 // The old buggy code in effect limit the number of brush sides to MAX_MAP_BRUSHES
-#ifdef HLCSG_HLBSP_REDUCETEXTURE
+
 static char *texmap[MAX_INTERNAL_MAP_TEXINFO];
-#else
-static char *texmap[MAX_MAP_TEXINFO];
-#endif
+
 static int numtexmap = 0;
 
 static int texmap_store (char *texname, bool shouldlock = true)
@@ -63,11 +61,9 @@ static int texmap_store (char *texname, bool shouldlock = true)
 	{
 		ThreadLock ();
 	}
-#ifdef HLCSG_HLBSP_REDUCETEXTURE
+
 	hlassume (numtexmap < MAX_INTERNAL_MAP_TEXINFO, assume_MAX_MAP_TEXINFO); // This error should never appear.
-#else
-	hlassume (numtexmap < MAX_MAP_TEXINFO, assume_MAX_MAP_TEXINFO); // This error should never appear.
-#endif
+
 	i = numtexmap;
 	texmap[numtexmap] = strdup (texname);
 	numtexmap++;
@@ -1210,11 +1206,7 @@ int             TexinfoForBrushTexture(const plane_t* const plane, brush_texture
 skip:;
     }
 
-#ifdef HLCSG_HLBSP_REDUCETEXTURE
     hlassume(g_numtexinfo < MAX_INTERNAL_MAP_TEXINFO, assume_MAX_MAP_TEXINFO);
-#else
-    hlassume(g_numtexinfo < MAX_MAP_TEXINFO, assume_MAX_MAP_TEXINFO);
-#endif
 
     *tc = tx;
 #ifdef HLCSG_TEXMAP64_FIX

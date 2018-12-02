@@ -62,9 +62,8 @@
 
 #define MAX_MAP_TEXINFO      32767
 // hard limit (face.texinfo is signed short)
-#ifdef HLCSG_HLBSP_REDUCETEXTURE
 #define MAX_INTERNAL_MAP_TEXINFO 262144
-#endif
+
 
 #define MAX_MAP_EDGES       256000
 #define MAX_MAP_SURFEDGES   512000
@@ -364,11 +363,7 @@ extern dnode_t  g_dnodes[MAX_MAP_NODES];
 extern int      g_dnodes_checksum;
 
 extern int      g_numtexinfo;
-#ifdef HLCSG_HLBSP_REDUCETEXTURE
 extern texinfo_t g_texinfo[MAX_INTERNAL_MAP_TEXINFO];
-#else
-extern texinfo_t g_texinfo[MAX_MAP_TEXINFO];
-#endif
 extern int      g_texinfo_checksum;
 
 extern int      g_numfaces;

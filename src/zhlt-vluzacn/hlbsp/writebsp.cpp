@@ -17,12 +17,12 @@ static PlaneMap gPlaneMap;
 static int gNumMappedPlanes;
 static dplane_t gMappedPlanes[MAX_MAP_PLANES];
 extern bool g_noopt;
-#ifdef HLCSG_HLBSP_REDUCETEXTURE
+
 typedef std::map< int, int > texinfomap_t;
 static int g_nummappedtexinfo;
 static texinfo_t g_mappedtexinfo[MAX_MAP_TEXINFO];
 static texinfomap_t g_texinfomap;
-#endif
+
 #ifdef HLBSP_MERGECLIPNODE
 int count_mergedclipnodes;
 typedef std::map< std::pair< int, std::pair< int, int > >, int > clipnodemap_t;
@@ -58,8 +58,6 @@ static int WritePlane(int planenum)
 	return gNumMappedPlanes++;
 }
 
-#ifdef HLCSG_HLBSP_REDUCETEXTURE
-
 // =====================================================================================
 //  WriteTexinfo
 // =====================================================================================
@@ -91,7 +89,6 @@ static int WriteTexinfo (int texinfo)
 	return c;
 }
 
-#endif
 // =====================================================================================
 //  WriteClipNodes_r
 // =====================================================================================
@@ -441,11 +438,9 @@ static void     WriteFace(face_t* f)
 	df->side = f->planenum & 1;
     df->firstedge = g_numsurfedges;
     df->numedges = f->numpoints;
-#ifdef HLCSG_HLBSP_REDUCETEXTURE
+
 	df->texinfo = WriteTexinfo (f->texturenum);
-#else
-    df->texinfo = f->texturenum;
-#endif
+
     for (i = 0; i < f->numpoints; i++)
     {
 #ifdef ZHLT_DETAILBRUSH
@@ -780,10 +775,10 @@ void            BeginBSPFile()
     // if the file existed when loaded, so clear them explicitly
 	gNumMappedPlanes = 0;
 	gPlaneMap.clear();
-#ifdef HLCSG_HLBSP_REDUCETEXTURE
+
 	g_nummappedtexinfo = 0;
 	g_texinfomap.clear ();
-#endif
+
 #ifdef HLBSP_MERGECLIPNODE
 	count_mergedclipnodes = 0;
 #endif
@@ -847,7 +842,6 @@ void            FinishBSPFile()
 #endif
 	if(!g_noopt)
 	{
-#ifdef HLCSG_HLBSP_REDUCETEXTURE
 		{
 			Log ("Reduced %d texinfos to %d\n", g_numtexinfo, g_nummappedtexinfo);
 			for (int i = 0; i < g_nummappedtexinfo; i++)
@@ -981,20 +975,19 @@ void            FinishBSPFile()
 			free (Map);
 		}
 		Log ("Reduced %d planes to %d\n", g_numplanes, gNumMappedPlanes);
-#endif
+
 		for(int counter = 0; counter < gNumMappedPlanes; counter++)
 		{
 			g_dplanes[counter] = gMappedPlanes[counter];
 		}
 		g_numplanes = gNumMappedPlanes;
 	}
-#ifdef HLCSG_HLBSP_REDUCETEXTURE
 	else
 	{
 		hlassume (g_numtexinfo < MAX_MAP_TEXINFO, assume_MAX_MAP_TEXINFO);
 		hlassume (g_numplanes < MAX_MAP_PLANES, assume_MAX_MAP_PLANES);
 	}
-#endif
+
 #ifdef HLBSP_BRINKHACK
 	if (!g_nobrink)
 	{

@@ -152,7 +152,6 @@
 	#ifdef HLBSP_ChooseMidPlane_FIX
 #define HLBSP_ChoosePlane_VL //--vluzacn
 	#endif
-#define HLCSG_HLBSP_REDUCETEXTURE //--vluzacn
 #define HLBSP_DELETELEAKFILE //--vluzacn
 #define HLBSP_FILL //--vluzacn
 #define HLBSP_WARNMIXEDCONTENTS //--vluzacn

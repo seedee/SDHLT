@@ -50,11 +50,8 @@ dnode_t         g_dnodes[MAX_MAP_NODES];
 int             g_dnodes_checksum;
 
 int             g_numtexinfo;
-#ifdef HLCSG_HLBSP_REDUCETEXTURE
+
 texinfo_t       g_texinfo[MAX_INTERNAL_MAP_TEXINFO];
-#else
-texinfo_t       g_texinfo[MAX_MAP_TEXINFO];
-#endif
 int             g_texinfo_checksum;
 
 int             g_numfaces;
@@ -1191,11 +1188,7 @@ void            PrintBSPFileSizes()
     totalmemory += ArrayUsage("planes", g_numplanes, MAX_MAP_PLANES, ENTRYSIZE(g_dplanes));
     totalmemory += ArrayUsage("vertexes", g_numvertexes, ENTRIES(g_dvertexes), ENTRYSIZE(g_dvertexes));
     totalmemory += ArrayUsage("nodes", g_numnodes, ENTRIES(g_dnodes), ENTRYSIZE(g_dnodes));
-#ifdef HLCSG_HLBSP_REDUCETEXTURE
     totalmemory += ArrayUsage("texinfos", g_numtexinfo, MAX_MAP_TEXINFO, ENTRYSIZE(g_texinfo));
-#else
-    totalmemory += ArrayUsage("texinfos", g_numtexinfo, ENTRIES(g_texinfo), ENTRYSIZE(g_texinfo));
-#endif
     totalmemory += ArrayUsage("faces", g_numfaces, ENTRIES(g_dfaces), ENTRYSIZE(g_dfaces));
 #ifdef ZHLT_WARNWORLDFACES
 	totalmemory += ArrayUsage("* worldfaces", (g_nummodels > 0? g_dmodels[0].numfaces: 0), MAX_MAP_WORLDFACES, 0);
