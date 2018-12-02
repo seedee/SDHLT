@@ -39,7 +39,6 @@ brush_t *CopyCurrentBrush (entity_t *entity, const brush_t *brush)
 	newb->entitynum = entity - g_entities;
 	newb->brushnum = entity->numbrushes;
 	entity->numbrushes++;
-#ifdef HLCSG_HULLBRUSH
 	for (int h = 0; h < NUM_HULLS; h++)
 	{
 		if (brush->hullshapes[h] != NULL)
@@ -51,10 +50,8 @@ brush_t *CopyCurrentBrush (entity_t *entity, const brush_t *brush)
 			newb->hullshapes[h] = NULL;
 		}
 	}
-#endif
 	return newb;
 }
-#ifdef HLCSG_HULLBRUSH
 void DeleteCurrentEntity (entity_t *entity)
 {
 	if (entity != &g_entities[g_numentities - 1])
@@ -93,7 +90,6 @@ void DeleteCurrentEntity (entity_t *entity)
 	memset (entity, 0, sizeof(entity_t));
 	g_numentities--;
 }
-#endif
 // =====================================================================================
 //  TextureAxisFromPlane
 // =====================================================================================
@@ -210,7 +206,6 @@ static void ParseBrush(entity_t* mapent)
 					);
 		}
 	}
-#ifdef HLCSG_HULLBRUSH
 	for (int h = 0; h < NUM_HULLS; h++)
 	{
 		char key[16];
@@ -226,7 +221,6 @@ static void ParseBrush(entity_t* mapent)
 			b->hullshapes[h] = NULL;
 		}
 	}
-#endif
 
     mapent->numbrushes++;
 
@@ -540,7 +534,6 @@ static void ParseBrush(entity_t* mapent)
 	{
 		memset (&g_brushsides[b->firstside], 0, b->numsides * sizeof (side_t));
 		g_numbrushsides -= b->numsides;
-#ifdef HLCSG_HULLBRUSH
 		for (int h = 0; h < NUM_HULLS; h++)
 		{
 			if (b->hullshapes[h])
@@ -548,19 +541,16 @@ static void ParseBrush(entity_t* mapent)
 				free (b->hullshapes[h]);
 			}
 		}
-#endif
 		memset (b, 0, sizeof (brush_t));
 		g_nummapbrushes--;
 		mapent->numbrushes--;
 		return;
 	}
-#ifdef HLCSG_HULLBRUSH
 	if (!strcmp (ValueForKey (&g_entities[b->entitynum], "classname"), "info_hullshape"))
 	{
 		// all brushes should be erased, but not now.
 		return;
 	}
-#endif
     if (contents == CONTENTS_BOUNDINGBOX)
     {
 		if (*ValueForKey (mapent, "zhlt_minsmaxs"))
@@ -729,9 +719,7 @@ bool            ParseMapEntity()
 				);
 		mapent->numbrushes = 0;
 	}
-#ifdef HLCSG_HULLBRUSH
 	if (strcmp (ValueForKey (mapent, "classname"), "info_hullshape")) // info_hullshape is not affected by '-scale'
-#endif
 	{
 		bool ent_move_b = false, ent_scale_b = false, ent_gscale_b = false;
 		vec3_t ent_move = {0,0,0}, ent_scale_origin = {0,0,0};
@@ -1062,7 +1050,6 @@ bool            ParseMapEntity()
 		return true;
     }
 
-#ifdef HLCSG_HULLBRUSH
 	if (!strcmp (ValueForKey (mapent, "classname"), "info_hullshape"))
 	{
 		bool disabled;
@@ -1075,7 +1062,6 @@ bool            ParseMapEntity()
 		DeleteCurrentEntity (mapent);
 		return true;
 	}
-#endif
 	if (fabs (mapent->origin[0]) > ENGINE_ENTITY_RANGE + ON_EPSILON ||
 		fabs (mapent->origin[1]) > ENGINE_ENTITY_RANGE + ON_EPSILON ||
 		fabs (mapent->origin[2]) > ENGINE_ENTITY_RANGE + ON_EPSILON )

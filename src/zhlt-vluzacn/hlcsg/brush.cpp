@@ -2,11 +2,9 @@
 
 plane_t         g_mapplanes[MAX_INTERNAL_MAP_PLANES];
 int             g_nummapplanes;
-#ifdef HLCSG_HULLBRUSH
 hullshape_t		g_defaulthulls[NUM_HULLS];
 int				g_numhullshapes;
 hullshape_t		g_hullshapes[MAX_HULLSHAPES];
-#endif
 
 #define DIST_EPSILON   0.04
 
@@ -129,10 +127,6 @@ void AddHullPlane(brushhull_t* hull, const vec_t* const normal, const vec_t* con
 	//up cases where we know the plane hasn't been added yet, like axial case)
 	if(check_planenum)
 	{
-#ifndef HLCSG_HULLBRUSH
-		if(g_mapplanes[planenum].type <= last_axial) //we know axial planes are added in last step
-		{ return; }
-#endif
 
 		bface_t* current_face;
 		for(current_face = hull->faces; current_face; current_face = current_face->next)
@@ -184,7 +178,6 @@ void AddHullPlane(brushhull_t* hull, const vec_t* const normal, const vec_t* con
 //     cliptype          simple    precise     legacy normalized   smallest
 //     clipnodecount        971       1089       1202       1232       1000
 
-#ifdef HLCSG_HULLBRUSH
 void ExpandBrushWithHullBrush (const brush_t *brush, const brushhull_t *hull0, const hullbrush_t *hb, brushhull_t *hull)
 {
 	const hullbrushface_t *hbf;
@@ -389,10 +382,8 @@ void ExpandBrushWithHullBrush (const brush_t *brush, const brushhull_t *hull0, c
 	free (axialbevel);
 }
 
-#endif
 void ExpandBrush(brush_t* brush, const int hullnum)
 {
-#ifdef HLCSG_HULLBRUSH
 	const hullshape_t *hs = &g_defaulthulls[hullnum];
 	{ // look up the name of its hull shape in g_hullshapes[]
 		const char *name = brush->hullshapes[hullnum];
@@ -433,7 +424,6 @@ void ExpandBrush(brush_t* brush, const int hullnum)
 
 		return;
 	}
-#endif
 	//for looping through the faces and constructing the hull
 	bface_t* current_face;
 	plane_t* current_plane;
@@ -1229,7 +1219,6 @@ void CreateBrush(const int brushnum) //--vluzacn
 		}
 	}
 }
-#ifdef HLCSG_HULLBRUSH
 hullbrush_t *CreateHullBrush (const brush_t *b)
 {
 	const int MAXSIZE = 256;
@@ -1602,4 +1591,3 @@ void CreateHullShape (int entitynum, bool disabled, const char *id, int defaulth
 		}
 	}
 }
-#endif

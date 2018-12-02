@@ -77,10 +77,8 @@
 
 #define BOGUS_RANGE    65534
 
-#ifdef HLCSG_HULLBRUSH
 #define MAX_HULLSHAPES 128 // arbitrary
 
-#endif
 typedef struct
 {
     vec3_t          normal;
@@ -174,15 +172,12 @@ typedef struct brush_s
 #ifdef HLCSG_COPLANARPRIORITY
 	int				coplanarpriority;
 #endif
-#ifdef HLCSG_HULLBRUSH
 	char *			hullshapes[NUM_HULLS]; // might be NULL
-#endif
 
     int             contents;
     brushhull_t     hulls[NUM_HULLS];
 } brush_t;
 
-#ifdef HLCSG_HULLBRUSH
 typedef struct
 {
 	vec3_t normal;
@@ -224,7 +219,6 @@ typedef struct
 	hullbrush_t **brushes;
 } hullshape_t;
 
-#endif
 #ifdef HLCSG_GAMETEXTMESSAGE_UTF8
 extern char *	ANSItoUTF8 (const char *);
 #endif
@@ -240,12 +234,10 @@ extern brush_t  g_mapbrushes[MAX_MAP_BRUSHES];
 extern int      g_numbrushsides;
 extern side_t   g_brushsides[MAX_MAP_SIDES];
 
-#ifdef HLCSG_HULLBRUSH
 extern hullshape_t g_defaulthulls[NUM_HULLS];
 extern int		g_numhullshapes;
 extern hullshape_t g_hullshapes[MAX_HULLSHAPES];
 
-#endif
 extern void     TextureAxisFromPlane(const plane_t* const pln, vec3_t xv, vec3_t yv);
 extern void     LoadMapFile(const char* const filename);
 
@@ -270,10 +262,8 @@ extern brush_t* Brush_LoadEntity(entity_t* ent, int hullnum);
 extern contents_t CheckBrushContents(const brush_t* const b);
 
 extern void     CreateBrush(int brushnum);
-#ifdef HLCSG_HULLBRUSH
 extern void		CreateHullShape (int entitynum, bool disabled, const char *id, int defaulthulls);
 extern void		InitDefaultHulls ();
-#endif
 
 //=============================================================================
 // csg.c

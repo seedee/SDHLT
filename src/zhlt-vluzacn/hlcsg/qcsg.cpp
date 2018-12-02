@@ -1754,9 +1754,7 @@ int             main(const int argc, char** argv)
     // error on zhlt.wad etc
     g_WadInclude.push_back("zhlt.wad");
 
-#ifdef HLCSG_HULLBRUSH
 	InitDefaultHulls ();
-#endif
 
     // detect argv
     for (i = 1; i < argc; i++)
