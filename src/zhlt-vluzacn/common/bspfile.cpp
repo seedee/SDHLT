@@ -1760,7 +1760,6 @@ void            UnparseEntities()
 //  SetKeyValue
 //      makes a keyvalue
 // =====================================================================================
-#ifdef ZHLT_DELETEKEY
 void			DeleteKey(entity_t* ent, const char* const key)
 {
 	epair_t **pep;
@@ -1777,30 +1776,22 @@ void			DeleteKey(entity_t* ent, const char* const key)
 		}
 	}
 }
-#endif
 void            SetKeyValue(entity_t* ent, const char* const key, const char* const value)
 {
     epair_t*        ep;
 
-#ifdef ZHLT_DELETEKEY
 	if (!value[0])
 	{
 		DeleteKey (ent, key);
 		return;
 	}
-#endif
     for (ep = ent->epairs; ep; ep = ep->next)
     {
         if (!strcmp(ep->key, key))
         {
-#ifdef ZHLT_DELETEKEY
 			char *value2 = strdup (value);
 			Free (ep->value);
 			ep->value = value2;
-#else
-            Free(ep->value);
-            ep->value = strdup(value);
-#endif
             return;
         }
     }

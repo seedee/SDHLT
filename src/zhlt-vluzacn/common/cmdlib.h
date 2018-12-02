@@ -50,11 +50,8 @@
 //#define ZHLT_DETAIL                         // HLCSG, HLBSP - detail brushes     //should never turn on
 //#define ZHLT_PROGRESSFILE                   // ALL TOOLS - estimate progress reporting to -progressfile //should never turn on
 //#define ZHLT_NSBOB //should never turn on
-#define ZHLT_DELETEKEY //--vluzacn
 #define ZHLT_ENTITY_LIGHTSHADOW //--vluzacn
-	#ifdef ZHLT_DELETEKEY
 #define ZHLT_ENTITY_INFOSUNLIGHT //--vluzacn
-	#endif
 #define ZHLT_PLANETYPE_FIX // Very Important !! --vluzacn
 #define ZHLT_WINDING_FIX // Very Important !! --vluzacn
 #define ZHLT_FILE_FUNCTIONS_FIX //--vluzacn
@@ -103,9 +100,7 @@
 #define HLCSG_CUSTOMHULL //--vluzacn
 	#endif
 	#endif
-	#ifdef ZHLT_DELETEKEY
 #define HLCSG_SCALESIZE //--vluzacn
-	#endif
 #define HLCSG_SEARCHWADPATH_VL //--vluzacn
 	#ifdef SYSTEM_WIN32
 #define HLCSG_GAMETEXTMESSAGE_UTF8 //--vluzacn
@@ -153,9 +148,7 @@
 #define HLCSG_CUSTOMCONTENT //--vluzacn
 	#endif
 #define HLBSP_NewFaceFromFace_FIX //--vluzacn
-	#ifdef ZHLT_DELETEKEY
 #define HLCSG_OPTIMIZELIGHTENTITY //--vluzacn
-	#endif
 #define HLCSG_STYLEHACK //--vluzacn
 #define HLCSG_CSGBrush_BRUSHNUM_FIX //--vluzacn
 #define HLBSP_TJUNC_PRECISION_FIX //--vluzacn
@@ -240,9 +233,7 @@
 	#ifdef HLCSG_PRECISIONCLIP
 	#ifdef HLCSG_CUSTOMHULL
 	#ifdef HLCSG_AUTOWAD_TEXTURELIST_FIX
-	#ifdef ZHLT_DELETEKEY
 #define HLCSG_HULLBRUSH //--vluzacn
-	#endif
 	#endif
 	#endif
 	#endif

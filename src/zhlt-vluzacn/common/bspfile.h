@@ -435,9 +435,7 @@ extern entity_t g_entities[MAX_MAP_ENTITIES];
 extern void            ParseEntities();
 extern void            UnparseEntities();
 
-#ifdef ZHLT_DELETEKEY
 extern void            DeleteKey(entity_t* ent, const char* const key);
-#endif
 extern void            SetKeyValue(entity_t* ent, const char* const key, const char* const value);
 extern const char*     ValueForKey(const entity_t* const ent, const char* const key);
 extern int             IntForKey(const entity_t* const ent, const char* const key);
