@@ -194,10 +194,6 @@ vec_t           g_texchop = DEFAULT_TEXCHOP;
 opaqueList_t*   g_opaque_face_list = NULL;
 unsigned        g_opaque_face_count = 0;
 unsigned        g_max_opaque_face_count = 0;               // Current array maximum (used for reallocs)
-#ifndef HLRAD_OPAQUE_NODE
-opaqueGroup_t	g_opaque_group_list[MAX_OPAQUE_GROUP_COUNT];
-unsigned		g_opaque_group_count = 0;
-#endif
 vec_t			g_corings[ALLSTYLES];
 #ifdef HLRAD_TRANSLUCENT
 vec3_t*			g_translucenttextures = NULL;
@@ -1740,11 +1736,7 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 				for (x = 0; x < g_opaque_face_count; x++)
 				{
 					opaqueList_t *op = &g_opaque_face_list[x];
-	#ifdef HLRAD_OPAQUE_NODE
 					if (op->entitynum == g_face_entity[fn] - g_entities)
-	#else
-					if (op->facenum == fn)
-	#endif
 					{
 						opacity = 1.0;
 						if (op->transparency)
@@ -1885,15 +1877,8 @@ static void     MakePatchForFace(const int fn, Winding* w, int style
 //  AddFaceToOpaqueList
 // =====================================================================================
 static void     AddFaceToOpaqueList(
-#ifdef HLRAD_OPAQUE_NODE
 									int entitynum, int modelnum, const vec3_t origin
-#else
-									const unsigned facenum, const Winding* const winding
-#endif
 									, const vec3_t &transparency_scale, const bool transparency
-#ifndef HLRAD_OPAQUE_NODE
-									, const dmodel_t* mod
-#endif
 									, int style
 #ifdef HLRAD_OPAQUE_BLOCK
 									, bool block
@@ -1920,36 +1905,9 @@ static void     AddFaceToOpaqueList(
 		}
         VectorCopy(transparency_scale, opaque->transparency_scale);
         opaque->transparency = transparency;
-#ifdef HLRAD_OPAQUE_NODE
 		opaque->entitynum = entitynum;
 		opaque->modelnum = modelnum;
 		VectorCopy (origin, opaque->origin);
-#else
-        opaque->facenum = facenum;
-        getAdjustedPlaneFromFaceNumber(facenum, &opaque->plane);
-        opaque->winding = new Winding(*winding);
-#endif
-#ifndef HLRAD_OPAQUE_NODE
-		{
-			int ig;
-			for (ig=0; ig<g_opaque_group_count; ++ig)
-				if (mod==g_opaque_group_list[ig].mod)
-					break;
-			if (ig==g_opaque_group_count) //new opaque group
-			{
-				if (g_opaque_group_count>=MAX_OPAQUE_GROUP_COUNT)
-					Error ("too many opaque models");
-				g_opaque_group_list[ig].mod=mod;
-				for (int i=0; i<3; ++i)
-				{
-					g_opaque_group_list[ig].mins[i]=mod->mins[i]+g_face_offset[facenum][i]-1;
-					g_opaque_group_list[ig].maxs[i]=mod->maxs[i]+g_face_offset[facenum][i]+1;
-				}
-				g_opaque_group_count++;
-			}
-			opaque->groupnum=ig;
-		}
-#endif
 		opaque->style = style;
 #ifdef HLRAD_OPAQUE_BLOCK
 		opaque->block = block;
@@ -1967,10 +1925,6 @@ static void     FreeOpaqueFaceList()
 
     for (x = 0; x < g_opaque_face_count; x++, opaque++)
     {
-#ifndef HLRAD_OPAQUE_NODE
-        delete opaque->winding;
-        opaque->winding = NULL;
-#endif
     }
     free(g_opaque_face_list);
 
@@ -1978,7 +1932,6 @@ static void     FreeOpaqueFaceList()
     g_opaque_face_count = 0;
     g_max_opaque_face_count = 0;
 }
-#ifdef HLRAD_OPAQUE_NODE
 static void		LoadOpaqueEntities()
 {
 	int modelnum, entnum;
@@ -2097,7 +2050,6 @@ static void		LoadOpaqueEntities()
 		Log("%i opaque faces\n", facecount);
 	}
 }
-#endif
 
 // =====================================================================================
 //  MakePatches
@@ -2176,10 +2128,6 @@ static void     MakePatches()
 
     int				style; //LRC
 
-#ifndef HLRAD_OPAQUE_NODE
-    vec3_t		d_transparency;
-    bool		b_transparency;
-#endif
 
     Log("%i faces\n", g_numfaces);
 
@@ -2194,11 +2142,6 @@ static void     MakePatches()
         b_model_center = false;
         lightmode = eModelLightmodeNull;
 
-#ifndef HLRAD_OPAQUE_NODE
-#ifdef HLRAD_OPACITY // AJM
-        float         l_opacity = 0.0f; // decimal percentage 
-#endif
-#endif
 
         mod = g_dmodels + i;
         ent = EntityForModel(i);
@@ -2261,34 +2204,6 @@ static void     MakePatches()
             }
         }
 
-#ifndef HLRAD_OPAQUE_NODE
-	// Check for colored transparency/custom shadows
-        VectorFill(d_transparency, 1.0);
-        b_transparency = false;
-        
-        if (*(s = ValueForKey(ent, "zhlt_customshadow")))
-        {
-        	double r1 = 1.0, g1 = 1.0, b1 = 1.0, tmp = 1.0;
-        	if (sscanf(s, "%lf %lf %lf", &r1, &g1, &b1) == 3) //RGB version
-        	{
-        		if(r1<0.0) r1 = 0.0;
-        		if(g1<0.0) g1 = 0.0;
-        		if(b1<0.0) b1 = 0.0;
-        		
-        		d_transparency[0] = r1;
-        		d_transparency[1] = g1;
-        		d_transparency[2] = b1;
-        		b_transparency = true;
-        	}
-        	else if (sscanf(s, "%lf", &tmp) == 1) //Greyscale version
-        	{
-        		if(tmp<0.0) tmp = 0.0;
-        		
-        		VectorFill(d_transparency, tmp);
-        		b_transparency = true;
-        	}
-        }
-#endif
         // Allow models to be lit in an alternate location (pt3)
         if (b_light_origin && b_model_center)
         {
@@ -2312,27 +2227,6 @@ static void     MakePatches()
 		{
 			Error ("invalid light style: style (%d) >= ALLSTYLES (%d)", style, ALLSTYLES);
 		}
-#ifndef HLRAD_OPAQUE_NODE
-		int opaquestyle = -1;
-		for (j = 0; j < g_numentities; j++)
-		{
-			entity_t *lightent = &g_entities[j];
-			if (!strcmp (ValueForKey (lightent, "classname"), "light_shadow")
-				&& *ValueForKey (lightent, "target")
-				&& !strcmp (ValueForKey (lightent, "target"), ValueForKey (ent, "targetname")))
-			{
-				opaquestyle = IntForKey (lightent, "style");
-				if (opaquestyle < 0)
-					opaquestyle = -opaquestyle;
-				opaquestyle = (unsigned char)opaquestyle;
-				if (opaquestyle >= ALLSTYLES)
-				{
-					Error ("invalid light style: style (%d) >= ALLSTYLES (%d)", opaquestyle, ALLSTYLES);
-				}
-				break;
-			}
-		}
-#endif
 #ifdef HLRAD_BOUNCE_STYLE
 		int bouncestyle = -1;
 		{
@@ -2373,19 +2267,6 @@ static void     MakePatches()
             {
                 VectorAdd(w->m_Points[k], origin, w->m_Points[k]);
             }
-#ifndef HLRAD_OPAQUE_NODE
-            if (g_allow_opaques)
-            {
-                if (lightmode & eModelLightmodeOpaque)
-                {
-					AddFaceToOpaqueList(fn, w
-						, d_transparency, b_transparency
-						, mod
-						, opaquestyle
-						); 
-                }
-            }
-#endif
             MakePatchForFace(fn, w, style
 #ifdef HLRAD_BOUNCE_STYLE
 				, bouncestyle
@@ -2395,10 +2276,6 @@ static void     MakePatches()
     }
 
     Log("%i base patches\n", g_num_patches);
-#ifndef HLRAD_OPAQUE_NODE
-	Log("%i opaque models\n", g_opaque_group_count);
-    Log("%i opaque faces\n", g_opaque_face_count);
-#endif
     Log("%i square feet [%.2f square inches]\n", (int)(totalarea / 144), totalarea);
 }
 
@@ -3349,10 +3226,8 @@ static void     RadWorld()
     MakeBackplanes();
     MakeParents(0, -1);
     MakeTnodes(&g_dmodels[0]);
-#ifdef HLRAD_OPAQUE_NODE
 	CreateOpaqueNodes();
 	LoadOpaqueEntities();
-#endif
 
     // turn each face into a single patch
     MakePatches();
@@ -5122,9 +4997,7 @@ int             main(const int argc, char** argv)
 
     FreeOpaqueFaceList();
     FreePatches();
-#ifdef HLRAD_OPAQUE_NODE
 	DeleteOpaqueNodes ();
-#endif
 
 #ifdef HLRAD_TEXTURE
 	EmbedLightmapInTextures ();

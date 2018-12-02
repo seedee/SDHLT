@@ -227,65 +227,6 @@ vec_t			snap_to_winding_noedge(const Winding& w, const dplane_t& plane, vec_t* c
 	return bestwidth;
 }
 
-#ifndef HLRAD_OPAQUE_NODE
-bool			point_in_winding_percentage(const Winding& w, const dplane_t& plane, const vec3_t point, const vec3_t ray, double &percentage)
-{
-    unsigned        numpoints = w.m_NumPoints;
-    int             x;
-
-	int				inedgecount = 0;
-	vec3_t			inedgedir[2];
-
-    for (x = 0; x < numpoints; x++)
-    {
-        vec3_t          A;
-        vec3_t          B;
-        vec3_t          normal;
-
-        VectorSubtract(w.m_Points[(x + 1) % numpoints], point, A);
-        VectorSubtract(w.m_Points[x], point, B);
-        CrossProduct(A, B, normal);
-
-		if (DotProduct(normal, plane.normal) == 0.0)
-		{
-			if (inedgecount < 2)
-				VectorSubtract(w.m_Points[(x + 1) % numpoints], w.m_Points[x], inedgedir[inedgecount]);
-			inedgecount++;
-		}
-        if (DotProduct(normal, plane.normal) < 0.0)
-        {
-            return false;
-        }
-    }
-
-	switch (inedgecount)
-	{
-	case 0:
-		percentage = 1.0;
-		return true;
-	case 1:
-		percentage = 0.5;
-		return true;
-	case 2:
-		vec3_t tmp1, tmp2;
-		vec_t dot;
-		CrossProduct (inedgedir[0], ray, tmp1);
-		CrossProduct (inedgedir[1], ray, tmp2);
-		VectorNormalize (tmp1);
-		VectorNormalize (tmp2);
-		dot = DotProduct (tmp1, tmp2);
-		dot = dot>1? 1: dot<-1? -1: dot;
-		percentage = 0.5 - acos (dot) / (2 * Q_PI);
-		if (percentage < 0)
-			Warning ("internal error 1 in HLRAD_POINT_IN_EDGE_FIX");
-		return true;
-	default:
-		Warning ("internal error 2 in HLRAD_POINT_IN_EDGE_FIX");
-		return false;
-	}
-}
-
-#endif
 
 bool			intersect_linesegment_plane(const dplane_t* const plane, const vec_t* const p1, const vec_t* const p2, vec3_t point)
 {
@@ -355,7 +296,6 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 					, int &opaquestyleout // light must convert to this style. -1 = no convert
 					)
 {
-#ifdef HLRAD_OPAQUE_NODE
 	int x;
 	VectorFill (scaleout, 1.0);
 	opaquestyleout = -1;
@@ -380,86 +320,6 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 		return true;
 	}
 	return false;
-#else /*HLRAD_OPAQUE_NODE*/
-    unsigned        x;
-    vec3_t          point;
-    const dplane_t* plane;
-    const Winding*  winding;
-	int				i;
-	vec3_t			scale_one;
-	vec3_t			direction;
-	VectorSubtract (p1, p2, direction);
-	VectorNormalize (direction);
-
-    vec3_t	    scale = {1.0, 1.0, 1.0};
-	double		percentage;
-	opaquestyleout = -1;
-
-	bool intersects[MAX_OPAQUE_GROUP_COUNT];
-	for (x = 0; x < g_opaque_group_count; x++)
-	{
-		intersects[x] = 
-			LineSegmentIntersectsBounds (p1, p2, g_opaque_group_list[x].mins, g_opaque_group_list[x].maxs);
-	}
-    for (x = 0; x < g_opaque_face_count; x++)
-    {
-		if (intersects[g_opaque_face_list[x].groupnum] == 0)
-			continue;
-        plane = &g_opaque_face_list[x].plane;
-        winding = g_opaque_face_list[x].winding;
-
-#ifdef HLRAD_OPACITY // AJM
-        l_opacity = g_opaque_face_list[x].l_opacity;
-#endif
-        if (intersect_linesegment_plane(plane, p1, p2, point))
-        {
-#if 0
-            Log
-                ("Ray from (%4.3f %4.3f %4.3f) to (%4.3f %4.3f %4.3f) hits plane at (%4.3f %4.3f %4.3f)\n Plane (%4.3f %4.3f %4.3f) %4.3f\n",
-                 p1[0], p1[1], p1[2], p2[0], p2[1], p2[2], point[0], point[1], point[2], plane->normal[0],
-                 plane->normal[1], plane->normal[2], plane->dist);
-#endif
-            if (point_in_winding_percentage(*winding, *plane, point, direction, percentage))
-            {
-#if 0
-                Log("Ray from (%4.3f %4.3f %4.3f) to (%4.3f %4.3f %4.3f) blocked by face %u @ (%4.3f %4.3f %4.3f)\n",
-                    p1[0], p1[1], p1[2],
-                    p2[0], p2[1], p2[2], g_opaque_face_list[x].facenum, point[0], point[1], point[2]);
-#endif
-
-		        if(g_opaque_face_list[x].transparency)
-		        {
-					VectorCopy (g_opaque_face_list[x].transparency_scale, scale_one);
-					if (percentage != 1.0)
-						for (i = 0; i < 3; ++i)
-							scale_one[i] = pow (scale_one[i], percentage);
-			        VectorMultiply(scale, scale_one, scale);
-		        }
-                else
-                {
-					if (g_opaque_face_list[x].style == -1 || opaquestyleout != -1 && g_opaque_face_list[x].style != opaquestyleout)
-					{
-						VectorCopy(vec3_origin, scaleout);
-						opaquestyleout = -1;
-			        	return true;
-					}
-					else
-					{
-						opaquestyleout = g_opaque_face_list[x].style;
-					}
-                }
-            }
-        }
-    }
-
-    VectorCopy(scale, scaleout);
-    if(scaleout[0] < 0.01 && scaleout[1] < 0.01 && scaleout[2] < 0.01)
-    {
-    	return true; //so much shadowing that result is same as with normal opaque face
-    }
-
-    return false;
-#endif /*HLRAD_OPAQUE_NODE*/
 }
 
 

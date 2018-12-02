@@ -519,33 +519,15 @@ typedef enum
 }
 eModelLightmodes;
 
-#ifndef HLRAD_OPAQUE_NODE
-#define MAX_OPAQUE_GROUP_COUNT 2048
-typedef struct
-{
-	const dmodel_t* mod;
-	float mins[3];
-	float maxs[3];
-} opaqueGroup_t;
-#endif
 
 typedef struct
 {
-#ifdef HLRAD_OPAQUE_NODE
 	int entitynum;
 	int modelnum;
 	vec3_t origin;
-#else
-    Winding* winding;
-    dplane_t plane;
-    unsigned facenum;
-#endif
 
     vec3_t transparency_scale;
     bool transparency;
-#ifndef HLRAD_OPAQUE_NODE
-	unsigned groupnum;
-#endif
 	int style; // -1 = no style; transparency must be false if style >= 0
 	// style0 and same style will change to this style, other styles will be blocked.
 #ifdef HLRAD_OPAQUE_BLOCK
@@ -652,10 +634,6 @@ extern vec_t    g_texchop; // Chop value for texture lights
 extern opaqueList_t* g_opaque_face_list;
 extern unsigned      g_opaque_face_count; // opaque entity count //HLRAD_OPAQUE_NODE
 extern unsigned      g_max_opaque_face_count;    // Current array maximum (used for reallocs)
-#ifndef HLRAD_OPAQUE_NODE
-extern opaqueGroup_t g_opaque_group_list[MAX_OPAQUE_GROUP_COUNT];
-extern unsigned g_opaque_group_count;
-#endif
 
 #ifdef ZHLT_PROGRESSFILE // AJM
 extern char*           g_progressfile ;
@@ -773,7 +751,6 @@ extern int      TestLine_r(int node, const vec3_t start, const vec3_t stop
 #endif
 						   );
 #endif
-#ifdef HLRAD_OPAQUE_NODE
 #define OPAQUE_NODE_INLINECALL
 #ifdef OPAQUE_NODE_INLINECALL
 typedef struct
@@ -807,7 +784,6 @@ FORCEINLINE int TestPointOpaque (int modelnum, const vec3_t modelorigin, bool so
 }
 #else
 extern int		TestPointOpaque (int modelnum, const vec3_t modelorigin, bool solid, const vec3_t point);
-#endif
 #endif
 #endif
 extern void     CreateDirectLights();
@@ -913,9 +889,6 @@ extern bool     point_in_winding(const Winding& w, const dplane_t& plane, const 
 extern bool     point_in_winding_noedge(const Winding& w, const dplane_t& plane, const vec_t* point, vec_t width);
 extern void     snap_to_winding(const Winding& w, const dplane_t& plane, vec_t* point);
 extern vec_t	snap_to_winding_noedge(const Winding& w, const dplane_t& plane, vec_t* point, vec_t width, vec_t maxmove);
-#ifndef HLRAD_OPAQUE_NODE
-extern bool		point_in_winding_percentage(const Winding& w, const dplane_t& plane, const vec3_t point, const vec3_t ray, double &percentage);
-#endif
 #ifndef HLRAD_LOCALTRIANGULATION
 extern bool     point_in_wall(const lerpWall_t* wall, vec3_t point);
 extern bool     point_in_tri(const vec3_t point, const dplane_t* const plane, const vec3_t p1, const vec3_t p2, const vec3_t p3);

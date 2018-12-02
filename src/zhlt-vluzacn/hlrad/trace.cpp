@@ -2,9 +2,7 @@
 #include "mathlib.h"
 #include "bspfile.h"
 #include "log.h" //--vluzacn
-#ifdef HLRAD_OPAQUE_NODE
 #include "winding.h"
-#endif
 #ifdef HLRAD_OPAQUE_ALPHATEST
 #include "qrad.h"
 #endif
@@ -489,7 +487,6 @@ int             TestLine(const vec3_t start, const vec3_t stop
 		);
 }
 
-#ifdef HLRAD_OPAQUE_NODE
 
 typedef struct
 {
@@ -1050,4 +1047,3 @@ int TestPointOpaque (int modelnum, const vec3_t modelorigin, bool solid, const v
 #endif
 #endif
 
-#endif

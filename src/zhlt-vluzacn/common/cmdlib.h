@@ -72,11 +72,8 @@
 
 
 
-#define HLRAD_OPAQUE_NODE //--vluzacn
 #define HLRAD_TRANSLUCENT //--vluzacn
-	#ifdef HLRAD_OPAQUE_NODE
 #define HLRAD_OPAQUE_BLOCK //--vluzacn
-	#endif
 #define HLRAD_EDGESHARE_NOSPECIAL //--vluzacn
 #define HLRAD_SMOOTH_TEXNORMAL //--vluzacn
 #define HLRAD_TEXTURE //--vluzacn
@@ -86,9 +83,7 @@
 #define HLRAD_VIS_FIX //--vluzacn
 #define HLRAD_ENTITYBOUNCE_FIX //--vluzacn
 	#ifdef HLRAD_TEXTURE
-	#ifdef HLRAD_OPAQUE_NODE
 #define HLRAD_OPAQUE_ALPHATEST //--vluzacn
-	#endif
 	#endif
 #define HLRAD_TEXLIGHTTHRESHOLD_FIX //--vluzacn
 	#ifdef HLRAD_REFLECTIVITY
