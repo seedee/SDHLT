@@ -162,24 +162,7 @@ void getAdjustedPlaneFromFaceNumber(unsigned int faceNumber, dplane_t* plane)
 // Will modify the plane with the new dist
 void            TranslatePlane(dplane_t* plane, const vec_t* delta)
 {
-#ifdef HLRAD_MATH_VL
 	plane->dist += DotProduct (plane->normal, delta);
-#else
-    vec3_t          proj;
-    vec_t           magnitude;
-
-    ProjectionPoint(delta, plane->normal, proj);
-    magnitude = VectorLength(proj);
-
-    if (DotProduct(plane->normal, delta) > 0)              //if zero, magnitude will be zero.
-    {
-        plane->dist += magnitude;
-    }
-    else
-    {
-        plane->dist -= magnitude;
-    }
-#endif
 }
 
 // HuntForWorld will never return CONTENTS_SKY or CONTENTS_SOLID leafs
@@ -251,11 +234,7 @@ dleaf_t*        HuntForWorld(vec_t* point, const vec_t* plane_offset, const dpla
 
                     SnapToPlane(&new_plane, current_point, hunt_offset);
                     VectorSubtract(current_point, original_point, delta);
-#ifdef HLRAD_MATH_VL
                     dist = DotProduct(delta, delta);
-#else
-                    dist = VectorLength(delta);
-#endif
 
 #ifdef HLRAD_OPAQUE_BLOCK
 					{

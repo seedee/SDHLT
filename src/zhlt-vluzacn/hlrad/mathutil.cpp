@@ -50,9 +50,6 @@ bool            point_in_winding(const Winding& w, const dplane_t& plane, const 
         VectorSubtract(w.m_Points[(x + 1) % numpoints], point, A);
         VectorSubtract(w.m_Points[x], point, B);
         CrossProduct(A, B, normal);
-#ifndef HLRAD_MATH_VL
-        VectorNormalize(normal);
-#endif
 
         if (DotProduct(normal, plane.normal) < 0.0)
         {
@@ -341,9 +338,6 @@ bool            point_in_wall(const lerpWall_t* wall, vec3_t point)
         VectorSubtract(wall->vertex[x], wall->vertex[(x + 1) % 4], A);
         VectorSubtract(wall->vertex[x], point, B);
         CrossProduct(A, B, normal);
-#ifndef HLRAD_MATH_VL
-        VectorNormalize(normal);
-#endif
 
         if (DotProduct(normal, wall->plane.normal) < 0.0)
         {
@@ -365,9 +359,6 @@ bool            point_in_tri(const vec3_t point, const dplane_t* const plane, co
     VectorSubtract(p1, p2, A);
     VectorSubtract(p1, point, B);
     CrossProduct(A, B, normal);
-#ifndef HLRAD_MATH_VL
-    VectorNormalize(normal);
-#endif
 
     if (DotProduct(normal, plane->normal) < 0.0)
     {
@@ -377,9 +368,6 @@ bool            point_in_tri(const vec3_t point, const dplane_t* const plane, co
     VectorSubtract(p2, p3, A);
     VectorSubtract(p2, point, B);
     CrossProduct(A, B, normal);
-#ifndef HLRAD_MATH_VL
-    VectorNormalize(normal);
-#endif
 
     if (DotProduct(normal, plane->normal) < 0.0)
     {
@@ -389,9 +377,6 @@ bool            point_in_tri(const vec3_t point, const dplane_t* const plane, co
     VectorSubtract(p3, p1, A);
     VectorSubtract(p3, point, B);
     CrossProduct(A, B, normal);
-#ifndef HLRAD_MATH_VL
-    VectorNormalize(normal);
-#endif
 
     if (DotProduct(normal, plane->normal) < 0.0)
     {
@@ -591,52 +576,16 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 #endif /*HLRAD_OPAQUE_NODE*/
 }
 
-#ifndef HLRAD_MATH_VL
-// =====================================================================================
-//  ProjectionPoint
-// =====================================================================================
-void            ProjectionPoint(const vec_t* const v, const vec_t* const p, vec_t* rval)
-{
-    vec_t           val;
-    vec_t           mag;
-
-    mag = DotProduct(p, p);
-#ifdef SYSTEM_POSIX
-    if (mag == 0)
-    {
-        // division by zero seems to work just fine on x86;
-        // it returns nan and the program still works!!
-        // this causes a floating point exception on Alphas, so...
-        mag = 0.00000001; 
-    }
-#endif
-    val = DotProduct(v, p) / mag;
-
-    VectorScale(p, val, rval);
-}
-#endif
 
 // =====================================================================================
 //  SnapToPlane
 // =====================================================================================
 void            SnapToPlane(const dplane_t* const plane, vec_t* const point, vec_t offset)
 {
-#ifdef HLRAD_MATH_VL
 	vec_t			dist;
 	dist = DotProduct (point, plane->normal) - plane->dist;
 	dist -= offset;
 	VectorMA (point, -dist, plane->normal, point);
-#else
-    vec3_t          delta;
-    vec3_t          proj;
-    vec3_t          pop;                                   // point on plane
-
-    VectorScale(plane->normal, plane->dist + offset, pop);
-    VectorSubtract(point, pop, delta);
-    ProjectionPoint(delta, plane->normal, proj);
-    VectorSubtract(delta, proj, delta);
-    VectorAdd(delta, pop, point);
-#endif
 }
 #ifdef HLRAD_ACCURATEBOUNCE
 // =====================================================================================

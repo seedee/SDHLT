@@ -72,7 +72,6 @@
 
 
 
-#define HLRAD_MATH_VL //--vluzacn
 #define HLRAD_TRANSFERDATA_COMPRESS //--vluzacn
 #define HLRAD_TRANCPARENCYLOSS_FIX //--vluzacn
 #define HLRAD_STYLE_CORING //--vluzacn

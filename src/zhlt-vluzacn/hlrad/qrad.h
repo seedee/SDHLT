@@ -1018,9 +1018,6 @@ extern bool		point_in_winding_percentage(const Winding& w, const dplane_t& plane
 extern bool     point_in_wall(const lerpWall_t* wall, vec3_t point);
 extern bool     point_in_tri(const vec3_t point, const dplane_t* const plane, const vec3_t p1, const vec3_t p2, const vec3_t p3);
 #endif
-#ifndef HLRAD_MATH_VL
-extern void     ProjectionPoint(const vec_t* const v, const vec_t* const p, vec_t* rval);
-#endif
 extern void     SnapToPlane(const dplane_t* const plane, vec_t* const point, vec_t offset);
 #ifdef HLRAD_ACCURATEBOUNCE
 extern vec_t	CalcSightArea (const vec3_t receiver_origin, const vec3_t receiver_normal, const Winding *emitter_winding, int skylevel
