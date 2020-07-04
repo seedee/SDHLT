@@ -1,0 +1,15 @@
+=======================
+---- Version 1.1.0 ----
+=======================
+- -worldextent CSG parameter. Extends map geometry limits beyond +/-32768.
+- Improved portal file workflow with J.A.C.K. You can now load the default .prt file into the editor directly after the BSP compilation has ended.
+- Updated tool texture WAD file with higher resolution image textures.
+- Updated texture brightness from "color" to "string" in FGD file.
+
+=======================
+---- Version 1.0.0 ----
+=======================
+- BEVELHINT tool texture, which acts like SOLIDHINT and BEVEL. Eliminates unnecessary face subdivision and bevels clipnodes at the same time. Useful on complex shapes and surfaces, such as terrain.
+- SPLITFACE tool texture. Brushes with this texture will subdivide faces they touch along their edges. It can be used to eliminate bad lighting caused by opaque entities.
+- !cur_ tool textures, which act like CONTENTWATER and func_pushable with a speed of 2048 units/s. This texture is always fullbright.
+- Automatically embed a custom tool texture WAD file settings.txt.
