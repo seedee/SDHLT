@@ -71,3 +71,8 @@ Temporary Items
 *.aps
 *.bsc
 *.sbr
+*.db-wal
+*db-shm
+
+/src/zhlt-vluzacn/.vs/
+/src/zhlt-vluzacn/Release/
