@@ -892,7 +892,7 @@ int             main(int argc, char** argv)
     int             i;
     double          start, end;
 
-    g_Program = "ripent";
+    g_Program = "sdRIPENT";
 
 #ifdef RIPENT_PAUSE
 	atexit (&pause);

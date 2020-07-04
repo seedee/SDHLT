@@ -6,6 +6,9 @@
     Modified by Sean "Zoner" Cavanaugh (seanc@gearboxsoftware.com) with permission.
     Modified by Tony "Merl" Moore (merlinis@bigpond.net.au)
     Contains code by Skyler "Zipster" York (zipster89134@hotmail.com) - Included with permission.
+    Modified by amckern (amckern@yahoo.com)
+    Modified by vluzacn (vluzacn@163.com)
+    Modified by seedee (cdaniel9000@gmail.com)
     
 */
 
@@ -1251,9 +1254,9 @@ int             main(const int argc, char** argv)
     const char*     mapname_from_arg = NULL;
 
 #ifdef ZHLT_NETVIS
-    g_Program = "netvis";
+    g_Program = "sdNETVIS";
 #else
-    g_Program = "hlvis";
+    g_Program = "sdHLVIS";
 #endif
 
 	int argcold = argc;

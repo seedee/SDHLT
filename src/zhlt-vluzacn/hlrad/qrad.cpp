@@ -5,6 +5,9 @@
     Code based on original code from Valve Software, 
     Modified by Sean "Zoner" Cavanaugh (seanc@gearboxsoftware.com) with permission.
     Modified by Tony "Merl" Moore (merlinis@bigpond.net.au) [AJM]
+	Modified by amckern (amckern@yahoo.com)
+	Modified by vluzacn (vluzacn@163.com)
+	Modified by seedee (cdaniel9000@gmail.com)
     
 */
 
@@ -3168,7 +3171,7 @@ int             main(const int argc, char** argv)
     const char*     mapname_from_arg = NULL;
     const char*     user_lights = NULL;
 
-    g_Program = "hlrad";
+    g_Program = "sdHLRAD";
 
 	int argcold = argc;
 	char ** argvold = argv;
