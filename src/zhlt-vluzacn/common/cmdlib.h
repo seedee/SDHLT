@@ -8,7 +8,8 @@
 //#define MODIFICATIONS_STRING "Submit detailed bug reports to (zoner@gearboxsoftware.com)\n"
 //#define MODIFICATIONS_STRING "Submit detailed bug reports to (merlinis@bigpond.net.au)\n"
 //#define MODIFICATIONS_STRING "Submit detailed bug reports to (amckern@yahoo.com)\n"
-#define MODIFICATIONS_STRING "Submit detailed bug reports to (vluzacn@163.com)\n" //--vluzacn
+//#define MODIFICATIONS_STRING "Submit detailed bug reports to (vluzacn@163.com)\n" //--vluzacn
+#define MODIFICATIONS_STRING "Submit detailed bug reports to (cdaniel9000@gmail.com)\n"
 
 #ifdef _DEBUG
 #define ZHLT_VERSIONSTRING "v3.4 dbg"
@@ -17,6 +18,8 @@
 #endif
 
 #define HACK_VERSIONSTRING "VL34" //--vluzacn
+
+#define SDHLT_VERSIONSTRING "v1.1.0"
 
 #if !defined (HLCSG) && !defined (HLBSP) && !defined (HLVIS) && !defined (HLRAD) && !defined (RIPENT) //--vluzacn
 #error "You must define one of these in the settings of each project: HLCSG, HLBSP, HLVIS, HLRAD, RIPENT. The most likely cause is that you didn't load the project from the sln file."
