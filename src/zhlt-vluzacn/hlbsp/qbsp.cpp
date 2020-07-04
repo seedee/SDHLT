@@ -1494,6 +1494,9 @@ static void     ProcessFile(const char* const filename)
     safe_snprintf(g_portfilename, _MAX_PATH, "%s.prt", filename);
     unlink(g_portfilename);
 
+    safe_snprintf(g_portfilename, _MAX_PATH, "%s.prt2", filename);
+    unlink(g_portfilename);
+
     safe_snprintf(g_pointfilename, _MAX_PATH, "%s.pts", filename);
     unlink(g_pointfilename);
 

@@ -849,7 +849,7 @@ static INLINE void FASTCALL CheckNullToken(const char*const token)
 {
     if (token == NULL) 
     {
-        Error("LoadPortals: Damaged or invalid .prt file\n");
+        Error("LoadPortals: Damaged or invalid .prt2 file\n");
     }
 }
 
@@ -1602,7 +1602,7 @@ int             main(const int argc, char** argv)
     safe_strncpy(source, g_Mapname, _MAX_PATH);
     safe_strncat(source, ".bsp", _MAX_PATH);
     safe_strncpy(portalfile, g_Mapname, _MAX_PATH);
-    safe_strncat(portalfile, ".prt", _MAX_PATH);
+    safe_strncat(portalfile, ".prt2", _MAX_PATH);
 
 #ifdef ZHLT_NETVIS
 

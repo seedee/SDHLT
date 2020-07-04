@@ -155,7 +155,8 @@ void            MakeHeadnodePortals(node_t* node, const vec3_t mins, const vec3_
  * ==============================================================================
  */
 
-static FILE*    pf;
+static FILE*    pf; // VIS
+static FILE*    pf_jack; // J.A.C.K.
 static FILE *pf_view;
 extern bool g_viewportal;
 static int      num_visleafs;                              // leafs the player can be in
@@ -206,17 +207,21 @@ static void     WritePortalFile_r(const node_t* const node)
 						w->Print ();
 					}
                     fprintf(pf, "%u %i %i ", w->m_NumPoints, p->nodes[1]->visleafnum, p->nodes[0]->visleafnum);
+                    fprintf(pf_jack, "%u %i %i ", w->m_NumPoints, p->nodes[1]->visleafnum, p->nodes[0]->visleafnum);
                 }
                 else
                 {
                     fprintf(pf, "%u %i %i ", w->m_NumPoints, p->nodes[0]->visleafnum, p->nodes[1]->visleafnum);
+                    fprintf(pf_jack, "%u %i %i ", w->m_NumPoints, p->nodes[0]->visleafnum, p->nodes[1]->visleafnum);
                 }
 
                 for (i = 0; i < w->m_NumPoints; i++)
                 {
                     fprintf(pf, "(%f %f %f) ", w->m_Points[i][0], w->m_Points[i][1], w->m_Points[i][2]);
+                    fprintf(pf_jack, "(%f %f %f) ", w->m_Points[i][0], w->m_Points[i][1], w->m_Points[i][2]);
                 }
                 fprintf(pf, "\n");
+                fprintf(pf_jack, "\n");
 				if (g_viewportal)
 				{
 					vec3_t center, center1, center2;
@@ -332,47 +337,77 @@ static void WriteLeafCount_r (node_t *node)
 		fprintf (pf, "%i\n", count);
 	}
 }
+
+void UTIL_GetPortalCacheName(char* portalCacheName)
+{
+    char newCacheName[_MAX_PATH];
+    for (int i = 0; i < _MAX_PATH; i++)
+        newCacheName[i] = 0;
+
+    size_t len = strlen(g_portfilename) - 4; // name - .prt
+
+    for (size_t i = 0; i < len; i++)
+        newCacheName[i] = g_portfilename[i];
+
+    strcat(newCacheName, ".prt2");
+    strcpy(portalCacheName, newCacheName);
+
+    Log("BSP generation successful\n\n");
+    Log("Writing VIS portal file '%s'\n", newCacheName);
+}
+
 /*
  * ================
  * WritePortalfile
  * ================
  */
-void            WritePortalfile(node_t* headnode)
+void WritePortalfile(node_t* headnode)
 {
+    char portalCacheName[_MAX_PATH];
+    UTIL_GetPortalCacheName(portalCacheName);
+
     // set the visleafnum field in every leaf and count the total number of portals
     num_visleafs = 0;
     num_visportals = 0;
     NumberLeafs_r(headnode);
 
-    // write the file
-    pf = fopen(g_portfilename, "w");
+    // write the files
+    pf = fopen(portalCacheName, "w");
+
     if (!pf)
     {
         Error("Error writing portal file %s", g_portfilename);
     }
-	if (g_viewportal)
-	{
-		char filename[_MAX_PATH];
-		safe_snprintf(filename, _MAX_PATH, "%s_portal.pts", g_Mapname);
-		pf_view = fopen (filename, "w");
-		if (!pf_view)
-		{
-			Error ("Couldn't open %s", filename);
-		}
-		Log ("Writing '%s' ...\n", filename);
-	}
+
+    if (g_viewportal)
+    {
+        char filename[_MAX_PATH];
+        safe_snprintf(filename, _MAX_PATH, "%s_portal.pts", g_Mapname);
+        pf_view = fopen(filename, "w");
+        if (!pf_view)
+        {
+            Error("Couldn't open %s", filename);
+        }
+        Log("Writing '%s' ...\n", filename);
+    }
 
     fprintf(pf, "%i\n", num_visleafs);
     fprintf(pf, "%i\n", num_visportals);
 
-	WriteLeafCount_r (headnode);
+    pf_jack = fopen(g_portfilename, "w");
+    fprintf(pf_jack, "%i\n", num_visleafs);
+    fprintf(pf_jack, "%i\n", num_visportals);
+
+    WriteLeafCount_r(headnode);
     WritePortalFile_r(headnode);
     fclose(pf);
-	if (g_viewportal)
-	{
-		fclose (pf_view);
-	}
-    Log("BSP generation successful, writing portal file '%s'\n", g_portfilename);
+    fclose(pf_jack);
+
+    if (g_viewportal)
+    {
+        fclose(pf_view);
+    }
+    Log("Writing J.A.C.K. portal file '%s'\n", g_portfilename);
 }
 
 //===================================================
