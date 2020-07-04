@@ -69,7 +69,7 @@
 #define DEFAULT_ESTIMATE    true
 #endif
 
-#define BOGUS_RANGE    65534
+#define BOGUS_RANGE    g_iWorldExtent
 
 #define MAX_HULLSHAPES 128 // arbitrary
 

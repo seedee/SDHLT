@@ -331,6 +331,8 @@ extern int      g_numfaces;
 extern dface_t  g_dfaces[MAX_MAP_FACES];
 extern int      g_dfaces_checksum;
 
+extern int      g_iWorldExtent;
+
 extern int      g_numclipnodes;
 extern dclipnode_t g_dclipnodes[MAX_MAP_CLIPNODES];
 extern int      g_dclipnodes_checksum;

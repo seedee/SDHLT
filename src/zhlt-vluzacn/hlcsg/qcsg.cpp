@@ -1575,6 +1575,7 @@ static void     Usage()
     Log("    -wadautodetect   : Force auto-detection of wadfiles\n");
 
 	Log("    -scale #         : Scale the world. Use at your own risk.\n");
+    Log("    -worldextent #   : Extend map geometry limits beyond +/-32768.\n");
     Log("    mapfile          : The mapfile to compile\n\n");
 
     exit(1);
@@ -1701,6 +1702,7 @@ static void     Settings()
 #ifdef HLCSG_GAMETEXTMESSAGE_UTF8
 	Log("convert game_text     [ %7s ] [ %7s ]\n", !g_noutf8? "on" : "off", !DEFAULT_NOUTF8? "on" : "off");
 #endif
+    Log("world extent          [ %7d ] [ %7d ]\n", g_iWorldExtent, 65534);
 
     Log("\n");
 }
@@ -1760,6 +1762,11 @@ int             main(const int argc, char** argv)
             {
                 Usage();
             }
+        }
+
+        else if (!strcasecmp(argv[i], "-worldextent"))
+        {
+            g_iWorldExtent = atoi(argv[++i]);
         }
 
 		else if (!strcasecmp(argv[i], "-console"))

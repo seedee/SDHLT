@@ -58,6 +58,8 @@ int             g_numfaces;
 dface_t         g_dfaces[MAX_MAP_FACES];
 int             g_dfaces_checksum;
 
+int				g_iWorldExtent = ENGINE_ENTITY_RANGE; // -worldextent // seedee
+
 int             g_numclipnodes;
 dclipnode_t     g_dclipnodes[MAX_MAP_CLIPNODES];
 int             g_dclipnodes_checksum;
