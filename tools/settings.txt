@@ -86,8 +86,8 @@
 #endif
 
 #ifdef <hlcsg>                // CSG
-  #ifndef -wadautodetect
-    #define -wadautodetect
+  #ifndef -wadinclude sdhlt.wad -wadautodetect
+    #define -wadinclude sdhlt.wad -wadautodetect
   #endif
 #endif
 
