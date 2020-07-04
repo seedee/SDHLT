@@ -954,6 +954,8 @@ static contents_t TextureContents(const char* const name)
 
 	if (!strncasecmp(name, "solidhint", 9))
 		return CONTENTS_NULL;
+	if (!strncasecmp(name, "bevelhint", 9))
+		return CONTENTS_NULL;
 	if (!strncasecmp(name, "splitface", 9))
 		return CONTENTS_HINT;
 	if (!strncasecmp(name, "hint", 4))

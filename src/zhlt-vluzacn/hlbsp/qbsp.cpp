@@ -5,6 +5,9 @@
     Code based on original code from Valve Software,
     Modified by Sean "Zoner" Cavanaugh (seanc@gearboxsoftware.com) with permission.
     Modified by Tony "Merl" Moore (merlinis@bigpond.net.au) [AJM]
+    Modified by amckern (amckern@yahoo.com)
+    Modified by vluzacn (vluzacn@163.com)
+    Modified by seedee (cdaniel9000@gmail.com)
 
 */
 
@@ -906,7 +909,7 @@ bool            CheckFaceForSkip(const face_t* const f)
 bool CheckFaceForDiscardable (const face_t *f)
 {
 	const char *name = GetTextureByNumber (f->texturenum);
-	if (!strncasecmp (name, "SOLIDHINT", 9))
+	if (!strncasecmp (name, "SOLIDHINT", 9) || !strncasecmp (name, "BEVELHINT", 9))
 		return true;
 	return false;
 }
@@ -1619,7 +1622,7 @@ int             main(const int argc, char** argv)
     double          start, end;
     const char*     mapname_from_arg = NULL;
 
-    g_Program = "hlbsp";
+    g_Program = "sdHLBSP";
 
 	int argcold = argc;
 	char ** argvold = argv;
