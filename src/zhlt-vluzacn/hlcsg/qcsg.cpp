@@ -1702,7 +1702,7 @@ static void     Settings()
 #ifdef HLCSG_GAMETEXTMESSAGE_UTF8
 	Log("convert game_text     [ %7s ] [ %7s ]\n", !g_noutf8? "on" : "off", !DEFAULT_NOUTF8? "on" : "off");
 #endif
-    Log("world extent          [ %7d ] [ %7d ]\n", g_iWorldExtent, 65534);
+    Log("world extent          [ %7d ] [ %7d ]\n", g_iWorldExtent, 65536);
 
     Log("\n");
 }
