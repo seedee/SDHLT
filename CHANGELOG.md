@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - BEVELHINT tool texture, which acts like SOLIDHINT and BEVEL. Eliminates unnecessary face subdivision and bevels clipnodes at the same time
 - SPLITFACE tool texture. Brushes with this texture will subdivide faces they touch along their edges
-- !cur\_ tool textures, which act like CONTENTWATER and func\_pushable with a speed of 2048 units/s
+- !cur_ tool textures, which act like CONTENTWATER and func_pushable with a speed of 2048 units/s
 ### Changed
 - Automatic embedding of tool texture WAD file can now be controlled in settings.txt
 
