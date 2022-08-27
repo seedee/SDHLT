@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.1] - Aug 27 2022
 ### Changed
-- Portal file optimisation process more streamlined. Separate .prt file is no longer created, instead the same one is optimsed after VIS compilation
+- Portal file optimisation process more streamlined. Separate .prt file is no longer created, instead the same one is optimised after VIS compilation
 - Automatic embedding of tool texture WAD file is hard-coded again due to lazy mappers
 - -chart parameter now enabled by default.
 
