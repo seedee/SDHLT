@@ -1,6 +1,6 @@
 
 // light_shadow
-// It creates a toggleable shadow for brush entities.
+// It creates toggleable shadow for func_door, func_breakable, ...
 @PointClass color(255 255 0) = light_shadow : "Dynamic shadow control"
 [
 	// Control the shadow of this solid entity.
@@ -75,11 +75,9 @@
 ]
 
 // info_overview_point
-// It makes all leaves visible from the leaf that this entity is in. This is useful for overview mode (dev_overview 1).
-//
-// Reversed - The leaf that this entity is in will become visible from the entire map. Useful for large skybox models.
-
-@PointClass color(255 0 0) = info_overview_point : ""
+// It makes all entities visible from this place. This is useful for overview mode (dev_overview 1).
+// If "Reversed" is selected, this place will become visible from the entire map. This is useful for large skybox model.
+@PointClass color(255 0 0) = info_overview_point : "Disable VIS here for overview"
 [
 	reverse(choices) : "Reversed" : "" =
 	[
@@ -89,7 +87,8 @@
 ]
 
 // info_sunlight
-// It generates a fake light_environment which defines sv_skycolor and sv_skyvec in game. Useful for multiple light_environments.
+// It generates a fake light_environment which defines sv_skycolor and sv_skyvec in game.
+// If you are using multiple light_environments, you will probably need this entity.
 @PointClass color(255 255 0) = info_sunlight : "light_environment information that affects model brightness"
 [
 	target(target_destination) : "Target"
@@ -147,20 +146,20 @@
 @PointClass color(255 255 0) = light_surface : "Advanced texture light"
 [
 	_tex(string) : "Texture name" : "" // texture name (not case sensitive)
-	_frange(string) : "Filter max distance" : "" // max distance from face center to this entity
-	_fdist(string) : "Filter max dist to plane" : "" // max distance from face plane to this entity
-	_fclass(string) : "Filter entity classname" : ""
-	_fname(string) : "Filter entity name" : ""
-	_light(string) : "Texture brightness" : "200" // value >= 80 will ensure full brightness. Colored brightness is not recommended.
-	_texcolor(color255) : "Color (replace texture color)" : "" // emit light as if the texture is in this color
+	_frange(string) : " Filter max distance" : "" // max distance from face center to this entity
+	_fdist(string) : " Filter max dist to plane" : "" // max distance from face plane to this entity
+	_fclass(string) : " Filter entity classname" : ""
+	_fname(string) : " Filter entity name" : ""
+	_light(color255) : "Texture brightness" : "255 255 255 80" // value >= 80 will ensure full brightness. Colored brightness is not recommended.
+	_texcolor(color255) : " Color(replace texture color)" : "" // emit light as if the texture is in this color
 	//  Note:
 	//    If you want to set cone angle or any other value to 0,
 	//      '0.0' should be used instead of '0'.
 	//    This is a bug in Hammer.
-	_cone(string) : "Inner (bright) angle (90 default)" : "" // should be 90 for conventional texlights
-	_cone2(string) : "Outer (fading) angle (90 default)" : "" // should be 90 for conventional texlights
-	_scale(string) : "Adjust emit scale (1.0 default)" : "" // 0.0 = no emitting
-	_chop(string) : "Grid size of sampling" : "" // in inch; not affected by texture scale
+	_cone(string) : " Inner(bright) angle(90default)" : "" // should be 90 for conventional texlights
+	_cone2(string) : " Outer(fading) angle(90default)" : "" // should be 90 for conventional texlights
+	_scale(string) : " Adjust emit scale(1.0default)" : "" // 0.0 = no emitting
+	_chop(string) : " Grid size of sampling" : "" // in inch; not affected by texture scale
 	_texlightgap(choices) : " Dark gap in front of texlight" : "" = // in texture pixels; size of dark area near the light source
 	[
 		"": "Default (no gap)"
