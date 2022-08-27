@@ -74,5 +74,19 @@ Temporary Items
 *.db-wal
 *db-shm
 
-/src/zhlt-vluzacn/.vs/
-/src/zhlt-vluzacn/Release/
+/src/sdhlt/.vs/
+
+/src/sdhlt/sdHLBSP/Release/
+/src/sdhlt/sdHLBSP/Release_x64/
+
+/src/sdhlt/sdHLCSG/Release/
+/src/sdhlt/sdHLCSG/Release_x64/
+
+/src/sdhlt/sdHLRAD/Release/
+/src/sdhlt/sdHLRAD/Release_x64/
+
+/src/sdhlt/sdHLVIS/Release/
+/src/sdhlt/sdHLVIS/Release_x64/
+
+/src/sdhlt/sdRIPENT/Release/
+/src/sdhlt/sdRIPENT/Release_x64/
