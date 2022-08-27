@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - -chart parameter now enabled by default.
 
 ### Fixed
-- Bug with -worldextent CSG parameter, where the default map size was to +/-2048
+- Bug with -worldextent CSG parameter, where the default map size was +/-2048
 
 ## [1.1.0] - Jul 04 2020
 ### Added
