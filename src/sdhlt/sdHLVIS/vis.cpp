@@ -1252,7 +1252,7 @@ int        VisLeafnumForPoint(const vec3_t point)
 // seedee
 // =====================================================================================
 //  FixPrt
-//      Imports portal file to vector, erases unneeded strings, overwrites portal file
+//      Imports portal file to vector, erases vis cache lines, overwrites portal file
 // =====================================================================================
 void FixPrt(const char* portalfile)
 {
@@ -1266,7 +1266,7 @@ void FixPrt(const char* portalfile)
 
     if (!inputFileStream) //If import fails
     {
-        Error("Failed reading portal file '%s', cannot optimize\n", portalfile);
+        Log("Failed reading portal file '%s', skipping optimization for J.A.C.K. map editor\n", portalfile);
         return;
     }
 
@@ -1289,14 +1289,28 @@ void FixPrt(const char* portalfile)
             return s.find('(') != std::string::npos; //Point iterator to the first string that contains portal coordinates, which has a bracket
         });
 
-    if (
-        itPortalCoords == prtVector.begin() || //If the first line contains a bracket
-        itPortalCoords == prtVector.end()) //If it didn't find any line containing a bracket
+    bool skipFix = false;
+
+    if (prtVector[1] == "0") //If portal count on line 2 is 0
     {
-        Error("Failed reading portal file '%s', cannot optimize\n", portalfile);
+        Log("Number of portals in file is 0\n");
+        skipFix = true;
+    }
+    if (itPortalCoords == prtVector.end()) //If it didn't find any line containing an opening bracket (the portal coordinates)
+    {
+        Log("No portal coordinates detected in file\n");
+        skipFix = true;
+    }
+    if (itPortalCoords == prtVector.begin()) //If the first line contains an opening bracket (possible portal coordinates)
+    {
+        Log("Unexpected possible portal coordinates at line 1\n");
+        skipFix = true;
+    }
+    if (skipFix)
+    {
+        Log("Skipping optimization for J.A.C.K. map editor\n");
         return;
     }
-
     prtVector.erase( //Deletes from string 3 until string before portal coordinates
         prtVector.begin() + 2,
         itPortalCoords);
@@ -1327,7 +1341,7 @@ void FixPrt(const char* portalfile)
     }
     else //If open fails
     {
-        Error("Failed writing portal file '%s', cannot optimize\n", portalfile);
+        Log("Failed writing portal file '%s', skipping optimization for J.A.C.K. map editor\n", portalfile);
         return;
     }
 
