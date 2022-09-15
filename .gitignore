@@ -91,4 +91,6 @@ Temporary Items
 /src/sdhlt/sdRIPENT/Release/
 /src/sdhlt/sdRIPENT/Release_x64/
 
+build/
+
 *.zip
