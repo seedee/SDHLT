@@ -87,7 +87,7 @@ long            getfiledata(const char* const filename, char* buffer, const int 
         }
         _close(handle);
         time(&end);
-        Log("%10.3fMB] (%d)\n", size / (1024.0 * 1024.0), end - start);
+        Log("%10.3fMB] (%li)\n", size / (1024.0 * 1024.0), end - start);
     }
 
     if (buffersize != size)

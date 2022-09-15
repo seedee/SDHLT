@@ -276,6 +276,7 @@ include_directories(
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     add_compile_options(
+        -Wno-write-strings
         -DSYSTEM_POSIX
         -DSTDC_HEADERS
         -DHAVE_FCNTL_H

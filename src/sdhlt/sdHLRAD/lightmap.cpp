@@ -96,7 +96,7 @@ void AddFaceForVertexNormal_printerror (const int edgeabs, const int edgeend, df
 			e = g_dsurfedges[f->firstedge + i];
 			edgeshare_t *es = &g_edgeshare[abs(e)];
 			int v0 = g_dedges[abs(e)].v[0], v1 = g_dedges[abs(e)].v[1];
-			Log (" e=%d v0=%d(%f,%f,%f) v1=%d(%f,%f,%f) share0=%d share1=%d\n", e,
+			Log (" e=%d v0=%d(%f,%f,%f) v1=%d(%f,%f,%f) share0=%li share1=%li\n", e,
 				v0, g_dvertexes[v0].point[0], g_dvertexes[v0].point[1], g_dvertexes[v0].point[2],
 				v1, g_dvertexes[v1].point[0], g_dvertexes[v1].point[1], g_dvertexes[v1].point[2],
 				(es->faces[0]==NULL? -1: es->faces[0]-g_dfaces), (es->faces[1]==NULL? -1: es->faces[1]-g_dfaces));
@@ -643,7 +643,7 @@ static void     CalcFaceExtents(lightinfo_t* l)
 			)
 		{
 			ThreadLock();
-			PrintOnce("\nfor Face %d (texture %s) at ", s - g_dfaces, TextureNameFromFace(s));
+			PrintOnce("\nfor Face %li (texture %s) at ", s - g_dfaces, TextureNameFromFace(s));
 
 			for (i = 0; i < s->numedges; i++)
 			{

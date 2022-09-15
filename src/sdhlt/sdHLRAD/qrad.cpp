@@ -2863,7 +2863,11 @@ static void     Settings()
     safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_SMOOTHING_VALUE);
     Log("smoothing threshold  [ %17s ] [ %17s ]\n", buf1, buf2);
 	safe_snprintf(buf1, sizeof(buf1), g_smoothing_value_2<0? "no change": "%3.3f", g_smoothing_value_2);
-	safe_snprintf(buf2, sizeof(buf2), DEFAULT_SMOOTHING2_VALUE<0? "no change": "%3.3f", DEFAULT_SMOOTHING2_VALUE);
+#if DEFAULT_SMOOTHING2_VALUE
+	safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_SMOOTHING2_VALUE);
+#else
+	safe_snprintf(buf2, sizeof(buf2), "no change");
+#endif
     Log("smoothing threshold 2[ %17s ] [ %17s ]\n", buf1, buf2);
     safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_dlight_threshold);
     safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_DLIGHT_THRESHOLD);

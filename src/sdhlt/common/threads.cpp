@@ -564,7 +564,7 @@ void            RunThreadsOn(int workcnt, bool showpacifier, q_threadfunction fu
 
     for (i = 0; i < g_numthreads; i++)
     {
-        if (pthread_create(&work_threads[i], &attrib, ThreadEntryStub, (void*)i) == -1)
+        if (pthread_create(&work_threads[i], &attrib, ThreadEntryStub, (void*)(intptr_t)i) == -1)
         {
             Error("pthread_create failed");
         }
