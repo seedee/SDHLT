@@ -54,26 +54,6 @@ set(BSP_SOURCES
     ${SDHLT_DIR}/sdHLBSP/writebsp.cpp
 )
 
-# set(BSP_HEADERS
-    # ${SDHLT_DIR}/template/basictypes.h
-    # ${SDHLT_DIR}/common/blockmem.h
-    # ${SDHLT_DIR}/common/boundingbox.h
-    # ${SDHLT_DIR}/sdHLBSP/bsp5.h
-    # ${SDHLT_DIR}/common/bspfile.h
-    # ${SDHLT_DIR}/common/cmdlib.h
-    # ${SDHLT_DIR}/common/cmdlinecfg.h
-    # ${SDHLT_DIR}/common/filelib.h
-    # ${SDHLT_DIR}/common/hlassert.h
-    # ${SDHLT_DIR}/common/log.h
-    # ${SDHLT_DIR}/common/mathlib.h
-    # ${SDHLT_DIR}/common/mathtypes.h
-    # ${SDHLT_DIR}/common/messages.h
-    # ${SDHLT_DIR}/common/scriplib.h
-    # ${SDHLT_DIR}/common/threads.h
-    # ${SDHLT_DIR}/common/win32fix.h
-    # ${SDHLT_DIR}/common/winding.h
-# )
-
 #================
 # CSG
 #================
@@ -103,27 +83,6 @@ set(CSG_SOURCES
     ${SDHLT_DIR}/sdHLCSG/wadinclude.cpp
     ${SDHLT_DIR}/sdHLCSG/wadpath.cpp
 )
-
-# set(CSG_HEADERS
-    # ${SDHLT_DIR}/template/basictypes.h
-    # ${SDHLT_DIR}/common/blockmem.h
-    # ${SDHLT_DIR}/common/boundingbox.h
-    # ${SDHLT_DIR}/common/bspfile.h
-    # ${SDHLT_DIR}/common/cmdlib.h
-    # ${SDHLT_DIR}/common/cmdlinecfg.h
-    # ${SDHLT_DIR}/sdHLCSG/csg.h
-    # ${SDHLT_DIR}/common/filelib.h
-    # ${SDHLT_DIR}/common/hlassert.h
-    # ${SDHLT_DIR}/common/log.h
-    # ${SDHLT_DIR}/common/mathlib.h
-    # ${SDHLT_DIR}/common/mathtypes.h
-    # ${SDHLT_DIR}/common/messages.h
-    # ${SDHLT_DIR}/common/scriplib.h
-    # ${SDHLT_DIR}/common/threads.h
-    # ${SDHLT_DIR}/sdHLCSG/wadpath.h
-    # ${SDHLT_DIR}/common/win32fix.h
-    # ${SDHLT_DIR}/common/winding.h
-# )
 
 #================
 # RAD
@@ -157,28 +116,6 @@ set(RAD_SOURCES
     ${SDHLT_DIR}/sdHLRAD/vismatrixutil.cpp
 )
 
-# set(RAD_HEADERS
-    # ${SDHLT_DIR}/common/anorms.h
-    # ${SDHLT_DIR}/template/basictypes.h
-    # ${SDHLT_DIR}/common/blockmem.h
-    # ${SDHLT_DIR}/common/boundingbox.h
-    # ${SDHLT_DIR}/common/bspfile.h
-    # ${SDHLT_DIR}/common/cmdlib.h
-    # ${SDHLT_DIR}/common/cmdlinecfg.h
-    # ${SDHLT_DIR}/sdHLRAD/compress.h
-    # ${SDHLT_DIR}/common/filelib.h
-    # ${SDHLT_DIR}/common/hlassert.h
-    # ${SDHLT_DIR}/common/log.h
-    # ${SDHLT_DIR}/common/mathlib.h
-    # ${SDHLT_DIR}/common/mathtypes.h
-    # ${SDHLT_DIR}/common/messages.h
-    # ${SDHLT_DIR}/sdHLRAD/qrad.h
-    # ${SDHLT_DIR}/common/scriplib.h
-    # ${SDHLT_DIR}/common/threads.h
-    # ${SDHLT_DIR}/common/win32fix.h
-    # ${SDHLT_DIR}/common/winding.h
-# )
-
 #================
 # VIS
 #================
@@ -200,27 +137,6 @@ set(VIS_SOURCES
     ${SDHLT_DIR}/sdHLVIS/zones.cpp
 )
 
-# set(VIS_HEADERS
-    # ${SDHLT_DIR}/template/basictypes.h
-    # ${SDHLT_DIR}/common/blockmem.h
-    # ${SDHLT_DIR}/common/boundingbox.h
-    # ${SDHLT_DIR}/common/bspfile.h
-    # ${SDHLT_DIR}/common/cmdlib.h
-    # ${SDHLT_DIR}/common/cmdlinecfg.h
-    # ${SDHLT_DIR}/common/filelib.h
-    # ${SDHLT_DIR}/common/hlassert.h
-    # ${SDHLT_DIR}/common/log.h
-    # ${SDHLT_DIR}/common/mathlib.h
-    # ${SDHLT_DIR}/common/mathtypes.h
-    # ${SDHLT_DIR}/common/messages.h
-    # ${SDHLT_DIR}/common/scriplib.h
-    # ${SDHLT_DIR}/common/threads.h
-    # ${SDHLT_DIR}/sdHLVIS/vis.h
-    # ${SDHLT_DIR}/common/win32fix.h
-    # ${SDHLT_DIR}/common/winding.h
-    # ${SDHLT_DIR}/sdHLVIS/zones.h
-# )
-
 #================
 # RIPENT
 #================
@@ -241,26 +157,6 @@ set(RIPENT_SOURCES
     ${SDHLT_DIR}/sdRIPENT/ripent.cpp
 )
 
-# set(RIPENT_HEADERS
-    # ${SDHLT_DIR}/template/basictypes.h
-    # ${SDHLT_DIR}/common/blockmem.h
-    # ${SDHLT_DIR}/common/boundingbox.h
-    # ${SDHLT_DIR}/common/bspfile.h
-    # ${SDHLT_DIR}/common/cmdlib.h
-    # ${SDHLT_DIR}/common/cmdlinecfg.h
-    # ${SDHLT_DIR}/common/filelib.h
-    # ${SDHLT_DIR}/common/hlassert.h
-    # ${SDHLT_DIR}/common/log.h
-    # ${SDHLT_DIR}/common/mathlib.h
-    # ${SDHLT_DIR}/common/mathtypes.h
-    # ${SDHLT_DIR}/common/messages.h
-    # ${SDHLT_DIR}/sdRIPENT/ripent.h
-    # ${SDHLT_DIR}/common/scriplib.h
-    # ${SDHLT_DIR}/common/threads.h
-    # ${SDHLT_DIR}/common/win32fix.h
-    # ${SDHLT_DIR}/common/winding.h
-# )
-
 #================
 # Include
 #================
@@ -276,7 +172,11 @@ include_directories(
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     add_compile_options(
-        -Wno-write-strings
+        -Wall
+        -O2
+        -fno-strict-aliasing
+        -pthread
+        -pipe
         -DSYSTEM_POSIX
         -DSTDC_HEADERS
         -DHAVE_FCNTL_H
