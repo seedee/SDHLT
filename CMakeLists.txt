@@ -20,141 +20,167 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/tools)
 
 set(SDHLT_PREFIX "sd" CACHE STRING "Executable prefix.")
 set(SDHLT_GAME_PREFIX "HL" CACHE STRING "Executable game prefix.")
-option(SDHLT_32BIT "Generate 32-bit targets." OFF)
-option(SDHLT_64BIT "Generate 64-bit targets." ON)
 
 message("${CMAKE_PROJECT_NAME} > Tools will use prefix \"${SDHLT_PREFIX}${SDHLT_GAME_PREFIX}\"")
 
 set(SDHLT_DIR ${CMAKE_SOURCE_DIR}/src/sdhlt)
 
 #================
+# Common
+#================
+
+set(COMMON_DIR ${SDHLT_DIR}/common)
+set(TEMPLATE_DIR ${SDHLT_DIR}/template)
+
+set(COMMON_SOURCES
+    ${COMMON_DIR}/blockmem.cpp
+    ${COMMON_DIR}/bspfile.cpp
+    ${COMMON_DIR}/cmdlib.cpp
+    ${COMMON_DIR}/cmdlinecfg.cpp
+    ${COMMON_DIR}/filelib.cpp
+    ${COMMON_DIR}/log.cpp
+    ${COMMON_DIR}/mathlib.cpp
+    ${COMMON_DIR}/messages.cpp
+    ${COMMON_DIR}/scriplib.cpp
+    ${COMMON_DIR}/threads.cpp
+    ${COMMON_DIR}/winding.cpp
+)
+
+set(COMMON_HEADERS
+    ${TEMPLATE_DIR}/basictypes.h
+    ${COMMON_DIR}/blockmem.h
+    ${COMMON_DIR}/boundingbox.h
+    ${COMMON_DIR}/bspfile.h
+    ${COMMON_DIR}/cmdlib.h
+    ${COMMON_DIR}/cmdlinecfg.h
+    ${COMMON_DIR}/filelib.h
+    ${COMMON_DIR}/hlassert.h
+    ${COMMON_DIR}/log.h
+    ${COMMON_DIR}/mathlib.h
+    ${COMMON_DIR}/mathtypes.h
+    ${COMMON_DIR}/messages.h
+    ${COMMON_DIR}/scriplib.h
+    ${COMMON_DIR}/threads.h
+    ${COMMON_DIR}/win32fix.h
+    ${COMMON_DIR}/winding.h
+)
+
+#================
 # BSP
 #================
 
+set(BSP_DIR ${SDHLT_DIR}/sdHLBSP)
+
 set(BSP_SOURCES
-    ${SDHLT_DIR}/common/blockmem.cpp
-    ${SDHLT_DIR}/common/bspfile.cpp
-    ${SDHLT_DIR}/common/cmdlib.cpp
-    ${SDHLT_DIR}/common/cmdlinecfg.cpp
-    ${SDHLT_DIR}/common/filelib.cpp
-    ${SDHLT_DIR}/common/log.cpp
-    ${SDHLT_DIR}/common/mathlib.cpp
-    ${SDHLT_DIR}/common/messages.cpp
-    ${SDHLT_DIR}/common/scriplib.cpp
-    ${SDHLT_DIR}/common/threads.cpp
-    ${SDHLT_DIR}/common/winding.cpp
-    ${SDHLT_DIR}/sdHLBSP/brink.cpp
-    ${SDHLT_DIR}/sdHLBSP/merge.cpp
-    ${SDHLT_DIR}/sdHLBSP/outside.cpp
-    ${SDHLT_DIR}/sdHLBSP/portals.cpp
-    ${SDHLT_DIR}/sdHLBSP/qbsp.cpp
-    ${SDHLT_DIR}/sdHLBSP/solidbsp.cpp
-    ${SDHLT_DIR}/sdHLBSP/surfaces.cpp
-    ${SDHLT_DIR}/sdHLBSP/tjunc.cpp
-    ${SDHLT_DIR}/sdHLBSP/writebsp.cpp
+    ${COMMON_SOURCES}
+    ${BSP_DIR}/brink.cpp
+    ${BSP_DIR}/merge.cpp
+    ${BSP_DIR}/outside.cpp
+    ${BSP_DIR}/portals.cpp
+    ${BSP_DIR}/qbsp.cpp
+    ${BSP_DIR}/solidbsp.cpp
+    ${BSP_DIR}/surfaces.cpp
+    ${BSP_DIR}/tjunc.cpp
+    ${BSP_DIR}/writebsp.cpp
+)
+
+set(BSP_HEADERS
+    ${COMMON_HEADERS}
+    ${BSP_DIR}/bsp5.h
 )
 
 #================
 # CSG
 #================
 
+set(CSG_DIR ${SDHLT_DIR}/sdHLCSG)
+
 set(CSG_SOURCES
-    ${SDHLT_DIR}/common/blockmem.cpp
-    ${SDHLT_DIR}/common/bspfile.cpp
-    ${SDHLT_DIR}/common/cmdlib.cpp
-    ${SDHLT_DIR}/common/cmdlinecfg.cpp
-    ${SDHLT_DIR}/common/filelib.cpp
-    ${SDHLT_DIR}/common/log.cpp
-    ${SDHLT_DIR}/common/mathlib.cpp
-    ${SDHLT_DIR}/common/messages.cpp
-    ${SDHLT_DIR}/common/scriplib.cpp
-    ${SDHLT_DIR}/common/threads.cpp
-    ${SDHLT_DIR}/common/winding.cpp
-    ${SDHLT_DIR}/sdHLCSG/ansitoutf8.cpp
-    ${SDHLT_DIR}/sdHLCSG/autowad.cpp
-    ${SDHLT_DIR}/sdHLCSG/brush.cpp
-    ${SDHLT_DIR}/sdHLCSG/brushunion.cpp
-    ${SDHLT_DIR}/sdHLCSG/hullfile.cpp
-    ${SDHLT_DIR}/sdHLCSG/map.cpp
-    ${SDHLT_DIR}/sdHLCSG/properties.cpp
-    ${SDHLT_DIR}/sdHLCSG/qcsg.cpp
-    ${SDHLT_DIR}/sdHLCSG/textures.cpp
-    ${SDHLT_DIR}/sdHLCSG/wadcfg.cpp
-    ${SDHLT_DIR}/sdHLCSG/wadinclude.cpp
-    ${SDHLT_DIR}/sdHLCSG/wadpath.cpp
+    ${COMMON_SOURCES}
+    ${CSG_DIR}/ansitoutf8.cpp
+    ${CSG_DIR}/autowad.cpp
+    ${CSG_DIR}/brush.cpp
+    ${CSG_DIR}/brushunion.cpp
+    ${CSG_DIR}/hullfile.cpp
+    ${CSG_DIR}/map.cpp
+    ${CSG_DIR}/properties.cpp
+    ${CSG_DIR}/qcsg.cpp
+    ${CSG_DIR}/textures.cpp
+    ${CSG_DIR}/wadcfg.cpp
+    ${CSG_DIR}/wadinclude.cpp
+    ${CSG_DIR}/wadpath.cpp
+)
+
+set(CSG_HEADERS
+    ${COMMON_HEADERS}
+    ${CSG_DIR}/csg.h
+    ${CSG_DIR}/wadpath.h
 )
 
 #================
 # RAD
 #================
 
+set(RAD_DIR ${SDHLT_DIR}/sdHLRAD)
+
 set(RAD_SOURCES
-    ${SDHLT_DIR}/common/blockmem.cpp
-    ${SDHLT_DIR}/common/bspfile.cpp
-    ${SDHLT_DIR}/common/cmdlib.cpp
-    ${SDHLT_DIR}/common/cmdlinecfg.cpp
-    ${SDHLT_DIR}/common/filelib.cpp
-    ${SDHLT_DIR}/common/log.cpp
-    ${SDHLT_DIR}/common/mathlib.cpp
-    ${SDHLT_DIR}/common/messages.cpp
-    ${SDHLT_DIR}/common/scriplib.cpp
-    ${SDHLT_DIR}/common/threads.cpp
-    ${SDHLT_DIR}/common/winding.cpp
-    ${SDHLT_DIR}/sdHLRAD/compress.cpp
-    ${SDHLT_DIR}/sdHLRAD/lerp.cpp
-    ${SDHLT_DIR}/sdHLRAD/lightmap.cpp
-    ${SDHLT_DIR}/sdHLRAD/loadtextures.cpp
-    ${SDHLT_DIR}/sdHLRAD/mathutil.cpp
-    ${SDHLT_DIR}/sdHLRAD/nomatrix.cpp
-    ${SDHLT_DIR}/sdHLRAD/qrad.cpp
-    ${SDHLT_DIR}/sdHLRAD/qradutil.cpp
-    ${SDHLT_DIR}/sdHLRAD/sparse.cpp
-    ${SDHLT_DIR}/sdHLRAD/trace.cpp
-    ${SDHLT_DIR}/sdHLRAD/transfers.cpp
-    ${SDHLT_DIR}/sdHLRAD/transparency.cpp
-    ${SDHLT_DIR}/sdHLRAD/vismatrix.cpp
-    ${SDHLT_DIR}/sdHLRAD/vismatrixutil.cpp
+    ${COMMON_SOURCES}
+    ${RAD_DIR}/compress.cpp
+    ${RAD_DIR}/lerp.cpp
+    ${RAD_DIR}/lightmap.cpp
+    ${RAD_DIR}/loadtextures.cpp
+    ${RAD_DIR}/mathutil.cpp
+    ${RAD_DIR}/nomatrix.cpp
+    ${RAD_DIR}/qrad.cpp
+    ${RAD_DIR}/qradutil.cpp
+    ${RAD_DIR}/sparse.cpp
+    ${RAD_DIR}/trace.cpp
+    ${RAD_DIR}/transfers.cpp
+    ${RAD_DIR}/transparency.cpp
+    ${RAD_DIR}/vismatrix.cpp
+    ${RAD_DIR}/vismatrixutil.cpp
+)
+
+set(RAD_HEADERS
+    ${COMMON_HEADERS}
+    ${COMMON_DIR}/anorms.h
+    ${RAD_DIR}/compress.h
+    ${RAD_DIR}/qrad.h
 )
 
 #================
 # VIS
 #================
 
+set(VIS_DIR ${SDHLT_DIR}/sdHLVIS)
+
 set(VIS_SOURCES
-    ${SDHLT_DIR}/common/blockmem.cpp
-    ${SDHLT_DIR}/common/bspfile.cpp
-    ${SDHLT_DIR}/common/cmdlib.cpp
-    ${SDHLT_DIR}/common/cmdlinecfg.cpp
-    ${SDHLT_DIR}/common/filelib.cpp
-    ${SDHLT_DIR}/common/log.cpp
-    ${SDHLT_DIR}/common/mathlib.cpp
-    ${SDHLT_DIR}/common/messages.cpp
-    ${SDHLT_DIR}/common/scriplib.cpp
-    ${SDHLT_DIR}/common/threads.cpp
-    ${SDHLT_DIR}/common/winding.cpp
-    ${SDHLT_DIR}/sdHLVIS/flow.cpp
-    ${SDHLT_DIR}/sdHLVIS/vis.cpp
-    ${SDHLT_DIR}/sdHLVIS/zones.cpp
+    ${COMMON_SOURCES}
+    ${VIS_DIR}/flow.cpp
+    ${VIS_DIR}/vis.cpp
+    ${VIS_DIR}/zones.cpp
+)
+
+set(VIS_HEADERS
+    ${COMMON_HEADERS}
+    ${VIS_DIR}/vis.h
+    ${VIS_DIR}/zones.h
 )
 
 #================
 # RIPENT
 #================
 
+set(RIPENT_DIR ${SDHLT_DIR}/sdRIPENT)
+
 set(RIPENT_SOURCES
-    ${SDHLT_DIR}/common/blockmem.cpp
-    ${SDHLT_DIR}/common/bspfile.cpp
-    ${SDHLT_DIR}/common/cmdlib.cpp
-    ${SDHLT_DIR}/common/cmdlinecfg.cpp
-    ${SDHLT_DIR}/common/filelib.cpp
-    ${SDHLT_DIR}/common/files.cpp
-    ${SDHLT_DIR}/common/log.cpp
-    ${SDHLT_DIR}/common/mathlib.cpp
-    ${SDHLT_DIR}/common/messages.cpp
-    ${SDHLT_DIR}/common/scriplib.cpp
-    ${SDHLT_DIR}/common/threads.cpp
-    ${SDHLT_DIR}/common/winding.cpp
-    ${SDHLT_DIR}/sdRIPENT/ripent.cpp
+    ${COMMON_SOURCES}
+    ${RIPENT_DIR}/ripent.cpp
+)
+
+set(RIPENT_HEADERS
+    ${COMMON_HEADERS}
+    ${RIPENT_DIR}/ripent.h
 )
 
 #================
@@ -177,81 +203,58 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         -fno-strict-aliasing
         -pthread
         -pipe
-        -DSYSTEM_POSIX
-        -DSTDC_HEADERS
-        -DHAVE_FCNTL_H
-        -DHAVE_PTHREAD_H
-        -DHAVE_STDDEF_H
-        -DHAVE_SYS_RESOURCE_H
-        -DHAVE_SYS_STAT_H
-        -DHAVE_SYS_TIME_H
-        -DHAVE_UNISTD_H
+    )
+    add_compile_definitions(
+        VERSION_LINUX
+        SYSTEM_POSIX
+        STDC_HEADERS
+        HAVE_FCNTL_H
+        HAVE_PTHREAD_H
+        HAVE_STDDEF_H
+        HAVE_SYS_RESOURCE_H
+        HAVE_SYS_STAT_H
+        HAVE_SYS_TIME_H
+        HAVE_UNISTD_H
     )
     message("${CMAKE_PROJECT_NAME} > Configuring for ${CMAKE_SYSTEM_NAME}")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    add_compile_options(
-        -DSYSTEM_WIN32
-        -DSTDC_HEADERS
+    option(SDHLT_64BIT "Flag targets as 64-bit." ON)
+    if (SDHLT_64BIT)
+        add_compile_definitions(VERSION_64BIT)
+    else()
+        add_compile_definitions(VERSION_32BIT)
+    endif()
+    add_compile_definitions(
+        SYSTEM_WIN32
+        STDC_HEADERS
     )
     message("${CMAKE_PROJECT_NAME} > Configuring for ${CMAKE_SYSTEM_NAME}")
 else()
+    add_compile_definitions(VERSION_OTHER)
     message("${CMAKE_PROJECT_NAME} > WARNING: Unknown system \"${CMAKE_SYSTEM_NAME}\"")
 endif()
 
 #================
-# 32-bit targets
+# Targets
 #================
 
-if (SDHLT_32BIT)
-    message("${CMAKE_PROJECT_NAME} > Generating 32-bit targets")
+add_executable(BSP ${BSP_SOURCES} ${BSP_HEADERS})
+add_executable(CSG ${CSG_SOURCES} ${CSG_HEADERS})
+add_executable(RAD ${RAD_SOURCES} ${RAD_HEADERS})
+add_executable(VIS ${VIS_SOURCES} ${VIS_HEADERS})
+add_executable(RIPENT ${RIPENT_SOURCES} ${RIPENT_HEADERS})
 
-    add_executable(BSP ${BSP_SOURCES})
-    add_executable(CSG ${CSG_SOURCES})
-    add_executable(RAD ${RAD_SOURCES})
-    add_executable(VIS ${VIS_SOURCES})
-    add_executable(RIPENT ${RIPENT_SOURCES})
+set_target_properties(BSP CSG RAD VIS
+    PROPERTIES
+        PREFIX ${SDHLT_PREFIX}${SDHLT_GAME_PREFIX}
+)
+set_target_properties(RIPENT
+    PROPERTIES
+        PREFIX ${SDHLT_PREFIX}
+)
 
-    set_target_properties(BSP CSG RAD VIS
-        PROPERTIES
-            PREFIX ${SDHLT_PREFIX}${SDHLT_GAME_PREFIX}
-    )
-    set_target_properties(RIPENT
-        PROPERTIES
-            PREFIX ${SDHLT_PREFIX}
-    )
-    
-    target_compile_options(BSP PRIVATE -m32 -DVERSION_32BIT=1 -DSDHLBSP -DDOUBLEVEC_T)
-    target_compile_options(CSG PRIVATE -m32 -DVERSION_32BIT=1 -DSDHLCSG -DDOUBLEVEC_T)
-    target_compile_options(RAD PRIVATE -m32 -DVERSION_32BIT=1 -DSDHLRAD)
-    target_compile_options(VIS PRIVATE -m32 -DVERSION_32BIT=1 -DSDHLVIS)
-    target_compile_options(RIPENT PRIVATE -m32 -DVERSION_32BIT=1 -DSDRIPENT)
-endif()
-
-#================
-# 64-bit targets
-#================
-
-if (SDHLT_64BIT)
-    message("${CMAKE_PROJECT_NAME} > Generating 64-bit targets")
-
-    add_executable(BSP_x64 ${BSP_SOURCES})
-    add_executable(CSG_x64 ${CSG_SOURCES})
-    add_executable(RAD_x64 ${RAD_SOURCES})
-    add_executable(VIS_x64 ${VIS_SOURCES})
-    add_executable(RIPENT_x64 ${RIPENT_SOURCES})
-
-    set_target_properties(BSP_x64 CSG_x64 RAD_x64 VIS_x64
-        PROPERTIES
-            PREFIX ${SDHLT_PREFIX}${SDHLT_GAME_PREFIX}
-    )
-    set_target_properties(RIPENT_x64
-        PROPERTIES
-            PREFIX ${SDHLT_PREFIX}
-    )
-
-    target_compile_options(BSP_x64 PRIVATE -m64 -DVERSION_64BIT=1 -DSDHLBSP -DDOUBLEVEC_T)
-    target_compile_options(CSG_x64 PRIVATE -m64 -DVERSION_64BIT=1 -DSDHLCSG -DDOUBLEVEC_T)
-    target_compile_options(RAD_x64 PRIVATE -m64 -DVERSION_64BIT=1 -DSDHLRAD)
-    target_compile_options(VIS_x64 PRIVATE -m64 -DVERSION_64BIT=1 -DSDHLVIS)
-    target_compile_options(RIPENT_x64 PRIVATE -m64 -DVERSION_64BIT=1 -DSDRIPENT)
-endif()
+target_compile_definitions(BSP PRIVATE SDHLBSP DOUBLEVEC_T)
+target_compile_definitions(CSG PRIVATE SDHLCSG DOUBLEVEC_T)
+target_compile_definitions(RAD PRIVATE SDHLRAD)
+target_compile_definitions(VIS PRIVATE SDHLVIS)
+target_compile_definitions(RIPENT PRIVATE SDRIPENT)
