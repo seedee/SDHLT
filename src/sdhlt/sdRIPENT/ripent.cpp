@@ -372,7 +372,7 @@ void ParseEntityData(const char *cTab, int iTabLength, const char *cNewLine, int
 		// a message, print it.
 		if(*cError != '\0')
 		{
-			Error("%s", cError);
+			Error(cError);
 		}
 		Error("unknowen exception.");
 
