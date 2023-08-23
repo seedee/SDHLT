@@ -16,15 +16,19 @@
 #ifdef SYSTEM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <fstream> //FixPrt
-#include <vector> //FixPrt
-#include <iostream> //FixPrt
+#endif
+
+#ifdef SYSTEM_POSIX
+#include <algorithm>
 #endif
 
 #ifdef ZHLT_NETVIS
 #include "zlib.h"
 #endif
 #include <string>
+#include <fstream> //FixPrt
+#include <vector> //FixPrt
+#include <iostream> //FixPrt
 
 /*
 

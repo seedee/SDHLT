@@ -91,4 +91,12 @@ Temporary Items
 /src/sdhlt/sdRIPENT/Release/
 /src/sdhlt/sdRIPENT/Release_x64/
 
+/build/
+/tools/*
+!/tools/*.fgd
+!/tools/*.wad
+!/tools/*.txt
+!/tools/lights.rad
+!/tools/wad.cfg
+
 *.zip
