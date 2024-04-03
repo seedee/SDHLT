@@ -75,6 +75,9 @@ overview_t		g_overview[g_overview_max];
 int				g_overview_count = 0;
 leafinfo_t*		g_leafinfos = NULL;
 
+const int       g_room_max = MAX_MAP_ENTITIES;
+room_t          g_room[g_room_max];
+int             g_room_count = 0;
 
 static int      totalvis = 0;
 
@@ -589,6 +592,15 @@ static void     LeafFlow(const int leafnum)
 			outbuffer[i >> 3] |= (1 << (i & 7));
 		}
 	}
+
+    if (!g_leafinfos[leafnum].additional_leaves.empty())
+    {
+        for (int leaf : g_leafinfos[leafnum].additional_leaves)
+        {
+            outbuffer[leaf >> 3] |= (1 << (leaf & 7));
+        }
+    }
+
     numvis = 0;
     for (i = 0; i < g_portalleafs; i++)
     {
@@ -948,6 +960,24 @@ static void     LoadPortals(char* portal_image)
 				}
 			}
 		}
+
+        for (j = 0; j < g_room_count; j++)
+        {
+            int d1 = g_room[j].visleafnum - g_leafstarts[i];
+
+            if (0 <= d1 && d1 < g_leafcounts[i])
+            {
+                for (int k = 0; k < g_portalleafs; k++)
+                {
+                    int d2 = g_room[j].target_visleafnum - g_leafstarts[k];
+
+                    if (0 <= d2 && d2 < g_leafcounts[k])
+                    {
+                        g_leafinfos[i].additional_leaves.push_back(k);
+                    }
+                }
+            }
+        }
 	}
     for (i = 0, p = g_portals; i < g_numportals; i++)
     {
@@ -1788,7 +1818,10 @@ int             main(const int argc, char** argv)
 		int i;
 		for (i = 0; i < g_numentities; i++)
 		{
-			if (!strcmp (ValueForKey (&g_entities[i], "classname"), "info_overview_point"))
+            const char* current_entity_classname = ValueForKey (&g_entities[i], "classname");
+
+			if (!strcmp (current_entity_classname, "info_overview_point")
+                )
 			{
 				if (g_overview_count < g_overview_max)
 				{
@@ -1800,6 +1833,55 @@ int             main(const int argc, char** argv)
 					g_overview_count++;
 				}
 			}
+
+            // Check for length because we have `info_room` and `info_room_target`
+            else if (!strcmp (current_entity_classname, "info_room")
+                && strlen(current_entity_classname) == strlen("info_room")
+                )
+            {
+                if (g_room_count < g_room_max)
+                {
+                    vec3_t room_origin;
+
+                    GetVectorForKey (&g_entities[i], "origin", room_origin);
+                    g_room[g_room_count].visleafnum = VisLeafnumForPoint (room_origin);
+
+                    const char* target = ValueForKey (&g_entities[i], "target");
+
+                    if (strlen(target) == 0)
+                    {
+                        continue;
+                    }
+
+                    bool has_target = false;
+
+                    // Find the target entity.
+                    // Rewalk yes, very sad.
+                    for (int j = 0; j < g_numentities; j++)
+                    {
+                        const char* current_entity_classname_nested = ValueForKey (&g_entities[j], "classname");
+
+                        // Find a `info_room_target` and check if its targetname matches our target
+                        if (!strcmp (current_entity_classname_nested, "info_room_target")
+                            && !strcmp(ValueForKey (&g_entities[j], "targetname"), target))
+                        {
+                            vec3_t room_target_origin;
+
+                            GetVectorForKey (&g_entities[j], "origin", room_target_origin);
+                            g_room[g_room_count].target_visleafnum = VisLeafnumForPoint (room_target_origin);
+
+                            has_target = true;
+                        }
+                    }
+
+                    if (!has_target)
+                    {
+                        Warning("Entity %d (info_room) does not have a target.", i);
+                    }
+
+                    g_room_count++;
+                }
+            }
 		}
 	}
     LoadPortalsByFilename(portalfile);

@@ -18,6 +18,8 @@
 #include "zones.h"
 #include "cmdlinecfg.h"
 
+#include <vector>
+
 #define DEFAULT_MAXDISTANCE_RANGE   0
 
 
@@ -143,6 +145,21 @@ extern unsigned g_portalleafs;
 
 extern unsigned int g_maxdistance;
 //extern bool		g_postcompile;
+
+// This allows the current leaf to have portal to selected leaf.
+// TODO: vector for target so it can do a lot. Though doing the entity won't be as simple.
+// That means we need to parse string and what not. 
+// For the time being, ONE target is good enough.
+typedef struct
+{
+    int visleafnum;
+    int target_visleafnum;
+}
+room_t;
+extern const int g_room_max;
+extern room_t g_room[];
+extern int g_room_count;
+
 typedef struct
 {
 	vec3_t origin;
@@ -158,6 +175,8 @@ typedef struct
 {
 	bool isoverviewpoint;
 	bool isskyboxpoint;
+    // For info_room
+    std::vector<int> additional_leaves;
 }
 leafinfo_t;
 extern leafinfo_t *g_leafinfos;

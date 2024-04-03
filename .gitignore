@@ -100,3 +100,5 @@ Temporary Items
 !/tools/wad.cfg
 
 *.zip
+
+/build*/
