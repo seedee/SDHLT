@@ -1834,10 +1834,7 @@ int             main(const int argc, char** argv)
 				}
 			}
 
-            // Check for length because we have `info_room` and `info_room_target`
-            else if (!strcmp (current_entity_classname, "info_room")
-                && strlen(current_entity_classname) == strlen("info_room")
-                )
+            else if (!strcmp (current_entity_classname, "info_room"))
             {
                 if (g_room_count < g_room_max)
                 {
