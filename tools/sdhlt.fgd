@@ -86,6 +86,19 @@
 	]
 ]
 
+// info_room
+// It makes all entities inside info_room_target visible inside the room where this entity is.
+@PointClass color(255 255 255) = info_room : "Disable VIS in info_room_target for this room"
+[
+	target(target_source) : "Name of info_room_target"
+]
+
+// info_room_target
+@PointClass color(255 255 255) = info_room_target : "Disable VIS in this room for info_room"
+[
+	targetname(target_destination) : "Name"
+]
+
 // info_sunlight
 // It generates a fake light_environment which defines sv_skycolor and sv_skyvec in game.
 // If you are using multiple light_environments, you will probably need this entity.
