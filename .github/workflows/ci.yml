@@ -67,9 +67,13 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest --build-config ${{ matrix.build_type }}
 
+    - name: Archiving
+      # Default Build Artifact zipper does not retain file permission.
+      run: 7z a SDHLT-${{ matrix.os }}-${{ matrix.c_compiler }}.zip tools
+
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v4.3.1
       with:
         name: SDHLT-${{ matrix.os }}-${{ matrix.c_compiler }}
-        path: tools
+        path: SDHLT-${{ matrix.os }}-${{ matrix.c_compiler }}.zip
           
