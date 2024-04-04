@@ -16,10 +16,13 @@
 #ifdef SYSTEM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+// std:clamp() is at least MVSC 19
+#define CLAMP(x, min, max) x <= min ? min : x >= max ? max : x
 #endif
 
 #ifdef SYSTEM_POSIX
 #include <algorithm>
+#define CLAMP(x, min, max) std::clamp(x, min, max)
 #endif
 
 #ifdef ZHLT_NETVIS
@@ -1877,7 +1880,7 @@ int             main(const int argc, char** argv)
 
                     GetVectorForKey (&g_entities[i], "origin", room_origin);
                     g_room[g_room_count].visleafnum = VisLeafnumForPoint (room_origin);
-                    g_room[g_room_count].neighbor = std::clamp(IntForKey (&g_entities[i], "neighbor"), 0, MAX_ROOM_NEIGHBOR);
+                    g_room[g_room_count].neighbor = CLAMP(IntForKey (&g_entities[i], "neighbor"), 0, MAX_ROOM_NEIGHBOR);
 
                     const char* target = ValueForKey (&g_entities[i], "target");
 
