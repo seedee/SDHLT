@@ -19,6 +19,7 @@
 #include "cmdlinecfg.h"
 
 #include <vector>
+#include <unordered_map>
 
 #define DEFAULT_MAXDISTANCE_RANGE   0
 
@@ -150,15 +151,19 @@ extern unsigned int g_maxdistance;
 // TODO: vector for target so it can do a lot. Though doing the entity won't be as simple.
 // That means we need to parse string and what not. 
 // For the time being, ONE target is good enough.
+#define MAX_ROOM_NEIGHBOR 16
 typedef struct
 {
     int visleafnum;
     int target_visleafnum;
+    // Traversal of neighbors being affected.
+    int neighbor;
 }
 room_t;
 extern const int g_room_max;
 extern room_t g_room[];
 extern int g_room_count;
+extern std::unordered_map<int, bool> leaf_flow_add_exclude;
 
 typedef struct
 {
@@ -177,6 +182,7 @@ typedef struct
 	bool isskyboxpoint;
     // For info_room
     std::vector<int> additional_leaves;
+    int neighbor;
 }
 leafinfo_t;
 extern leafinfo_t *g_leafinfos;

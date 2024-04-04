@@ -518,6 +518,35 @@ static void     LeafThread(int unused)
 #pragma warning(pop)
 #endif
 
+// Recursively add `add` to `current` visibility leaf.
+std::unordered_map<int, bool> leaf_flow_add_exclude = {};
+static void LeafFlowNeighborAddLeaf(const int current, const int add, const int neighbor)
+{
+    auto outbuffer = g_uncompressed + current * g_bitbytes;
+
+    outbuffer[add >> 3] |= (1 << (add & 7));
+    leaf_flow_add_exclude[current] = true;
+    
+    if (neighbor == 0)
+    {
+        return;
+    }
+
+    auto leaf = &g_leafs[current];
+
+    for (int i = 0; i < leaf->numportals; i++)
+    {
+        auto p = leaf->portals[i];
+
+        if (leaf_flow_add_exclude[p->leaf]) {
+            // Log("leaf %d neighbor %d is excluded\n", current, p->leaf);
+            continue;
+        }
+
+        LeafFlowNeighborAddLeaf(p->leaf, add, neighbor - 1);
+    }
+}
+
 // =====================================================================================
 //  LeafFlow
 //      Builds the entire visibility list for a leaf
@@ -592,14 +621,6 @@ static void     LeafFlow(const int leafnum)
 			outbuffer[i >> 3] |= (1 << (i & 7));
 		}
 	}
-
-    if (!g_leafinfos[leafnum].additional_leaves.empty())
-    {
-        for (int leaf : g_leafinfos[leafnum].additional_leaves)
-        {
-            outbuffer[leaf >> 3] |= (1 << (leaf & 7));
-        }
-    }
 
     numvis = 0;
     for (i = 0; i < g_portalleafs; i++)
@@ -819,6 +840,19 @@ static void     CalcVis()
 
 		CalcPortalVis();
 
+        // Add additional leaves to the uncompressed vis.
+        for (i = 0; i < g_portalleafs; i++)
+        {
+            if (!g_leafinfos[i].additional_leaves.empty())
+            {
+                for (int leaf : g_leafinfos[i].additional_leaves)
+                {
+                    LeafFlowNeighborAddLeaf(i, leaf, g_leafinfos[i].neighbor);
+                    leaf_flow_add_exclude.clear();
+                }
+            }
+        }
+
 		//
 		// assemble the leaf vis lists by oring and compressing the portal lists
 		//
@@ -974,6 +1008,7 @@ static void     LoadPortals(char* portal_image)
                     if (0 <= d2 && d2 < g_leafcounts[k])
                     {
                         g_leafinfos[i].additional_leaves.push_back(k);
+                        g_leafinfos[i].neighbor = g_room[j].neighbor;
                     }
                 }
             }
@@ -1842,6 +1877,7 @@ int             main(const int argc, char** argv)
 
                     GetVectorForKey (&g_entities[i], "origin", room_origin);
                     g_room[g_room_count].visleafnum = VisLeafnumForPoint (room_origin);
+                    g_room[g_room_count].neighbor = std::clamp(IntForKey (&g_entities[i], "neighbor"), 0, MAX_ROOM_NEIGHBOR);
 
                     const char* target = ValueForKey (&g_entities[i], "target");
 
