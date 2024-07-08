@@ -102,3 +102,5 @@ Temporary Items
 *.zip
 
 /build*/
+.vs/SDHLT/v17/.wsuo
+.vs/SDHLT/v17/DocumentLayout.json
