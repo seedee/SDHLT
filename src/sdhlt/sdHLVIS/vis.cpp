@@ -16,10 +16,13 @@
 #ifdef SYSTEM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+// std:clamp() is at least MVSC 19
+#define CLAMP(x, min, max) x <= min ? min : x >= max ? max : x
 #endif
 
 #ifdef SYSTEM_POSIX
 #include <algorithm>
+#define CLAMP(x, min, max) std::clamp(x, min, max)
 #endif
 
 #ifdef ZHLT_NETVIS
@@ -75,6 +78,9 @@ overview_t		g_overview[g_overview_max];
 int				g_overview_count = 0;
 leafinfo_t*		g_leafinfos = NULL;
 
+const int       g_room_max = MAX_MAP_ENTITIES;
+room_t          g_room[g_room_max];
+int             g_room_count = 0;
 
 static int      totalvis = 0;
 
@@ -515,6 +521,35 @@ static void     LeafThread(int unused)
 #pragma warning(pop)
 #endif
 
+// Recursively add `add` to `current` visibility leaf.
+std::unordered_map<int, bool> leaf_flow_add_exclude = {};
+static void LeafFlowNeighborAddLeaf(const int current, const int add, const int neighbor)
+{
+    auto outbuffer = g_uncompressed + current * g_bitbytes;
+
+    outbuffer[add >> 3] |= (1 << (add & 7));
+    leaf_flow_add_exclude[current] = true;
+    
+    if (neighbor == 0)
+    {
+        return;
+    }
+
+    auto leaf = &g_leafs[current];
+
+    for (int i = 0; i < leaf->numportals; i++)
+    {
+        auto p = leaf->portals[i];
+
+        if (leaf_flow_add_exclude[p->leaf]) {
+            // Log("leaf %d neighbor %d is excluded\n", current, p->leaf);
+            continue;
+        }
+
+        LeafFlowNeighborAddLeaf(p->leaf, add, neighbor - 1);
+    }
+}
+
 // =====================================================================================
 //  LeafFlow
 //      Builds the entire visibility list for a leaf
@@ -589,6 +624,7 @@ static void     LeafFlow(const int leafnum)
 			outbuffer[i >> 3] |= (1 << (i & 7));
 		}
 	}
+
     numvis = 0;
     for (i = 0; i < g_portalleafs; i++)
     {
@@ -807,6 +843,19 @@ static void     CalcVis()
 
 		CalcPortalVis();
 
+        // Add additional leaves to the uncompressed vis.
+        for (i = 0; i < g_portalleafs; i++)
+        {
+            if (!g_leafinfos[i].additional_leaves.empty())
+            {
+                for (int leaf : g_leafinfos[i].additional_leaves)
+                {
+                    LeafFlowNeighborAddLeaf(i, leaf, g_leafinfos[i].neighbor);
+                    leaf_flow_add_exclude.clear();
+                }
+            }
+        }
+
 		//
 		// assemble the leaf vis lists by oring and compressing the portal lists
 		//
@@ -948,6 +997,25 @@ static void     LoadPortals(char* portal_image)
 				}
 			}
 		}
+
+        for (j = 0; j < g_room_count; j++)
+        {
+            int d1 = g_room[j].visleafnum - g_leafstarts[i];
+
+            if (0 <= d1 && d1 < g_leafcounts[i])
+            {
+                for (int k = 0; k < g_portalleafs; k++)
+                {
+                    int d2 = g_room[j].target_visleafnum - g_leafstarts[k];
+
+                    if (0 <= d2 && d2 < g_leafcounts[k])
+                    {
+                        g_leafinfos[i].additional_leaves.push_back(k);
+                        g_leafinfos[i].neighbor = g_room[j].neighbor;
+                    }
+                }
+            }
+        }
 	}
     for (i = 0, p = g_portals; i < g_numportals; i++)
     {
@@ -1788,7 +1856,10 @@ int             main(const int argc, char** argv)
 		int i;
 		for (i = 0; i < g_numentities; i++)
 		{
-			if (!strcmp (ValueForKey (&g_entities[i], "classname"), "info_overview_point"))
+            const char* current_entity_classname = ValueForKey (&g_entities[i], "classname");
+
+			if (!strcmp (current_entity_classname, "info_overview_point")
+                )
 			{
 				if (g_overview_count < g_overview_max)
 				{
@@ -1800,6 +1871,53 @@ int             main(const int argc, char** argv)
 					g_overview_count++;
 				}
 			}
+
+            else if (!strcmp (current_entity_classname, "info_portal"))
+            {
+                if (g_room_count < g_room_max)
+                {
+                    vec3_t room_origin;
+
+                    GetVectorForKey (&g_entities[i], "origin", room_origin);
+                    g_room[g_room_count].visleafnum = VisLeafnumForPoint (room_origin);
+                    g_room[g_room_count].neighbor = CLAMP(IntForKey (&g_entities[i], "neighbor"), 0, MAX_ROOM_NEIGHBOR);
+
+                    const char* target = ValueForKey (&g_entities[i], "target");
+
+                    if (strlen(target) == 0)
+                    {
+                        continue;
+                    }
+
+                    bool has_target = false;
+
+                    // Find the target entity.
+                    // Rewalk yes, very sad.
+                    for (int j = 0; j < g_numentities; j++)
+                    {
+                        const char* current_entity_classname_nested = ValueForKey (&g_entities[j], "classname");
+
+                        // Find a `info_leaf` and check if its targetname matches our target
+                        if (!strcmp (current_entity_classname_nested, "info_leaf")
+                            && !strcmp(ValueForKey (&g_entities[j], "targetname"), target))
+                        {
+                            vec3_t room_target_origin;
+
+                            GetVectorForKey (&g_entities[j], "origin", room_target_origin);
+                            g_room[g_room_count].target_visleafnum = VisLeafnumForPoint (room_target_origin);
+
+                            has_target = true;
+                        }
+                    }
+
+                    if (!has_target)
+                    {
+                        Warning("Entity %d (info_portal) does not have a target leaf.", i);
+                    }
+
+                    g_room_count++;
+                }
+            }
 		}
 	}
     LoadPortalsByFilename(portalfile);
