@@ -1872,7 +1872,7 @@ int             main(const int argc, char** argv)
 				}
 			}
 
-            else if (!strcmp (current_entity_classname, "info_room"))
+            else if (!strcmp (current_entity_classname, "info_portal"))
             {
                 if (g_room_count < g_room_max)
                 {
@@ -1897,8 +1897,8 @@ int             main(const int argc, char** argv)
                     {
                         const char* current_entity_classname_nested = ValueForKey (&g_entities[j], "classname");
 
-                        // Find a `info_room_target` and check if its targetname matches our target
-                        if (!strcmp (current_entity_classname_nested, "info_room_target")
+                        // Find a `info_leaf` and check if its targetname matches our target
+                        if (!strcmp (current_entity_classname_nested, "info_leaf")
                             && !strcmp(ValueForKey (&g_entities[j], "targetname"), target))
                         {
                             vec3_t room_target_origin;
@@ -1912,7 +1912,7 @@ int             main(const int argc, char** argv)
 
                     if (!has_target)
                     {
-                        Warning("Entity %d (info_room) does not have a target.", i);
+                        Warning("Entity %d (info_portal) does not have a target leaf.", i);
                     }
 
                     g_room_count++;

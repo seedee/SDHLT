@@ -180,7 +180,7 @@ typedef struct
 {
 	bool isoverviewpoint;
 	bool isskyboxpoint;
-    // For info_room
+    // For info_portal
     std::vector<int> additional_leaves;
     int neighbor;
 }
