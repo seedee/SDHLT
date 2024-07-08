@@ -77,25 +77,27 @@
 // info_overview_point
 // It makes all entities visible from this place. This is useful for overview mode (dev_overview 1).
 // If "Reversed" is selected, this place will become visible from the entire map. This is useful for large skybox model.
-@PointClass color(255 0 0) = info_overview_point : "Disable VIS here for overview"
+@PointClass color(255 0 0) = info_overview_point : "Disable VIS here by creating portals to every other leaf. Lag/wallhack warning. If reversed, every other leaf has a portal to this one."
 [
-	reverse(choices) : "Reversed" : "" =
+	reverse(choices) : "Reversed (3D skybox)" : "" =
 	[
 		"": "No"
 		1: "Yes"
 	]
 ]
 
-// info_room
-// It makes all entities inside info_room_target visible inside the room where this entity is.
-@PointClass color(255 255 255) = info_room : "Disable VIS in info_room_target for this room"
+// info_portal
+// TODO: vector for target so it can do a lot. Though doing the entity won't be as simple.
+// That means we need to parse string and what not. 
+// For the time being, ONE target is good enough.
+@PointClass color(255 200 200) = info_portal : "Create a portal to the selected info_leaf, from the leaf the info_portal is inside. Forces target leaf to be visible from the current one."
 [
-	target(target_source) : "Name of info_room_target"
-	neighbor(interger) : "Layer of surrounding neighbor to be affected" : 1
+	target(target_source) : "Name of info_leaf"
+	neighbor(integer) : "TODO: Layers of neighboring leaves to be affected" : 1
 ]
 
-// info_room_target
-@PointClass color(255 255 255) = info_room_target : "Disable VIS in this room for info_room"
+// info_leaf
+@PointClass color(200 200 255) = info_leaf : "Works with info_portal. Used to select a leaf the info_leaf is inside."
 [
 	targetname(target_destination) : "Name"
 ]
