@@ -28,6 +28,7 @@
  * every surface must be divided into at least two g_patches each axis
  */
 
+bool            g_pre25update = DEFAULT_PRE25UPDATE;
 bool			g_fastmode = DEFAULT_FASTMODE;
 typedef enum
 {
@@ -2695,6 +2696,7 @@ static void     Usage()
     Banner();
 
     Log("\n-= %s Options =-\n\n", g_Program);
+	Log("    -pre25          : Optimize compile for pre-Half-Life 25th anniversary update.\n");
 	Log("    -console #      : Set to 0 to turn off the pop-up console (default is 1)\n");
 	Log("    -lang file      : localization file\n");
 	Log("    -waddir folder  : Search this folder for wad files.\n");
@@ -2817,6 +2819,7 @@ static void     Settings()
         Log("threads              [ %17d ] [ %17d ]\n", g_numthreads, DEFAULT_NUMTHREADS);
     }
 
+	Log("pre-25th anniversary [ %17s ] [ %17s ]\n", g_pre25update ? "on" : "off", DEFAULT_PRE25UPDATE ? "on" : "off");
     Log("verbose              [ %17s ] [ %17s ]\n", g_verbose ? "on" : "off", DEFAULT_VERBOSE ? "on" : "off");
     Log("log                  [ %17s ] [ %17s ]\n", g_log ? "on" : "off", DEFAULT_LOG ? "on" : "off");
     Log("developer            [ %17d ] [ %17d ]\n", g_developer, DEFAULT_DEVELOPER);
@@ -3393,7 +3396,7 @@ int             main(const int argc, char** argv)
         }
         else if (!strcasecmp(argv[i], "-limiter"))
         {
-            if (i + 1 < argc)	//added "1" .--vluzacn
+            if (i + 1 < argc)	//"1" was added to check if there is another argument afterwards (expected value) //seedee
             {
                 g_limitthreshold = atof(argv[++i]);
             }
@@ -3873,7 +3876,11 @@ int             main(const int argc, char** argv)
 				Usage();
 			}
 		}
-
+		else if (!strcasecmp(argv[i], "-pre25")) //Pre25 should be after everything else to override
+		{
+			g_pre25update = true;
+            g_limitthreshold = 188.0;
+		}
         else if (argv[i][0] == '-')
         {
             Log("Unknown option \"%s\"\n", argv[i]);

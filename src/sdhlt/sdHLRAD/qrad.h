@@ -43,6 +43,7 @@
 #include <direct.h>
 #endif
 
+#define DEFAULT_PRE25UPDATE         false
 #define DEFAULT_FASTMODE			false
 #define DEFAULT_METHOD eMethodSparseVismatrix
 #define DEFAULT_LERP_ENABLED        true
@@ -52,9 +53,9 @@
 #define DEFAULT_AMBIENT_RED         0.0
 #define DEFAULT_AMBIENT_GREEN       0.0
 #define DEFAULT_AMBIENT_BLUE        0.0
-// 188 is the fullbright threshold for pre-Anniversary update Goldsrc, regardless of the brightness and gamma settings in the graphic options.
+// 188 is the fullbright threshold for Goldsrc before 25th anniversary, regardless of the brightness and gamma settings in the graphic options. This is no longer necessary
 // However, hlrad can only control the light values of each single light style. So the final in-game brightness may exceed 188 if you have set a high value in the "custom appearance" of the light, or if the face receives light from different styles.
-#define DEFAULT_LIMITTHRESHOLD		255.0
+#define DEFAULT_LIMITTHRESHOLD		255.0 // We override to 188 with pre25 argument. //seedee
 #define DEFAULT_TEXSCALE            true
 #define DEFAULT_CHOP                64.0
 #define DEFAULT_TEXCHOP             32.0
