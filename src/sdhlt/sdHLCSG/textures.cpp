@@ -1,4 +1,5 @@
 #include "csg.h"
+#include <vector>
 
 #define MAXWADNAME 16
 #define MAX_TEXFILES 128
@@ -299,30 +300,62 @@ bool            TEX_InitFromWad()
         lumpinfo = (lumpinfo_t*)realloc(lumpinfo, (nTexLumps + wadinfo.numlumps) * sizeof(lumpinfo_t));
 
         // for each texlump
+        std::vector<std::tuple<std::string, char*, int>> texturesUnterminatedString; //2 for now in case the same texture has 2 issues
+        std::vector<std::tuple<std::string, char*, int>> texturesOversized;
+
         for (j = 0; j < wadinfo.numlumps; j++, nTexLumps++)
         {
             SafeRead(texfile, &lumpinfo[nTexLumps], (sizeof(lumpinfo_t) - sizeof(int)) );  // iTexFile is NOT read from file
+            char szWadFileName[_MAX_PATH];
+            ExtractFile(pszWadFile, szWadFileName);
 
-            if (!TerminatedString(lumpinfo[nTexLumps].name, MAXWADNAME))
+            if (!TerminatedString(lumpinfo[nTexLumps].name, MAXWADNAME)) //If texture name too long
             {
                 lumpinfo[nTexLumps].name[MAXWADNAME - 1] = 0;
-                Log(" - ");
-                Warning("Unterminated texture name : wad[%s] texture[%d] name[%s]\n", pszWadFile, nTexLumps, lumpinfo[nTexLumps].name);
+                texturesUnterminatedString.push_back(std::make_tuple(lumpinfo[nTexLumps].name, szWadFileName, nTexLumps));
             }
-
             CleanupName(lumpinfo[nTexLumps].name, lumpinfo[nTexLumps].name);
-
             lumpinfo[nTexLumps].filepos = LittleLong(lumpinfo[nTexLumps].filepos);
             lumpinfo[nTexLumps].disksize = LittleLong(lumpinfo[nTexLumps].disksize);
             lumpinfo[nTexLumps].iTexFile = nTexFiles;
 
             if (lumpinfo[nTexLumps].disksize > MAX_TEXTURE_SIZE)
             {
-                Log(" - ");
-                Warning("Larger than expected texture (%d bytes): '%s'",
-                    lumpinfo[nTexLumps].disksize, lumpinfo[nTexLumps].name);
+                texturesOversized.push_back(std::make_tuple(lumpinfo[nTexLumps].name, szWadFileName, lumpinfo[nTexLumps].disksize));
             }
+        }
+        if (!texturesUnterminatedString.empty())
+		{
+            Log("Fixing unterminated texture names\n");
+            Log("---------------------------------\n");
 
+            for (const auto& texture : texturesUnterminatedString)
+            {
+                const std::string& texName = std::get<0>(texture);
+                char* szWadFileName = std::get<1>(texture);
+                int texLumps = std::get<2>(texture);
+                Log("[%s] %s (%d)\n", szWadFileName, texName, texLumps);
+            }
+            Log("---------------------------------\n\n");
+		}
+        if (!texturesOversized.empty())
+        {
+            Warning("potentially oversized textures detected\n");
+            Log("If map doesn't run, -wadinclude the following\n");
+            Log("Wadinclude may support resolutions up to 544*544\n");
+            Log("------------------------------------------------\n");
+
+            for (const auto& texture : texturesOversized)
+            {
+                for (const auto& texture : texturesOversized)
+                {
+                    const std::string& texName = std::get<0>(texture);
+                    char* szWadFileName = std::get<1>(texture);
+                    int texBytes = std::get<2>(texture);
+                    Log("[%s] %s (%d bytes)\n", szWadFileName, texName, texBytes);
+                }
+            }
+            Log("----------------------------------------------------\n");
         }
 
         // AJM: this feature is dependant on autowad. :(
@@ -521,6 +554,7 @@ void            AddAnimatingTextures()
 
 // =====================================================================================
 //  WriteMiptex
+//     Unified console logging updated //seedee
 // =====================================================================================
 void            WriteMiptex()
 {
@@ -566,47 +600,66 @@ void            WriteMiptex()
 
 	// Now we have filled lumpinfo for each miptex and the number of used textures for each wad.
 	{
-		char szTmpWad[MAX_VAL];
+		char szUsedWads[MAX_VAL];
 		int i;
 
-		szTmpWad[0] = 0;
-		for (i = 0; i < nTexFiles; i++)
-		{
-			wadpath_t *currentwad = texwadpathes[i];
-			if (!currentwad->usedbymap && (currentwad->usedtextures > 0 || !g_bWadAutoDetect))
+        szUsedWads[0] = 0;
+        std::vector<wadpath_t*> usedWads;
+        std::vector<wadpath_t*> includedWads;
+
+
+        for (i = 0; i < nTexFiles; i++)
+        {
+            wadpath_t* currentwad = texwadpathes[i];
+            if (currentwad->usedbymap && (currentwad->usedtextures > 0 || !g_bWadAutoDetect))
+            {
+                char tmp[_MAX_PATH];
+                ExtractFile(currentwad->path, tmp);
+                safe_strncat(szUsedWads, tmp, MAX_VAL); //Concat wad names
+                safe_strncat(szUsedWads, ";", MAX_VAL);
+                usedWads.push_back(currentwad);
+            }
+        }
+        for (i = 0; i < nTexFiles; i++)
+        {
+            wadpath_t* currentwad = texwadpathes[i];
+            if (!currentwad->usedbymap && (currentwad->usedtextures > 0 || !g_bWadAutoDetect))
+            {
+                includedWads.push_back(currentwad);
+            }
+        }
+        if (!usedWads.empty())
+        {
+            Log("Wad files used by map\n");
+            Log("---------------------\n");
+            for (std::vector<wadpath_t*>::iterator it = usedWads.begin(); it != usedWads.end(); ++it)
+            {
+                wadpath_t* currentwad = *it;
+                LogWadUsage(currentwad, nummiptex);
+            }
+            Log("---------------------\n\n");
+        }
+        else
+        {
+            Warning("No wad files used by map\n\n");
+        }
+        if (!includedWads.empty())
+        {
+			Log("Additional wad files included\n");
+			Log("-----------------------------\n");
+
+			for (std::vector<wadpath_t*>::iterator it = includedWads.begin(); it != includedWads.end(); ++it)
 			{
-				Log ("Including Wadfile: %s\n", currentwad->path);
-				double percused = (double)currentwad->usedtextures / (double)nummiptex * 100;
-				Log (" - Contains %i used texture%s, %2.2f percent of map (%d textures in wad)\n",
-					 currentwad->usedtextures, currentwad->usedtextures == 1? "": "s", percused, currentwad->totaltextures);
+				wadpath_t* currentwad = *it;
+                LogWadUsage(currentwad, nummiptex);
 			}
+			Log("-----------------------------\n\n");
 		}
-		for (i = 0; i < nTexFiles; i++)
-		{
-			wadpath_t *currentwad = texwadpathes[i];
-			if (currentwad->usedbymap && (currentwad->usedtextures > 0 || !g_bWadAutoDetect))
-			{
-				Log ("Using Wadfile: %s\n", currentwad->path);
-				double percused = (double)currentwad->usedtextures / (double)nummiptex * 100;
-				Log (" - Contains %i used texture%s, %2.2f percent of map (%d textures in wad)\n",
-					 currentwad->usedtextures, currentwad->usedtextures == 1? "": "s", percused, currentwad->totaltextures);
-				char tmp[_MAX_PATH];
-				ExtractFile (currentwad->path, tmp);
-				safe_strncat (szTmpWad, tmp, MAX_VAL);
-				safe_strncat (szTmpWad, ";", MAX_VAL);
-			}
-		}
-		
-		Log("\n");
-		if (*szTmpWad)
-		{
-			Log ("Wad files required to run the map: \"%s\"\n", szTmpWad);
-		}
-		else
-		{
-			Log ("Wad files required to run the map: (None)\n");
-		}
-		SetKeyValue(&g_entities[0], "wad", szTmpWad);
+        else
+        {
+            Log("No additional wad files included\n\n");
+        }
+		SetKeyValue(&g_entities[0], "wad", szUsedWads);
 	}
 
     start = I_FloatTime();
@@ -711,12 +764,24 @@ void            WriteMiptex()
 			Error ("File write failure");
     }
     end = I_FloatTime();
-    Log("Texture usage is at %1.2f mb (of %1.2f mb MAX)\n", (float)totaltexsize / (1024 * 1024),
-        (float)g_max_map_miptex / (1024 * 1024));
-    Verbose("LoadLump() elapsed time = %ldms\n", (long)(end - start));
+    Log("Texture usage: %1.2f/%1.2f MB)\n", (float)totaltexsize / (1024 * 1024), (float)g_max_map_miptex / (1024 * 1024));
+    Verbose("LoadLump() elapsed time: %ldms\n", (long)(end - start));
 }
 
-//==========================================================================
+// =====================================================================================
+//  LogWadUsage //seedee
+// =====================================================================================
+void LogWadUsage(wadpath_t *currentwad, int nummiptex)
+{
+    if (currentwad == nullptr) {
+        return;
+    }
+    char currentwadName[_MAX_PATH];
+    ExtractFile(currentwad->path, currentwadName);
+    double percentUsed = (double)currentwad->usedtextures / (double)nummiptex * 100;
+
+    Log("[%s] %i/%i texture%s (%2.2f%%)\n - %s\n", currentwadName, currentwad->usedtextures, currentwad->totaltextures, currentwad->usedtextures == 1 ? "" : "s", percentUsed, currentwad->path);
+}
 
 // =====================================================================================
 //  TexinfoForBrushTexture
