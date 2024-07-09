@@ -923,7 +923,7 @@ bool NoWadTextures ()
 			continue;
 		}
 		miptex_t *mt = (miptex_t *)&g_dtexdata[offset];
-		if (!mt->offsets[0])
+		if (!mt->offsets[0]) //Check for valid mip texture
 		{
 			return false;
 		}
@@ -1070,18 +1070,31 @@ void            PrintBSPFileSizes()
 
     Log("%i textures referenced\n", numtextures);
 
-    Log("=== Total BSP file data space used: %d bytes ===\n", totalmemory);
+    Log("=== Total BSP file data space used: %d bytes ===\n\n", totalmemory);
 	if (nowadtextures)
 	{
-		Log ("Wad files required to run the map: (None)\n");
+		Log ("No wad files required to run the map\n");
 	}
 	else if (wadvalue == NULL)
 	{
 		Log ("Wad files required to run the map: (Couldn't parse wad keyvalue from entity data)\n");
 	}
-	else
+	else //If we have any wads still required //seedee
 	{
-		Log ("Wad files required to run the map: \"%s\"\n", wadvalue);
+		Log("Wad files required to run the map\n");
+		Log("---------------------------------\n");
+		size_t length = strlen(wadvalue) + 1;
+		char* wadvalueNewline = new char[length]; //+1 for null terminator
+		safe_strncpy(wadvalueNewline, wadvalue, length); //Defensive copy
+
+		for (size_t i = 0; i < length; ++i) {
+			if (wadvalueNewline[i] == ';') {
+				wadvalueNewline[i] = '\n';
+			}
+		}
+		Log("%s", wadvalueNewline);
+		delete[] wadvalueNewline;
+		Log("---------------------------------\n\n");
 	}
 	if (wadvalue)
 	{
