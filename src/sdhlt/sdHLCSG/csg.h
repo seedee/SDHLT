@@ -47,7 +47,7 @@
 
 #define DEFAULT_CLIPNAZI    false
 
-#define DEFAULT_WADAUTODETECT false
+#define DEFAULT_WADAUTODETECT true //Already true in settings.cfg, why not here? //seedee
 
 
 #define DEFAULT_SCALESIZE -1.0 //dont scale
@@ -232,12 +232,13 @@ extern void     TextureAxisFromPlane(const plane_t* const pln, vec3_t xv, vec3_t
 extern void     LoadMapFile(const char* const filename);
 
 //=============================================================================
-// textures.c
+// textures.cpp
 
 typedef std::deque< std::string >::iterator WadInclude_i;
 extern std::deque< std::string > g_WadInclude;  // List of substrings to wadinclude
 
 extern void     WriteMiptex();
+extern void     LogWadUsage(wadpath_t* currentwad, int nummiptex);
 extern int      TexinfoForBrushTexture(const plane_t* const plane, brush_texture_t* bt, const vec3_t origin
 					);
 extern const char *GetTextureByNumber_CSG(int texturenumber);
