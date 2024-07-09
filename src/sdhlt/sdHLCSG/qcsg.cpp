@@ -59,7 +59,7 @@ const char*			g_nullfile = NULL;
 
 bool            g_bClipNazi = DEFAULT_CLIPNAZI;         // "-noclipeconomy"
 
-bool            g_bWadAutoDetect = DEFAULT_WADAUTODETECT; // "-wadautodetect"
+bool            g_bWadAutoDetect = DEFAULT_WADAUTODETECT; // "-nowadautodetect"
 
 
 vec_t g_scalesize = DEFAULT_SCALESIZE;
@@ -135,14 +135,16 @@ void            GetParamsFromEnt(entity_t* mapent)
     }
 
     // wadautodetect(choices) : "Wad Auto Detect" : 0 =	[ 0 : "Off" 1 : "On" ]
-    if (!strcmp(ValueForKey(mapent, "wadautodetect"), "1"))
+    /*if (!strcmp(ValueForKey(mapent, "wadautodetect"), "1"))
     { 
         g_bWadAutoDetect = true;
     }
     else
     {
         g_bWadAutoDetect = false;
-    }
+    }*/
+    const char* wadautodetectValue = ValueForKey(mapent, "wadautodetect"); //seedee
+    g_bWadAutoDetect = (wadautodetectValue && atoi(wadautodetectValue) >= 1);
     Log("%30s [ %-9s ]\n", "Wad Auto Detect", g_bWadAutoDetect ? "on" : "off");
 	
 	// wadconfig(string) : "Custom Wad Configuration" : ""
@@ -1194,14 +1196,6 @@ void LoadWadValue ()
 			free (e);
 		}
 	}
-	if (*wadvalue)
-	{
-		Log ("Wad files required to run the map: \"%s\"\n", wadvalue);
-	}
-	else
-	{
-		Log ("Wad files required to run the map: (None)\n");
-	}
 	SetKeyValue (&g_entities[0], "wad", wadvalue);
 	free (wadvalue);
 }
@@ -1218,9 +1212,7 @@ void WriteBSP(const char* const name)
     if (!g_onlyents)
         WriteMiptex();
 	if (g_onlyents)
-	{
 		LoadWadValue ();
-	}
 
     UnparseEntities();
     ConvertHintToEmpty(); // this is ridiculous. --vluzacn
@@ -1527,8 +1519,8 @@ static void     Usage()
     Log("\n-= %s Options =-\n\n", g_Program);
 	Log("    -console #       : Set to 0 to turn off the pop-up console (default is 1)\n");
 	Log("    -lang file       : localization file\n");
-    Log("    -nowadtextures   : include all used textures into bsp\n");
-    Log("    -wadinclude file : place textures used from wad specified into bsp\n");
+    Log("    -nowadtextures   : Include all used textures into bsp\n");
+    Log("    -wadinclude file : Include specific wad or directories into bsp\n");
     Log("    -noclip          : don't create clipping hull\n");
     
     Log("    -clipeconomy     : turn clipnode economy mode on\n");
@@ -1572,7 +1564,7 @@ static void     Usage()
     Log("    -dev #           : compile with developer message\n\n");
 
 
-    Log("    -wadautodetect   : Force auto-detection of wadfiles\n");
+    Log("    -nowadautodetect : Disable auto-detection of wadfiles\n");
 
 	Log("    -scale #         : Scale the world. Use at your own risk.\n");
     Log("    -worldextent #   : Extend map geometry limits beyond +/-32768.\n");
@@ -1587,7 +1579,7 @@ static void     Usage()
 // =====================================================================================
 static void     DumpWadinclude()
 {
-    Log("Wadinclude list :\n");
+    Log("Wadinclude list:\n");
     WadInclude_i it;
     for (it = g_WadInclude.begin(); it != g_WadInclude.end(); it++)
     {
@@ -1896,14 +1888,10 @@ int             main(const int argc, char** argv)
                 Usage();
             }
 		}
-
-        else if (!strcasecmp(argv[i], "-wadautodetect"))
+        else if (!strcasecmp(argv[i], "-nowadautodetect"))
         { 
-            g_bWadAutoDetect = true;
+            g_bWadAutoDetect = false;
         }
-
-
-
         else if (!strcasecmp(argv[i], "-nowadtextures"))
         {
             g_wadtextures = false;
@@ -2282,13 +2270,13 @@ int             main(const int argc, char** argv)
 	}
 	else
 	{
-		Log("Using mapfile wad configuration\n");
+		Log("Loading mapfile wad configuration by default\n");
 		GetUsedWads();
 	}
 
-    if (g_bWadAutoDetect)
+    if (!g_bWadAutoDetect)
     {
-        Log("Wadfiles not in use by the map will be excluded\n");
+        Warning("Unused textures will not be excluded\n");
     }
 
     DumpWadinclude();
