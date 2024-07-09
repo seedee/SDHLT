@@ -79,7 +79,7 @@
 
 // texture size limit
 
-#define MAX_TEXTURE_SIZE     348972 //((256 * 256 * sizeof(short) * 3) / 2) //stop compiler from warning 512*512 texture. --vluzacn
+#define MAX_TEXTURE_SIZE     348972 //Bytes in a 512x512 image((256 * 256 * sizeof(short) * 3) / 2) //stop compiler from warning 512*512 texture. --vluzacn
 // this is arbitrary, and needs space for the largest realistic texture plus
 // room for its mipmaps.'  This value is primarily used to catch damanged or invalid textures
 // in a wad file
