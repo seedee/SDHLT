@@ -179,14 +179,14 @@ bool            TEX_InitFromWad()
 
     Log("\n"); // looks cleaner
 	// update wad inclusion
-	for (i = 0; i < g_iNumWadPaths; i++)
+	for (i = 0; i < g_iNumWadPaths; i++) // loop through all wadpaths in map
 	{
         currentwad = g_pWadPaths[i];
-		if (!g_wadtextures) // 'If -nowadtextures used'
+		if (!g_wadtextures) //If -nowadtextures used
 		{
 			currentwad->usedbymap = false;
 		}
-		for (WadInclude_i it = g_WadInclude.begin (); it != g_WadInclude.end (); it++) // '-wadinclude xxx.wad'
+		for (WadInclude_i it = g_WadInclude.begin (); it != g_WadInclude.end (); it++) //Check -wadinclude list
 		{
 			if (stristr (currentwad->path, it->c_str ()))
 			{
@@ -335,7 +335,7 @@ bool            TEX_InitFromWad()
 		}
         if (!texturesOversized.empty())
         {
-            Warning("potentially oversized textures detected\n");
+            Warning("potentially oversized textures detected");
             Log("If map doesn't run, -wadinclude the following\n");
             Log("Wadinclude may support resolutions up to 544*544\n");
             Log("------------------------------------------------\n");
@@ -684,10 +684,10 @@ void            WriteMiptex()
         l = (dmiptexlump_t*)g_dtexdata;
         data = (byte*) & l->dataofs[nummiptex];
         l->nummiptex = nummiptex;
-		char writewad_name[_MAX_PATH];
+		char writewad_name[_MAX_PATH]; //Write temp wad file with processed textures
 		FILE *writewad_file;
 		int writewad_maxlumpinfos;
-		typedef struct
+		typedef struct //Lump info in temp wad
 		{
 			int             filepos;
 			int             disksize;
@@ -699,28 +699,34 @@ void            WriteMiptex()
 		} dlumpinfo_t;
 		dlumpinfo_t *writewad_lumpinfos;
 		wadinfo_t writewad_header;
-		safe_snprintf (writewad_name, _MAX_PATH, "%s.wa_", g_Mapname);
+
+		safe_snprintf (writewad_name, _MAX_PATH, "%s.wa_", g_Mapname); //Generate temp wad file name based on mapname
 		writewad_file = SafeOpenWrite (writewad_name);
+
+        //Malloc for storing lump info
 		writewad_maxlumpinfos = nummiptex;
 		writewad_lumpinfos = (dlumpinfo_t *)malloc (writewad_maxlumpinfos * sizeof (dlumpinfo_t));
 		hlassume (writewad_lumpinfos != NULL, assume_NoMemory);
+
+        //Header for the temp wad file
 		writewad_header.identification[0] = 'W';
 		writewad_header.identification[1] = 'A';
 		writewad_header.identification[2] = 'D';
 		writewad_header.identification[3] = '3';
 		writewad_header.numlumps = 0;
-		if (fseek (writewad_file, sizeof (wadinfo_t), SEEK_SET))
+
+		if (fseek (writewad_file, sizeof (wadinfo_t), SEEK_SET)) //Move file pointer to skip header
 			Error ("File write failure");
-        for (i = 0; i < nummiptex; i++)
+        for (i = 0; i < nummiptex; i++) //Process each miptex, writing its data to the temp wad file
         {
             l->dataofs[i] = data - (byte*) l;
 			byte *writewad_data;
 			int writewad_datasize;
-			len = LoadLump (miptex + i, data, &texsize
-							, &g_dtexdata[g_max_map_miptex] - data
-							, writewad_data, writewad_datasize);
+			len = LoadLump (miptex + i, data, &texsize, &g_dtexdata[g_max_map_miptex] - data, writewad_data, writewad_datasize); //Load lump data
+
 			if (writewad_data)
 			{
+                //Prepare lump info for temp wad file
 				dlumpinfo_t *writewad_lumpinfo = &writewad_lumpinfos[writewad_header.numlumps];
 				writewad_lumpinfo->filepos = ftell (writewad_file);
 				writewad_lumpinfo->disksize = writewad_datasize;
@@ -731,13 +737,13 @@ void            WriteMiptex()
 				writewad_lumpinfo->pad2 = miptex[i].pad2;
 				memcpy (writewad_lumpinfo->name, miptex[i].name, MAXWADNAME);
 				writewad_header.numlumps++;
-				SafeWrite (writewad_file, writewad_data, writewad_datasize);
+				SafeWrite (writewad_file, writewad_data, writewad_datasize); //Write the processed lump info temp wad file
 				free (writewad_data);
 			}
 
             if (!len)
             {
-                l->dataofs[i] = -1;                        // didn't find the texture
+                l->dataofs[i] = -1; // Mark texture not found
             }
             else
             {
@@ -748,6 +754,7 @@ void            WriteMiptex()
             data += len;
         }
         g_texdatasize = data - g_dtexdata;
+        //Write lump info and header to the temp wad file
 		writewad_header.infotableofs = ftell (writewad_file);
 		SafeWrite (writewad_file, writewad_lumpinfos, writewad_header.numlumps * sizeof (dlumpinfo_t));
 		if (fseek (writewad_file, 0, SEEK_SET))
