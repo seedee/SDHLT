@@ -12,22 +12,27 @@ int         g_iNumWadPaths = 0;
 // =====================================================================================
 void        PushWadPath(const char* const path, bool inuse)
 {
-    int         i;
-    wadpath_t*  current;
-
+    wadpath_t* currentWad;
 	hlassume (g_iNumWadPaths < MAX_WADPATHS, assume_MAX_TEXFILES);
+	currentWad = (wadpath_t*)malloc(sizeof(wadpath_t));
+    safe_strncpy(currentWad->path, path, _MAX_PATH); //Copy path into currentWad->path
+	currentWad->usedbymap = inuse;
+	currentWad->usedtextures = 0;  //Updated later in autowad procedures
+	currentWad->totaltextures = 0; //Updated later to reflect total
 
-    current = (wadpath_t*)malloc(sizeof(wadpath_t));
-
-    safe_strncpy(current->path, path, _MAX_PATH);
-    current->usedbymap = inuse;
-    current->usedtextures = 0;  // should be updated later in autowad procedures
-	current->totaltextures = 0;
-
-    g_pWadPaths[g_iNumWadPaths++] = current;
+	if (g_iNumWadPaths < MAX_WADPATHS) //Fix buffer overrun //seedee
+	{
+		g_pWadPaths[g_iNumWadPaths] = currentWad;
+		g_iNumWadPaths++;
+	}
+	else
+	{
+		free(currentWad);
+		Error("PushWadPath: too many wadpaths (i%/i%)", g_iNumWadPaths, MAX_WADPATHS);
+}
 
 #ifdef _DEBUG
-    Log("[dbg] PushWadPath: %i[%s]\n", g_iNumWadPaths, path);
+    Log("[dbg] PushWadPath: %i (%s)\n", g_iNumWadPaths, path);
 #endif
 }
 
@@ -54,39 +59,35 @@ void        FreeWadPaths()
 void        GetUsedWads()
 {
     const char* pszWadPaths;
-    char        szTmp[_MAX_PATH];
-    int         i, j;
-
+    char szTmp[_MAX_PATH];
+    int i, j;
     pszWadPaths = ValueForKey(&g_entities[0], "wad");
 
-	for (i = 0; ; )
+	for (i = 0; ; ) //Loop through wadpaths
 	{
-		for (j = i; pszWadPaths[j] != '\0'; j++)
+		for (j = i; pszWadPaths[j] != '\0'; j++) //Find end of wadpath (semicolon)
 		{
 			if (pszWadPaths[j] == ';')
 			{
 				break;
 			}
 		}
-		if (j - i > 0)
+		if (j - i > 0) //If wadpath is not empty
 		{
-			int count = qmin (j - i, _MAX_PATH - 1);
-			memcpy (szTmp, &pszWadPaths[i], count);
-			szTmp[count] = '\0';
+			int length = qmin (j - i, _MAX_PATH - 1); //Get length of wadpath
+			memcpy (szTmp, &pszWadPaths[i], length);
+			szTmp[length] = '\0'; //Null terminate
 
 			if (g_iNumWadPaths >= MAX_WADPATHS)
 			{
-				Error ("Too many wad files");
+				Error ("Too many wad files (%d/%d)\n", g_iNumWadPaths, MAX_WADPATHS);
 			}
-			PushWadPath (szTmp, true);
+			PushWadPath (szTmp, true); //Add wadpath to list
 		}
-		if (pszWadPaths[j] == '\0')
+		if (pszWadPaths[j] == '\0') //Break if end of wadpaths
 		{
 			break;
 		}
-		else
-		{
-			i = j + 1;
-		}
+		i = j + 1;
 	}
 }
