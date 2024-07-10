@@ -41,7 +41,7 @@ static const MessageTable_t assumes[assume_last] = {
     {"Brush type not allowed in entity", maperror, reference},
     {"No visibile brushes", "All brushes are CLIP or ORIGIN (at least one must be normal/visible)", selfexplanitory},
     {"Entity with ONLY an ORIGIN brush", "All entities need at least one visible brush to function properly.  CLIP, HINT, ORIGIN, do not count as visible brushes.", selfexplanitory},
-    {"Could not find WAD file", "The compile tools could not locate a wad file that the map was referencing.", "Make sure the wad's listed in the level editor actually all exist"},
+    {"Could not find wad file", "The compile tools could not locate a wad file that the map was referencing.", "Make sure the wad's listed in the level editor actually all exist"},
     {"Exceeded MAX_TRIANGLES", internallimit, contact},
     {"Exceeded MAX_SWITCHED_LIGHTS", "The maximum number of switchable light entities has been reached", selfexplanitory},
     {"Exceeded MAX_TEXFILES", internallimit, contact},
