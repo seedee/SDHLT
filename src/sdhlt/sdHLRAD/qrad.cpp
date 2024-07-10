@@ -1564,76 +1564,87 @@ static void     FreeOpaqueFaceList()
 static void		LoadOpaqueEntities()
 {
 	int modelnum, entnum;
-	for (modelnum = 0; modelnum < g_nummodels; modelnum++)
+
+	for (modelnum = 0; modelnum < g_nummodels; modelnum++) //Loop through brush models
 	{
-		dmodel_t *model = &g_dmodels[modelnum];
+		dmodel_t *model = &g_dmodels[modelnum]; //Get current model
 		char stringmodel[16];
-		sprintf (stringmodel, "*%i", modelnum);
-		for (entnum = 0; entnum < g_numentities; entnum++)
+		sprintf (stringmodel, "*%i", modelnum); //Model number to string
+
+		for (entnum = 0; entnum < g_numentities; entnum++) //Loop through map ents
 		{
-			entity_t *ent = &g_entities[entnum];
-			if (strcmp (ValueForKey (ent, "model"), stringmodel))
+			entity_t *ent = &g_entities[entnum]; //Get the current ent
+
+			if (strcmp (ValueForKey (ent, "model"), stringmodel)) //Skip ents that don't match the current model
 				continue;
 			vec3_t origin;
 			{
-				GetVectorForKey (ent, "origin", origin);
-				if (*ValueForKey (ent, "light_origin") && *ValueForKey (ent, "model_center"))
+				GetVectorForKey (ent, "origin", origin); //Get origin vector of the ent
+
+				if (*ValueForKey (ent, "light_origin") && *ValueForKey (ent, "model_center")) //If the entity has a light_origin and model_center, calculate a new origin
 				{
 					entity_t *ent2 = FindTargetEntity (ValueForKey (ent, "light_origin"));
+
 					if (ent2)
 					{
 						vec3_t light_origin, model_center;
 						GetVectorForKey (ent2, "origin", light_origin);
 						GetVectorForKey (ent, "model_center", model_center);
-						VectorSubtract (light_origin, model_center, origin);
+						VectorSubtract (light_origin, model_center, origin); //New origin
 					}
 				}
 			}
 			bool opaque = false;
 			{
-				if (g_allow_opaques && (IntForKey (ent, "zhlt_lightflags") & eModelLightmodeOpaque))
+				if (g_allow_opaques && (IntForKey (ent, "zhlt_lightflags") & eModelLightmodeOpaque)) //If -noopaque is off, and if the entity has opaque light flag
 					opaque = true;
 			}
 			vec3_t d_transparency;
-			VectorFill (d_transparency, 0.0);
+			VectorFill (d_transparency, 0.0); //Initialize transparency value to 0
 			bool b_transparency = false;
 			{
 				const char *s;
-				if (*(s = ValueForKey(ent, "zhlt_customshadow")))
+
+				if (*(s = ValueForKey(ent, "zhlt_customshadow"))) //If the entity has a custom shadow (transparency) value
 				{
         			double r1 = 1.0, g1 = 1.0, b1 = 1.0, tmp = 1.0;
-					if (sscanf(s, "%lf %lf %lf", &r1, &g1, &b1) == 3) //RGB version
+
+					if (sscanf(s, "%lf %lf %lf", &r1, &g1, &b1) == 3) //Try to read RGB values
 					{
-						if(r1<0.0) r1 = 0.0;
+						if(r1<0.0) r1 = 0.0; //Clamp values to min 0
 						if(g1<0.0) g1 = 0.0;
 						if(b1<0.0) b1 = 0.0;
-						d_transparency[0] = r1;
+						d_transparency[0] = r1
 						d_transparency[1] = g1;
 						d_transparency[2] = b1;
 					}
 					else if (sscanf(s, "%lf", &tmp) == 1) //Greyscale version
 					{
 						if(tmp<0.0) tmp = 0.0;
-						VectorFill(d_transparency, tmp);
+						VectorFill(d_transparency, tmp); //Set transparency values to the same greyscale value
 					}
 				}
-				if (!VectorCompare (d_transparency, vec3_origin))
+				if (!VectorCompare (d_transparency, vec3_origin)) //If transparency values are not the default, set the transparency flag
 					b_transparency = true;
 			}
 			int opaquestyle = -1;
 			{
 				int j;
-				for (j = 0; j < g_numentities; j++)
+
+				for (j = 0; j < g_numentities; j++) //Loop to find a matching light_shadow entity
 				{
 					entity_t *lightent = &g_entities[j];
-					if (!strcmp (ValueForKey (lightent, "classname"), "light_shadow")
+
+					if (!strcmp (ValueForKey (lightent, "classname"), "light_shadow") //If light_shadow targeting the current entity
 						&& *ValueForKey (lightent, "target")
 						&& !strcmp (ValueForKey (lightent, "target"), ValueForKey (ent, "targetname")))
 					{
-						opaquestyle = IntForKey (lightent, "style");
+						opaquestyle = IntForKey (lightent, "style"); //Get the style number and validate it
+
 						if (opaquestyle < 0)
 							opaquestyle = -opaquestyle;
 						opaquestyle = (unsigned char)opaquestyle;
+
 						if (opaquestyle >= ALLSTYLES)
 						{
 							Error ("invalid light style: style (%d) >= ALLSTYLES (%d)", opaquestyle, ALLSTYLES);
@@ -1644,10 +1655,11 @@ static void		LoadOpaqueEntities()
 			}
 			bool block = false;
 			{
-				if (g_blockopaque)
+				if (g_blockopaque) //If opaque blocking is enabled
 				{
 					block = true;
-					if (IntForKey (ent, "zhlt_lightflags") & eModelLightmodeNonsolid)
+
+					if (IntForKey (ent, "zhlt_lightflags") & eModelLightmodeNonsolid) //If entity non-solid or has transparency or a specific style, which would prevent it from blocking
 						block = false;
 					if (b_transparency)
 						block = false;
@@ -1655,7 +1667,7 @@ static void		LoadOpaqueEntities()
 						block = false;
 				}
 			}
-			if (opaque)
+			if (opaque) //If opaque add it to the opaque list with its properties
 			{
 				AddFaceToOpaqueList (entnum, modelnum, origin
 					, d_transparency, b_transparency
@@ -1668,6 +1680,7 @@ static void		LoadOpaqueEntities()
 	{
 		Log("%i opaque models\n", g_opaque_face_count);
 		int i, facecount;
+
 		for (facecount = 0, i = 0; i < g_opaque_face_count; i++)
 		{
 			facecount += CountOpaqueFaces (g_opaque_face_list[i].modelnum);
@@ -3208,11 +3221,21 @@ int             main(const int argc, char** argv)
 			else
 				Usage();
 		}
+		else if (!strcasecmp(argv[i], "-extra"))
+        {
+            g_extra = true;
+
+			if (g_numbounce < 12)
+			{
+				g_numbounce = 12;
+			}
+        }
         else if (!strcasecmp(argv[i], "-bounce"))
         {
             if (i + 1 < argc)	//added "1" .--vluzacn
             {
                 g_numbounce = atoi(argv[++i]);
+
                 if (g_numbounce > 1000)
                 {
                     Log("Unexpectedly large value (>1000) for '-bounce'\n");
@@ -3476,10 +3499,6 @@ int             main(const int argc, char** argv)
             {
                 Usage();
             }
-        }
-        else if (!strcasecmp(argv[i], "-extra"))
-        {
-            g_extra = true;
         }
         else if (!strcasecmp(argv[i], "-sky"))
         {
