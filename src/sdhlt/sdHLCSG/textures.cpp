@@ -182,32 +182,27 @@ bool            TEX_InitFromWad()
 	for (i = 0; i < g_iNumWadPaths; i++)
 	{
         currentwad = g_pWadPaths[i];
-		if (!g_wadtextures) // '-nowadtextures'
+		if (!g_wadtextures) // 'If -nowadtextures used'
 		{
-			currentwad->usedbymap = false; // include this wad
+			currentwad->usedbymap = false;
 		}
 		for (WadInclude_i it = g_WadInclude.begin (); it != g_WadInclude.end (); it++) // '-wadinclude xxx.wad'
 		{
 			if (stristr (currentwad->path, it->c_str ()))
 			{
-				currentwad->usedbymap = false; // include this wad
+				currentwad->usedbymap = false;
 			}
 		}
 	}
 
     pszWadroot = getenv("WADROOT");
 
-
     // for eachwadpath
     for (i = 0; i < g_iNumWadPaths; i++)
     {
-        FILE*           texfile;                           // temporary used in this loop
-
+        FILE* texfile; // temporary used in this loop
         currentwad = g_pWadPaths[i];
         pszWadFile = currentwad->path;
-
-
-
 		texwadpathes[nTexFiles] = currentwad;
         texfiles[nTexFiles] = fopen(pszWadFile, "rb");
 
@@ -217,7 +212,7 @@ bool            TEX_InitFromWad()
             // cant find it, maybe this wad file has a hard code drive
             if (pszWadFile[1] == ':')
             {
-                pszWadFile += 2;                           // skip past the drive
+                pszWadFile += 2; // skip past the drive
                 texfiles[nTexFiles] = fopen(pszWadFile, "rb");
             }
         }
@@ -389,11 +384,9 @@ lumpinfo_t*     FindTexture(const lumpinfo_t* const source)
     if (!found)
     {
         Warning("::FindTexture() texture %s not found!", source->name);
-        if (!strcmp(source->name, "NULL")
-			|| !strcmp (source->name, "SKIP")
-			)
+        if (!strcmp(source->name, "NULL") || !strcmp (source->name, "SKIP"))
         {
-            Log("Are you sure you included zhlt.wad in your wadpath list?\n");
+            Log("Are you sure you included sdhlt.wad in your wadpath list?\n");
         }
     }
 
