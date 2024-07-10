@@ -1614,7 +1614,7 @@ static void		LoadOpaqueEntities()
 						if(r1<0.0) r1 = 0.0; //Clamp values to min 0
 						if(g1<0.0) g1 = 0.0;
 						if(b1<0.0) b1 = 0.0;
-						d_transparency[0] = r1
+						d_transparency[0] = r1;
 						d_transparency[1] = g1;
 						d_transparency[2] = b1;
 					}

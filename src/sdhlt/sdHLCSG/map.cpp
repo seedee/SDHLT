@@ -147,36 +147,37 @@ static bool CheckForInvisible(entity_t* mapent)
 // =====================================================================================
 static void ParseBrush(entity_t* mapent)
 {
-    brush_t*        b;
-    int             i, j;
-    side_t*         side;
-    contents_t      contents;
+    brush_t*        b; //Current brush
+    int             i, j; //Loop counters
+    side_t*         side; //Current side of the brush
+    contents_t      contents; //Contents type of the brush
     bool            ok;
-	bool nullify = CheckForInvisible(mapent);
+	bool nullify = CheckForInvisible(mapent); //If the current entity is part of an invis entity
     hlassume(g_nummapbrushes < MAX_MAP_BRUSHES, assume_MAX_MAP_BRUSHES);
 
-    b = &g_mapbrushes[g_nummapbrushes];
-    g_nummapbrushes++;
-    b->firstside = g_numbrushsides;
-	b->originalentitynum = g_numparsedentities;
-	b->originalbrushnum = g_numparsedbrushes;
-    b->entitynum = g_numentities - 1;
-    b->brushnum = g_nummapbrushes - mapent->firstbrush - 1;
+    b = &g_mapbrushes[g_nummapbrushes]; //Get next brush slot
+    g_nummapbrushes++; //Increment the global brush counter, we are adding a new brush
+    b->firstside = g_numbrushsides; //Set the first side of the brush to current global side count20
+	b->originalentitynum = g_numparsedentities; //Record original entity number brush belongs to
+	b->originalbrushnum = g_numparsedbrushes; //Record original brush number
+    b->entitynum = g_numentities - 1; //Set brush entity number to last created entity
+    b->brushnum = g_nummapbrushes - mapent->firstbrush - 1; //Calculate the brush number within the current entity.
+    b->noclip = 0; //Initialize false for now
 
-    b->noclip = 0;
-	if (IntForKey(mapent, "zhlt_noclip"))
+	if (IntForKey(mapent, "zhlt_noclip")) //If zhlt_noclip
 	{
 		b->noclip = 1;
 	}
 	b->cliphull = 0;
 	b->bevel = false;
-	{
+	{ //Validate func_detail values
 		b->detaillevel = IntForKey (mapent, "zhlt_detaillevel");
 		b->chopdown = IntForKey (mapent, "zhlt_chopdown");
 		b->chopup = IntForKey (mapent, "zhlt_chopup");
 		b->clipnodedetaillevel = IntForKey (mapent, "zhlt_clipnodedetaillevel");
 		b->coplanarpriority = IntForKey (mapent, "zhlt_coplanarpriority");
 		bool wrong = false;
+
 		if (b->detaillevel < 0)
 		{
 			wrong = true;
@@ -204,61 +205,59 @@ static void ParseBrush(entity_t* mapent)
 					);
 		}
 	}
-	for (int h = 0; h < NUM_HULLS; h++)
+	for (int h = 0; h < NUM_HULLS; h++) //Loop through all hulls
 	{
-		char key[16];
-		const char *value;
-		sprintf (key, "zhlt_hull%d", h);
-		value = ValueForKey (mapent, key);
-		if (*value)
+		char key[16]; //Key name for the hull shape.
+		const char *value; //Value for the key
+		sprintf(key, "zhlt_hull%d", h); //Format key name to include the hull number, used to look up hull shape data in entity properties
+		value = ValueForKey(mapent, key);
+
+		if (*value) //If we have a value associated with the key from the entity properties copy the value to brush's hull shape for this hull
 		{
-			b->hullshapes[h] = _strdup (value);
+			b->hullshapes[h] = _strdup(value);
 		}
-		else
+		else //Set brush hull shape for this hull to NULL
 		{
 			b->hullshapes[h] = NULL;
 		}
 	}
-
     mapent->numbrushes++;
-
 	ok = GetToken(true);
-    while (ok)
+
+    while (ok) //Loop through brush sides
     {
         g_TXcommand = 0;
-        if (!strcmp(g_token, "}"))
+        if (!strcmp(g_token, "}")) //If we have reached the end of the brush
         {
             break;
         }
 
         hlassume(g_numbrushsides < MAX_MAP_SIDES, assume_MAX_MAP_SIDES);
-        side = &g_brushsides[g_numbrushsides];
-        g_numbrushsides++;
-
-        b->numsides++;
-
+        side = &g_brushsides[g_numbrushsides]; //Get next brush side from global array
+        g_numbrushsides++; //Global brush side counter
+        b->numsides++; //Number of sides for the current brush
 		side->bevel = false;
         // read the three point plane definition
-        for (i = 0; i < 3; i++)
+
+        for (i = 0; i < 3; i++) //Read 3 point plane definition for brush side
         {
-            if (i != 0)
+            if (i != 0) //If not the first point get next token
             {
                 GetToken(true);
             }
-            if (strcmp(g_token, "("))
+            if (strcmp(g_token, "(")) //Token must be '('
             {
                 Error("Parsing Entity %i, Brush %i, Side %i : Expecting '(' got '%s'",
 					b->originalentitynum, b->originalbrushnum, 
 					  b->numsides, g_token);
             }
-
-            for (j = 0; j < 3; j++)
+            for (j = 0; j < 3; j++) //Get three coords for the point
             {
-                GetToken(false);
-                side->planepts[i][j] = atof(g_token);
+                GetToken(false); //Get next token on same line
+                side->planepts[i][j] = atof(g_token); //Convert token to float and store in planepts
             }
-
             GetToken(false);
+
             if (strcmp(g_token, ")"))
             {
                 Error("Parsing	Entity %i, Brush %i, Side %i : Expecting ')' got '%s'",
@@ -270,7 +269,7 @@ static void ParseBrush(entity_t* mapent)
         // read the     texturedef
         GetToken(false);
         _strupr(g_token);
-		{
+		{ //Check for tool textures on the brush
 			if (!strncasecmp (g_token, "NOCLIP", 6) || !strncasecmp (g_token, "NULLNOCLIP", 10))
 			{
 				strcpy (g_token, "NULL");
