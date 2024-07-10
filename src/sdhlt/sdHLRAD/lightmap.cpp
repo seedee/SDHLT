@@ -4871,7 +4871,6 @@ void            FinalLightFace(const int facenum)
         return;                                            // non-lit texture
     }
 
-
     for (lightstyles = 0; lightstyles < MAXLIGHTMAPS; lightstyles++)
     {
         if (f->styles[lightstyles] == 255)
@@ -4892,6 +4891,11 @@ void            FinalLightFace(const int facenum)
     // sample the triangulation
     //
     minlight = FloatForKey(g_face_entity[facenum], "_minlight") * 128;
+
+	if (!strncasecmp(GetTextureByNumber(f->texinfo), "%", 1)) //If texture name has % flag //seedee
+	{
+		minlight = 2 * 128; //max _minlight * 128 = fullbright
+	}
 
 	original_basiclight = (vec3_t *)calloc (fl->numsamples, sizeof(vec3_t));
 	final_basiclight = (int (*)[3])calloc (fl->numsamples, sizeof(int [3]));
