@@ -1653,8 +1653,8 @@ static void     Settings()
     Log("wadtextures           [ %7s ] [ %7s ]\n", g_wadtextures     ? "on" : "off", DEFAULT_WADTEXTURES  ? "on" : "off");
     Log("skyclip               [ %7s ] [ %7s ]\n", g_skyclip         ? "on" : "off", DEFAULT_SKYCLIP      ? "on" : "off");
     Log("hullfile              [ %7s ] [ %7s ]\n", g_hullfile ? g_hullfile : "None", "None");
-	Log("wad configuration file[ %7s ] [ %7s ]\n", g_wadcfgfile? g_wadcfgfile: "None", "None");
-	Log("wad.cfg group name    [ %7s ] [ %7s ]\n", g_wadconfigname? g_wadconfigname: "None", "None");
+	Log("wad.cfg file          [ %7s ] [ %7s ]\n", g_wadcfgfile? g_wadcfgfile: "None", "None");
+	Log("wad.cfg config name   [ %7s ] [ %7s ]\n", g_wadconfigname? g_wadconfigname: "None", "None");
 	Log("nullfile              [ %7s ] [ %7s ]\n", g_nullfile ? g_nullfile : "None", "None");
 	Log("nullify trigger       [ %7s ] [ %7s ]\n", g_nullifytrigger? "on": "off", DEFAULT_NULLIFYTRIGGER? "on": "off");
     // calc min surface area
@@ -2160,44 +2160,44 @@ int             main(const int argc, char** argv)
 			safe_strncat (test, g_nullfile, _MAX_PATH);
 			if (q_exists (test))
 			{
-				g_nullfile = strdup (test);
+				g_nullfile = strdup (test); //Todo rename all these vars //seedee
 			}
 		}
 	}
-	if (g_wadcfgfile)
+	if (g_wadcfgfile) //If wad.cfg exists //seedee
 	{
-		char temp[_MAX_PATH];
-		char test[_MAX_PATH];
-		safe_strncpy (temp, g_Mapname, _MAX_PATH);
-		ExtractFilePath (temp, test);
-		safe_strncat (test, g_wadcfgfile, _MAX_PATH);
-		if (q_exists (test))
+		char mapDirPath[_MAX_PATH];
+		safe_strncpy (mapDirPath, g_Mapname, _MAX_PATH); //Extract path
+        char wadCfgPath[_MAX_PATH];
+		ExtractFilePath (mapDirPath, wadCfgPath); //Append wad.cfg name
+		safe_strncat (wadCfgPath, g_wadcfgfile, _MAX_PATH);
+		if (q_exists (wadCfgPath)) //Update global if file exists
 		{
-			g_wadcfgfile = strdup (test);
+			g_wadcfgfile = strdup (wadCfgPath); 
 		}
 		else
 		{
-#ifdef SYSTEM_WIN32
-			GetModuleFileName (NULL, temp, _MAX_PATH);
-#else
-			safe_strncpy (temp, argv[0], _MAX_PATH);
+#ifdef SYSTEM_WIN32 //Look relative to exe
+			GetModuleFileName (NULL, mapDirPath, _MAX_PATH);
+#else //Fallback
+			safe_strncpy (mapDirPath, argv[0], _MAX_PATH);
 #endif
-			ExtractFilePath (temp, test);
-			safe_strncat (test, g_wadcfgfile, _MAX_PATH);
-			if (q_exists (test))
+			ExtractFilePath (mapDirPath, wadCfgPath);
+			safe_strncat (wadCfgPath, g_wadcfgfile, _MAX_PATH);
+			if (q_exists (wadCfgPath))
 			{
-				g_wadcfgfile = strdup (test);
+				g_wadcfgfile = strdup (wadCfgPath);
 			}
 		}
 	}
-    
+    Verbose("Loading hull file\n");
     LoadHullfile(g_hullfile);               // if the user specified a hull file, load it now
 	if(g_bUseNullTex)
 	{ properties_initialize(g_nullfile); }
     safe_strncpy(name, mapname_from_arg, _MAX_PATH); // make a copy of the nap name
 	FlipSlashes(name);
     DefaultExtension(name, ".map");                  // might be .reg
-    
+    Verbose("Loading map file\n");
     LoadMapFile(name);
     ThreadSetDefault();                    
     ThreadSetPriority(g_threadpriority);  
@@ -2241,24 +2241,23 @@ int             main(const int argc, char** argv)
 #endif
   if (!g_onlyents)
   {
-	if (g_wadconfigname)
+	if (g_wadconfigname) //If wadconfig had a name provided //seedee
 	{
-		char temp[_MAX_PATH];
-		char test[_MAX_PATH];
-#ifdef SYSTEM_WIN32
-		GetModuleFileName (NULL, temp, _MAX_PATH);
-#else
-		safe_strncpy (temp, argv[0], _MAX_PATH);
+        char exePath[_MAX_PATH];
+        char wadCfgPath[_MAX_PATH];
+#ifdef SYSTEM_WIN32 //Get exe path
+        GetModuleFileName(NULL, exePath, _MAX_PATH);
+#else //Fallback
+        safe_strncpy(exePath, argv[0], _MAX_PATH);
 #endif
-		ExtractFilePath (temp, test);
-		safe_strncat (test, "wad.cfg", _MAX_PATH);
+        ExtractFilePath(exePath, wadCfgPath);
+        safe_strncat(wadCfgPath, "wad.cfg", _MAX_PATH);
 
-		if (g_wadcfgfile)
-		{
-			safe_strncpy (test, g_wadcfgfile, _MAX_PATH);
-		}
-
-		LoadWadconfig (test, g_wadconfigname);
+        if (g_wadcfgfile) //If provided override the default
+        {
+            safe_strncpy(wadCfgPath, g_wadcfgfile, _MAX_PATH);
+        }
+        LoadWadconfig(wadCfgPath, g_wadconfigname);
 	}
 	else if (g_wadcfgfile)
 	{
