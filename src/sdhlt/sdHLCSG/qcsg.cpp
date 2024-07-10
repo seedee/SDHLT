@@ -1520,7 +1520,7 @@ static void     Usage()
 	Log("    -console #       : Set to 0 to turn off the pop-up console (default is 1)\n");
 	Log("    -lang file       : localization file\n");
     Log("    -nowadtextures   : Include all used textures into bsp\n");
-    Log("    -wadinclude file : Include specific wad or directories into bsp\n");
+    Log("    -wadinclude file : Include specific wad or directory into bsp\n");
     Log("    -noclip          : don't create clipping hull\n");
     
     Log("    -clipeconomy     : turn clipnode economy mode on\n");
@@ -1579,12 +1579,15 @@ static void     Usage()
 // =====================================================================================
 static void     DumpWadinclude()
 {
-    Log("Wadinclude list:\n");
+    Log("Wadinclude list\n");
+    Log("---------------\n");
     WadInclude_i it;
+
     for (it = g_WadInclude.begin(); it != g_WadInclude.end(); it++)
     {
-        Log("[%s]\n", it->c_str());
+        Log("%s\n", it->c_str());
     }
+    Log("---------------\n\n");
 }
 
 // =====================================================================================
@@ -1737,7 +1740,6 @@ int             main(const int argc, char** argv)
     // Hard coded list of -wadinclude files, used for HINT texture brushes so lazy
     // mapmakers wont cause beta testers (or possibly end users) to get a wad 
     // error on zhlt.wad etc
-    //g_WadInclude.push_back("zhlt.wad");
     g_WadInclude.push_back("sdhlt.wad"); //seedee
 
 	InitDefaultHulls ();
@@ -2277,7 +2279,6 @@ int             main(const int argc, char** argv)
     {
         Warning("Unused textures will not be excluded\n");
     }
-
     DumpWadinclude();
     Log("\n");
   }
