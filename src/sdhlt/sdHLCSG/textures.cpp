@@ -634,7 +634,7 @@ void            WriteMiptex()
         }
         else
         {
-            Warning("No wad files used by map\n\n");
+            Log("No wad files used by the map\n");
         }
         if (!includedWads.empty())
         {
