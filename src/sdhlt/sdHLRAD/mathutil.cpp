@@ -295,31 +295,41 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 					, vec3_t &scaleout
 					, int &opaquestyleout // light must convert to this style. -1 = no convert
 					)
-{
-	int x;
-	VectorFill (scaleout, 1.0);
-	opaquestyleout = -1;
-    for (x = 0; x < g_opaque_face_count; x++)
 	{
-		if (!TestLineOpaque (g_opaque_face_list[x].modelnum, g_opaque_face_list[x].origin, p1, p2))
-		{
-			continue;
-		}
-		if (g_opaque_face_list[x].transparency)
-		{
-			VectorMultiply (scaleout, g_opaque_face_list[x].transparency_scale, scaleout);
-			continue;
-		}
-		if (g_opaque_face_list[x].style != -1 && (opaquestyleout == -1 || g_opaque_face_list[x].style == opaquestyleout))
-		{
-			opaquestyleout = g_opaque_face_list[x].style;
-			continue;
-		}
-		VectorFill (scaleout, 0.0);
+		int x;
+		VectorFill (scaleout, 1.0);
 		opaquestyleout = -1;
-		return true;
-	}
-	return false;
+	    for (x = 0; x < g_opaque_face_count; x++)
+		{
+			if (!TestLineOpaque (g_opaque_face_list[x].modelnum, g_opaque_face_list[x].origin, p1, p2))
+			{
+				continue;
+			}
+			if (g_opaque_face_list[x].transparency)
+			{
+				VectorMultiply (scaleout, g_opaque_face_list[x].transparency_scale, scaleout);
+				continue;
+			}
+			if (g_opaque_face_list[x].style != -1 && (opaquestyleout == -1 || g_opaque_face_list[x].style == opaquestyleout))
+			{
+				opaquestyleout = g_opaque_face_list[x].style;
+				continue;
+			}
+			VectorFill (scaleout, 0.0);
+			opaquestyleout = -1;
+			return true;
+		}
+		if (TestSegmentAgainstStudioList(p1, p2)) //seedee
+		{
+			VectorFill(scaleout, 0.0);
+			opaquestyleout = -1;
+			return true;
+		}
+		if (scaleout[0] < 0.01 && scaleout[1] < 0.01 && scaleout[2] < 0.01)
+		{
+			return true; //so much shadowing that result is same as with normal opaque face
+		}
+		return false;
 }
 
 

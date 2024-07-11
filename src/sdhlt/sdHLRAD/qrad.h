@@ -50,6 +50,7 @@
 #define DEFAULT_FASTMODE			false
 #define DEFAULT_METHOD eMethodSparseVismatrix
 #define DEFAULT_LERP_ENABLED        true
+#define DEFAULT_STUDIOSHADOW        true //seedee
 #define DEFAULT_FADE                1.0
 #define DEFAULT_BOUNCE              8
 #define DEFAULT_DUMPPATCHES         false
@@ -619,5 +620,11 @@ extern vec_t	CalcSightArea_SpotLight (const vec3_t receiver_origin, const vec3_t
 					, vec_t lighting_power, vec_t lighting_scale
 					);
 extern void		GetAlternateOrigin (const vec3_t pos, const vec3_t normal, const patch_t *patch, vec3_t &origin);
+
+// studio.cpp
+extern void LoadStudioModels(void);
+extern void FreeStudioModels(void);
+extern bool TestSegmentAgainstStudioList(const vec_t* p1, const vec_t* p2);
+extern bool g_studioshadow;
 
 #endif //HLRAD_H__

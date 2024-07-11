@@ -160,10 +160,15 @@
     <ClCompile Include="lightmap.cpp" />
     <ClCompile Include="loadtextures.cpp" />
     <ClCompile Include="mathutil.cpp" />
+    <ClCompile Include="meshdesc.cpp" />
+    <ClCompile Include="meshtrace.cpp" />
     <ClCompile Include="nomatrix.cpp" />
+    <ClCompile Include="progmesh.cpp" />
     <ClCompile Include="qrad.cpp" />
     <ClCompile Include="qradutil.cpp" />
     <ClCompile Include="sparse.cpp" />
+	<ClCompile Include="stringlib.cpp" />
+    <ClCompile Include="studio.cpp" />
     <ClCompile Include="trace.cpp" />
     <ClCompile Include="transfers.cpp" />
     <ClCompile Include="transparency.cpp" />
@@ -172,6 +177,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\anorms.h" />
+    <ClInclude Include="..\common\resourcelock.h" />
+    <ClInclude Include="..\common\stringlib.h" />
+    <ClInclude Include="..\common\studio.h" />
+    <ClInclude Include="..\common\TimeCounter.h" />
     <ClInclude Include="..\template\basictypes.h" />
     <ClInclude Include="..\common\blockmem.h" />
     <ClInclude Include="..\common\boundingbox.h" />
@@ -185,6 +194,9 @@
     <ClInclude Include="..\common\mathlib.h" />
     <ClInclude Include="..\common\mathtypes.h" />
     <ClInclude Include="..\common\messages.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="meshdesc.h" />
+    <ClInclude Include="meshtrace.h" />
     <ClInclude Include="qrad.h" />
     <ClInclude Include="..\common\scriplib.h" />
     <ClInclude Include="..\common\threads.h" />
