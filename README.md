@@ -2,7 +2,7 @@
 
 <sub>Half-Life engine map compile tools, based on Vluzacn's ZHLT v34 with code contributions from various contributors. Based on Valve's version, modified with permission.</sub>
 
-New features include new entities, additional tool textures, ability to extend world size limits, portal file optimisation for J.A.C.K. map editor and minor algorithm optimization.
+New features include shadows from studiomodels, new entities, additional tool textures, ability to extend world size limits, portal file optimisation for J.A.C.K. map editor and minor algorithm optimization.
 
 ## How to install
 
@@ -15,13 +15,14 @@ The main benefit of the 64-bit version is no memory allocation failures, because
 
 ## Features
 
-### Compile parameters
+### Studiomodel shadows
 
-- `-pre25` RAD parameter overrides light clipping threshold limiter to `188`. Use this when creating maps for the legacy pre-25th anniversary engine without worrying about other parameters.
-- `-extra` RAD parameter now sets `-bounce 12` for a higher quality of lighting simulation.
-- `-worldextent n` CSG parameter. Extends map geometry limits beyond `+/-32768`.
-- Portal file reformatting for J.A.C.K. map editor, allows for importing the prt file into the editor directly after VIS. Use `-nofixprt` VIS parameter to disable.
-- `-nowadautodetect` CSG parameter. Wadautodetect is now true by default regardless of settings.
+Entities with a `model` keyvalue, such as *env_sprite* or *cycler_sprite*, support the use of `zhlt_studioshadow 1` to flag the studiomodel as opaque to lighting. Additionally, `zhlt_shadowmode n` is used to control the shadow tracing mode.  
+The default `1` will trace for each triangle and supports transparent textures.  
+Setting `2` doesn't support transparency, but it traces the planes bbox for each triangle, the slowest but usually higher quality for some models.  
+Setting `0` disables tracing and uses the mesh bbox instead.
+
+To implement these into your own fgd file for SmartEdit, use the template at the top of *sdhlt.fgd*. If the new shadow covers the origin and makes it too dark, set a custom `light_origin` on the entity or move the mesh origin point externally.
 
 ### Entities
 
@@ -35,10 +36,18 @@ The main benefit of the 64-bit version is no memory allocation failures, because
 - **SPLITFACE** texture. Brushes with this texture will subdivide faces they touch along their edges, similarly to `zhlt_chopdown`.
 - **cur_tool** textures, which act like **CONTENTWATER** and *func_pushable* with a speed of `2048 units/s` in -Y. This texture is always fullbright.
 
+### Compile parameters
+
+- `-pre25` RAD parameter overrides light clipping threshold limiter to `188`. Use this when creating maps for the legacy pre-25th anniversary engine without worrying about other parameters.
+- `-extra` RAD parameter now sets `-bounce 12` for a higher quality of lighting simulation.
+- `-worldextent n` CSG parameter. Extends map geometry limits beyond `+/-32768`.
+- Portal file reformatting for J.A.C.K. map editor, allows for importing the prt file into the editor directly after VIS. Use `-nofixprt` VIS parameter to disable.
+- `-nowadautodetect` CSG parameter. Wadautodetect is now true by default regardless of settings.
+- `-nostudioshadow` RAD parameter to ignore `zhlt_studioshadow` on studiomodels.
+
 ## Planned
 - **BLOCKLIGHT** texture, cast shadows without generating faces or cliphulls.
 - Optimization for `BuildFacelights` and `LeafThread`
-- Shadow casting for studiomodels, potentially adapting code from other codebases.
 - Res file creation for servers
 - Split concerns into their own libraries instead of repeating infrastructure and util code
 - Full tool texture documentation
