@@ -4891,10 +4891,35 @@ void            FinalLightFace(const int facenum)
     // sample the triangulation
     //
     minlight = FloatForKey(g_face_entity[facenum], "_minlight") * 128;
+    const char* texname = GetTextureByNumber(f->texinfo);
 
-	if (!strncasecmp(GetTextureByNumber(f->texinfo), "%", 1)) //If texture name has % flag //seedee
+	if (!strncasecmp(texname, "%", 1)) //If texture name has % flag //seedee
 	{
-		minlight = 2 * 128; //max _minlight * 128 = fullbright
+		minlight = 255;
+		size_t texnameLength = strlen(texname);
+
+		if (texnameLength > 1)
+		{
+			char* minlightValue = new char[texnameLength + 1];
+			int valueIndex = 0;
+			int i = 1;
+
+			if (texname[i] >= '0' && texname[i] <= '9') //Loop until non-digit is found or we run out of space
+			{
+				while (texname[i] != '\0' && texname[i] >= '0' && texname[i] <= '9' && valueIndex < texnameLength)
+				{
+					minlightValue[valueIndex++] = texname[i++];
+				}
+				minlightValue[valueIndex] = '\0';
+				int newMinlight = atoi(minlightValue);
+				delete[] minlightValue;
+
+				if (newMinlight < 256)
+				{
+					minlight = newMinlight;
+				}
+			}
+		}
 	}
 
 	original_basiclight = (vec3_t *)calloc (fl->numsamples, sizeof(vec3_t));
