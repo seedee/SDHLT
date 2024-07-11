@@ -23,21 +23,31 @@ The main benefit of the 64-bit version is no memory allocation failures, because
 
 ## Features
 
-- *info_portal* and *info_leaf* used to create a portal from the leaf the *info_portal* is inside, to selected leaf the *info_leaf* is inside. Forces target leaf to be visible from the current one, making all entities visible.
-- **BEVELHINT** tool texture, which acts like **SOLIDHINT** and **BEVEL**. Eliminates unnecessary face subdivision and bevels clipnodes at the same time. Useful on complex shapes such as terrain, spiral staircase clipping, etc.
-- **SPLITFACE** tool texture. Brushes with this texture will subdivide faces they touch along their edges, similarly to `zhlt_chopdown`.
-- `-pre25` RAD paremeter overrides light clipping threshhold limiter to `188`. Use this when creating maps for the legacy pre-25th anniversary engine without worrying about other parameters.
+### Compile parameters
+
+- `-pre25` RAD parameter overrides light clipping threshhold limiter to `188`. Use this when creating maps for the legacy pre-25th anniversary engine without worrying about other parameters.
 - `-extra` RAD parameter now sets `-bounce 12` for a higher quality of lighting simulation.
 - `-worldextent n` CSG parameter. Extends map geometry limits beyond `+/-32768`.
 - Portal file optimization for J.A.C.K. map editor, allows for importing the prt file into the editor directly after VIS. Use `-nofixprt` VIS parameter to disable.
-- **cur_tool** textures, which act like **CONTENTWATER** and *func_pushable* with a speed of `2048 units/s` in -Y. This texture is always fullbright.
 - `-nowadautodetect` CSG parameter. Wadautodetect is now true by default regardless of settings.
 
+### Entities
+
+- *info_portal* and *info_leaf* used to create a portal from the leaf the *info_portal* is inside, to selected leaf the *info_leaf* is inside. Forces target leaf to be visible from the current one, making all entities visible.
+- *info_minlights* used to set minlights per-texture, works on world geometry too.
+
+### Textures
+
+- **BEVELHINT** texture, which acts like **SOLIDHINT** and **BEVEL**. Eliminates unnecessary face subdivision and bevels clipnodes at the same time. Useful on complex shapes such as terrain, spiral staircase clipping, etc.
+- **SPLITFACE** texture. Brushes with this texture will subdivide faces they touch along their edges, similarly to `zhlt_chopdown`.
+- **cur_tool** textures, which act like **CONTENTWATER** and *func_pushable* with a speed of `2048 units/s` in -Y. This texture is always fullbright.
+
 ## Planned
-- **BLOCKLIGHT** tool texture, cast shadows without generating faces or cliphulls.
+- **BLOCKLIGHT** texture, cast shadows without generating faces or cliphulls.
 - Optimization for BuildFacelights and LeafThread
 - Shadow casting for studiomodels, potentially adapting code from other codebases.
 - Res file creation for servers
+- Split concerns into their own libraries instead of repeating infrastructure and util code
 
 ## Documentation
 - [Tool textures](https://gamebanana.com/tuts/13211)
