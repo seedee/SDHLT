@@ -149,7 +149,6 @@
     <ClCompile Include="..\common\cmdlib.cpp" />
     <ClCompile Include="..\common\cmdlinecfg.cpp" />
     <ClCompile Include="..\common\filelib.cpp" />
-    <ClCompile Include="..\common\files.cpp" />
     <ClCompile Include="..\common\log.cpp" />
     <ClCompile Include="..\common\mathlib.cpp" />
     <ClCompile Include="..\common\messages.cpp" />

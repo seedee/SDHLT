@@ -51,9 +51,6 @@
     <ClCompile Include="ripent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\common\files.cpp">
-      <Filter>Source Files\common</Filter>
-    </ClCompile>
     <ClCompile Include="..\common\threads.cpp">
       <Filter>Source Files\common</Filter>
     </ClCompile>
