@@ -98,7 +98,6 @@ set(CSG_DIR ${SDHLT_DIR}/sdHLCSG)
 set(CSG_SOURCES
     ${COMMON_SOURCES}
     ${CSG_DIR}/ansitoutf8.cpp
-    ${CSG_DIR}/autowad.cpp
     ${CSG_DIR}/brush.cpp
     ${CSG_DIR}/brushunion.cpp
     ${CSG_DIR}/hullfile.cpp
@@ -107,7 +106,6 @@ set(CSG_SOURCES
     ${CSG_DIR}/qcsg.cpp
     ${CSG_DIR}/textures.cpp
     ${CSG_DIR}/wadcfg.cpp
-    ${CSG_DIR}/wadinclude.cpp
     ${CSG_DIR}/wadpath.cpp
 )
 
@@ -130,10 +128,15 @@ set(RAD_SOURCES
     ${RAD_DIR}/lightmap.cpp
     ${RAD_DIR}/loadtextures.cpp
     ${RAD_DIR}/mathutil.cpp
+	${RAD_DIR}/meshdesc.cpp
+	${RAD_DIR}/meshtrace.cpp
     ${RAD_DIR}/nomatrix.cpp
+    ${RAD_DIR}/progmesh.cpp
     ${RAD_DIR}/qrad.cpp
     ${RAD_DIR}/qradutil.cpp
     ${RAD_DIR}/sparse.cpp
+	${RAD_DIR}/stringlib.cpp
+	${RAD_DIR}/studio.cpp
     ${RAD_DIR}/trace.cpp
     ${RAD_DIR}/transfers.cpp
     ${RAD_DIR}/transparency.cpp
@@ -145,6 +148,9 @@ set(RAD_HEADERS
     ${COMMON_HEADERS}
     ${COMMON_DIR}/anorms.h
     ${RAD_DIR}/compress.h
+	${RAD_DIR}/list.h
+	${RAD_DIR}/meshdesc.h
+	${RAD_DIR}/meshtrace.h
     ${RAD_DIR}/qrad.h
 )
 

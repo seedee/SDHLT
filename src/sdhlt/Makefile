@@ -96,7 +96,6 @@ COMMON_FLAGS = -Wall -O2 -fno-strict-aliasing -pthread -pipe
 HLCSG_CPPFILES = \
 			$(COMMON_CPPFILES) \
 			sdHLCSG/ansitoutf8.cpp \
-			sdHLCSG/autowad.cpp \
 			sdHLCSG/brush.cpp \
 			sdHLCSG/brushunion.cpp \
 			sdHLCSG/hullfile.cpp \
@@ -105,7 +104,6 @@ HLCSG_CPPFILES = \
 			sdHLCSG/qcsg.cpp \
 			sdHLCSG/textures.cpp \
 			sdHLCSG/wadcfg.cpp \
-			sdHLCSG/wadinclude.cpp \
 			sdHLCSG/wadpath.cpp \
 
 HLCSG_INCLUDEDIRS = \
@@ -173,10 +171,15 @@ HLRAD_CPPFILES = \
 			sdHLRAD/lightmap.cpp \
 			sdHLRAD/loadtextures.cpp \
 			sdHLRAD/mathutil.cpp \
+			sdHLRAD/meshdesc.cpp \
+			sdHLRAD/meshtrace.cpp \
 			sdHLRAD/nomatrix.cpp \
+			sdHLRAD/progmesh.cpp \
 			sdHLRAD/qrad.cpp \
 			sdHLRAD/qradutil.cpp \
 			sdHLRAD/sparse.cpp \
+			sdHLRAD/stringlib.cpp \
+			sdHLRAD/studio.cpp \
 			sdHLRAD/trace.cpp \
 			sdHLRAD/transfers.cpp \
 			sdHLRAD/transparency.cpp \
@@ -191,6 +194,9 @@ HLRAD_INCLUDEFILES = \
 			$(COMMON_INCLUDEFILES) \
 			common/anorms.h \
 			sdHLRAD/compress.h \
+			sdHLRAD/list.h \
+			sdHLRAD/meshdesc.h \
+			sdHLRAD/meshtrace.h \
 			sdHLRAD/qrad.h \
 
 HLRAD_DEFINITIONS = \
