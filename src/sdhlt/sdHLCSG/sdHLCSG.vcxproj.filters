@@ -50,9 +50,6 @@
     <ClCompile Include="ansitoutf8.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="autowad.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="brush.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

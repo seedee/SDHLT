@@ -156,7 +156,6 @@
     <ClCompile Include="..\common\threads.cpp" />
     <ClCompile Include="..\common\winding.cpp" />
     <ClCompile Include="ansitoutf8.cpp" />
-    <ClCompile Include="autowad.cpp" />
     <ClCompile Include="brush.cpp" />
     <ClCompile Include="brushunion.cpp" />
     <ClCompile Include="hullfile.cpp" />
