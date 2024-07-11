@@ -1,3 +1,20 @@
+// Additional sdhlt.fgd file containing map editor related entities.
+// For SDHLT v1.2.0
+// For studiomodel shadows, add the following keyvalues into cycler_sprite and other entities that have a model key
+
+//	zhlt_studioshadow(choices) :"Opaque (Blocks Light)" : "" =
+//	[
+//		"": "Normal"
+//		1: "Opaque (Blocks Light)"
+//	]
+//	zhlt_shadowmode(choices) : "Shadow mode" : 1 =
+//	[
+//		0: "Fast, no tracing"
+//		1: "Normal, trace each triangle (supports transparency)"
+//		2: "Slow, trace planes bbox for each triangle"
+//	]
+
+
 
 // light_shadow
 // It creates toggleable shadow for func_door, func_breakable, ...
