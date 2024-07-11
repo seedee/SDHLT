@@ -125,11 +125,19 @@
 	]
 ]
 
+// info_minlights
+// It defines per-texture minlights.
+// Add any texture name as a key and their new minlight as the value.
+// Works the same as _minlight keyvalue (range 0-1).
+@PointClass color(210 100 0) = info_minlights : "Defines per-texture minlights. Key = texture name, value = minlight (range 0-1)"
+[
+]
+
 // info_texlights
 // It defines texture lights.
 // Add any texture name as a key and their brightness as the value.
 // Don't need to set colors because hlrad knows texture colors.
-@PointClass color(255 0 0) = info_texlights : "Texture name : Brightness"
+@PointClass color(255 0 0) = info_texlights : "Defines texture lights. Key = texture name, value = brightness OR value = red green blue brightness"
 [
 ]
 

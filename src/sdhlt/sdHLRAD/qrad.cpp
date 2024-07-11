@@ -406,12 +406,14 @@ typedef struct
 {
     std::string     name;
     vec3_t          value;
-    const char*     filename;
+    const char*     filename; //either info_texlights or lights.rad filename
 }
 texlight_t;
 
 static std::vector< texlight_t > s_texlights;
 typedef std::vector< texlight_t >::iterator texlight_i;
+
+std::vector<minlight_t> s_minlights;
 
 // =====================================================================================
 //  ReadLightFile
@@ -2993,66 +2995,90 @@ static void     Settings()
 }
 
 // AJM: added in
+// add minlights entity //seedee
 // =====================================================================================
-//  ReadInfoTexlights
+//  ReadInfoTexAndMinlights
 //      try and parse texlight info from the info_texlights entity 
 // =====================================================================================
-void            ReadInfoTexlights()
+void            ReadInfoTexAndMinlights()
 {
     int         k;
     int         values;
-    int         numtexlights = 0;
-    float       r, g, b, i;
+    float       r, g, b, i, min;
     entity_t*   mapent;
     epair_t*    ep;
     texlight_t  texlight;
+	minlight_t minlight;
 
     for (k = 0; k < g_numentities; k++)
     {
         mapent = &g_entities[k];
-        
-        if (strcmp(ValueForKey(mapent, "classname"), "info_texlights"))
-            continue;
+		bool foundMinlights = false;
+		bool foundTexlights = false;
 
-		Log("Reading texlights from info_texlights map entity\n");
+		if (!strcmp(ValueForKey(mapent, "classname"), "info_minlights")) {
+			Log("Reading per-tex minlights from info_minlights map entity\n");
 
-        for (ep = mapent->epairs; ep; ep = ep->next)
-        {
-            if (    !strcmp(ep->key, "classname") 
-                 || !strcmp(ep->key, "origin")
-               )
-                continue; // we dont care about these keyvalues
+			for (ep = mapent->epairs; ep; ep = ep->next)
+			{
+				if (!strcmp(ep->key, "classname")
+					|| !strcmp(ep->key, "origin")
+					)
+					continue; // we dont care about these keyvalues
+				if (sscanf(ep->value, "%f", &min) != 1)
+				{
+					Warning("Ignoring bad minlight '%s' in info_minlights entity", ep->key);
+					continue;
+				}
+				minlight.name = ep->key;
+				minlight.value = min;
+				s_minlights.push_back(minlight);
+			}
+			
+		}
+		else if (!strcmp(ValueForKey(mapent, "classname"), "info_texlights")) {
+			Log("Reading texlights from info_texlights map entity\n");
 
-            values = sscanf(ep->value, "%f %f %f %f", &r, &g, &b, &i);
-            
-            if (values == 1)
-            {  
-                g = b = r;
-            }
-            else if (values == 4) // use brightness value.
-            {
-                r *= i / 255.0;
-                g *= i / 255.0;
-                b *= i / 255.0;
-            }
-            else if (values != 3)
-            {
-                Warning("ignoring bad texlight '%s' in info_texlights entity", ep->key);
-                continue;
-            }
+			for (ep = mapent->epairs; ep; ep = ep->next)
+			{
+				if (!strcmp(ep->key, "classname")
+					|| !strcmp(ep->key, "origin")
+					)
+					continue; // we dont care about these keyvalues
 
-            texlight.name = ep->key;
-            texlight.value[0] = r;
-            texlight.value[1] = g;
-            texlight.value[2] = b;
-            texlight.filename = "info_texlights";
-            s_texlights.push_back(texlight);
-            numtexlights++;
-        }
+				values = sscanf(ep->value, "%f %f %f %f", &r, &g, &b, &i);
 
+				if (values == 1)
+				{
+					g = b = r;
+				}
+				else if (values == 4) // use brightness value.
+				{
+					r *= i / 255.0;
+					g *= i / 255.0;
+					b *= i / 255.0;
+				}
+				else if (values != 3)
+				{
+					Warning("Ignoring bad texlight '%s' in info_texlights entity", ep->key);
+					continue;
+				}
+
+				texlight.name = ep->key;
+				texlight.value[0] = r;
+				texlight.value[1] = g;
+				texlight.value[2] = b;
+				texlight.filename = "info_texlights";
+				s_texlights.push_back(texlight);
+			}
+			foundTexlights = true;
+		}
+		if (foundMinlights && foundTexlights)
+		{
+			break;
+		}
     }
 }
-
 
 const char* lights_rad = "lights.rad";
 const char* ext_rad = ".rad";
@@ -3177,8 +3203,7 @@ void            LoadRadFiles(const char* const mapname, const char* const user_r
             }
         }
     }
-
-    ReadInfoTexlights(); // AJM
+	ReadInfoTexAndMinlights(); // AJM + seedee
 }
 
 // =====================================================================================

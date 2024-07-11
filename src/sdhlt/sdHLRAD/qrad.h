@@ -21,6 +21,8 @@
 #include "compress.h"
 #include "cmdlinecfg.h"
 
+#include <vector>
+
 #ifdef SYSTEM_WIN32
 #pragma warning(disable: 4142 4028)
 #include <io.h>
@@ -42,6 +44,7 @@
 #ifdef SYSTEM_WIN32
 #include <direct.h>
 #endif
+#include <string>
 
 #define DEFAULT_PRE25UPDATE         false
 #define DEFAULT_FASTMODE			false
@@ -365,10 +368,20 @@ extern void AddWadFolder (const char *path);
 extern void LoadTextures ();
 extern void EmbedLightmapInTextures ();
 
+typedef struct
+{
+	std::string     name;
+	float          value;
+}
+minlight_t; //info_minlights
+
+typedef std::vector<minlight_t>::iterator minlight_i;
+
 //
 // qrad globals
 //
 
+extern std::vector<minlight_t> s_minlights;
 extern patch_t* g_face_patches[MAX_MAP_FACES];
 extern entity_t* g_face_entity[MAX_MAP_FACES];
 extern vec3_t   g_face_offset[MAX_MAP_FACES];              // for models with origins

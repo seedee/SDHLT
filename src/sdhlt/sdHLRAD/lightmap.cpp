@@ -4890,12 +4890,13 @@ void            FinalLightFace(const int facenum)
     //
     // sample the triangulation
     //
-    minlight = FloatForKey(g_face_entity[facenum], "_minlight") * 128;
-    const char* texname = GetTextureByNumber(f->texinfo);
+    minlight = FloatForKey(g_face_entity[facenum], "_minlight") * 255; //seedee
+	minlight = (minlight > 255) ? 255 : minlight;
+
+	const char* texname = GetTextureByNumber(f->texinfo);
 
 	if (!strncasecmp(texname, "%", 1)) //If texture name has % flag //seedee
 	{
-		minlight = 255;
 		size_t texnameLength = strlen(texname);
 
 		if (texnameLength > 1)
@@ -4911,17 +4912,27 @@ void            FinalLightFace(const int facenum)
 					minlightValue[valueIndex++] = texname[i++];
 				}
 				minlightValue[valueIndex] = '\0';
-				int newMinlight = atoi(minlightValue);
+				minlight = atoi(minlightValue);
 				delete[] minlightValue;
-
-				if (newMinlight < 256)
-				{
-					minlight = newMinlight;
-				}
+				minlight = (minlight > 255) ? 255 : minlight;
 			}
 		}
+		else
+		{
+			minlight = 255;
+		}
 	}
+	minlight_i it;
 
+	for (it = s_minlights.begin(); it != s_minlights.end(); it++)
+	{
+		if (!strcasecmp(texname, it->name.c_str()))
+		{
+			float minlightValue = it->value * 255.0f;
+			minlight = static_cast<int>(minlightValue);
+			minlight = (minlight > 255) ? 255 : minlight;
+		}
+	}
 	original_basiclight = (vec3_t *)calloc (fl->numsamples, sizeof(vec3_t));
 	final_basiclight = (int (*)[3])calloc (fl->numsamples, sizeof(int [3]));
 	hlassume (original_basiclight != NULL, assume_NoMemory);
