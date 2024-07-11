@@ -167,7 +167,7 @@
     <ClCompile Include="qrad.cpp" />
     <ClCompile Include="qradutil.cpp" />
     <ClCompile Include="sparse.cpp" />
-	<ClCompile Include="stringlib.cpp" />
+    <ClCompile Include="stringlib.cpp" />
     <ClCompile Include="studio.cpp" />
     <ClCompile Include="trace.cpp" />
     <ClCompile Include="transfers.cpp" />

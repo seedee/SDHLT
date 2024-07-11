@@ -164,7 +164,6 @@
     <ClCompile Include="qcsg.cpp" />
     <ClCompile Include="textures.cpp" />
     <ClCompile Include="wadcfg.cpp" />
-    <ClCompile Include="wadinclude.cpp" />
     <ClCompile Include="wadpath.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -74,9 +74,6 @@
     <ClCompile Include="wadcfg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wadinclude.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="wadpath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
