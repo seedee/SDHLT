@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - Jul 11 2024
+### Changed
+- Add studiomodel shadows with 3 shadow modes and `-nostudioshadow`
+- Add *info_portal* and *info_leaf*
+- Add *info_minlights* and `%` texture flag
+- Add `-pre25`, increase `-limiter` default to `255`
+- Increase `-bounce` to min `12` if using `-expert`
+- Enable `-wadautodetect` by default
+- Reformatted texture-related logging to look like resgen
+- Add CMake config and Makefile
+
+### Fixed
+- Potential buffer overrun in `PushWadPath`
+
 ## [1.1.2] - Sep 09 2022
 ### Changed
 - Reasons for skipping portal file optimisation process are more detailed
