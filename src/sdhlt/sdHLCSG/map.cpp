@@ -226,7 +226,6 @@ static void ParseBrush(entity_t* mapent)
 
     while (ok) //Loop through brush sides
     {
-        g_TXcommand = 0;
         if (!strcmp(g_token, "}")) //If we have reached the end of the brush
         {
             break;
@@ -382,59 +381,6 @@ static void ParseBrush(entity_t* mapent)
 
         ok = GetToken(true);                               // Done with line, this reads the first item from the next line
 
-        if ((g_TXcommand == '1' || g_TXcommand == '2'))
-        {
-            // We are QuArK mode and need to translate some numbers to align textures its way
-            // from QuArK, the texture vectors are given directly from the three points
-            vec3_t          TexPt[2];
-            int             k;
-            float           dot22, dot23, dot33, mdet, aa, bb, dd;
-
-            k = g_TXcommand - '0';
-            for (j = 0; j < 3; j++)
-            {
-                TexPt[1][j] = (side->planepts[k][j] - side->planepts[0][j]) * ScaleCorrection;
-            }
-            k = 3 - k;
-            for (j = 0; j < 3; j++)
-            {
-                TexPt[0][j] = (side->planepts[k][j] - side->planepts[0][j]) * ScaleCorrection;
-            }
-
-            dot22 = DotProduct(TexPt[0], TexPt[0]);
-            dot23 = DotProduct(TexPt[0], TexPt[1]);
-            dot33 = DotProduct(TexPt[1], TexPt[1]);
-            mdet = dot22 * dot33 - dot23 * dot23;
-            if (mdet < 1E-6 && mdet > -1E-6)
-            {
-                aa = bb = dd = 0;
-                Warning
-                    ("Degenerate QuArK-style brush texture : Entity %i, Brush %i @ (%f,%f,%f) (%f,%f,%f)	(%f,%f,%f)",
-					b->originalentitynum, b->originalbrushnum, 
-					 side->planepts[0][0], side->planepts[0][1], side->planepts[0][2],
-                     side->planepts[1][0], side->planepts[1][1], side->planepts[1][2], side->planepts[2][0],
-                     side->planepts[2][1], side->planepts[2][2]);
-            }
-            else
-            {
-                mdet = 1.0 / mdet;
-                aa = dot33 * mdet;
-                bb = -dot23 * mdet;
-                //cc = -dot23*mdet;             // cc = bb
-                dd = dot22 * mdet;
-            }
-
-            for (j = 0; j < 3; j++)
-            {
-                side->td.vects.quark.vects[0][j] = aa * TexPt[0][j] + bb * TexPt[1][j];
-                side->td.vects.quark.vects[1][j] = -( /*cc */ bb * TexPt[0][j] + dd * TexPt[1][j]);
-            }
-
-            side->td.vects.quark.vects[0][3] = -DotProduct(side->td.vects.quark.vects[0], side->planepts[0]);
-            side->td.vects.quark.vects[1][3] = -DotProduct(side->td.vects.quark.vects[1], side->planepts[0]);
-        }
-
-        side->td.txcommand = g_TXcommand;                  // Quark stuff, but needs setting always
     };
 	if (b->cliphull != 0) // has CLIP* texture
 	{
@@ -762,9 +708,9 @@ bool            ParseMapEntity()
 
 		if (ent_move_b || ent_scale_b || ent_gscale_b)
 		{
-			if (g_nMapFileVersion < 220 || g_brushsides[0].td.txcommand != 0)
+			if (g_nMapFileVersion < 220)
 			{
-				Warning ("hlcsg scaling hack is not supported in Worldcraft 2.1- or QuArK mode");
+				Warning ("hlcsg scaling hack is not supported in Worldcraft 2.1");
 			}
 			else
 			{
