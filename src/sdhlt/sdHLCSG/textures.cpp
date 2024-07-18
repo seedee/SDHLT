@@ -823,117 +823,106 @@ int             TexinfoForBrushTexture(const plane_t* const plane, brush_texture
         tx.flags |= TEX_SPECIAL;
     }
 
-    if (bt->txcommand)
+    if (g_nMapFileVersion < 220)
     {
-        memcpy(tx.vecs, bt->vects.quark.vects, sizeof(tx.vecs));
-        if (origin[0] || origin[1] || origin[2])
+        TextureAxisFromPlane(plane, vecs[0], vecs[1]);
+    }
+
+    if (!bt->vects.valve.scale[0])
+    {
+        bt->vects.valve.scale[0] = 1;
+    }
+    if (!bt->vects.valve.scale[1])
+    {
+        bt->vects.valve.scale[1] = 1;
+    }
+
+    if (g_nMapFileVersion < 220)
+    {
+        // rotate axis
+        if (bt->vects.valve.rotate == 0)
         {
-            tx.vecs[0][3] += DotProduct(origin, tx.vecs[0]);
-            tx.vecs[1][3] += DotProduct(origin, tx.vecs[1]);
+            sinv = 0;
+            cosv = 1;
+        }
+        else if (bt->vects.valve.rotate == 90)
+        {
+            sinv = 1;
+            cosv = 0;
+        }
+        else if (bt->vects.valve.rotate == 180)
+        {
+            sinv = 0;
+            cosv = -1;
+        }
+        else if (bt->vects.valve.rotate == 270)
+        {
+            sinv = -1;
+            cosv = 0;
+        }
+        else
+        {
+            ang = bt->vects.valve.rotate / 180 * Q_PI;
+            sinv = sin(ang);
+            cosv = cos(ang);
+        }
+
+        if (vecs[0][0])
+        {
+            sv = 0;
+        }
+        else if (vecs[0][1])
+        {
+            sv = 1;
+        }
+        else
+        {
+            sv = 2;
+        }
+
+        if (vecs[1][0])
+        {
+            tv = 0;
+        }
+        else if (vecs[1][1])
+        {
+            tv = 1;
+        }
+        else
+        {
+            tv = 2;
+        }
+
+        for (i = 0; i < 2; i++)
+        {
+            ns = cosv * vecs[i][sv] - sinv * vecs[i][tv];
+            nt = sinv * vecs[i][sv] + cosv * vecs[i][tv];
+            vecs[i][sv] = ns;
+            vecs[i][tv] = nt;
+        }
+
+        for (i = 0; i < 2; i++)
+        {
+            for (j = 0; j < 3; j++)
+            {
+                tx.vecs[i][j] = vecs[i][j] / bt->vects.valve.scale[i];
+            }
         }
     }
     else
     {
-        if (g_nMapFileVersion < 220)
-        {
-            TextureAxisFromPlane(plane, vecs[0], vecs[1]);
-        }
+        vec_t           scale;
 
-        if (!bt->vects.valve.scale[0])
-        {
-            bt->vects.valve.scale[0] = 1;
-        }
-        if (!bt->vects.valve.scale[1])
-        {
-            bt->vects.valve.scale[1] = 1;
-        }
+        scale = 1 / bt->vects.valve.scale[0];
+        VectorScale(bt->vects.valve.UAxis, scale, tx.vecs[0]);
 
-        if (g_nMapFileVersion < 220)
-        {
-            // rotate axis
-            if (bt->vects.valve.rotate == 0)
-            {
-                sinv = 0;
-                cosv = 1;
-            }
-            else if (bt->vects.valve.rotate == 90)
-            {
-                sinv = 1;
-                cosv = 0;
-            }
-            else if (bt->vects.valve.rotate == 180)
-            {
-                sinv = 0;
-                cosv = -1;
-            }
-            else if (bt->vects.valve.rotate == 270)
-            {
-                sinv = -1;
-                cosv = 0;
-            }
-            else
-            {
-                ang = bt->vects.valve.rotate / 180 * Q_PI;
-                sinv = sin(ang);
-                cosv = cos(ang);
-            }
-
-            if (vecs[0][0])
-            {
-                sv = 0;
-            }
-            else if (vecs[0][1])
-            {
-                sv = 1;
-            }
-            else
-            {
-                sv = 2;
-            }
-
-            if (vecs[1][0])
-            {
-                tv = 0;
-            }
-            else if (vecs[1][1])
-            {
-                tv = 1;
-            }
-            else
-            {
-                tv = 2;
-            }
-
-            for (i = 0; i < 2; i++)
-            {
-                ns = cosv * vecs[i][sv] - sinv * vecs[i][tv];
-                nt = sinv * vecs[i][sv] + cosv * vecs[i][tv];
-                vecs[i][sv] = ns;
-                vecs[i][tv] = nt;
-            }
-
-            for (i = 0; i < 2; i++)
-            {
-                for (j = 0; j < 3; j++)
-                {
-                    tx.vecs[i][j] = vecs[i][j] / bt->vects.valve.scale[i];
-                }
-            }
-        }
-        else
-        {
-            vec_t           scale;
-
-            scale = 1 / bt->vects.valve.scale[0];
-            VectorScale(bt->vects.valve.UAxis, scale, tx.vecs[0]);
-
-            scale = 1 / bt->vects.valve.scale[1];
-            VectorScale(bt->vects.valve.VAxis, scale, tx.vecs[1]);
-        }
-
-        tx.vecs[0][3] = bt->vects.valve.shift[0] + DotProduct(origin, tx.vecs[0]);
-        tx.vecs[1][3] = bt->vects.valve.shift[1] + DotProduct(origin, tx.vecs[1]);
+        scale = 1 / bt->vects.valve.scale[1];
+        VectorScale(bt->vects.valve.VAxis, scale, tx.vecs[1]);
     }
+
+    tx.vecs[0][3] = bt->vects.valve.shift[0] + DotProduct(origin, tx.vecs[0]);
+    tx.vecs[1][3] = bt->vects.valve.shift[1] + DotProduct(origin, tx.vecs[1]);
+    
 
     //
     // find the g_texinfo

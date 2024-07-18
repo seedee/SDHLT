@@ -10,7 +10,6 @@
 #define	MAXTOKEN 4096
 
 extern char     g_token[MAXTOKEN];
-extern char     g_TXcommand;                               // global for Quark maps texture alignment hack
 
 extern void     LoadScriptFile(const char* const filename);
 extern void     ParseFromMemory(char* buffer, int size);
