@@ -74,6 +74,7 @@ bool            g_bUseNullTex = DEFAULT_NULLTEX; // "-nonulltex"
 
 
 bool g_nohull2 = false;
+bool g_nohull3 = false;
 
 bool g_viewportal = false;
 
@@ -971,7 +972,13 @@ static surfchain_t* ReadSurfs(FILE* file)
     while (1)
     {
 		if (file == polyfiles[2] && g_nohull2)
+		{
 			break;
+		}
+		else if (file == polyfiles[3] && g_nohull3)
+		{
+			break;
+		}
         line++;
         r = fscanf(file, "%i %i %i %i %i\n", &detaillevel, &planenum, &g_texinfo, &contents, &numpoints);
         if (r == 0 || r == -1)
@@ -1062,7 +1069,14 @@ static brush_t *ReadBrushes (FILE *file)
 	while (1)
 	{
 		if (file == brushfiles[2] && g_nohull2)
+        {
 			break;
+        }
+		else if (file == brushfiles[3] && g_nohull3)
+        {
+			break;
+        }
+
 		int r;
 		int brushinfo;
 		r = fscanf (file, "%i\n", &brushinfo);
@@ -1407,6 +1421,7 @@ static void     Usage()
 
 
 	Log("    -nohull2       : Don't generate hull 2 (the clipping hull for large monsters and pushables)\n");
+	Log("    -nohull3       : Don't generate hull 2 (the clipping hull for crouching and small pushables)\n");
 
 	Log("    -viewportal    : Show portal boundaries in 'mapname_portal.pts' file\n");
 
@@ -1478,6 +1493,7 @@ static void     Settings()
     Log("max node size       [ %7d ] [ %7d ] (Min %d) (Max %d)\n",
         g_maxnode_size, DEFAULT_MAXNODE_SIZE, MIN_MAXNODE_SIZE, MAX_MAXNODE_SIZE);
 	Log("remove hull 2       [ %7s ] [ %7s ]\n", g_nohull2? "on": "off", "off");
+	Log("remove hull 3       [ %7s ] [ %7s ]\n", g_nohull3? "on": "off", "off");
     Log("\n\n");
 }
 
@@ -1765,6 +1781,11 @@ int             main(const int argc, char** argv)
 		else if (!strcasecmp (argv[i], "-nohull2"))
 		{
 			g_nohull2 = true;
+		}
+        
+        else if (!strcasecmp (argv[i], "-nohull3"))
+		{
+			g_nohull3 = true;
 		}
 
 		else if (!strcasecmp(argv[i], "-noopt"))
