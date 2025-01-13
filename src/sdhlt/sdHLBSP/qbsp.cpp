@@ -1421,7 +1421,7 @@ static void     Usage()
 
 
 	Log("    -nohull2       : Don't generate hull 2 (the clipping hull for large monsters and pushables)\n");
-	Log("    -nohull3       : Don't generate hull 2 (the clipping hull for crouching and small pushables)\n");
+	Log("    -nohull3       : Don't generate hull 3 (the clipping hull for crouching and small pushables)\n");
 
 	Log("    -viewportal    : Show portal boundaries in 'mapname_portal.pts' file\n");
 
