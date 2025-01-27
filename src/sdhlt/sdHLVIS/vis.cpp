@@ -1326,7 +1326,7 @@ int        VisLeafnumForPoint(const vec3_t point)
 //  FixPrt
 //      Imports portal file to vector, erases vis cache lines, overwrites portal file
 // =====================================================================================
-void FixPrt(const char* portalfile)
+void FixPrt(const char* portalfile, bool tb_fix)
 {
     Log("\nReading portal file '%s'\n", portalfile);
 
@@ -1338,7 +1338,7 @@ void FixPrt(const char* portalfile)
 
     if (!inputFileStream) //If import fails
     {
-        Log("Failed reading portal file '%s', skipping optimization for J.A.C.K. map editor\n", portalfile);
+        Log("Failed reading portal file '%s', skipping optimization for J.A.C.K./TrenchBroom map editor\n", portalfile);
         return;
     }
 
@@ -1380,12 +1380,18 @@ void FixPrt(const char* portalfile)
     }
     if (skipFix)
     {
-        Log("Skipping optimization for J.A.C.K. map editor\n");
+        Log("Skipping optimization for J.A.C.K./TrenchBroom map editor\n");
         return;
     }
     prtVector.erase( //Deletes from string 3 until string before portal coordinates
         prtVector.begin() + 2,
         itPortalCoords);
+
+    if (tb_fix) // TB prt file format
+    {
+        prtVector[0] = PORTALFILE; // header
+        prtVector.insert(prtVector.begin() + 1, "0");
+    }
 
     optimizedPortalFileLines = prtVector.size(); //Count lines after optimization
 
@@ -1408,12 +1414,18 @@ void FixPrt(const char* portalfile)
             outputFileStream << prtVector[i] << "\n"; //Print each string as a new line
         }
         outputFileStream.close();
-
-        Log("Optimization for J.A.C.K. map editor successful, writing portal file '%s'\n", portalfile);
+        if (tb_fix)
+        {
+            Log("Optimization for TrenchBroom map editor successful, writing portal file '%s'\n", portalfile);
+        }
+        else
+        {
+            Log("Optimization for J.A.C.K. map editor successful, writing portal file '%s'\n", portalfile);
+        }
     }
     else //If open fails
     {
-        Log("Failed writing portal file '%s', skipping optimization for J.A.C.K. map editor\n", portalfile);
+        Log("Failed writing portal file '%s', skipping optimization for J.A.C.K./TrenchBroom map editor\n", portalfile);
         return;
     }
 
@@ -1429,6 +1441,7 @@ int             main(const int argc, char** argv)
     int             i;
     double          start, end;
     const char*     mapname_from_arg = NULL;
+    bool            tb_prt = false;
 
 #ifdef ZHLT_NETVIS
     g_Program = "netvis";
@@ -1659,6 +1672,10 @@ int             main(const int argc, char** argv)
 				Usage();
 			}
 		}
+        else if (!strcasecmp (argv[i], "-tbprt"))
+        {
+            tb_prt = true;
+        }
 
         else if (argv[i][0] == '-')
         {
@@ -1983,7 +2000,7 @@ int             main(const int argc, char** argv)
 
     if (!g_nofixprt) //seedee
     {
-        FixPrt(portalfile);
+        FixPrt(portalfile, tb_prt);
     }
 
     if (g_chart)
