@@ -1073,28 +1073,78 @@ void            PrintBSPFileSizes()
     Log("=== Total BSP file data space used: %d bytes ===\n\n", totalmemory);
 	if (nowadtextures)
 	{
-		Log ("No wad files required to run the map\n");
+		Log ("0 wad files required to run the map\n");
 	}
 	else if (wadvalue == NULL)
 	{
-		Log ("Wad files required to run the map: (Couldn't parse wad keyvalue from entity data)\n");
+		Warning ("Couldn't parse wad keyvalue from entity data\n");
+		Log ("0 wad files required to run the map\n");
 	}
 	else //If we have any wads still required //seedee
 	{
-		Log("Wad files required to run the map\n");
-		Log("---------------------------------\n");
 		size_t length = strlen(wadvalue) + 1;
 		char* wadvalueNewline = new char[length]; //+1 for null terminator
 		safe_strncpy(wadvalueNewline, wadvalue, length); //Defensive copy
 
+		int nonEmptyWads = 0;
+		int emptyWads = 0; //Zero-length segments
+		size_t curSegmentLen = 0;
+		size_t maxSegmentLen = 0;
+
 		for (size_t i = 0; i < length; ++i) {
-			if (wadvalueNewline[i] == ';') {
-				wadvalueNewline[i] = '\n';
+			if (wadvalueNewline[i] == ';' || wadvalueNewline[i] == '\0') {
+				//End of a segment
+
+				if (curSegmentLen > 0)
+				{
+					nonEmptyWads++;
+				}
+				else
+				{
+					emptyWads++;
+				}
+				if (curSegmentLen > maxSegmentLen)
+				{
+					maxSegmentLen = curSegmentLen;
+				}
+				curSegmentLen = 0;
+
+				if (wadvalueNewline[i] == ';')
+				{
+					wadvalueNewline[i] = '\n';
+				}
+			}
+			else
+			{
+				curSegmentLen++;
 			}
 		}
-		Log("%s", wadvalueNewline);
+		char requiredWadLine[64];
+		char emptyWadLine[64];
+		int len1 = snprintf(requiredWadLine, sizeof(requiredWadLine), "%i wad file%s required to run the map", nonEmptyWads, nonEmptyWads == 1 ? "" : "s");
+		int len2 = snprintf(emptyWadLine, sizeof(emptyWadLine), "%i empty wad entr%s skipped", emptyWads, emptyWads == 1 ? "y" : "ies");
+		int ruleLen = len1; //Line is widest of: line1, line2, or widest wad path
+
+		if (len2 > ruleLen)
+		{
+			ruleLen = len2;
+		}
+		if ((int)maxSegmentLen > ruleLen) ruleLen = (int)maxSegmentLen;
+
+		Log( "%s\n", requiredWadLine);
+
+		for (int i = 0; i < ruleLen; i++)
+			Log( "-" );
+		Log( "\n" );
+
+		Log( "  %s", wadvalueNewline );
 		delete[] wadvalueNewline;
-		Log("---------------------------------\n\n");
+
+		for (int i = 0; i < ruleLen; i++)
+			Log( "-" );
+		Log( "\n" );
+
+		Log( "%s\n\n", emptyWadLine);
 	}
 	if (wadvalue)
 	{
