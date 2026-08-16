@@ -501,31 +501,46 @@ bool CMeshDesc :: StudioConstructMesh( model_t *pModel )
 	profile.start();
 	bool simplify_model = (pModel->trace_mode == 2) ? true : false; // trying to reduce polycount and the speedup compilation
 
-	// compute default pose for building mesh from
-	mstudioseqdesc_t *pseqdesc = (mstudioseqdesc_t *)((byte *)phdr + phdr->seqindex);
-	mstudioseqgroup_t *pseqgroup = (mstudioseqgroup_t *)((byte *)phdr + phdr->seqgroupindex) + pseqdesc->seqgroup;
+	// compute default pose for building mesh from  
+	mstudiobone_t* pbone = (mstudiobone_t*)((byte*)phdr + phdr->boneindex);
+	mstudioanim_t* panim = NULL;
 
-	// sanity check
-	if( pseqdesc->seqgroup != 0 )
+	if (phdr->numseq > 0)
 	{
-		Developer( DEVELOPER_LEVEL_ERROR, "StudioConstructMesh: bad sequence group (must be 0)\n" );
-		return false;
-	}
+		mstudioseqdesc_t* pseqdesc = (mstudioseqdesc_t*)((byte*)phdr + phdr->seqindex);
 
-#ifdef VERSION_64BIT
-	mstudioanim_t *panim = (mstudioanim_t *)((byte *)phdr + /*pseqgroup->data +*/ pseqdesc->animindex);
-#else
-	mstudioanim_t *panim = (mstudioanim_t *)((byte *)phdr + pseqgroup->data + pseqdesc->animindex);
-#endif
-	mstudiobone_t *pbone = (mstudiobone_t *)((byte *)phdr + phdr->boneindex);
+		// sanity check  
+		if (pseqdesc->seqgroup != 0)
+		{
+			Developer(DEVELOPER_LEVEL_ERROR, "StudioConstructMesh: bad sequence group (must be 0)\n");
+			return false;
+		}
+
+		// The animindex is already relative to phdr for group 0, so we have no pseqgroup->data   ~seedee
+		panim = (mstudioanim_t*)((byte*)phdr + pseqdesc->animindex);
+	}
+	else
+	{
+		Warning("StudioConstructMesh: using rest pose for model %s with 0 sequences (shadow tracing may be lower quality)\n", pModel->name);
+	}
 	static vec3_t pos[MAXSTUDIOBONES];
 	static vec4_t q[MAXSTUDIOBONES];
 	int totalVertSize = 0;
 
-	for( int i = 0; i < phdr->numbones; i++, pbone++, panim++ ) 
+	for (int i = 0; i < phdr->numbones; i++, pbone++)
 	{
-		StudioCalcBoneQuaterion( pbone, panim, q[i] );
-		StudioCalcBonePosition( pbone, panim, pos[i] );
+		if (panim)
+		{
+			StudioCalcBoneQuaterion(pbone, panim, q[i]);
+			StudioCalcBonePosition(pbone, panim, pos[i]);
+			panim++;
+		}
+		else
+		{
+			// no sequences: use the bone's default pose  
+			AngleQuaternion(pbone->value + 3, q[i]);
+			VectorCopy(pbone->value, pos[i]);
+		}
 	}
 
 	pbone = (mstudiobone_t *)((byte *)phdr + phdr->boneindex);

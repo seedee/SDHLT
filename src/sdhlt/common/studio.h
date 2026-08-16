@@ -286,7 +286,6 @@ typedef struct
 	char		label[32];	// textual name
 	char		name[64];		// file name
 	cache_user_t	cache;		// cache index pointer
-	int		data;		// hack for group 0
 } mstudioseqgroup_t;
 
 // sequence descriptions
