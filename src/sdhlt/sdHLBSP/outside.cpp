@@ -25,6 +25,10 @@ static node_t*  PointInLeaf(node_t* node, const vec3_t point)
 {
     vec_t           d;
 
+	if (!node)
+	{
+		return node; //Return null back up the chain
+	}
 	if (node->isportalleaf)
     {
         //Log("PointInLeaf::node->contents == %i\n", node->contents);
@@ -606,6 +610,11 @@ node_t*         FillOutside(node_t* node, const bool leakfile, const unsigned hu
 
 void			ResetMark_r (node_t* node)
 {
+    if (!node)
+    {
+        PrintOnce("ResetMark_r: internal error: skipping null tree branch node (possible uptream tree-construction bug)\n");
+        return;
+    }
 	if (node->isportalleaf)
 	{
 		if (node->contents == CONTENTS_SOLID || node->contents == CONTENTS_SKY)
@@ -625,6 +634,10 @@ void			ResetMark_r (node_t* node)
 }
 void			MarkOccupied_r (node_t* node)
 {
+    if (!node)
+    {
+        return;
+    }
 	if (node->empty == 1)
 	{
 		node->empty = 0;
@@ -639,6 +652,11 @@ void			MarkOccupied_r (node_t* node)
 }
 void			RemoveUnused_r (node_t* node)
 {
+    if (!node)
+    {
+        PrintOnce("RemoveUnused_r: internal error: skipping null tree branch node (possible uptream tree-construction bug)\n");
+        return;
+    }
 	if (node->isportalleaf)
 	{
 		if (node->empty == 1)
@@ -654,6 +672,10 @@ void			RemoveUnused_r (node_t* node)
 }
 void			FillInside (node_t* node)
 {
+    if (!node)
+    {
+        return;
+    }
 	int i;
 	g_outside_node.empty = 0;
 	ResetMark_r (node);
