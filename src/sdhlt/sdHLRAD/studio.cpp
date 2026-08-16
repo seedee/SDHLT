@@ -18,6 +18,7 @@ void LoadStudioModel( const char *modelname, const vec3_t origin, const vec3_t a
 	model_t *m = &models[num_models];
 	sprintf(m->name, "%s%s", g_Wadpath, modelname);
 	FlipSlashes(m->name);
+	ExtractFile(modelname, m->shortname);
 
 	if (!q_exists(m->name))
 	{
@@ -175,8 +176,21 @@ void LoadStudioModels( void )
 
 		LoadStudioModel( model, origin, angles, xform, body, skin, trace_mode );
 	}
+	char line[64];
+	int len = snprintf( line, sizeof( line ), "%i opaque studio models", num_models );
+	Log( "%s\n", line );
 
-	Log( "%i opaque studio models\n", num_models );
+	for  (int i = 0; i < len; i++ )
+		Log( "-" );
+	Log( "\n" );
+
+	for (int i = 0; i < num_models; i++) {
+		Log("  %s\n", models[i].shortname);
+	}
+
+	for (int i = 0; i < len; i++)
+		Log( "-" );
+	Log( "\n\n" );
 }
 
 void FreeStudioModels( void )

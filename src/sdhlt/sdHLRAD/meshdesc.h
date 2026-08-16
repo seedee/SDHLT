@@ -216,7 +216,8 @@ int MapVertex( int a, int mx, List<int> &map );
 // collision description
 typedef struct model_s
 {
-	char		name[64];		// model name
+	char		name[_MAX_PATH];		// model name
+	char		shortname[64];
 	vec3_t		origin;
 	vec3_t		angles;
 	vec3_t		scale;		// scale X-Form
