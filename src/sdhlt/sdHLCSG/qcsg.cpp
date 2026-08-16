@@ -59,7 +59,7 @@ const char*			g_nullfile = NULL;
 
 bool            g_bClipNazi = DEFAULT_CLIPNAZI;         // "-noclipeconomy"
 
-bool            g_bWadAutoDetect = DEFAULT_WADAUTODETECT; // "-nowadautodetect"
+bool            g_bWadAutoDetect = DEFAULT_WADAUTODETECT; // "-wadautodetect"
 
 
 vec_t g_scalesize = DEFAULT_SCALESIZE;
@@ -135,16 +135,8 @@ void            GetParamsFromEnt(entity_t* mapent)
     }
 
     // wadautodetect(choices) : "Wad Auto Detect" : 0 =	[ 0 : "Off" 1 : "On" ]
-    /*if (!strcmp(ValueForKey(mapent, "wadautodetect"), "1"))
-    { 
-        g_bWadAutoDetect = true;
-    }
-    else
-    {
-        g_bWadAutoDetect = false;
-    }*/
     const char* wadautodetectValue = ValueForKey(mapent, "wadautodetect"); //seedee
-    g_bWadAutoDetect = (wadautodetectValue && atoi(wadautodetectValue) >= 1);
+	g_bWadAutoDetect = (strcmp(wadautodetectValue, "0") != 0);
     Log("%30s [ %-9s ]\n", "Wad Auto Detect", g_bWadAutoDetect ? "on" : "off");
 	
 	// wadconfig(string) : "Custom Wad Configuration" : ""
@@ -1890,9 +1882,9 @@ int             main(const int argc, char** argv)
                 Usage();
             }
 		}
-        else if (!strcasecmp(argv[i], "-nowadautodetect"))
-        { 
-            g_bWadAutoDetect = false;
+        else if (!strcasecmp(argv[i], "-wadautodetect"))
+        {
+            g_bWadAutoDetect = true;
         }
         else if (!strcasecmp(argv[i], "-nowadtextures"))
         {
