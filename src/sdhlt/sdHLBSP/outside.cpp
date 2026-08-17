@@ -612,7 +612,7 @@ void			ResetMark_r (node_t* node)
 {
     if (!node)
     {
-        PrintOnce("ResetMark_r: internal error: skipping null tree branch node (possible uptream tree-construction bug)\n");
+        PrintOnce("ResetMark_r: internal error: skipping null tree branch node (possible upstream tree-construction bug)\n");
         return;
     }
 	if (node->isportalleaf)
@@ -654,7 +654,7 @@ void			RemoveUnused_r (node_t* node)
 {
     if (!node)
     {
-        PrintOnce("RemoveUnused_r: internal error: skipping null tree branch node (possible uptream tree-construction bug)\n");
+        PrintOnce("RemoveUnused_r: internal error: skipping null tree branch node (possible upstream tree-construction bug)\n");
         return;
     }
 	if (node->isportalleaf)
