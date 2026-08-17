@@ -9,9 +9,9 @@
 //	]
 //	zhlt_shadowmode(choices) : "Shadow mode" : 1 =
 //	[
-//		0: "Fast, no tracing"
+//		0: "Fast, trace a bbox around each triangle"
 //		1: "Normal, trace each triangle (supports transparency)"
-//		2: "Slow, trace planes bbox for each triangle"
+//		2: "Slow, trace each triangle with extra thickness"
 //	]
 
 

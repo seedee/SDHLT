@@ -18,9 +18,9 @@ The main benefit of the 64-bit version is no memory allocation failures, because
 ### Studiomodel shadows
 
 Entities with a `model` keyvalue, such as *env_sprite* or *cycler_sprite*, support the use of `zhlt_studioshadow 1` to flag the studiomodel as opaque to lighting. Additionally, `zhlt_shadowmode n` is used to control the shadow tracing mode.  
-The default `1` will trace for each triangle and supports transparent textures.  
-Setting `2` doesn't support transparency, but it traces the planes bbox for each triangle, the slowest but usually higher quality for some models.  
-Setting `0` disables tracing and uses the mesh bbox instead.
+The default `1` will trace each triangle normally and supports transparent textures.  
+Setting `2` doesn't support transparency. It traces each triangle with some extra thickness, which fills in the gaps between triangle seams for solid-looking shadows. 
+Setting `0` only traces a bbox around each triangle. In practice, these union together into something close to the whole model's bbox.
 
 To implement these into your own fgd file for SmartEdit, use the template at the top of *sdhlt.fgd*. If the new shadow covers the origin and makes it too dark, set a custom `light_origin` on the entity or move the mesh origin point externally.
 

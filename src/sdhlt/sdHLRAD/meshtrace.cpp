@@ -339,6 +339,7 @@ void TraceMesh :: ClipToLinks( areanode_t *node )
 
 		if( mesh->trace_mode == SHADOW_FAST )
 		{
+			// Trace a bbox (AABB) for each triangle. In practice, these union together into something close to the whole model's bbox.
 			// ultra-fast mode, no real tracing here
 			if( ClipRayToBox( facet->mins, facet->maxs ))
 			{
@@ -348,6 +349,7 @@ void TraceMesh :: ClipToLinks( areanode_t *node )
 		}
 		else if( mesh->trace_mode == SHADOW_NORMAL )
 		{
+			// Trace each triangle (Moller-Trumbore intersection)
 			// does trace for each triangle
 			if( ClipRayToFace( facet ))
 			{
@@ -357,6 +359,7 @@ void TraceMesh :: ClipToLinks( areanode_t *node )
 		}
 		else if( mesh->trace_mode == SHADOW_SLOW )
 		{
+			// Swept-bbox clipping test (enter/leave fractions against each plane)
 			// does trace for planes bbox for each triangle
 			if( ClipRayToFacet( facet ))
 			{
