@@ -1083,8 +1083,8 @@ void            PrintBSPFileSizes()
 	else //If we have any wads still required //seedee
 	{
 		size_t length = strlen(wadvalue) + 1;
-		char* wadvalueNewline = new char[length]; //+1 for null terminator
-		safe_strncpy(wadvalueNewline, wadvalue, length); //Defensive copy
+		char* wadvalueFormatted = new char[length]; //+1 for null terminator
+		safe_strncpy(wadvalueFormatted, wadvalue, length);
 
 		int nonEmptyWads = 0;
 		int emptyWads = 0; //Zero-length segments
@@ -1092,27 +1092,21 @@ void            PrintBSPFileSizes()
 		size_t maxSegmentLen = 0;
 
 		for (size_t i = 0; i < length; ++i) {
-			if (wadvalueNewline[i] == ';' || wadvalueNewline[i] == '\0') {
-				//End of a segment
-
+			if (wadvalueFormatted[i] == ';' || wadvalueFormatted[i] == '\0') //End of a segment
+			{
 				if (curSegmentLen > 0)
 				{
+					if (curSegmentLen > maxSegmentLen)
+					{
+						maxSegmentLen = curSegmentLen;
+					}
 					nonEmptyWads++;
 				}
-				else
+				else if (wadvalueFormatted[i] == ';') //Count empty segments only between ';' and not the trailing '\0' //seedee
 				{
 					emptyWads++;
 				}
-				if (curSegmentLen > maxSegmentLen)
-				{
-					maxSegmentLen = curSegmentLen;
-				}
 				curSegmentLen = 0;
-
-				if (wadvalueNewline[i] == ';')
-				{
-					wadvalueNewline[i] = '\n';
-				}
 			}
 			else
 			{
@@ -1122,29 +1116,38 @@ void            PrintBSPFileSizes()
 		char requiredWadLine[64];
 		char emptyWadLine[64];
 		int len1 = snprintf(requiredWadLine, sizeof(requiredWadLine), "%i wad file%s required to run the map", nonEmptyWads, nonEmptyWads == 1 ? "" : "s");
-		int len2 = snprintf(emptyWadLine, sizeof(emptyWadLine), "%i empty wad entr%s skipped", emptyWads, emptyWads == 1 ? "y" : "ies");
-		int ruleLen = len1; //Line is widest of: line1, line2, or widest wad path
+		int ruleLen = len1; //Line is widest of: wads-required line, empty-wads line (if shown), or widest wad name
 
-		if (len2 > ruleLen)
-		{
-			ruleLen = len2;
-		}
 		if ((int)maxSegmentLen > ruleLen) ruleLen = (int)maxSegmentLen;
-
+		if (emptyWads > 0)
+		{
+			int len2 = snprintf(emptyWadLine, sizeof(emptyWadLine), "%i empty wad entr%s skipped", emptyWads, emptyWads == 1 ? "y" : "ies");
+			if (len2 > ruleLen) ruleLen = len2;
+		}
 		Log( "%s\n", requiredWadLine);
 
 		for (int i = 0; i < ruleLen; i++)
-			Log( "-" );
-		Log( "\n" );
+		{
+			Log("-");
+		}
+		Log("\n");
 
-		Log( "  %s", wadvalueNewline );
-		delete[] wadvalueNewline;
+		for (char* tok = strtok(wadvalueFormatted, ";"); tok; tok = strtok(NULL, ";"))
+		{
+			Log("  %s\n", tok);
+		}
+		delete[] wadvalueFormatted;
 
 		for (int i = 0; i < ruleLen; i++)
+		{
 			Log( "-" );
+		}
 		Log( "\n" );
 
-		Log( "%s\n\n", emptyWadLine);
+		if (emptyWads > 0)
+		{
+			Log("%s\n\n", emptyWadLine);
+		}
 	}
 	if (wadvalue)
 	{
