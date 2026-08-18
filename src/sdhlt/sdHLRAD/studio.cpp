@@ -178,19 +178,35 @@ void LoadStudioModels( void )
 	}
 	char line[64];
 	int len = snprintf( line, sizeof( line ), "%i opaque studio models", num_models );
-	Log( "%s\n", line );
+	Log("%s\n", line);
 
-	for  (int i = 0; i < len; i++ )
-		Log( "-" );
-	Log( "\n" );
+	if (num_models > 0)
+	{
+		for (int i = 0; i < len; i++)
+		{
+			Log("-");
+		}
+		Log("\n");
 
-	for (int i = 0; i < num_models; i++) {
-		Log("  %s\n", models[i].shortname);
+		for (int i = 0; i < num_models; i++)
+		{
+			bool dupe = false;
+
+			for (int j = 0; j < i && !dupe; j++)
+			{
+				dupe = !strcmp(models[i].shortname, models[j].shortname);
+			}
+			if (!dupe)
+			{
+				Log("  %s\n", models[i].shortname);
+			}
+		}
+		for (int i = 0; i < len; i++)
+		{
+			Log("-");
+		}
+		Log("\n");
 	}
-
-	for (int i = 0; i < len; i++)
-		Log( "-" );
-	Log( "\n\n" );
 }
 
 void FreeStudioModels( void )
