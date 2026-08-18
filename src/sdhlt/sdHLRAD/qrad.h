@@ -142,7 +142,19 @@
 	#define DEFAULT_EMBEDLIGHTMAP_GAMMA 1.05
 	#define DEFAULT_EMBEDLIGHTMAP_RESOLUTION 1
 	#define DEFAULT_TEXLIGHTGAP 0.0
-
+	#define DEFAULT_AO_ENABLE		false //seedee
+	#define MIN_AO_SCALE			1.0
+	#define DEFAULT_AO_SCALE		32.0 //Trace distance
+	#define MAX_AO_SCALE			1024.0
+	#define MIN_AO_GAIN				0.125
+	#define DEFAULT_AO_GAIN			1.0 //Exponent to reshape falloff (1.0 = linear)
+	#define MAX_AO_GAIN				8.0
+	#define MIN_AO_OPACITY			0.0
+	#define MAX_AO_OPACITY			1.0
+	#define DEFAULT_AO_OPACITY		1.0
+	#define DEFAULT_AO_COLOR_RED	0.0
+	#define DEFAULT_AO_COLOR_GREEN	0.0
+	#define DEFAULT_AO_COLOR_BLUE	0.0
 
 #ifdef SYSTEM_WIN32
 #define DEFAULT_ESTIMATE    false
@@ -473,6 +485,11 @@ extern vec3_t	g_jitter_hack;
 	extern vec_t g_maxdiscardedlight;
 	extern vec3_t g_maxdiscardedpos;
 	extern vec_t g_texlightgap;
+	extern bool  g_ao_enable;
+	extern vec_t g_ao_scale;
+	extern vec_t g_ao_opacity;
+	extern vec_t g_ao_gain;
+	extern vec3_t g_ao_color;
 
 extern void     MakeTnodes(dmodel_t* bm);
 extern void     PairEdges();

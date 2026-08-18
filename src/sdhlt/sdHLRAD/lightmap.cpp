@@ -3445,6 +3445,65 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 					}
 				}
 			}
+			if (g_ao_enable && !blocked) //seedee
+			{
+				int aolevel = g_softsky ? SKYLEVEL_SOFTSKYON : SKYLEVEL_SOFTSKYOFF; //Match AO to the existing density of light gathering for now
+				vec3_t* aonormals = g_skynormals[aolevel];
+				vec_t* aoweights = g_skynormalsizes[aolevel]; //How much solid-angle each direction covers
+				int aonum = g_numskynormals[aolevel];
+				vec_t occluded = 0;
+				vec_t totalweight = 0;
+
+				for (int k = 0; k < aonum; k++)
+				{
+					vec_t d = DotProduct(pointnormal, aonormals[k]);
+					if (d <= NORMAL_EPSILON) //Ignore rays parallel to or pointing into surfaces
+					{
+						continue;
+					}
+					vec_t w = d * aoweights[k]; //Cosine weighted (angle importance + how much area this direction covers)
+					totalweight += w;
+
+					vec3_t dest;
+					VectorMA(spot, g_ao_scale, aonormals[k], dest); //Set 'dest' exactly 'g_ao_scale' units away from 'spot' in the ray direction
+
+					if (TestLine(spot, dest) == CONTENTS_SOLID) //!= CONTENTS_EMPTY
+					{
+						occluded += w; //Hit world/solid
+						continue;
+					}
+					vec3_t transparency;
+					int opaquestyle;
+
+					if (TestSegmentAgainstOpaqueList(spot, dest, transparency, opaquestyle))
+					{
+						occluded += w; //Hit an opaque entity
+					}
+				}
+				vec_t occlusion = (totalweight > 0.0) ? (occluded / totalweight) : 0.0; //Get a percentage of occlusion
+
+				if (g_ao_gain != 1.0)
+				{
+					occlusion = pow(occlusion, g_ao_gain);
+				}
+				vec_t alpha = occlusion * g_ao_opacity;
+
+				if (alpha > 0.0)
+				{
+					for (j = 0; j < ALLSTYLES && styles[j] != 255; j++)
+					{
+						for (int x = 0; x < 3; x++)
+						{
+							sampled[j][x] = sampled[j][x] * (1.0 - alpha) + g_ao_color[x] * alpha; //Interpolate the AO color with the sampled light based on occlusion
+
+							if (sampled[j][x] < 0.0)
+							{
+								sampled[j][x] = 0.0;
+							}
+						}
+					}
+				}
+			}
 			if (g_drawnudge)
 			{
 				for (j = 0; j < ALLSTYLES && styles[j] != 255; j++)

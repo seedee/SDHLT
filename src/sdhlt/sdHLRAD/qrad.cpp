@@ -139,6 +139,13 @@ vec_t			g_blur = DEFAULT_BLUR;
 bool			g_noemitterrange = DEFAULT_NOEMITTERRANGE;
 vec_t			g_texlightgap = DEFAULT_TEXLIGHTGAP;
 
+// Ambient occlusion
+bool			g_ao_enable = DEFAULT_AO_ENABLE;
+vec_t			g_ao_scale = DEFAULT_AO_SCALE;
+vec_t			g_ao_opacity = DEFAULT_AO_OPACITY;
+vec_t			g_ao_gain = DEFAULT_AO_GAIN;
+vec3_t			g_ao_color = { DEFAULT_AO_COLOR_RED, DEFAULT_AO_COLOR_GREEN, DEFAULT_AO_COLOR_BLUE };
+
 // Misc
 int             leafparents[MAX_MAP_LEAFS];
 int             nodeparents[MAX_MAP_NODES];
@@ -2723,6 +2730,11 @@ static void     Usage()
     Log("    -extra          : Improve lighting quality by doing 9 point oversampling\n");
     Log("    -bounce #       : Set number of radiosity bounces\n");
     Log("    -ambient r g b  : Set ambient world light (0.0 to 1.0, r g b)\n");
+	Log("    -ao             : Enable ray-traced ambient occlusion (Monte-Carlo hemisphere)\n"); //seedee
+	Log("    -aoscale #      : Set ray length (larger values = thicker, wider bands)\n");
+	Log("    -aogain #       : Set falloff exponent (larger values = sharper corners, smaller = softer spread )\n");
+	Log("    -aoopacity #    : Set opacity (0.0 to 1.0)\n");
+	Log("    -aocolor r g b  : Set tint color (0 to 255, r g b)\n");
     Log("    -limiter #      : Set light clipping threshold (-1=None)\n");
     Log("    -circus         : Enable 'circus' mode for locating unlit lightmaps\n");
 	Log("    -nospread       : Disable sunlight spread angles for this compile\n");
@@ -2874,6 +2886,19 @@ static void     Settings()
     safe_snprintf(buf1, sizeof(buf1), "%3.1f %3.1f %3.1f", g_ambient[0], g_ambient[1], g_ambient[2]);
     safe_snprintf(buf2, sizeof(buf2), "%3.1f %3.1f %3.1f", DEFAULT_AMBIENT_RED, DEFAULT_AMBIENT_GREEN, DEFAULT_AMBIENT_BLUE);
     Log("ambient light        [ %17s ] [ %17s ]\n", buf1, buf2);
+	Log("ambient occlusion    [ %17s ] [ %17s ]\n", g_ao_enable ? "on" : "off", DEFAULT_AO_ENABLE ? "on" : "off");
+	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_ao_scale);
+	safe_snprintf(buf2, sizeof(buf2), "%3.3f", (double)DEFAULT_AO_SCALE);
+	Log("ao scale             [ %17s ] [ %17s ] (Min %3.3f) (Max %3.3f)\n", buf1, buf2, (double)MIN_AO_SCALE, (double)MAX_AO_SCALE);
+	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_ao_gain);
+	safe_snprintf(buf2, sizeof(buf2), "%3.3f", (double)DEFAULT_AO_GAIN);
+	Log("ao gain              [ %17s ] [ %17s ] (Min %3.3f) (Max %3.3f)\n", buf1, buf2, (double)MIN_AO_GAIN, (double)MAX_AO_GAIN);
+	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_ao_opacity);
+	safe_snprintf(buf2, sizeof(buf2), "%3.3f", (double)DEFAULT_AO_OPACITY);
+	Log("ao opacity           [ %17s ] [ %17s ] (Min %3.3f) (Max %3.3f)\n", buf1, buf2, (double)MIN_AO_OPACITY, (double)MAX_AO_OPACITY);
+	safe_snprintf(buf1, sizeof(buf1), "%3.1f %3.1f %3.1f", g_ao_color[0], g_ao_color[1], g_ao_color[2]);
+	safe_snprintf(buf2, sizeof(buf2), "%3.1f %3.1f %3.1f", DEFAULT_AO_COLOR_RED, DEFAULT_AO_COLOR_GREEN, DEFAULT_AO_COLOR_BLUE);
+	Log("ao color             [ %17s ] [ %17s ]\n", buf1, buf2);
     safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_limitthreshold);
     safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_LIMITTHRESHOLD);
     Log("light limit threshold[ %17s ] [ %17s ]\n", g_limitthreshold >= 0 ? buf1 : "None", buf2);
@@ -3910,6 +3935,90 @@ int             main(const int argc, char** argv)
 			else
 			{
 				Usage ();
+			}
+		}
+		else if (!strcasecmp (argv[i], "-ao"))
+		{
+			g_ao_enable = true;
+		}
+		else if (!strcasecmp(argv[i], "-aoscale"))
+		{
+			if (i + 1 < argc)
+			{
+				g_ao_scale = atof(argv[++i]);
+				//g_ao_scale = (g_ao_scale < 0) ? 0 : g_ao_scale;
+
+				if (g_ao_scale < MIN_AO_SCALE || g_ao_scale > MAX_AO_SCALE)
+				{
+					vec_t clamped = g_ao_scale < MIN_AO_SCALE ? MIN_AO_SCALE : MAX_AO_SCALE;
+					Log("-aoscale %f out of range (Min %f, Max %f), clamped to %f\n", g_ao_scale, (double)MIN_AO_SCALE, (double)MAX_AO_SCALE, clamped);
+					g_ao_scale = clamped;
+				}
+			}
+			else
+			{
+				Usage();
+			}
+		}
+		else if (!strcasecmp(argv[i], "-aogain"))
+		{
+			if (i + 1 < argc)
+			{
+				g_ao_gain = atof(argv[++i]);
+
+				if (g_ao_gain < MIN_AO_GAIN || g_ao_gain > MAX_AO_GAIN)
+				{
+					vec_t clamped = g_ao_gain < MIN_AO_GAIN ? MIN_AO_GAIN : MAX_AO_GAIN;
+					Log("-aogain %f out of range (Min %f, Max %f), clamped to %f\n",
+						g_ao_gain, (double)MIN_AO_GAIN, (double)MAX_AO_GAIN, clamped);
+					g_ao_gain = clamped;
+				}
+			}
+			else
+			{
+				Usage();
+			}
+		}
+		else if (!strcasecmp(argv[i], "-aoopacity") || !strcasecmp(argv[i], "-aopacity"))
+		{
+			if (i + 1 < argc)
+			{
+				g_ao_opacity = atof(argv[++i]);
+
+				if (g_ao_opacity < MIN_AO_OPACITY || g_ao_opacity > MAX_AO_OPACITY)
+				{
+					vec_t clamped = g_ao_opacity < MIN_AO_OPACITY ? MIN_AO_OPACITY : MAX_AO_OPACITY;
+					Log("-aoopacity %f out of range (Min %f, Max %f), clamped to %f\n",
+						g_ao_opacity, (double)MIN_AO_OPACITY, (double)MAX_AO_OPACITY, clamped);
+					g_ao_opacity = clamped;
+				}
+			}
+			else
+			{
+				Usage();
+			}
+		}
+		else if (!strcasecmp(argv[i], "-aocolor"))
+		{
+			if (i + 3 < argc)
+			{
+				g_ao_color[0] = (float)atof(argv[++i]);
+				g_ao_color[1] = (float)atof(argv[++i]);
+				g_ao_color[2] = (float)atof(argv[++i]);
+				const char* rgb[3] = { "red", "green", "blue" };
+
+				for (int x = 0; x < 3; x++) //FinalLightFace handles clamping to 255 at the end
+				{
+					if (g_ao_color[x] < 0.0)
+					{
+						Log("-aocolor %s value %f is negative, clamped to 0\n", rgb[x], g_ao_color[x]);
+						g_ao_color[x] = 0.0;
+					}
+				}
+			}
+			else
+			{
+				Error("expected three color values after '-aocolor'\n");
 			}
 		}
 		else if (!strcasecmp (argv[i], "-lang"))
