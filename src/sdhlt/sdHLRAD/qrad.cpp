@@ -2844,7 +2844,7 @@ static void     Settings()
     Log("chart                [ %17s ] [ %17s ]\n", g_chart ? "on" : "off", DEFAULT_CHART ? "on" : "off");
     Log("estimate             [ %17s ] [ %17s ]\n", g_estimate ? "on" : "off", DEFAULT_ESTIMATE ? "on" : "off");
     Log("max texture memory   [ %17d ] [ %17d ]\n", g_max_map_miptex, DEFAULT_MAX_MAP_MIPTEX);
-		Log("max lighting memory  [ %17d ] [ %17d ]\n", g_max_map_lightdata, DEFAULT_MAX_MAP_LIGHTDATA); //lightdata
+	Log("max lighting memory  [ %17d ] [ %17d ]\n", g_max_map_lightdata, DEFAULT_MAX_MAP_LIGHTDATA); //lightdata
 
     switch (g_threadpriority)
     {
@@ -2871,8 +2871,8 @@ static void     Settings()
     Log("oversampling (-extra)[ %17s ] [ %17s ]\n", g_extra ? "on" : "off", DEFAULT_EXTRA ? "on" : "off");
     Log("bounces              [ %17d ] [ %17d ]\n", g_numbounce, DEFAULT_BOUNCE);
 
-    safe_snprintf(buf1, sizeof(buf1), "%1.3f %1.3f %1.3f", g_ambient[0], g_ambient[1], g_ambient[2]);
-    safe_snprintf(buf2, sizeof(buf2), "%1.3f %1.3f %1.3f", DEFAULT_AMBIENT_RED, DEFAULT_AMBIENT_GREEN, DEFAULT_AMBIENT_BLUE);
+    safe_snprintf(buf1, sizeof(buf1), "%3.1f %3.1f %3.1f", g_ambient[0], g_ambient[1], g_ambient[2]);
+    safe_snprintf(buf2, sizeof(buf2), "%3.1f %3.1f %3.1f", DEFAULT_AMBIENT_RED, DEFAULT_AMBIENT_GREEN, DEFAULT_AMBIENT_BLUE);
     Log("ambient light        [ %17s ] [ %17s ]\n", buf1, buf2);
     safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_limitthreshold);
     safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_LIMITTHRESHOLD);
@@ -2924,12 +2924,12 @@ static void     Settings()
     // ------------------------------------------------------------------------
     // Changes by Adam Foster - afoster@compsoc.man.ac.uk
     // replaces the old stuff for displaying current values for gamma and lightscale
-    safe_snprintf(buf1, sizeof(buf1), "%1.3f %1.3f %1.3f", g_colour_lightscale[0], g_colour_lightscale[1], g_colour_lightscale[2]);
-    safe_snprintf(buf2, sizeof(buf2), "%1.3f %1.3f %1.3f", DEFAULT_COLOUR_LIGHTSCALE_RED, DEFAULT_COLOUR_LIGHTSCALE_GREEN, DEFAULT_COLOUR_LIGHTSCALE_BLUE);
+    safe_snprintf(buf1, sizeof(buf1), "%3.1f %3.1f %3.1f", g_colour_lightscale[0], g_colour_lightscale[1], g_colour_lightscale[2]);
+    safe_snprintf(buf2, sizeof(buf2), "%3.1f %3.1f %3.1f", DEFAULT_COLOUR_LIGHTSCALE_RED, DEFAULT_COLOUR_LIGHTSCALE_GREEN, DEFAULT_COLOUR_LIGHTSCALE_BLUE);
     Log("global light scale   [ %17s ] [ %17s ]\n", buf1, buf2);
 
-    safe_snprintf(buf1, sizeof(buf1), "%1.3f %1.3f %1.3f", g_colour_qgamma[0], g_colour_qgamma[1], g_colour_qgamma[2]);
-    safe_snprintf(buf2, sizeof(buf2), "%1.3f %1.3f %1.3f", DEFAULT_COLOUR_GAMMA_RED, DEFAULT_COLOUR_GAMMA_GREEN, DEFAULT_COLOUR_GAMMA_BLUE);
+    safe_snprintf(buf1, sizeof(buf1), "%3.1f %3.1f %3.1f", g_colour_qgamma[0], g_colour_qgamma[1], g_colour_qgamma[2]);
+    safe_snprintf(buf2, sizeof(buf2), "%3.1f %3.1f %3.1f", DEFAULT_COLOUR_GAMMA_RED, DEFAULT_COLOUR_GAMMA_GREEN, DEFAULT_COLOUR_GAMMA_BLUE);
     Log("global gamma         [ %17s ] [ %17s ]\n", buf1, buf2);
     // ------------------------------------------------------------------------
 

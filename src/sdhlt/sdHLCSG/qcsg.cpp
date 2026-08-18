@@ -1593,7 +1593,7 @@ static void     Settings()
     if (!g_info)
         return; 
 
-    Log("\nCurrent %s Settings\n", g_Program);
+    Log("\n-= Current %s Settings =-\n", g_Program);
     Log("Name                 |  Setting  |  Default\n"
         "---------------------|-----------|-------------------------\n");
 
