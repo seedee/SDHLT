@@ -2730,7 +2730,7 @@ static void     Usage()
     Log("    -extra          : Improve lighting quality by doing 9 point oversampling\n");
     Log("    -bounce #       : Set number of radiosity bounces\n");
     Log("    -ambient r g b  : Set ambient world light (0.0 to 1.0, r g b)\n");
-	Log("    -ao             : Enable ray-traced ambient occlusion (Monte-Carlo hemisphere)\n"); //seedee
+	Log("    -ao             : Enable ambient occlusion (cosine-weighted hemisphere)\n"); //seedee
 	Log("    -aoscale #      : Set ray length (larger values = thicker, wider bands)\n");
 	Log("    -aogain #       : Set falloff exponent (larger values = sharper corners, smaller = softer spread )\n");
 	Log("    -aoopacity #    : Set opacity (0.0 to 1.0)\n");
