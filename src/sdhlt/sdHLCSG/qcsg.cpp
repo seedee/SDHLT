@@ -1504,7 +1504,7 @@ static void     BoundWorld()
 //  Usage
 //      prints out usage sheet
 // =====================================================================================
-static void     Usage()
+static void     Usage(const char* paramWarning = 0, bool mapfileWarning = false)
 {
     Banner(); // TODO: Call banner from main CSG process? 
 
@@ -1562,6 +1562,8 @@ static void     Usage()
     Log("    -worldextent #   : Extend map geometry limits beyond +/-32768.\n");
     Log("    mapfile          : The mapfile to compile\n\n");
 
+    if (paramWarning) Log("Unknown option \"%s\"", paramWarning);
+    if (mapfileWarning) Log("No map file specified");
     exit(1);
 }
 
@@ -2041,7 +2043,7 @@ int             main(const int argc, char** argv)
         else if (argv[i][0] == '-')
         {
             Log("Unknown option \"%s\"\n", argv[i]);
-            Usage();
+            Usage(argv[i]);
         }
         else if (!mapname_from_arg)
         {
@@ -2050,7 +2052,7 @@ int             main(const int argc, char** argv)
         else
         {
             Log("Unknown option \"%s\"\n", argv[i]);
-            Usage();
+            Usage(argv[i]);
         }
     }
 
@@ -2058,8 +2060,8 @@ int             main(const int argc, char** argv)
     if (!mapname_from_arg)
     {
         // what a shame.
-        Log("No mapfile specified\n");
-        Usage();
+        Log("No map file specified\n");
+        Usage(0, true);
     }
 
     // handle mapname

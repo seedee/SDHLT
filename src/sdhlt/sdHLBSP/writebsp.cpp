@@ -202,7 +202,7 @@ static int		WriteDrawLeaf (node_t *node, const node_t *portalleaf)
     //
 	vec3_t mins, maxs;
 #if 0
-	printf ("leaf isdetail = %d loosebound = (%f,%f,%f)-(%f,%f,%f) portalleaf = (%f,%f,%f)-(%f,%f,%f)\n", node->isdetail,
+	printf ("leaf isdetail = %d loosebound = (%f %f %f)-(%f %f %f) portalleaf = (%f %f %f)-(%f %f %f)\n", node->isdetail,
 		node->loosemins[0], node->loosemins[1], node->loosemins[2], node->loosemaxs[0], node->loosemaxs[1], node->loosemaxs[2],
 		portalleaf->mins[0], portalleaf->mins[1], portalleaf->mins[2], portalleaf->maxs[0], portalleaf->maxs[1], portalleaf->maxs[2]);
 #endif
@@ -365,7 +365,7 @@ static int WriteDrawNodes_r (node_t *node, const node_t *portalleaf)
 	vec3_t mins, maxs;
 #if 0
 	if (node->isdetail || node->isportalleaf)
-		printf ("node isdetail = %d loosebound = (%f,%f,%f)-(%f,%f,%f) portalleaf = (%f,%f,%f)-(%f,%f,%f)\n", node->isdetail,
+		printf ("node isdetail = %d loosebound = (%f %f %f)-(%f %f %f) portalleaf = (%f %f %f)-(%f %f %f)\n", node->isdetail,
 			node->loosemins[0], node->loosemins[1], node->loosemins[2], node->loosemaxs[0], node->loosemaxs[1], node->loosemaxs[2],
 			portalleaf->mins[0], portalleaf->mins[1], portalleaf->mins[2], portalleaf->maxs[0], portalleaf->maxs[1], portalleaf->maxs[2]);
 #endif

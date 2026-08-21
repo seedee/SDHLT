@@ -2716,7 +2716,7 @@ static void     RadWorld()
 // =====================================================================================
 //  Usage
 // =====================================================================================
-static void     Usage()
+static void     Usage(const char* paramWarning = 0, bool mapfileWarning = false)
 {
     Banner();
 
@@ -2819,6 +2819,8 @@ static void     Usage()
 
     Log("    mapfile       : The mapfile to compile\n\n");
 
+	if (paramWarning) Log("Unknown option \"%s\"", paramWarning);
+	if (mapfileWarning) Log("No map file specified");
     exit(1);
 }
 
@@ -4046,7 +4048,7 @@ int             main(const int argc, char** argv)
         else if (argv[i][0] == '-')
         {
             Log("Unknown option \"%s\"\n", argv[i]);
-            Usage();
+            Usage(argv[i]);
         }
         else if (!mapname_from_arg)
         {
@@ -4055,14 +4057,14 @@ int             main(const int argc, char** argv)
         else
         {
             Log("Unknown option \"%s\"\n", argv[i]);
-            Usage();
+            Usage(argv[i]);
         }
     }
 
     if (!mapname_from_arg)
     {
-        Log("No mapname specified\n");
-        Usage();
+        Log("No map file specified\n");
+        Usage(0, true);
     }
 
     g_smoothing_threshold = (float)cos(g_smoothing_value * (Q_PI / 180.0));

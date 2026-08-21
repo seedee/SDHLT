@@ -1876,3 +1876,49 @@ entity_t*       EntityForModel(const int modnum)
 
     return &g_entities[0];
 }
+
+// =====================================================================================
+//  WarningEntityForModel														//seedee
+//      EntityForModel plus guard to return NULL for models other than 0 that
+//      fall back to worldspawn so warnings don't misattribute them to worldspawn
+// =====================================================================================
+entity_t* WarningEntityForModel(const int modnum)
+{
+	entity_t* ent = EntityForModel(modnum);
+
+	if (modnum != 0 && ent == &g_entities[0])
+	{
+		ent = NULL;
+	}
+	return ent;
+}
+
+// =====================================================================================
+//  FormatEntityInfo															//seedee
+//      String builder for entity info, reduces spam in logging and warnings
+// =====================================================================================
+void FormatEntityInfo(const entity_t* const ent, char* const buffer, const size_t bufferSize)
+{
+	if (!ent)
+	{
+		safe_snprintf(buffer, bufferSize, "classname \"unknown\"");
+		return;
+	}
+	const char* classname = ValueForKey(ent, "classname");
+	const char* origin = ValueForKey(ent, "origin");
+	const char* targetname = ValueForKey(ent, "targetname");
+	safe_snprintf(buffer, bufferSize, "classname \"%s\"", classname);
+
+	if (origin[0])
+	{
+		safe_strncat(buffer, ", origin \"", bufferSize);
+		safe_strncat(buffer, origin, bufferSize);
+		safe_strncat(buffer, "\"", bufferSize);
+	}
+	if (targetname[0])
+	{
+		safe_strncat(buffer, ", targetname \"", bufferSize);
+		safe_strncat(buffer, targetname, bufferSize);
+		safe_strncat(buffer, "\"", bufferSize);
+	}
+}

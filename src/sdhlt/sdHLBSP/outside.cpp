@@ -550,7 +550,7 @@ node_t*         FillOutside(node_t* node, const bool leakfile, const unsigned hu
 
 
         {
-            Warning("=== LEAK in hull %i ===\nEntity %s @ (%4.0f,%4.0f,%4.0f)",
+            Warning("=== LEAK in hull %i ===\nEntity %s at (%4.0f %4.0f %4.0f)",
                  hullnum, ValueForKey(&g_entities[hit_occupied], "classname"), origin[0], origin[1], origin[2]);
             PrintOnce(
                 "\n  A LEAK is a hole in the map, where the inside of it is exposed to the\n"

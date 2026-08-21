@@ -96,7 +96,7 @@ void AddFaceForVertexNormal_printerror (const int edgeabs, const int edgeend, df
 			e = g_dsurfedges[f->firstedge + i];
 			edgeshare_t *es = &g_edgeshare[abs(e)];
 			int v0 = g_dedges[abs(e)].v[0], v1 = g_dedges[abs(e)].v[1];
-			Log (" e=%d v0=%d(%f,%f,%f) v1=%d(%f,%f,%f) share0=%li share1=%li\n", e,
+			Log (" e=%d v0=%d(%f %f %f) v1=%d(%f %f %f) share0=%li share1=%li\n", e,
 				v0, g_dvertexes[v0].point[0], g_dvertexes[v0].point[1], g_dvertexes[v0].point[2],
 				v1, g_dvertexes[v1].point[0], g_dvertexes[v1].point[1], g_dvertexes[v1].point[2],
 				(es->faces[0]==NULL? -1: es->faces[0]-g_dfaces), (es->faces[1]==NULL? -1: es->faces[1]-g_dfaces));
@@ -390,7 +390,7 @@ void            PairEdges()
 				vec3_t errorpos;
 				VectorCopy (g_dvertexes[g_dedges[edgeabs].v[0]].point, errorpos);
 				VectorAdd (errorpos, g_face_offset[e->faces[0] - g_dfaces], errorpos);
-				Developer (DEVELOPER_LEVEL_WARNING, "PairEdges: invalid edge at (%f,%f,%f)", errorpos[0], errorpos[1], errorpos[2]);
+				Developer (DEVELOPER_LEVEL_WARNING, "PairEdges: invalid edge at (%f %f %f)", errorpos[0], errorpos[1], errorpos[2]);
 				VectorCopy(edgenormal, e->vertex_normal[0]);
 				VectorCopy(edgenormal, e->vertex_normal[1]);
 			}
@@ -419,12 +419,12 @@ void            PairEdges()
 							count++;
 							if (r == -1)
 							{
-								Developer (DEVELOPER_LEVEL_WARNING, "PairEdges: face edges mislink at (%f,%f,%f)", errorpos[0], errorpos[1], errorpos[2]);
+								Developer (DEVELOPER_LEVEL_WARNING, "PairEdges: face edges mislink at (%f %f %f)", errorpos[0], errorpos[1], errorpos[2]);
 								break;
 							}
 							if (count >= 100)
 							{
-								Developer (DEVELOPER_LEVEL_WARNING, "PairEdges: faces mislink at (%f,%f,%f)", errorpos[0], errorpos[1], errorpos[2]);
+								Developer (DEVELOPER_LEVEL_WARNING, "PairEdges: faces mislink at (%f %f %f)", errorpos[0], errorpos[1], errorpos[2]);
 								break;
 							}
 							if (DotProduct (normal, p0->normal) <= NORMAL_EPSILON || DotProduct(normal, p1->normal) <= NORMAL_EPSILON)
@@ -446,7 +446,7 @@ void            PairEdges()
 							if (fcurrent != e->faces[0] && fcurrent != e->faces[1] &&
 								(TestFaceIntersect (test0, fcurrent - g_dfaces) || TestFaceIntersect (test1, fcurrent - g_dfaces)))
 							{
-								Developer (DEVELOPER_LEVEL_WARNING, "Overlapping faces around corner (%f,%f,%f)\n", errorpos[0], errorpos[1], errorpos[2]);
+								Developer (DEVELOPER_LEVEL_WARNING, "Overlapping faces around corner (%f %f %f)\n", errorpos[0], errorpos[1], errorpos[2]);
 								break;
 							}
 							angles += angle;
@@ -481,7 +481,7 @@ void            PairEdges()
 					if (angles < NORMAL_EPSILON)
 					{
 						VectorCopy(edgenormal, e->vertex_normal[edgeend]);
-						Developer (DEVELOPER_LEVEL_WARNING, "PairEdges: no valid faces at (%f,%f,%f)", errorpos[0], errorpos[1], errorpos[2]);
+						Developer (DEVELOPER_LEVEL_WARNING, "PairEdges: no valid faces at (%f %f %f)", errorpos[0], errorpos[1], errorpos[2]);
 					}
 					else
 					{
@@ -1850,7 +1850,7 @@ void            CreateDirectLights()
         }
         else
         {
-            Log("light at (%f,%f,%f) has bad or missing '_light' value : '%s'\n",
+            Log("light at (%f %f %f) has bad or missing '_light' value : '%s'\n",
                 dl->origin[0], dl->origin[1], dl->origin[2], pLight);
             continue;
         }

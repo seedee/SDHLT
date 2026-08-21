@@ -1176,7 +1176,7 @@ static void     AssignPortalsToZones()
 // =====================================================================================
 //  Usage
 // =====================================================================================
-static void     Usage()
+static void     Usage(const char* paramWarning = 0, bool mapfileWarning = false)
 {
     Banner();
 
@@ -1221,6 +1221,8 @@ static void     Usage()
 
 #endif
 
+    if (paramWarning) Log("Unknown option \"%s\"", paramWarning);
+    if (mapfileWarning) Log("No map file specified");
     exit(1);
 }
 
@@ -1662,8 +1664,8 @@ int             main(const int argc, char** argv)
 
         else if (argv[i][0] == '-')
         {
-            Log("Unknown option \"%s\"", argv[i]);
-            Usage();
+            Log("Unknown option \"%s\"\n", argv[i]);
+            Usage(argv[i]);
         }
         else if (!mapname_from_arg)
         {
@@ -1672,7 +1674,7 @@ int             main(const int argc, char** argv)
         else
         {
             Log("Unknown option \"%s\"\n", argv[i]);
-            Usage();
+            Usage(argv[i]);
         }
     }
 
@@ -1705,8 +1707,8 @@ int             main(const int argc, char** argv)
 
         if (!mapname_from_arg)
         {
-            Log("No mapfile specified\n");
-            Usage();
+            Log("No map file specified\n");
+            Usage(0, true);
         }
     }
     else
@@ -1719,8 +1721,8 @@ int             main(const int argc, char** argv)
 
     if (!mapname_from_arg)
     {
-        Log("No mapfile specified\n");
-        Usage();
+        Log("No map file specified\n");
+        Usage(0, true);
     }
 #endif
 

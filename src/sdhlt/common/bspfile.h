@@ -404,6 +404,8 @@ extern void            GetVectorForKey(const entity_t* const ent, const char* co
 extern entity_t* FindTargetEntity(const char* const target);
 extern epair_t* ParseEpair();
 extern entity_t* EntityForModel(int modnum);
+extern entity_t* WarningEntityForModel(const int modnum);
+extern void FormatEntityInfo(const entity_t* const ent, char* const buffer, const size_t bufferSize);
 
 //
 // Texture Related Stuff

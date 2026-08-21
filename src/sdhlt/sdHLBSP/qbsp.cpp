@@ -1336,36 +1336,26 @@ static bool     ProcessModel()
 			}
 		}
 	}
-	Developer (DEVELOPER_LEVEL_MESSAGE, "model %d - mins=(%g,%g,%g) maxs=(%g,%g,%g)\n", modnum,
+	Developer (DEVELOPER_LEVEL_MESSAGE, "model %d - mins=(%g %g %g) maxs=(%g %g %g)\n", modnum,
 		model->mins[0], model->mins[1], model->mins[2], model->maxs[0], model->maxs[1], model->maxs[2]);
+
 	if (model->mins[0] > model->maxs[0])
 	{
-		entity_t *ent = EntityForModel (g_nummodels - 1);
-		if (g_nummodels - 1 != 0 && ent == &g_entities[0])
-		{
-			ent = NULL;
-		}
-		Warning ("Empty solid entity: model %d (entity: classname \"%s\", origin \"%s\", targetname \"%s\")", 
-			g_nummodels - 1, 
-			(ent? ValueForKey (ent, "classname"): "unknown"), 
-			(ent? ValueForKey (ent, "origin"): "unknown"), 
-			(ent? ValueForKey (ent, "targetname"): "unknown"));
+        char entStr[1024];
+		FormatEntityInfo(WarningEntityForModel(g_nummodels - 1), entStr, sizeof(entStr));
+		Warning ("Empty solid entity: model %d (entity: %s)",
+			g_nummodels - 1, entStr);
 		VectorClear (model->mins); // fix "backward minsmaxs" in HL
 		VectorClear (model->maxs);
 	}
 	else if (novisiblebrushes)
 	{
-		entity_t *ent = EntityForModel (g_nummodels - 1);
-		if (g_nummodels - 1 != 0 && ent == &g_entities[0])
-		{
-			ent = NULL;
-		}
-		Warning ("No visible brushes in solid entity: model %d (entity: classname \"%s\", origin \"%s\", targetname \"%s\", range (%.0f,%.0f,%.0f) - (%.0f,%.0f,%.0f))", 
-			g_nummodels - 1, 
-			(ent? ValueForKey (ent, "classname"): "unknown"), 
-			(ent? ValueForKey (ent, "origin"): "unknown"), 
-			(ent? ValueForKey (ent, "targetname"): "unknown"), 
-			model->mins[0], model->mins[1], model->mins[2], model->maxs[0], model->maxs[1], model->maxs[2]);
+        char entStr[1024];
+        FormatEntityInfo(WarningEntityForModel(g_nummodels - 1), entStr, sizeof(entStr));
+		Warning ("No visible brushes in solid entity: model %d (entity: %s), range (%.0f %.0f %.0f)-(%.0f %.0f %.0f))",
+			g_nummodels - 1, entStr,
+			model->mins[0], model->mins[1], model->mins[2],
+            model->maxs[0], model->maxs[1], model->maxs[2]);
 	}
     return true;
 }
@@ -1373,7 +1363,7 @@ static bool     ProcessModel()
 // =====================================================================================
 //  Usage
 // =====================================================================================
-static void     Usage()
+static void     Usage(const char* paramWarning = 0, bool mapfileWarning = false)
 {
     Banner();
 
@@ -1415,6 +1405,8 @@ static void     Usage()
     Log("    -dev #         : compile with developer message\n\n");
     Log("    mapfile        : The mapfile to compile\n\n");
 
+    if (paramWarning) Log("Unknown option \"%s\"", paramWarning);
+    if (mapfileWarning) Log("No map file specified");
     exit(1);
 }
 
@@ -1881,7 +1873,7 @@ int             main(const int argc, char** argv)
         else if (argv[i][0] == '-')
         {
             Log("Unknown option \"%s\"\n", argv[i]);
-            Usage();
+            Usage(argv[i]);
         }
         else if (!mapname_from_arg)
         {
@@ -1890,14 +1882,14 @@ int             main(const int argc, char** argv)
         else
         {
             Log("Unknown option \"%s\"\n", argv[i]);
-            Usage();
+            Usage(argv[i]);
         }
     }
 
     if (!mapname_from_arg)
     {
-        Log("No mapfile specified\n");
-        Usage();
+        Log("No map file specified\n");
+        Usage(0, true);
     }
 
     safe_strncpy(g_Mapname, mapname_from_arg, _MAX_PATH);

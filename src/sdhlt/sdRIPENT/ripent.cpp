@@ -772,7 +772,7 @@ static void     ReadEntities(const char* const name)
 
 //======================================================================
 
-static void     Usage(void)
+static void     Usage(const char* paramWarning = 0)
 {
     //Log("%s " ZHLT_VERSIONSTRING "\n" MODIFICATIONS_STRING "\n", g_Program);
     //Log("  Usage: ripent [-import|-export] [-texdata n] bspname\n");
@@ -804,6 +804,7 @@ static void     Usage(void)
 
 	Log("    mapfile         : The mapfile to process\n\n");
 
+	if (paramWarning) Log("Unknown option \"%s\"", paramWarning);
     exit(1);
 }
 
@@ -1022,8 +1023,8 @@ int             main(int argc, char** argv)
 		}
 		else if (argv[i][0] == '-') //--vluzacn
 		{
-			Log("Unknown option: '%s'\n", argv[i]);
-			Usage ();
+			Log("Unknown option \"%s\"\n", argv[i]);
+			Usage (argv[i]);
 		}
         else
         {

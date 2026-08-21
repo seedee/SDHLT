@@ -252,7 +252,7 @@ void BuildSurfaceTree_r (surfacetree_t *tree, surfacetreenode_t *node)
 	}
 	if (node->children[0]->leaffaces->size () == node->leaffaces->size () || node->children[1]->leaffaces->size () == node->leaffaces->size ())
 	{
-		Warning ("BuildSurfaceTree_r: didn't split node with bound (%f,%f,%f)-(%f,%f,%f)", node->mins[0], node->mins[1], node->mins[2], node->maxs[0], node->maxs[1], node->maxs[2]);
+		Warning ("BuildSurfaceTree_r: didn't split node with bound (%f %f %f)-(%f %f %f)", node->mins[0], node->mins[1], node->mins[2], node->maxs[0], node->maxs[1], node->maxs[2]);
 		delete node->children[0]->leaffaces;
 		delete node->children[1]->leaffaces;
 		free (node->children[0]);
@@ -1203,37 +1203,9 @@ static void     LinkLeafFaces(surface_t* planelist, node_t* leafnode)
 	}
 	if (surf)
 	{
-		entity_t *ent = EntityForModel (g_nummodels - 1);
-		if (g_nummodels - 1 != 0 && ent == &g_entities[0])
-		{
-			ent = NULL;
-		}
-		char entStr[1024]; //Entity string builder for ambiguous leafnode warning //seedee
-		if (ent)
-		{
-			const char* classname = ValueForKey(ent, "classname");
-			const char* origin = ValueForKey(ent, "origin");
-			const char* targetname = ValueForKey(ent, "targetname");
-			safe_snprintf(entStr, sizeof(entStr), "classname \"%s\"", classname);
-
-			if (origin[0])
-			{
-				safe_strncat(entStr, ", origin \"", sizeof(entStr));
-				safe_strncat(entStr, origin, sizeof(entStr));
-				safe_strncat(entStr, "\"", sizeof(entStr));
-			}
-			if (targetname[0])
-			{
-				safe_strncat(entStr, ", targetname \"", sizeof(entStr));
-				safe_strncat(entStr, targetname, sizeof(entStr));
-				safe_strncat(entStr, "\"", sizeof(entStr));
-			}
-		}
-		else
-		{
-			safe_snprintf(entStr, sizeof(entStr), "classname \"unknown\"");
-		}
-		//Replace commas with spaces for J.A.C.K copy pasting //FIXXOR
+		char entStr[1024];
+		FormatEntityInfo(WarningEntityForModel(g_nummodels - 1), entStr, sizeof(entStr));
+		//Replace commas with spaces //FIXXOR
 		Warning ("Ambiguous leafnode content ( %s and %s ) at (%.0f %.0f %.0f)-(%.0f %.0f %.0f) in hull %d of model %d (entity: %s)",
 			ContentsToString (ContentsForRank(r)), ContentsToString (ContentsForRank(rank)),
 			leafnode->mins[0], leafnode->mins[1], leafnode->mins[2],
@@ -1243,11 +1215,11 @@ static void     LinkLeafFaces(surface_t* planelist, node_t* leafnode)
 		{
 			for (face_t *f2 = surf2->faces; f2; f2 = f2->next)
 			{
-				Developer (DEVELOPER_LEVEL_SPAM, "content = %d plane = %d normal = (%g,%g,%g)\n", f2->contents, f2->planenum, 
+				Developer (DEVELOPER_LEVEL_SPAM, "content = %d plane = %d normal = (%g %g %g)\n", f2->contents, f2->planenum, 
 					g_dplanes[f2->planenum].normal[0], g_dplanes[f2->planenum].normal[1], g_dplanes[f2->planenum].normal[2]);
 				for (int i = 0; i < f2->numpoints; i++)
 				{
-					Developer (DEVELOPER_LEVEL_SPAM, "(%g,%g,%g)\n", f2->pts[i][0], f2->pts[i][1], f2->pts[i][2]);
+					Developer (DEVELOPER_LEVEL_SPAM, "(%g %g %g)\n", f2->pts[i][0], f2->pts[i][1], f2->pts[i][2]);
 				}
 			}
 		}
@@ -1683,7 +1655,7 @@ static void     BuildBspTree_r(node_t* node)
 			}
 			if (!front)
 			{
-				Warning ("BuildBspTree_r: bounds was clipped away at (%f,%f,%f)-(%f,%f,%f).", node->loosemins[0], node->loosemins[1], node->loosemins[2], node->loosemaxs[0], node->loosemaxs[1], node->loosemaxs[2]);
+				Warning ("BuildBspTree_r: bounds was clipped away at (%f %f %f)-(%f %f %f).", node->loosemins[0], node->loosemins[1], node->loosemins[2], node->loosemaxs[0], node->loosemaxs[1], node->loosemaxs[2]);
 			}
 			node->children[k]->boundsbrush = front;
 		}
