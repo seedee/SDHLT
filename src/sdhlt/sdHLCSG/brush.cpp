@@ -821,7 +821,7 @@ restart:
     {
         if (h->bounds.m_Mins[i] < -BOGUS_RANGE / 2 || h->bounds.m_Maxs[i] > BOGUS_RANGE / 2)
         {
-            Fatal(assume_BRUSH_OUTSIDE_WORLD, "Entity %i, Brush %i: outside world(+/-%d): (%.0f,%.0f,%.0f)-(%.0f,%.0f,%.0f)",
+            Fatal(assume_BRUSH_OUTSIDE_WORLD, "Entity %i, Brush %i: outside +/-%d: (%.0f %.0f %.0f)-(%.0f %.0f %.0f)",
 				b->originalentitynum, b->originalbrushnum,
                   BOGUS_RANGE / 2,
                   h->bounds.m_Mins[0], h->bounds.m_Mins[1], h->bounds.m_Mins[2],
@@ -1452,7 +1452,7 @@ hullbrush_t *CreateHullBrush (const brush_t *b)
 		hlassume (hb->vertexes != NULL, assume_NoMemory);
 		memcpy (hb->vertexes, vertexes, hb->numvertexes * sizeof (hullbrushvertex_t));
 
-		Developer (DEVELOPER_LEVEL_MESSAGE, "info_hullshape @ (%.0f,%.0f,%.0f): %d faces, %d edges, %d vertexes.\n", origin[0], origin[1], origin[2], hb->numfaces, hb->numedges, hb->numvertexes);
+		Developer (DEVELOPER_LEVEL_MESSAGE, "info_hullshape at (%.0f %.0f %.0f): %d faces, %d edges, %d vertexes.\n", origin[0], origin[1], origin[2], hb->numfaces, hb->numedges, hb->numvertexes);
 	}
 	else
 	{

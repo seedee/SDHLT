@@ -364,7 +364,7 @@ void            PairEdges()
 						VectorClear (e->interface_normal);
 
 						dvertex_t *dv = &g_dvertexes[g_dedges[abs(k)].v[0]];
-						Developer (DEVELOPER_LEVEL_MEGASPAM, "TranslateTexToTex failed on face %d and %d @(%f,%f,%f)", (int)(e->faces[0] - g_dfaces), (int)(e->faces[1] - g_dfaces), dv->point[0], dv->point[1], dv->point[2]);
+						Developer (DEVELOPER_LEVEL_MEGASPAM, "TranslateTexToTex failed on face %d and %d at (%f %f %f)", (int)(e->faces[0] - g_dfaces), (int)(e->faces[1] - g_dfaces), dv->point[0], dv->point[1], dv->point[2]);
 					}
 				}
             }
@@ -728,7 +728,7 @@ static void     CalcFaceVectors(lightinfo_t* l)
         const unsigned facenum = l->face - g_dfaces;
     
         ThreadLock();
-        Log("Malformed face (%d) normal @ \n", facenum);
+        Log("Malformed face (%d) normal at \n", facenum);
         Winding* w = new Winding(*l->face);
         {
             const unsigned numpoints = w->m_NumPoints;
@@ -1042,7 +1042,7 @@ void ChopFrag (samplefrag_t *frag)
 		e->ratio = (*m_inverse).v[2][2];
 		if (e->ratio <= NORMAL_EPSILON || (1 / e->ratio) <= NORMAL_EPSILON)
 		{
-			Developer (DEVELOPER_LEVEL_SPAM, "TranslateTexToTex failed on face %d and %d @(%f,%f,%f)", frag->facenum, e->nextfacenum, dv1->point[0], dv1->point[1], dv1->point[2]);
+			Developer (DEVELOPER_LEVEL_SPAM, "TranslateTexToTex failed on face %d and %d at (%f %f %f)", frag->facenum, e->nextfacenum, dv1->point[0], dv1->point[1], dv1->point[2]);
 			continue;
 		}
 

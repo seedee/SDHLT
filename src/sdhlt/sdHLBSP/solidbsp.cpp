@@ -1208,14 +1208,37 @@ static void     LinkLeafFaces(surface_t* planelist, node_t* leafnode)
 		{
 			ent = NULL;
 		}
-		//Replace commas with spaces -FIXXOR
-		Warning ("Ambiguous leafnode content ( %s and %s ) at (%.0f %.0f %.0f)-(%.0f %.0f %.0f) in hull %d of model %d (entity: classname \"%s\", origin \"%s\", targetname \"%s\")", 
-			ContentsToString (ContentsForRank(r)), ContentsToString (ContentsForRank(rank)), 
-			leafnode->mins[0], leafnode->mins[1], leafnode->mins[2], leafnode->maxs[0], leafnode->maxs[1], leafnode->maxs[2], 
-			g_hullnum, g_nummodels - 1, 
-			(ent? ValueForKey (ent, "classname"): "unknown"), 
-			(ent? ValueForKey (ent, "origin"): "unknown"), 
-			(ent? ValueForKey (ent, "targetname"): "unknown"));
+		char entStr[1024]; //Entity string builder for ambiguous leafnode warning //seedee
+		if (ent)
+		{
+			const char* classname = ValueForKey(ent, "classname");
+			const char* origin = ValueForKey(ent, "origin");
+			const char* targetname = ValueForKey(ent, "targetname");
+			safe_snprintf(entStr, sizeof(entStr), "classname \"%s\"", classname);
+
+			if (origin[0])
+			{
+				safe_strncat(entStr, ", origin \"", sizeof(entStr));
+				safe_strncat(entStr, origin, sizeof(entStr));
+				safe_strncat(entStr, "\"", sizeof(entStr));
+			}
+			if (targetname[0])
+			{
+				safe_strncat(entStr, ", targetname \"", sizeof(entStr));
+				safe_strncat(entStr, targetname, sizeof(entStr));
+				safe_strncat(entStr, "\"", sizeof(entStr));
+			}
+		}
+		else
+		{
+			safe_snprintf(entStr, sizeof(entStr), "classname \"unknown\"");
+		}
+		//Replace commas with spaces for J.A.C.K copy pasting //FIXXOR
+		Warning ("Ambiguous leafnode content ( %s and %s ) at (%.0f %.0f %.0f)-(%.0f %.0f %.0f) in hull %d of model %d (entity: %s)",
+			ContentsToString (ContentsForRank(r)), ContentsToString (ContentsForRank(rank)),
+			leafnode->mins[0], leafnode->mins[1], leafnode->mins[2],
+			leafnode->maxs[0], leafnode->maxs[1], leafnode->maxs[2],
+			g_hullnum, g_nummodels - 1, entStr);
 		for (surface_t *surf2 = planelist; surf2; surf2 = surf2->next)
 		{
 			for (face_t *f2 = surf2->faces; f2; f2 = f2->next)
@@ -1335,7 +1358,7 @@ static void     MakeNodePortal(node_t* node)
 		if (w->m_NumPoints == 0)
         {
 			Developer (DEVELOPER_LEVEL_WARNING, 
-				"MakeNodePortal:new portal was clipped away from node@(%.0f,%.0f,%.0f)-(%.0f,%.0f,%.0f)",
+				"MakeNodePortal: new portal was clipped away from node at (%.0f %.0f %.0f)-(%.0f %.0f %.0f)",
                     node->mins[0], node->mins[1], node->mins[2], node->maxs[0], node->maxs[1], node->maxs[2]);
             FreePortal(new_portal);
             return;

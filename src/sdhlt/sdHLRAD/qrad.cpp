@@ -678,7 +678,7 @@ static bool     PlacePatchInside(patch_t* patch)
 	{
 		VectorMA (center, PATCH_HUNT_OFFSET, plane->normal, patch->origin);
 		patch->flags = ePatchFlagOutside;
-		Developer(DEVELOPER_LEVEL_FLUFF, "Patch @ (%4.3f %4.3f %4.3f) outside world\n",
+		Developer(DEVELOPER_LEVEL_FLUFF, "Patch at (%4.3f %4.3f %4.3f) outside world\n",
 				  patch->origin[0], patch->origin[1], patch->origin[2]);
 		return false;
 	}
@@ -2701,7 +2701,7 @@ static void     RadWorld()
     NamedRunThreadsOnIndividual(g_numfaces, g_estimate, FinalLightFace);
 	if (g_maxdiscardedlight > 0.01)
 	{
-		Verbose ("Maximum brightness loss (too many light styles on a face) = %f @(%f, %f, %f)\n", g_maxdiscardedlight, g_maxdiscardedpos[0], g_maxdiscardedpos[1], g_maxdiscardedpos[2]);
+		Verbose ("Maximum brightness loss (too many light styles on a face) = %f at (%f %f %f)\n", g_maxdiscardedlight, g_maxdiscardedpos[0], g_maxdiscardedpos[1], g_maxdiscardedpos[2]);
 	}
 	MdlLightHack ();
 	ReduceLightmap();

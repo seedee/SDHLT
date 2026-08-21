@@ -409,7 +409,7 @@ static void ParseBrush(entity_t* mapent)
             {
                 aa = bb = dd = 0;
                 Warning
-                    ("Degenerate QuArK-style brush texture : Entity %i, Brush %i @ (%f,%f,%f) (%f,%f,%f)	(%f,%f,%f)",
+                    ("Degenerate QuArK-style brush texture: Entity %i, Brush %i at (%f %f %f) (%f %f %f) (%f %f %f)",
 					b->originalentitynum, b->originalbrushnum, 
 					 side->planepts[0][0], side->planepts[0][1], side->planepts[0][2],
                      side->planepts[1][0], side->planepts[1][1], side->planepts[1][2], side->planepts[2][0],
@@ -1008,7 +1008,7 @@ bool            ParseMapEntity()
 		const char *classname = ValueForKey (mapent, "classname");
 		if (strncmp (classname, "light", 5))
 		{
-			Warning ("Entity %i (classname \"%s\"): origin outside +/-%.0f: (%.0f,%.0f,%.0f)", 
+			Warning ("Entity %i (classname \"%s\"): origin outside +/-%.0f at (%.0f %.0f %.0f)", 
 				g_numparsedentities, 
 				classname, (double)ENGINE_ENTITY_RANGE, mapent->origin[0], mapent->origin[1], mapent->origin[2]);
 		}

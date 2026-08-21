@@ -1106,7 +1106,7 @@ void EmbedLightmapInTextures ()
 		texsize[1] = texmaxs[1] - texmins[1];
 		if (texsize[0] < 0 || texsize[1] < 0 || texsize[0] > MAX_SURFACE_EXTENT || texsize[1] > MAX_SURFACE_EXTENT)
 		{
-			Warning ("skipped a face with bad surface extents @ (%4.3f %4.3f %4.3f)", g_face_centroids[i][0], g_face_centroids[i][1], g_face_centroids[i][2]);
+			Warning ("Skipped a face with bad surface extents at (%4.3f %4.3f %4.3f)", g_face_centroids[i][0], g_face_centroids[i][1], g_face_centroids[i][2]);
 			continue;
 		}
 

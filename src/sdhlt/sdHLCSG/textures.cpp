@@ -540,7 +540,7 @@ void            AddAnimatingTextures()
 
     if (nummiptex - base)
     {
-        Log("added %i additional animating textures.\n", nummiptex - base);
+        Log("Added %i additional animating textures\n", nummiptex - base);
     }
 }
 
