@@ -3,7 +3,7 @@
 #include "filelib.h"
 #include "stringlib.h"
 
-#define MAX_MODELS		1024
+#define MAX_MODELS		MAX_STUDIOMODELS
 
 model_t models[MAX_MODELS];
 int num_models;
@@ -187,19 +187,23 @@ void LoadStudioModels( void )
 			Log("-");
 		}
 		Log("\n");
+		int indexWidth = 1; //Grows when an index needs 2nd/3rd digit
+
+		for (int m = (num_models > 0 ? num_models - 1 : 0); m >= 10; m /= 10)
+			indexWidth++;
 
 		for (int i = 0; i < num_models; i++)
 		{
-			bool dupe = false;
+			mmesh_t* mesh = models[i].mesh.GetMesh();
+			const char* modestr =
+				models[i].trace_mode == SHADOW_FAST ? "fast" :
+				models[i].trace_mode == SHADOW_NORMAL ? "normal" :
+				models[i].trace_mode == SHADOW_SLOW ? "slow" : "unknown";
 
-			for (int j = 0; j < i && !dupe; j++)
-			{
-				dupe = !strcmp(models[i].shortname, models[j].shortname);
-			}
-			if (!dupe)
-			{
-				Log("  %s\n", models[i].shortname);
-			}
+			Log("  [%*d] %-16s tris=%-6u mode=%-6s bbox=(%.0f %.0f %.0f)-(%.0f %.0f %.0f)\n",
+				indexWidth, i, models[i].shortname, mesh ? mesh->numfacets : 0u, modestr,
+				mesh ? mesh->mins[0] : 0.0f, mesh ? mesh->mins[1] : 0.0f, mesh ? mesh->mins[2] : 0.0f,
+				mesh ? mesh->maxs[0] : 0.0f, mesh ? mesh->maxs[1] : 0.0f, mesh ? mesh->maxs[2] : 0.0f);
 		}
 		for (int i = 0; i < len; i++)
 		{
@@ -243,7 +247,7 @@ void MoveBounds( const vec3_t start, const vec3_t mins, const vec3_t maxs, const
 	}
 }
 
-bool TestSegmentAgainstStudioList( const vec_t* p1, const vec_t* p2 )
+bool TestSegmentAgainstStudioList( const vec_t* p1, const vec_t* p2, studiotracectl_t* ctl)
 {
 	if( !num_models ) return false; // easy out
 
@@ -251,25 +255,79 @@ bool TestSegmentAgainstStudioList( const vec_t* p1, const vec_t* p2 )
 
 	MoveBounds( p1, vec3_origin, vec3_origin, p2, trace_mins, trace_maxs );
 
-	for( int i = 0; i < num_models; i++ )
-	{
-		model_t *m = &models[i];
+	const int *cands = NULL;
+	int ncands = num_models;
 
+	if( ctl && ctl->candidates )
+	{
+		cands = ctl->candidates;
+		ncands = ctl->ncandidates;
+	}
+
+	for (int i = 0; i < ncands; i++)
+	{
+		model_t *m = &models[cands ? cands[i] : i];
 		mmesh_t *pMesh = m->mesh.GetMesh();
 		areanode_t *pHeadNode = m->mesh.GetHeadNode();
 
+		if (ctl) ctl->models_tested++;
 		if( !pMesh || !m->mesh.Intersect( trace_mins, trace_maxs ))
 			continue; // bad model or not intersect with trace
-
+		if (ctl) ctl->models_traced++;
 		TraceMesh	trm;	// a name like Doom3 :-)
 
 		trm.SetTraceModExtradata( m->extradata );
 		trm.SetTraceMesh( pMesh, pHeadNode );
+
+		if( ctl && ctl->mode_override >= 0 ) trm.SetModeOverride( ctl->mode_override ); //seedee: AO-only override; direct lighting passes ctl == NULL and keeps the model's zhlt_shadowmode
+		double t0 = 0.0;
+
+		if( ctl && ctl->timing ) t0 = I_FloatTime();
 		trm.SetupTrace( p1, vec3_origin, vec3_origin, p2 );
 
 		if( trm.DoTrace())
+		{
+			if( ctl )
+			{
+				if( ctl->timing ) ctl->time_trace += I_FloatTime() - t0;
+				ctl->hits++;
+				ctl->hit_model = cands ? cands[i] : i;
+			}
 			return true; // we hit studio model
+		}
+		if( ctl && ctl->timing ) ctl->time_trace += I_FloatTime() - t0;
 	}
 
 	return false;
+}
+
+// =====================================================================================
+//  BuildStudioCandidates														//seedee
+//      Indices of studiomodels whose AABB intersects 'mins/maxs' inflated by 'pad'
+//		Rays travel at most 'g_ao_scale' so models outside the padded box can't be hit
+// =====================================================================================
+int BuildStudioCandidates( const vec3_t mins, const vec3_t maxs, float pad, int *out_indices, int max_out )
+{
+	int n = 0;
+
+	for( int i = 0; i < num_models && n < max_out; i++ )
+	{
+		mmesh_t *mesh = models[i].mesh.GetMesh();
+
+		if( !mesh ) continue;
+		if( mesh->mins[0] > maxs[0] + pad || mesh->maxs[0] < mins[0] - pad ) continue;
+		if( mesh->mins[1] > maxs[1] + pad || mesh->maxs[1] < mins[1] - pad ) continue;
+		if( mesh->mins[2] > maxs[2] + pad || mesh->maxs[2] < mins[2] - pad ) continue;
+		out_indices[n++] = i;
+	}
+	return n;
+}
+
+// =====================================================================================
+//  StudioModelShortname														//seedee
+// =====================================================================================
+const char *StudioModelShortname( int index )
+{
+	if( index < 0 || index >= num_models ) return "???";
+	return models[index].shortname;
 }

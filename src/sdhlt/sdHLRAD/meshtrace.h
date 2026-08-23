@@ -41,7 +41,8 @@ private:
 	bool		m_bHitTriangle;	// now we hit triangle
 	areanode_t	*areanodes;	// AABB for static meshes
 	mmesh_t		*mesh;		// mesh to trace
-	int		checkcount;	// debug
+	int			checkcount;	// debug
+	int			m_modeOverride;	//Per-instance trace mode override, -1 = use mesh->trace_mode. Instance-local thread-safe
 	void		*m_extradata;	// pointer to model extradata
 
 	void ClearBounds( vec3_t mins, vec3_t maxs )
@@ -69,11 +70,12 @@ private:
 		return true;
 	}
 public:
-	TraceMesh() { mesh = NULL; }
+	TraceMesh() { mesh = NULL; m_modeOverride = -1; }
 	~TraceMesh() {}
 
 	// trace stuff
 	void SetTraceMesh( mmesh_t *cached_mesh, areanode_t *tree ) { mesh = cached_mesh; areanodes = tree; }
+	void SetModeOverride( int mode ) { m_modeOverride = mode; }
 	void SetupTrace( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end ); 
 	void SetTraceModExtradata( void *data ) { m_extradata = data; }
 	bool ClipRayToBox( const vec3_t mins, const vec3_t maxs );

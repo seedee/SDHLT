@@ -326,6 +326,7 @@ void TraceMesh :: ClipToLinks( areanode_t *node )
 {
 	link_t	*l, *next;
 	mfacet_t	*facet;
+	int	trace_mode = (m_modeOverride >= 0) ? m_modeOverride : mesh->trace_mode; //seedee
 
 	// touch linked edicts
 	for( l = node->facets.next; l != &node->facets; l = next )
@@ -337,7 +338,7 @@ void TraceMesh :: ClipToLinks( areanode_t *node )
 		if( !BoundsIntersect( m_vecAbsMins, m_vecAbsMaxs, facet->mins, facet->maxs ))
 			continue;
 
-		if( mesh->trace_mode == SHADOW_FAST )
+		if( trace_mode == SHADOW_FAST )
 		{
 			// Trace a bbox (AABB) for each triangle. In practice, these union together into something close to the whole model's bbox.
 			// ultra-fast mode, no real tracing here
@@ -347,7 +348,7 @@ void TraceMesh :: ClipToLinks( areanode_t *node )
 				return;
 			}
 		}
-		else if( mesh->trace_mode == SHADOW_NORMAL )
+		else if( trace_mode == SHADOW_NORMAL )
 		{
 			// Trace each triangle (Moller-Trumbore intersection)
 			// does trace for each triangle
@@ -357,7 +358,7 @@ void TraceMesh :: ClipToLinks( areanode_t *node )
 				return;
 			}
 		}
-		else if( mesh->trace_mode == SHADOW_SLOW )
+		else if( trace_mode == SHADOW_SLOW )
 		{
 			// Swept-bbox clipping test (enter/leave fractions against each plane)
 			// does trace for planes bbox for each triangle
@@ -389,6 +390,7 @@ bool TraceMesh :: DoTrace( void )
 		return false; // invalid mesh or no intersection
 
 	checkcount = 0;
+	int	trace_mode = (m_modeOverride >= 0) ? m_modeOverride : mesh->trace_mode;
 
 	if( areanodes )
 	{
@@ -402,19 +404,19 @@ bool TraceMesh :: DoTrace( void )
 			if( !BoundsIntersect( m_vecAbsMins, m_vecAbsMaxs, facet->mins, facet->maxs ))
 				continue;
 
-			if( mesh->trace_mode == SHADOW_FAST )
+			if( trace_mode == SHADOW_FAST )
 			{
 				// ultra-fast mode, no real tracing here
 				if( ClipRayToBox( facet->mins, facet->maxs ))
 					return true;
 			}
-			else if( mesh->trace_mode == SHADOW_NORMAL )
+			else if( trace_mode == SHADOW_NORMAL )
 			{
 				// does trace for each triangle
 				if( ClipRayToFace( facet ))
 					return true;
 			}
-			else if( mesh->trace_mode == SHADOW_SLOW )
+			else if( trace_mode == SHADOW_SLOW )
 			{
 				// does trace for planes bbox for each triangle
 				if( ClipRayToFacet( facet ))

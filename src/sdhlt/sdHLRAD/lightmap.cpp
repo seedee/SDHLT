@@ -3211,6 +3211,192 @@ const vec3_t    s_circuscolors[] = {
 };
 
 // =====================================================================================
+//  Ambient Occlusion Statistics												//seedee
+//      Counters are exact (flushed per face under ThreadLock)
+//      Timers are sampled every AO_TIMER_SAMPLE-th ray
+// =====================================================================================
+typedef struct
+{
+	double time_total;				//AO block wall time (this face)
+	double time_testline;			//Sampled world BSP traces
+	double time_opaquebrush;		//Sampled whole OpaqueList call (includes studio)
+	double time_studio;				//Sampled TraceMesh::DoTrace time reported via ctl
+	double samples;					//Luxel samples AO ran on
+	double rays_fired;				//Directions traced
+	double rays_skipped_cosine;		//Directions skipped
+	double rays_skipped_weight;		//Weight counted as clear
+	double rays_skipped_saturated;	//Weight assumed occluded at early-out
+	double hits_world;
+	double hits_opaquebrush;
+	double hits_opaquestyle;		//Styled-opaque encounters (diagnostic: AO ignores opaquestyle)
+	double hits_studio;
+	double calls_testline;			//Exact AO-scoped TestLine calls
+	double calls_opaquelist;		//Exact AO-scoped OpaqueList calls
+}
+aostats_t;
+
+static aostats_t g_aostats;
+static double    g_aostat_modelhits[MAX_STUDIOMODELS];
+
+void AOStats_Reset (void)
+{
+	memset (&g_aostats, 0, sizeof (g_aostats));
+	memset (g_aostat_modelhits, 0, sizeof (g_aostat_modelhits));
+	g_stat_testline_calls = 0;
+}
+
+static void AOStats_Flush (const aostats_t *s, const double *modelhits)
+{
+	ThreadLock ();
+	g_aostats.time_total				+= s->time_total;
+	g_aostats.time_testline				+= s->time_testline;
+	g_aostats.time_opaquebrush			+= s->time_opaquebrush;
+	g_aostats.time_studio				+= s->time_studio;
+	g_aostats.samples					+= s->samples;
+	g_aostats.rays_fired				+= s->rays_fired;
+	g_aostats.rays_skipped_cosine		+= s->rays_skipped_cosine;
+	g_aostats.rays_skipped_weight		+= s->rays_skipped_weight;
+	g_aostats.rays_skipped_saturated	+= s->rays_skipped_saturated;
+	g_aostats.hits_world				+= s->hits_world;
+	g_aostats.hits_opaquebrush			+= s->hits_opaquebrush;
+	g_aostats.hits_opaquestyle			+= s->hits_opaquestyle;
+	g_aostats.hits_studio				+= s->hits_studio;
+	g_aostats.calls_testline			+= s->calls_testline;
+	g_aostats.calls_opaquelist			+= s->calls_opaquelist;
+
+	for (int m = 0; m < MAX_STUDIOMODELS; m++)
+	{
+		if (modelhits[m] != 0.0)
+		{
+			g_aostat_modelhits[m] += modelhits[m];
+		}
+	}
+	ThreadUnlock ();
+}
+
+void AOStats_Dump (void)
+{
+	if (!g_ao_enable || !g_ao_stats || g_aostats.samples == 0)
+		return;
+
+	//Accumulators are thread seconds (normalized so comparable with pacifier)
+	double tn			= (g_numthreads > 1) ? (double)g_numthreads : 1.0;
+	double total		= g_aostats.time_total / tn;
+	double bsp			= g_aostats.time_testline / tn;
+	double studio		= g_aostats.time_studio / tn;
+	double opaquewrap	= g_aostats.time_opaquebrush / tn; //includes studio
+	double brush		= qmax (opaquewrap - studio, 0.0);
+	double staged		= bsp + brush + studio;
+	double other		= qmax (total - staged, 0.0);
+	double fired		= g_aostats.rays_fired > 0 ? g_aostats.rays_fired : 1.0;
+	long long tl_other	= g_stat_testline_calls > g_aostats.calls_testline ? (long long)(g_stat_testline_calls - g_aostats.calls_testline) : 0;
+
+	char line[64];
+	int len = snprintf(line, sizeof(line), "Ambient occlusion statistics");
+	Log("%s\n", line);
+
+	for (int i = 0; i < len; i++)
+	{
+		Log("-");
+	}
+	Log("\n");
+	Log ("  %-32s %14d\n", "sampling level:", g_ao_level);
+	Log ("  %-32s %14lld\n", "samples:", (long long)g_aostats.samples);
+	Log ("  %-32s %14.0f\n", "rays fired:", g_aostats.rays_fired);
+
+	if (g_aostats.samples > 0 && g_aostats.rays_fired == 0)
+	{
+		Log("WARNING: AO fired 0 rays for %.0f samples, aominweight too high for this sampling level\n", g_aostats.samples);
+	}
+	Log ("  %-32s %14.0f\n", "skipped (cosine):", g_aostats.rays_skipped_cosine);
+	Log ("  %-32s %14.0f weight-units\n", "skipped (low weight):", g_aostats.rays_skipped_weight);
+	Log ("  %-32s %14.0f weight-units\n", "skipped (saturated):", g_aostats.rays_skipped_saturated);
+	Log ("  %-32s %13.1f %% / %3.1f %% / %3.1f %%\n", "hit (world/brush/studio):",
+		100.0 * g_aostats.hits_world       / fired,
+		100.0 * g_aostats.hits_opaquebrush / fired,
+		100.0 * g_aostats.hits_studio      / fired);
+
+	if (staged > 0.0)
+	{
+		Log ("  %-32s %14.3f us/ray (AO stages)\n", "avg ray cost:", staged * 1e6 / g_aostats.rays_fired);
+	}
+	if (staged > 0.0)
+	{
+		Log ("  %-32s %5.1f %% / %3.1f %% / %3.1f %%%s\n",
+			"stage split (world/brush/studio):",
+			100.0 * bsp    / staged,
+			100.0 * brush  / staged,
+			100.0 * studio / staged,
+			other / staged > 0.001 ? "" : "");
+	}
+	if (other / qmax (staged, 1e-9) > 0.001)
+	{
+		Log ("  %-32s %14.2f s\n", "unaccounted:", other);
+	}
+	TestLineStats_Reset();
+	double tl_global = TestLineStats_SyncGet();
+	long long tl_other = tl_global > g_aostats.calls_testline ? (long long)(tl_global - g_aostats.calls_testline) : 0;
+	Log ("  %-32s %14.0f (%.0f AO, %lld other)\n", "TestLine calls:", tl_global, g_aostats.calls_testline, tl_other); //Needs fixing
+	Log ("  %-32s %14.2f s%s\n", "total AO time:", total, g_numthreads > 1 ? " (normalized)" : "");
+	{
+		int top[5] = {-1, -1, -1, -1, -1};
+		bool header = false;
+		for (int i = 0; i < MAX_STUDIOMODELS; i++)
+		{
+			for (int t = 0; t < 5; t++)
+			{
+				if (top[t] < 0 || g_aostat_modelhits[i] > g_aostat_modelhits[top[t]])
+				{
+					for (int s = 4; s > t; s--) top[s] = top[s - 1];
+					top[t] = i;
+					break;
+				}
+			}
+		}
+		for (int t = 0; t < 5 && top[t] >= 0 && g_aostat_modelhits[top[t]] > 0; t++)
+		{
+			if (!header)
+			{
+				Log ("Top studio models by rays blocked:\n");
+				header = true;
+			}
+			Log ("  %-32s %14.0f\n", StudioModelShortname (top[t]), g_aostat_modelhits[top[t]]);
+		}
+	}
+	for (int i = 0; i < len; i++)
+	{
+		Log("-");
+	}
+	Log("\n");
+}
+
+// =====================================================================================
+//  GetFaceWorldBounds															//seedee
+//      World-space AABB of a face (vertices offset by g_face_offset)
+//      Used to build the per-face studio candidate list for AO
+// =====================================================================================
+static void GetFaceWorldBounds (int facenum, vec3_t mins, vec3_t maxs)
+{
+	dface_t *f = &g_dfaces[facenum];
+	mins[0] = mins[1] = mins[2] =  99999999.0; //Bogus range box, real vertex will replace values on each axis
+	maxs[0] = maxs[1] = maxs[2] = -99999999.0;
+
+	for (int e = 0; e < f->numedges; e++)
+	{
+		int se = g_dsurfedges[f->firstedge + e];
+		int v = (se < 0) ? g_dedges[-se].v[1] : g_dedges[se].v[0]; //v[0] of forward edges and v[1] of reversed edges visits each corner once
+		vec3_t pos;
+		VectorAdd (g_dvertexes[v].point, g_face_offset[facenum], pos);
+
+		for (int j = 0; j < 3; j++) //Grow the box, clamp each axis against this vertex
+		{
+			if (pos[j] < mins[j]) mins[j] = pos[j];
+			if (pos[j] > maxs[j]) maxs[j] = pos[j];
+		}
+	}
+}
+
+// =====================================================================================
 //  BuildFacelights
 // =====================================================================================
 void CalcLightmap (lightinfo_t *l, byte *styles)
@@ -3224,6 +3410,18 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 
 	facenum = l->surfnum;
 	memset (l->lmcache, 0, l->lmcachewidth * l->lmcacheheight * sizeof (vec3_t [ALLSTYLES]));
+
+	//Per-face AO state. Flushed under ThreadLock at end of face
+	aostats_t ao_local;
+	double    ao_modelhits[MAX_STUDIOMODELS];
+	int       ao_candidates[MAX_STUDIOMODELS];
+	int       ao_ncandidates;
+	bool      ao_timing;
+
+	ao_timing = g_ao_stats;
+	memset (&ao_local, 0, sizeof (ao_local));
+	memset (ao_modelhits, 0, sizeof (ao_modelhits));
+	ao_ncandidates = -1; //Candidate list built on first AO sample for now
 
 	// for each sample whose light we need to calculate
 	for (i = 0; i < l->lmcachewidth * l->lmcacheheight; i++)
@@ -3447,39 +3645,135 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 			}
 			if (g_ao_enable && !blocked) //seedee
 			{
-				int aolevel = g_softsky ? SKYLEVEL_SOFTSKYON : SKYLEVEL_SOFTSKYOFF; //Match AO to the existing density of light gathering for now
+				double ao_blockstart = ao_timing ? I_FloatTime() : 0.0;
+				int aolevel = g_ao_level;
 				vec3_t* aonormals = g_skynormals[aolevel];
 				vec_t* aoweights = g_skynormalsizes[aolevel]; //How much solid-angle each direction covers
 				int aonum = g_numskynormals[aolevel];
 				vec_t occluded = 0;
 				vec_t totalweight = 0;
+				int numaccepted = 0;
 
-				for (int k = 0; k < aonum; k++)
+				if (aonum > 0)
 				{
-					vec_t d = DotProduct(pointnormal, aonormals[k]);
-					if (d <= NORMAL_EPSILON) //Ignore rays parallel to or pointing into surfaces
+					//Pass A: No tracing, only cosine hemisphere weight. Done first so low-weight skipping and the saturation early-out have the true denominator
+					for (int k = 0; k < aonum; k++)
 					{
-						continue;
+						vec_t d = DotProduct(pointnormal, aonormals[k]);
+						if (d <= NORMAL_EPSILON) //Ignore rays parallel to or pointing into surfaces
+						{
+							continue;
+						}
+						totalweight += d * aoweights[k]; //Cosine weighted
+						numaccepted++;
 					}
-					vec_t w = d * aoweights[k]; //Cosine weighted (angle importance + how much area this direction covers)
-					totalweight += w;
-
-					vec3_t dest;
-					VectorMA(spot, g_ao_scale, aonormals[k], dest); //Set 'dest' exactly 'g_ao_scale' units away from 'spot' in the ray direction
-
-					if (TestLine(spot, dest) == CONTENTS_SOLID) //!= CONTENTS_EMPTY
+					
+					if (totalweight > 0.0)
 					{
-						occluded += w; //Hit world/solid
-						continue;
-					}
-					vec3_t transparency;
-					int opaquestyle;
+						opaquetracectl_t octl;
+						studiotracectl_t sctl;
+						vec_t saturlimit = totalweight * (1.0 - AO_SATURATION_EPSILON);
+						vec_t minweight = g_ao_minweight * totalweight / qmax(numaccepted, 1); //Relative to mean ray weight
+						
+						if (ao_ncandidates < 0)
+						{
+							vec3_t boundsmins, boundsmaxs;
+							GetFaceWorldBounds (facenum, boundsmins, boundsmaxs);
+							//pad = g_ao_scale+1: rays travel at most 'g_ao_scale' so models outside the padded box can't be hit (result-neutral culling)
+							ao_ncandidates = BuildStudioCandidates (boundsmins, boundsmaxs, (float)(g_ao_scale + 1.0), ao_candidates, MAX_STUDIOMODELS);
+						}
+						sctl.mode_override = g_ao_studiomode;
+						sctl.candidates = ao_candidates;
+						sctl.ncandidates = ao_ncandidates;
+						octl.studio = &sctl;
+						ao_local.samples++;
+						
+						for (int k = 0; k < aonum; k++)
+						{
+							vec_t d = DotProduct(pointnormal, aonormals[k]);
 
-					if (TestSegmentAgainstOpaqueList(spot, dest, transparency, opaquestyle))
-					{
-						occluded += w; //Hit an opaque entity
-					}
-				}
+							if (d <= NORMAL_EPSILON) //Ignore rays parallel to or pointing into surfaces
+							{
+								ao_local.rays_skipped_cosine++;
+								continue;
+							}
+							vec_t w = d * aoweights[k]; //Cosine weighted (angle importance + how much area this direction covers)
+
+							if (w < minweight) //Negligible contribution
+							{
+								ao_local.rays_skipped_weight += w;
+								continue;
+							}
+							bool prof_ray = ao_timing && ((k & (AO_TIMER_SAMPLE - 1)) == 0);
+							vec3_t dest;
+							VectorMA(spot, g_ao_scale, aonormals[k], dest); //Set 'dest' exactly 'g_ao_scale' units away from 'spot' in the ray direction
+							ao_local.rays_fired++;
+							ao_local.calls_testline++;
+							double ts = 0.0;
+
+							if (prof_ray) ts = I_FloatTime ();
+							if (TestLine(spot, dest) == CONTENTS_SOLID) //!= CONTENTS_EMPTY
+							{
+								if (prof_ray) ao_local.time_testline += I_FloatTime () - ts;
+								occluded += w; //Hit world/solid
+								ao_local.hits_world++;
+
+								if (occluded >= saturlimit)
+								{
+									ao_local.rays_skipped_saturated += (totalweight - occluded);
+									occluded = totalweight; //Conservative
+									break;
+								}
+								continue;
+							}
+							if (prof_ray) ao_local.time_testline += I_FloatTime () - ts;
+							vec3_t transparency;
+							int opaquestyle;
+							sctl.timing = prof_ray ? 1 : 0;
+							sctl.time_trace = 0.0;
+							sctl.models_tested = 0.0;
+							sctl.models_traced = 0.0;
+							sctl.hits = 0.0;
+							sctl.hit_model = -1;
+							octl.timing = prof_ray ? 1 : 0;
+							octl.time_brush = 0.0;
+							octl.solid_hits = 0.0;
+							octl.style_hits = 0.0;
+							octl.transparent_only = 0.0;
+							octl.studio_hits = 0.0;
+							ts = 0.0;
+
+							if (prof_ray) ts = I_FloatTime ();
+							if (TestSegmentAgainstOpaqueList(spot, dest, transparency, opaquestyle, &octl))
+							{
+								if (prof_ray) ao_local.time_opaquebrush += I_FloatTime () - ts;
+								occluded += w; //Hit an opaque entity
+								ao_local.hits_opaquebrush += octl.solid_hits;
+								ao_local.hits_studio += octl.studio_hits;
+								ao_local.time_studio += sctl.time_trace;
+
+								if (sctl.hit_model >= 0)
+								{
+									ao_modelhits[sctl.hit_model] += 1.0;
+								}
+								if (occluded >= saturlimit)
+								{
+									ao_local.rays_skipped_saturated += (totalweight - occluded);
+									occluded = totalweight;
+									break;
+								}
+								continue;
+							}
+							if (prof_ray) ao_local.time_opaquebrush += I_FloatTime () - ts;
+							ao_local.time_studio += sctl.time_trace;
+
+							if (sctl.hit_model >= 0) //Mesh touched but transparent texel rejected the hit
+							{
+								ao_modelhits[sctl.hit_model] += 1.0;
+							}
+						} //(ray loop)
+					} //(totalweight > 0)
+				} //(aonum > 0)
 				vec_t occlusion = (totalweight > 0.0) ? (occluded / totalweight) : 0.0; //Get a percentage of occlusion
 
 				if (g_ao_gain != 1.0)
@@ -3495,13 +3789,17 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 						for (int x = 0; x < 3; x++)
 						{
 							sampled[j][x] = sampled[j][x] * (1.0 - alpha) + g_ao_color[x] * alpha; //Interpolate the AO color with the sampled light based on occlusion
-
+			
 							if (sampled[j][x] < 0.0)
 							{
 								sampled[j][x] = 0.0;
 							}
 						}
 					}
+				}
+				if (ao_timing)
+				{
+					ao_local.time_total += I_FloatTime() - ao_blockstart;
 				}
 			}
 			if (g_drawnudge)
@@ -3526,6 +3824,10 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 			}
 		}
 	}
+if (ao_timing)
+ 	{
+ 		AOStats_Flush (&ao_local, ao_modelhits);
+ 	}
 }
 void            BuildFacelights(const int facenum)
 {

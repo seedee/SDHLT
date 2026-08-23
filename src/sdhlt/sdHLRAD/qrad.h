@@ -142,19 +142,45 @@
 	#define DEFAULT_EMBEDLIGHTMAP_GAMMA 1.05
 	#define DEFAULT_EMBEDLIGHTMAP_RESOLUTION 1
 	#define DEFAULT_TEXLIGHTGAP 0.0
-	#define DEFAULT_AO_ENABLE		false //seedee
+	#define MAX_STUDIOMODELS 1024
+
+// ------------------------------------------------------------------------
+// Ambient Occlusion by seedee
+
+	#define DEFAULT_AO_ENABLE		false
+	#define DEFAULT_AO_STATS		false
+
 	#define MIN_AO_SCALE			1.0
-	#define DEFAULT_AO_SCALE		32.0 //Trace distance
+	#define DEFAULT_AO_SCALE		32.0		//Trace distance
 	#define MAX_AO_SCALE			1024.0
+
 	#define MIN_AO_GAIN				0.125
-	#define DEFAULT_AO_GAIN			1.0 //Exponent to reshape falloff (1.0 = linear)
+	#define DEFAULT_AO_GAIN			1.0			//Exponent to reshape falloff (1.0 = linear)
 	#define MAX_AO_GAIN				8.0
+
 	#define MIN_AO_OPACITY			0.0
-	#define MAX_AO_OPACITY			1.0
 	#define DEFAULT_AO_OPACITY		1.0
+	#define MAX_AO_OPACITY			1.0
+
 	#define DEFAULT_AO_COLOR_RED	0.0
 	#define DEFAULT_AO_COLOR_GREEN	0.0
 	#define DEFAULT_AO_COLOR_BLUE	0.0
+
+	#define MIN_AO_LEVEL			1			//Levels map onto the existing geodesic tables (see BuildDiffuseNormals):
+	#define DEFAULT_AO_LEVEL		4			//1 = 6, 2 = 18, 3 = 66, 4 = 258, 5 = 1026, 6 = 4098, 7 = 16386, 8 = 65538
+	#define MAX_AO_LEVEL			SKYLEVELMAX
+
+	#define MIN_AO_MINWEIGHT		0.0
+	#define DEFAULT_AO_MINWEIGHT	0.002		//Skip rays contributing less than this fraction of totalweight
+	#define MAX_AO_MINWEIGHT		0.1
+
+	#define AO_STUDIOMODE_INHERIT	-1			//Per-call studio trace mode override for AO. Values match SHADOW_FAST/NORMAL/SLOW (meshdesc.h) to avoid an include dependency
+	#define AO_STUDIOMODE_FAST		0
+	#define AO_STUDIOMODE_NORMAL	1
+	#define AO_STUDIOMODE_SLOW		2
+
+	#define AO_SATURATION_EPSILON	0.001		//Stop tracing when occlusion cannot drop below 99.9%
+	#define AO_TIMER_SAMPLE			16			//Sample wall-clock on every Nth AO ray. I_FloatTime() costs a syscall
 
 #ifdef SYSTEM_WIN32
 #define DEFAULT_ESTIMATE    false
@@ -452,7 +478,6 @@ extern vec3_t	g_jitter_hack;
 
 // ------------------------------------------------------------------------
 
-
 	extern bool	g_customshadow_with_bouncelight;
 	extern bool	g_rgb_transfers;
 	extern const vec3_t vec3_one;
@@ -485,11 +510,54 @@ extern vec3_t	g_jitter_hack;
 	extern vec_t g_maxdiscardedlight;
 	extern vec3_t g_maxdiscardedpos;
 	extern vec_t g_texlightgap;
-	extern bool  g_ao_enable;
-	extern vec_t g_ao_scale;
-	extern vec_t g_ao_opacity;
-	extern vec_t g_ao_gain;
-	extern vec3_t g_ao_color;
+
+// ------------------------------------------------------------------------
+// Ambient Occlusion by seedee
+
+extern bool  g_ao_enable;
+extern bool  g_ao_stats;
+extern vec_t g_ao_scale;
+extern vec_t g_ao_opacity;
+extern vec_t g_ao_gain;
+extern vec3_t g_ao_color;
+extern int g_ao_level;
+extern vec_t g_ao_minweight;
+extern int g_ao_studiomode; //AO_STUDIOMODE_*
+
+//Stats/control block from one studio trace (threaded through AO -> OpaqueList -> StudioList). NULL = not tracked.
+//Counters always fill in, timers only when timing !=0 (slow clock reads). Zero the stat fields before each ray, add results to your own totals after.
+typedef struct
+{
+	int       mode_override; //AO_STUDIOMODE_* applied to this call only
+	const int *candidates;   //Models to test, NULL = test all
+	int       ncandidates;
+	int       timing;        //1 = fill time_trace
+	double    time_trace;    //Seconds spent tracing this call (TraceMesh::DoTrace)
+	double    models_tested; //Models looked at
+	double    models_traced; //Models passing the AABB check
+	double    hits;          //Calls that hit something
+	int       hit_model;     //Index of model hit, -1 = none
+}
+studiotracectl_t;
+
+//Stats/control block for the opaque brush-entity walk. 'studio' hands the struct above down.
+typedef struct
+{
+	int              timing;           //1 = fill time_brush
+	double           time_brush;       //Seconds spent on brushes
+	double           solid_hits;       //Blocked by opaque brushes
+	double           style_hits;       //Toggleable (styled) opaque encounters
+	double           transparent_only; //Segments passing only transparent faces
+	double           studio_hits;      //Blocked by studiomodel
+	studiotracectl_t *studio;          //Forwarded to TestSegmentAgainstStudioList
+}
+opaquetracectl_t;
+
+extern void     AOStats_Reset(void);
+extern void     AOStats_Dump(void);
+extern int      BuildStudioCandidates(const vec3_t mins, const vec3_t maxs, float pad, int* out_indices, int max_out);
+
+// ------------------------------------------------------------------------
 
 extern void     MakeTnodes(dmodel_t* bm);
 extern void     PairEdges();
@@ -513,6 +581,8 @@ extern void		FreeFacelightDependencyList ();
 extern int      TestLine(const vec3_t start, const vec3_t stop
 						 , vec_t *skyhitout = NULL
 						 );
+void            TestLineStats_Reset(void);
+double          TestLineStats_SyncGet(void);
 #define OPAQUE_NODE_INLINECALL
 #ifdef OPAQUE_NODE_INLINECALL
 typedef struct
@@ -619,6 +689,7 @@ extern void FreeTriangulations ();
 extern bool     TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 					, vec3_t &scaleout
 					, int &opaquestyleout
+					, opaquetracectl_t *ctl = NULL
 					);
 extern bool     intersect_line_plane(const dplane_t* const plane, const vec_t* const p1, const vec_t* const p2, vec3_t point);
 extern bool     intersect_linesegment_plane(const dplane_t* const plane, const vec_t* const p1, const vec_t* const p2,vec3_t point);
@@ -641,7 +712,8 @@ extern void		GetAlternateOrigin (const vec3_t pos, const vec3_t normal, const pa
 // studio.cpp
 extern void LoadStudioModels(void);
 extern void FreeStudioModels(void);
-extern bool TestSegmentAgainstStudioList(const vec_t* p1, const vec_t* p2);
+extern bool TestSegmentAgainstStudioList(const vec_t* p1, const vec_t* p2, studiotracectl_t *ctl = NULL);
 extern bool g_studioshadow;
+extern const char* StudioModelShortname(int index);
 
 #endif //HLRAD_H__
