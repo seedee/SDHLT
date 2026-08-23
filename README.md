@@ -1,53 +1,91 @@
-![Banner](media/banner.png)
+# SDHLT – Fork with Optimization Focus
 
-<sub>Half-Life engine map compile tools, based on Vluzacn's ZHLT v34 with code contributions from various contributors. Based on Valve's version, modified with permission.</sub>
+This is a **fork** of the original [SDHLT](https://github.com/seedee/SDHLT) by the SDLHLT team, which itself is based on Vluzacn's ZHLT v34 and Valve's original Half‑Life map compile tools.
 
-New features include shadows from studiomodels, new entities, additional tool textures, ability to extend world size limits, portal file optimisation for J.A.C.K. map editor and minor algorithm optimization.
+The original project is licensed under the **GNU General Public License** (see `LICENSE` file in this repository).  
+This fork retains that license and adds **performance optimizations** and minor internal refactoring, while keeping all original functionality intact.
 
-## How to install
+---
+
+## Original Work Attribution
+
+- **Original authors**: SDLHLT team, Vluzacn, and various contributors.
+- **Based on**: Valve's Half‑Life engine tools, used with permission.
+- **Original repository**: [SDHLT](https://github.com/seedee/SDHLT)
+
+All features, entities, tool textures, and compile parameters listed below are inherited from the original SDHLT, except where noted as *new in this fork*.
+
+---
+
+## How to Install *(unchanged from original)*
 
 1. Open the configuration dialog of your map editor or batch compiler.
-2. Set CSG, BSP, VIS, RAD tool paths to *sdHLCSG.exe*, *sdHLBSP.exe*, *sdHLVIS.exe*, *sdHLRAD.exe*, use the *_x64.exe* editions if running on 64-bit.  
-3. Add *sdhlt.wad* into your wad list. This is required to compile maps.
-4. Add *sdhlt.fgd* into your fgd list.
+2. Set CSG, BSP, VIS, RAD tool paths to `sdHLCSG.exe`, `sdHLBSP.exe`, `sdHLVIS.exe`, `sdHLRAD.exe` (use `_x64.exe` on 64‑bit systems).
+3. Add `sdhlt.wad` to your WAD list (required).
+4. Add `sdhlt.fgd` to your FGD list.
 
-The main benefit of the 64-bit version is no memory allocation failures, because the 64-bit tools have access to more than 2GB of system memory.
+> The 64‑bit versions avoid memory allocation failures by accessing more than 2GB of RAM.
 
-## Features
+---
 
-### Studiomodel shadows
+## Features *(all from original SDHLT)*
 
-Entities with a `model` keyvalue, such as *env_sprite* or *cycler_sprite*, support the use of `zhlt_studioshadow 1` to flag the studiomodel as opaque to lighting. Additionally, `zhlt_shadowmode n` is used to control the shadow tracing mode.  
-The default `1` will trace each triangle normally and supports transparent textures.  
-Setting `2` doesn't support transparency. It traces each triangle with some extra thickness, which fills in the gaps between triangle seams for solid-looking shadows. 
-Setting `0` only traces a bbox around each triangle. In practice, these union together into something close to the whole model's bbox.
+### Studiomodel Shadows
+Entities with a `model` keyvalue (`env_sprite`, `cycler_sprite`, etc.) support:
+- `zhlt_studioshadow 1` – flag model as opaque to lighting.
+- `zhlt_shadowmode n` – shadow tracing mode:
+  - `1` (default) – traces each triangle with transparent‑texture support.
+  - `2` – no transparency, adds thickness to fill seams.
+  - `0` – traces a bbox around each triangle (approximates whole‑model bbox).
 
-To implement these into your own fgd file for SmartEdit, use the template at the top of *sdhlt.fgd*. If the new shadow covers the origin and makes it too dark, set a custom `light_origin` on the entity or move the mesh origin point externally.
+For SmartEdit FGD integration, use the template at the top of `sdhlt.fgd`.  
+If shadows darken the origin, set a custom `light_origin` or move the mesh origin.
 
 ### Entities
-
-- *info_portal* and *info_leaf* ared used to create a portal from the leaf the *info_portal* is inside, to the selected leaf the *info_leaf* is inside. Forces target leaf to be visible from the current one, making all entities visible.
-- *info_minlights* used to set minlights for textures, works on world geometry too. Works similarly to `_minlight` but per-texture.
+- `info_portal` + `info_leaf` – force visibility between two leaves.
+- `info_minlights` – set per‑texture minimum light levels (works on world geometry).
 
 ### Textures
+- `%` flag – sets minlight (e.g., `%texname` = `_minlight 1.0`; `%#texname` with `#` = 0–255).
+- `BEVELHINT` – combines SOLIDHINT and BEVEL, reduces subdivision and clips nodes.
+- `SPLITFACE` – subdivides faces along brush edges (like `zhlt_chopdown`).
+- `cur_tool` – acts as CONTENTWATER + func_pushable (2048 units/s in -Y), always fullbright.
 
-- Support for `%` texture flag, sets the minlight for this texture. **%texname** alone is equivalent to `_minlight 1.0`, while **%`#`texname** where **`#`** is an integer in a range of `0-255`.
-- **BEVELHINT** texture, which acts like **SOLIDHINT** and **BEVEL**. Eliminates unnecessary face subdivision and bevels clipnodes at the same time. Useful on complex shapes such as terrain, spiral staircase clipping, etc.
-- **SPLITFACE** texture. Brushes with this texture will subdivide faces they touch along their edges, similarly to `zhlt_chopdown`.
-- **cur_tool** textures, which act like **CONTENTWATER** and *func_pushable* with a speed of `2048 units/s` in -Y. This texture is always fullbright.
+### Compile Parameters *(original)*
+- `-pre25` – sets light clipping threshold to 188 (for pre‑25th‑anniversary engines).
+- `-extra` – now implies `-bounce 12` for higher‑quality lighting.
+- `-worldextent n` – extends map limits beyond ±32768.
+- Portal file reformatting for J.A.C.K. (use `-nofixprt` to disable).
+- `-nowadautodetect` – wadautodetect is now on by default.
+- `-nostudioshadow` – ignore `zhlt_studioshadow`.
 
-### Compile parameters
+---
 
-- `-pre25` RAD parameter overrides light clipping threshold limiter to `188`. Use this when creating maps for the legacy pre-25th anniversary engine without worrying about other parameters.
-- `-extra` RAD parameter now sets `-bounce 12` for a higher quality of lighting simulation.
-- `-worldextent n` CSG parameter. Extends map geometry limits beyond `+/-32768`.
-- Portal file reformatting for J.A.C.K. map editor, allows for importing the prt file into the editor directly after VIS. Use `-nofixprt` VIS parameter to disable.
-- `-nowadautodetect` CSG parameter. Wadautodetect is now true by default regardless of settings.
-- `-nostudioshadow` RAD parameter to ignore `zhlt_studioshadow` on studiomodels.
+## What’s New in This Fork (Optimization Focus)
 
-## Planned
-- **BLOCKLIGHT** texture, cast shadows without generating faces or cliphulls.
-- Optimization for `BuildFacelights` and `LeafThread`
-- Res file creation for servers
-- Split concerns into their own libraries instead of repeating infrastructure and util code
-- Full tool texture documentation
+- **Performance improvements** in:
+  - Distance based light cull
+
+All optimizations are additive – they do not alter input/output compatibility with original SDHLT.
+
+---
+
+## License & Compliance
+
+This fork is released under the **same license** as the original SDHLT (GPL).  
+All original copyright notices, license headers, and attribution requirements remain intact in the source code.
+
+Modifications are clearly marked in commit history and code comments.  
+For full license terms, see the `LICENSE` file in this repository.
+
+---
+
+## Credits
+
+- **Original SDHLT** – SDLHLT team, Vluzacn, and all contributors.
+- **Valve** – for the original Half‑Life tools.
+- **This fork** – [Bruhgogogo] (optimization work).
+
+---
+
+*For original documentation and feature details, please refer to the original SDHLT repository.*
