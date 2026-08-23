@@ -20,6 +20,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/tools)
 
 set(SDHLT_PREFIX "sd" CACHE STRING "Executable prefix.")
 set(SDHLT_GAME_PREFIX "HL" CACHE STRING "Executable game prefix.")
+set(CMAKE_CXX_COMPILER "g++")
 
 message("${CMAKE_PROJECT_NAME} > Tools will use prefix \"${SDHLT_PREFIX}${SDHLT_GAME_PREFIX}\"")
 
