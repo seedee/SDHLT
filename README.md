@@ -2,7 +2,7 @@
 
 <sub>Half-Life engine map compile tools, based on Vluzacn's ZHLT v34 with code contributions from various contributors. Based on Valve's version, modified with permission.</sub>
 
-New features include shadows from studiomodels, new entities, additional tool textures, ability to extend world size limits, portal file optimisation for J.A.C.K. map editor and minor algorithm optimization.
+New features include ambient occlusion, opaque studio models, new entities, tool textures, extendable world size limits, portal file optimisation for J.A.C.K. map editor and other minor bug fixes and improvements.
 
 ## How to install
 
@@ -16,35 +16,39 @@ The main benefit of the 64-bit version is no memory allocation failures, because
 ## Features
 
 ### Ambient occlusion
-Simulates soft contact with `-ao` darkening shadows in corners, crevices and around opaque objects where surfaces meet, with support for transparent textures. The settings are balanced by default, but you might need to adjust `-aoscale #`. For every lightmap sample, RAD will trace a bunch of rays across a hemisphere around the surface normal and measures how many will escape. Each direction is weighted by its solid angle, and its angle to the normal (flat directions count more, grazing ones less).
+Simulates soft contact shadows with `-ao` darkening corners, crevices and around opaque objects where surfaces meet, with support for transparent textures. For every lightmap sample, RAD will trace a bunch of rays across a hemisphere around the surface normal and measures how many will escape. Each direction is weighted by its solid angle, and its angle to the normal (flat directions count more, grazing ones less). The settings are balanced by default, but you might need to adjust `-aoscale #`.
 
 ### Studio model shadows
+Studio models (.mdl) can be flagged opaque and cast shadows from any entity with a `model` keyvalue, such as *env_sprite* or *cycler_sprite*. The keyvalue `zhlt_studioshadow 1` enables this, and `zhlt_shadowmode #` sets the shadow tracing mode. Use the template at the top of *sdhlt.fgd* to implement these for SmartEdit.
 
-Entities with a `model` keyvalue, such as *env_sprite* or *cycler_sprite*, support the use of `zhlt_studioshadow 1` to flag the studiomodel as opaque to lighting. Additionally, `zhlt_shadowmode #` is used to control the shadow tracing mode.  
-The default `1` will trace each triangle normally and supports transparent textures.  
-Setting `2` doesn't support transparency. It traces each triangle with some extra thickness, which fills in the gaps between triangle seams for solid-looking shadows. 
-Setting `0` only traces a bbox around each triangle. In practice, these union together into something close to the whole model's bbox.
+The default shadow mode `1` will trace each triangle normally and supports transparent textures. Setting `2` doesn't support transparency, but traces each triangle with some extra thickness, which fills in the gaps between triangle seams for solid-looking shadows. Setting `0` only traces a bbox around each triangle. In practice, these union together into something close to the whole model's bbox.
 
-To implement these into your own fgd file for SmartEdit, use the template at the top of *sdhlt.fgd*. If the new shadow covers the origin and makes it too dark, set a custom `light_origin` on the entity or move the mesh origin point externally.
+If the shadow covers the point underneath the model’s origin, this could affect its brightness in unwanted ways. Control it by setting a custom `light_origin` on the entity (or move the mesh origin internally).
 
 ### Compile parameters
-
-- `-pre25` RAD parameter overrides light clipping threshold limiter to `188`. Use this when creating maps for the legacy pre-25th anniversary engine without worrying about other parameters.
+#### CSG
 - `-worldextent #` CSG parameter. Extends map geometry limits beyond `+/-32768`.
+
+#### VIS
 - `-nofixprt` VIS parameter. Disables portal file reformatting for J.A.C.K. map editor, allows for importing the prt file into the editor directly after VIS.
-- `-nostudioshadow` RAD parameter to ignore `zhlt_studioshadow 1` on studiomodels.
-- `-ao` RAD parameter. Enables ambient occlusion. Entities are only occluded if flagged opaque to light. Studiomodels are occluded based on zhlt_shadowmode.
-- `-aoscale #` RAD parameter sets how far the rays reach, i.e. where AO exists and the maximum distance at which geometry counts as occluding. Higher values make the dark bands reach further out from corners and look thicker.
-- `-aogain #` RAD parameter controls the exponent shaping the falloff curve, or how closely AO bands hug corners. Scale is the reach, gain is the distribution within that reach. Linear by default. `<1` spreads it further away. `>1` keeps AO only in the deepest corners while half-occluded areas shrink.
-- `-aolevel #` RAD parameter sets the density of ray directions traced across the hemisphere per lightmap sample. Lower values can improve compile times. Avoid higher values because they yield diminishing returns with extremely long compile times. Sampling levels map onto the existing geodesic tables.
+
+#### RAD
+- `-pre25` overrides light clipping threshold limiter to `188`. Use this when creating maps for the legacy pre-25th anniversary engine without worrying about other parameters.
+- `-nostudioshadow` disables studio model shadow tracing.
+- `-ao` enables ambient occlusion. Entities are only occluded if flagged opaque to light. Studiomodels are occluded based on zhlt_shadowmode.
+- `-aoscale #` sets how far the rays reach, i.e. where AO exists and the maximum distance at which geometry counts as occluding. Higher values make the dark bands reach further out from corners and look thicker.
+- `-aogain #` sets the exponent shaping the falloff curve, or how closely AO bands hug corners. Scale is the reach, gain is the distribution within that reach. Linear by default. `<1` spreads it further away. `>1` keeps AO only in the deepest corners while half-occluded areas shrink.
+- `-aolevel #` sets the density of ray directions traced across the hemisphere per lightmap sample. Lower values can improve compile times. Higher values yield diminishing returns with extremely long compile times. Sampling levels map onto the existing geodesic tables.
+
 | Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
 |---|---|---|---|---|---|---|---|---|
 | Directions | 6 | 18 | 66 | 258 | 1026 | 4098 | 16386 | 65538 |
-- `-aominweight #` RAD parameter sets a ray-culling threshold as a fraction of total hemisphere weight, below which a ray is skipped. Enabling values higher than `0` can speed up compile times but loses occlusion from corners. The fraction ceiling shrinks with sampling density, so set this to `0` if all your AO ray hits get skipped at a higher `-aolevel #`.
-- `-aostudiomode value` RAD parameter. Global zhlt_shadowmode override used for tracing AO in studio models. Options include `fast`, `normal` and `slow`. Using fast can speed up compile times without changing how models cast regular shadows in lighting. Default `inherit` doesn't override and uses the keyvalue from entity.
-- `-aoopacity #` RAD parameter controls AO visibility. Multiplies computed occlusion to form the final blend factor alpha.
-- `-aocolor r g b` RAD parameter controls the tint color of the AO. Darkens toward black by default, any other color tints the occlusion. Useful for stylized effects.
-- `-aostats` RAD parameter. Display ambient occlusion statistics.
+
+- `-aominweight #` sets the ray-culling threshold as a fraction of total hemisphere weight, below which a ray is skipped. Enabling values higher than `0` can speed up compile times but loses occlusion from corners. The fraction ceiling shrinks with sampling density, so set this to `0` if all your AO ray hits get skipped at a higher `-aolevel #`.
+- `-aostudiomode value` acts as a global `zhlt_shadowmode` override used for tracing AO in studio models. Options include `fast`, `normal` and `slow`. Using `fast` can speed up compile times without changing how models cast regular shadows in lighting. Default `inherit` doesn't override and uses the keyvalue from entity.
+- `-aoopacity #` controls AO visibility. Multiplies computed occlusion to form the final blend factor alpha.
+- `-aocolor r g b` controls the tint color of the AO. Darkens toward black by default, any other color tints the occlusion. Useful for stylized effects.
+- `-aostats` displays a chart of ambient occlusion statistics.
 
 ### Entities
 
@@ -62,5 +66,4 @@ To implement these into your own fgd file for SmartEdit, use the template at the
 - **BLOCKLIGHT** texture, cast shadows without generating faces or cliphulls.
 - Optimization for `BuildFacelights` and `LeafThread`
 - Res file creation for servers
-- Split concerns into their own libraries instead of repeating infrastructure and util code
 - Full tool texture documentation
