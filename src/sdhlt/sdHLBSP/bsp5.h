@@ -308,6 +308,7 @@ extern char		g_extentfilename[_MAX_PATH];
 extern bool     g_bUseNullTex;
 
 extern bool		g_nohull2;
+extern bool		g_nohull3;
 
 extern face_t*  NewFaceFromFace(const face_t* const in);
 extern void     SplitFace(face_t* in, const dplane_t* const split, face_t** front, face_t** back);
