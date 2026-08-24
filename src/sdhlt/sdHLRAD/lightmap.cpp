@@ -3223,6 +3223,7 @@ typedef struct
 	double time_studio;				//Sampled TraceMesh::DoTrace time reported via ctl
 	double samples;					//Luxel samples AO ran on
 	double rays_fired;				//Directions traced
+	double rays_abandoned;			//Directions left untraced by saturation early-out
 	double rays_skipped_cosine;		//Directions skipped
 	double rays_skipped_weight;		//Weight counted as clear
 	double rays_skipped_saturated;	//Weight assumed occluded at early-out
@@ -3242,7 +3243,7 @@ void AOStats_Reset (void)
 {
 	memset (&g_aostats, 0, sizeof (g_aostats));
 	memset (g_aostat_modelhits, 0, sizeof (g_aostat_modelhits));
-	g_stat_testline_calls = 0;
+	TestLineStats_Reset();
 }
 
 static void AOStats_Flush (const aostats_t *s, const double *modelhits)
@@ -3289,7 +3290,8 @@ void AOStats_Dump (void)
 	double staged		= bsp + brush + studio;
 	double other		= qmax (total - staged, 0.0);
 	double fired		= g_aostats.rays_fired > 0 ? g_aostats.rays_fired : 1.0;
-	long long tl_other	= g_stat_testline_calls > g_aostats.calls_testline ? (long long)(g_stat_testline_calls - g_aostats.calls_testline) : 0;
+	double tl_global = TestLineStats_SyncGet();
+	long long tl_other = tl_global > g_aostats.calls_testline ? (long long)(tl_global - g_aostats.calls_testline) : 0;
 
 	char line[64];
 	int len = snprintf(line, sizeof(line), "Ambient occlusion statistics");
@@ -3333,9 +3335,6 @@ void AOStats_Dump (void)
 	{
 		Log ("  %-32s %14.2f s\n", "unaccounted:", other);
 	}
-	TestLineStats_Reset();
-	double tl_global = TestLineStats_SyncGet();
-	long long tl_other = tl_global > g_aostats.calls_testline ? (long long)(tl_global - g_aostats.calls_testline) : 0;
 	Log ("  %-32s %14.0f (%.0f AO, %lld other)\n", "TestLine calls:", tl_global, g_aostats.calls_testline, tl_other); //Needs fixing
 	Log ("  %-32s %14.2f s%s\n", "total AO time:", total, g_numthreads > 1 ? " (normalized)" : "");
 	{
