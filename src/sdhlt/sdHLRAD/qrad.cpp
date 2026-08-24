@@ -3990,7 +3990,7 @@ int             main(const int argc, char** argv)
 				Usage();
 			}
 		}
-		else if (!strcasecmp(argv[i], "-aogain"))
+		else if (!strcasecmp(argv[i], "-aogain") || !strcasecmp(argv[i], "-aofalloff"))
 		{
 			if (i + 1 < argc)
 			{
@@ -4008,7 +4008,7 @@ int             main(const int argc, char** argv)
 				Usage();
 			}
 		}
-		else if (!strcasecmp(argv[i], "-aolevel"))
+		else if (!strcasecmp(argv[i], "-aolevel") || !strcasecmp(argv[i], "-aosampling") || !strcasecmp(argv[i], "-aodensity"))
 		{
 			if (i + 1 < argc)
 			{
@@ -4043,7 +4043,7 @@ int             main(const int argc, char** argv)
 				Usage();
 			}
 		}
-		else if (!strcasecmp(argv[i], "-aostudiomode"))
+		else if (!strcasecmp(argv[i], "-aostudiomode") || !strcasecmp(argv[i], "-aostudioshadowmode") || !strcasecmp(argv[i], "-aoshadowmode"))
 		{
 			if (i + 1 < argc)
 			{
@@ -4117,7 +4117,7 @@ int             main(const int argc, char** argv)
 				Error("expected three color values after '-aocolor'\n");
 			}
 		}
-		else if (!strcasecmp(argv[i], "-aostats"))
+		else if (!strcasecmp(argv[i], "-aostats") || !strcasecmp(argv[i], "-aochart"))
 		{
 			g_ao_stats = true;
 		}
