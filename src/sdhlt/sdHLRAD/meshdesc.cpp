@@ -521,7 +521,7 @@ bool CMeshDesc :: StudioConstructMesh( model_t *pModel )
 	}
 	else
 	{
-		Warning("StudioConstructMesh: using rest pose for model %s with 0 sequences (shadow tracing may be lower quality)\n", pModel->name);
+		Warning("StudioConstructMesh: using rest pose for model '%s' with 0 sequences (shadow tracing may be lower quality)\n", pModel->name);
 	}
 	static vec3_t pos[MAXSTUDIOBONES];
 	static vec4_t q[MAXSTUDIOBONES];

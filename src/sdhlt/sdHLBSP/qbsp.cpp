@@ -1775,7 +1775,7 @@ int             main(const int argc, char** argv)
 			g_nohull2 = true;
 		}
         
-        else if (!strcasecmp (argv[i], "-nohull3"))
+        else if (!strcasecmp (argv[i], "-nohull3")) //--SirYodaJedi
 		{
 			g_nohull3 = true;
 		}
