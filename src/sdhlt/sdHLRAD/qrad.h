@@ -171,7 +171,7 @@
 	#define MAX_AO_LEVEL			SKYLEVELMAX
 
 	#define MIN_AO_MINWEIGHT		0.0
-	#define DEFAULT_AO_MINWEIGHT	0.002		//Skip rays contributing less than this fraction of totalweight
+	#define DEFAULT_AO_MINWEIGHT	0.045		//Skip rays contributing less than this fraction of totalweight
 	#define MAX_AO_MINWEIGHT		0.1
 
 	#define AO_STUDIOMODE_INHERIT	-1			//Per-call studio trace mode override for AO. Values match SHADOW_FAST/NORMAL/SLOW (meshdesc.h) to avoid an include dependency
