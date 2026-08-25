@@ -187,10 +187,8 @@ void LoadStudioModels( void )
 			Log("-");
 		}
 		Log("\n");
-		int indexWidth = 1; //Grows when an index needs 2nd/3rd digit
 
-		for (int m = (num_models > 0 ? num_models - 1 : 0); m >= 10; m /= 10)
-			indexWidth++;
+		const int indexWidth = IndicesMaxWidth(num_models);
 
 		for (int i = 0; i < num_models; i++)
 		{
@@ -200,8 +198,10 @@ void LoadStudioModels( void )
 				models[i].trace_mode == SHADOW_NORMAL ? "normal" :
 				models[i].trace_mode == SHADOW_SLOW ? "slow" : "unknown";
 
-			Log("  [%*d] %-16s tris=%-6u mode=%-6s bbox=(%.0f %.0f %.0f)-(%.0f %.0f %.0f)\n",
-				indexWidth, i, models[i].shortname, mesh ? mesh->numfacets : 0u, modestr,
+			Log("  [%*d] %s\n",
+				indexWidth, i, models[i].shortname);
+			Log("  mode: %6s, tris: %u, bbox: (%.0f %.0f %.0f)-(%.0f %.0f %.0f)\n",
+				modestr, mesh ? mesh->numfacets : 0u,
 				mesh ? mesh->mins[0] : 0.0f, mesh ? mesh->mins[1] : 0.0f, mesh ? mesh->mins[2] : 0.0f,
 				mesh ? mesh->maxs[0] : 0.0f, mesh ? mesh->maxs[1] : 0.0f, mesh ? mesh->maxs[2] : 0.0f);
 		}
@@ -330,4 +330,28 @@ const char *StudioModelShortname( int index )
 {
 	if( index < 0 || index >= num_models ) return "???";
 	return models[index].shortname;
+}
+
+// =====================================================================================
+//  IndicesMaxWidth															    //seedee
+//		Field width for largest of right-aligned '[i]' indices
+//      Format bracket column alignment with '%*d' regardless of list length
+// =====================================================================================
+int IndicesMaxWidth(int count)
+{
+	if (count <= 1)
+		return 1;
+
+	int digits = 1;
+	for (int largest = count - 1; largest >= 10; largest /= 10)
+		digits++;
+	return digits;
+}
+
+// =====================================================================================
+//  StudioModelCount															//seedee
+// =====================================================================================
+int StudioModelCount(void)
+{
+	return num_models;
 }

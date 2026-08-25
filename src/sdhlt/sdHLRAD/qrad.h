@@ -167,7 +167,7 @@
 	#define DEFAULT_AO_COLOR_BLUE	0.0
 
 	#define MIN_AO_LEVEL			1			//Levels map onto the existing geodesic tables (see BuildDiffuseNormals):
-	#define DEFAULT_AO_LEVEL		4			//1 = 6, 2 = 18, 3 = 66, 4 = 258, 5 = 1026, 6 = 4098, 7 = 16386, 8 = 65538
+	#define DEFAULT_AO_LEVEL		3			//1 = 6, 2 = 18, 3 = 66, 4 = 258, 5 = 1026, 6 = 4098, 7 = 16386, 8 = 65538
 	#define MAX_AO_LEVEL			SKYLEVELMAX
 
 	#define MIN_AO_MINWEIGHT		0.0
@@ -715,5 +715,6 @@ extern void FreeStudioModels(void);
 extern bool TestSegmentAgainstStudioList(const vec_t* p1, const vec_t* p2, studiotracectl_t *ctl = NULL);
 extern bool g_studioshadow;
 extern const char* StudioModelShortname(int index);
-
+extern int IndicesMaxWidth(int count);
+extern int StudioModelCount(void);
 #endif //HLRAD_H__

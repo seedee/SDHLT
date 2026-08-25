@@ -3290,8 +3290,8 @@ void AOStats_Dump (void)
 	double staged		= bsp + brush + studio;
 	double other		= qmax (total - staged, 0.0);
 	double fired		= g_aostats.rays_fired > 0 ? g_aostats.rays_fired : 1.0;
-	double tl_global = TestLineStats_SyncGet();
-	long long tl_other = tl_global > g_aostats.calls_testline ? (long long)(tl_global - g_aostats.calls_testline) : 0;
+	double tl_global	= TestLineStats_SyncGet();
+	long long tl_other	= tl_global > g_aostats.calls_testline ? (long long)(tl_global - g_aostats.calls_testline) : 0;
 
 	char line[64];
 	int len = snprintf(line, sizeof(line), "Ambient occlusion statistics");
@@ -3302,46 +3302,50 @@ void AOStats_Dump (void)
 		Log("-");
 	}
 	Log("\n");
-	Log ("  %-32s %14d\n", "sampling level:", g_ao_level);
-	Log ("  %-32s %14lld\n", "samples:", (long long)g_aostats.samples);
-	Log ("  %-32s %14.0f\n", "rays fired:", g_aostats.rays_fired);
+	Log ("  %-31s | %14d\n", "sampling level:", g_ao_level);
+	Log ("  %-31s | %14lld\n", "samples:", (long long)g_aostats.samples);
+	Log ("  %-31s | %14.0f\n", "candidates:", (double)g_aostats.samples * (double)g_numskynormals[g_ao_level]); //Budget
+	Log ("  %-31s | %14.0f\n", "rays fired:", g_aostats.rays_fired);
 
 	if (g_aostats.samples > 0 && g_aostats.rays_fired == 0)
 	{
-		Log("WARNING: AO fired 0 rays for %.0f samples, aominweight too high for this sampling level\n", g_aostats.samples);
+		Log("Warning: AO fired 0 rays for %.0f samples, -aominweight %.0f too high for this sampling level\n", g_aostats.samples, g_ao_minweight);
 	}
-	Log ("  %-32s %14.0f\n", "skipped (cosine):", g_aostats.rays_skipped_cosine);
-	Log ("  %-32s %14.0f weight-units\n", "skipped (low weight):", g_aostats.rays_skipped_weight);
-	Log ("  %-32s %14.0f weight-units\n", "skipped (saturated):", g_aostats.rays_skipped_saturated);
-	Log ("  %-32s %13.1f %% / %3.1f %% / %3.1f %%\n", "hit (world/brush/studio):",
+	Log ("  %-31s | %14.0f\n", "skipped (cosine):", g_aostats.rays_skipped_cosine);
+	Log ("  %-31s | %14.0f weight\n", "skipped (low weight):", g_aostats.rays_skipped_weight);
+	Log ("  %-31s | %14.0f weight\n", "skipped (saturated):", g_aostats.rays_skipped_saturated);
+	Log ("  %-31s | %.1f%% / %.1f%% / %.1f%%\n", "hit (world/brush/studio):",
 		100.0 * g_aostats.hits_world       / fired,
 		100.0 * g_aostats.hits_opaquebrush / fired,
 		100.0 * g_aostats.hits_studio      / fired);
 
 	if (staged > 0.0)
 	{
-		Log ("  %-32s %14.3f us/ray (AO stages)\n", "avg ray cost:", staged * 1e6 / g_aostats.rays_fired);
+		Log ("  %-31s | %14.3f us/ray\n", "avg ray cost (AO stages):", staged * 1e6 / g_aostats.rays_fired);
 	}
 	if (staged > 0.0)
 	{
-		Log ("  %-32s %5.1f %% / %3.1f %% / %3.1f %%%s\n",
-			"stage split (world/brush/studio):",
+		Log ("  %-31s | %.1f%% / %.1f%% / %.1f%%\n",
+			"occluders (world/brush/studio):",
 			100.0 * bsp    / staged,
 			100.0 * brush  / staged,
-			100.0 * studio / staged,
-			other / staged > 0.001 ? "" : "");
+			100.0 * studio / staged);
 	}
 	if (other / qmax (staged, 1e-9) > 0.001)
 	{
-		Log ("  %-32s %14.2f s\n", "unaccounted:", other);
+		Log ("  %-31s | %14.2f s\n", "unaccounted:", other);
 	}
-	Log ("  %-32s %14.0f (%.0f AO, %lld other)\n", "TestLine calls:", tl_global, g_aostats.calls_testline, tl_other); //Needs fixing
-	Log ("  %-32s %14.2f s%s\n", "total AO time:", total, g_numthreads > 1 ? " (normalized)" : "");
+	Log ("  %-31s | %14.0f\n", "testline:", tl_global);
+	Log ("  %-31s | %14.0f\n", "testline (AO):", g_aostats.calls_testline);
+	Log ("  %-31s | %14.0f\n", "testline (other):", (double)tl_other);
+	Log ("  %-31s | %14.2f s%s\n", "total AO time:", total, g_numthreads > 1 ? " (scaled)" : "");
 	{
 		int top[5] = {-1, -1, -1, -1, -1};
-		bool header = false;
+
 		for (int i = 0; i < MAX_STUDIOMODELS; i++)
 		{
+			if (g_aostat_modelhits[i] <= 0) //Never blocked rays
+				continue;
 			for (int t = 0; t < 5; t++)
 			{
 				if (top[t] < 0 || g_aostat_modelhits[i] > g_aostat_modelhits[top[t]])
@@ -3352,14 +3356,17 @@ void AOStats_Dump (void)
 				}
 			}
 		}
-		for (int t = 0; t < 5 && top[t] >= 0 && g_aostat_modelhits[top[t]] > 0; t++)
+		int rows = 0;
+
+		while (rows < 5 && top[rows] >= 0)
+			rows++;
+		if (rows > 0)
 		{
-			if (!header)
-			{
-				Log ("Top studio models by rays blocked:\n");
-				header = true;
-			}
-			Log ("  %-32s %14.0f\n", StudioModelShortname (top[t]), g_aostat_modelhits[top[t]]);
+			const int indexWidth = IndicesMaxWidth (StudioModelCount ());
+			Log ("Top %sstudio models by rays blocked:\n", rows < 5 ? "5 " : "");
+
+			for (int t = 0; t < rows; t++)
+				Log ("  [%*d] %-*s | %14.0f\n", indexWidth, top[t], 28 - indexWidth, StudioModelShortname (top[t]), g_aostat_modelhits[top[t]]); //31-3
 		}
 	}
 	for (int i = 0; i < len; i++)
@@ -3686,8 +3693,9 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 						sctl.ncandidates = ao_ncandidates;
 						octl.studio = &sctl;
 						ao_local.samples++;
-						
-						for (int k = 0; k < aonum; k++)
+						int k;
+
+						for (k = 0; k < aonum; k++) //ray loop
 						{
 							vec_t d = DotProduct(pointnormal, aonormals[k]);
 
@@ -3771,6 +3779,10 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 								ao_modelhits[sctl.hit_model] += 1.0;
 							}
 						} //(ray loop)
+						if (k < aonum)
+						{
+							ao_local.rays_abandoned += (aonum - k); //Exit when occlusion accumulator saturates
+						}
 					} //(totalweight > 0)
 				} //(aonum > 0)
 				vec_t occlusion = (totalweight > 0.0) ? (occluded / totalweight) : 0.0; //Get a percentage of occlusion
