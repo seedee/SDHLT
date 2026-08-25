@@ -6,6 +6,21 @@ bool            g_sky_lighting_fix = DEFAULT_SKY_LIGHTING_FIX;
 
 //#define TEXTURE_STEP   16.0
 
+constexpr float fallofCullDistance = 0.001f;
+
+static float GetDistanceSquar(const vec3_t v1, const vec3_t v2)
+{
+	float x = v1[0] - v2[0];
+	float y = v1[1] - v2[1];
+	float z = v1[2] - v2[2];
+	return x * x + y * y + z * z;
+}
+
+static inline bool ShouldPatchBeRenderByThisLights(const vec3_t pos, const vec3_t lightOrigin, const float effectiveDistanceSquar)
+{
+	return GetDistanceSquar(pos, lightOrigin) > effectiveDistanceSquar;
+}
+
 // =====================================================================================
 //  PairEdges
 // =====================================================================================
@@ -2503,6 +2518,29 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
             {
                 for (; l; l = l->next)
                 {
+					// Culling
+					if (l->type != emit_skylight)
+					{
+						float maxIntensity = qmax(l->intensity[0], qmax(l->intensity[1], l->intensity[2]));
+
+						if (maxIntensity <= fallofCullDistance)
+						{
+							continue;
+						}
+
+						float fade = l->fade > 0.0f ? l->fade : 1.0f;
+						float effectiveDistanceSquar = maxIntensity * fade / fallofCullDistance;
+
+						if (effectiveDistanceSquar <= fallofCullDistance)
+						{
+							continue;
+						}
+
+						if (ShouldPatchBeRenderByThisLights(pos, l->origin, effectiveDistanceSquar))
+						{
+							continue;
+						}
+					}
                     // skylights work fundamentally differently than normal lights
                     if (l->type == emit_skylight)
                     {

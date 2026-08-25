@@ -9,6 +9,19 @@ size_t          g_transfer_data_bytes = 0;
 #define COMPRESSED_TRANSFERS
 //#undef  COMPRESSED_TRANSFERS
 
+static float GetDistanceSquar(const vec3_t v1, const vec3_t v2)
+{
+	float x = v1[0] - v2[0];
+	float y = v1[1] - v2[1];
+	float z = v1[2] - v2[2];
+	return x * x + y * y + z * z;
+}
+
+static inline bool ShouldPatchBeRenderByThisLights(const vec3_t pos, const vec3_t lightOrigin, const float effectiveDistanceSquar)
+{
+	return GetDistanceSquar(pos, lightOrigin) > effectiveDistanceSquar;
+}
+
 int             FindTransferOffsetPatchnum(transfer_index_t* tIndex, const patch_t* const patch, const unsigned patchnum)
 {
     //
@@ -172,58 +185,57 @@ static transfer_index_t* CompressTransferIndicies(const transfer_raw_index_t* tR
 #pragma warning(push)
 #pragma warning(disable: 4100)                             // unreferenced formal parameter
 #endif
-void            MakeScales(const int threadnum)
+void MakeScales(const int threadnum)
 {
-    int             i;
-    unsigned        j;
-    vec3_t          delta;
-    vec_t           dist;
-    int             count;
-    float           trans;
-    patch_t*        patch;
-    patch_t*        patch2;
-    float           send;
-    vec3_t          origin;
-    vec_t           area;
-    const vec_t*    normal1;
-    const vec_t*    normal2;
+	int             i;
+	unsigned        j;
+	vec3_t          delta;
+	vec_t           dist;
+	int             count;
+	float           trans;
+	patch_t* patch;
+	patch_t* patch2;
+	float           send;
+	vec3_t          origin;
+	vec_t           area;
+	const vec_t* normal1;
+	const vec_t* normal2;
 
-    unsigned int    fastfind_index = 0;
+	unsigned int    fastfind_index = 0;
 
-    vec_t           total;
+	vec_t           total;
 
-    transfer_raw_index_t* tIndex;
-    float* tData;
+	transfer_raw_index_t* tIndex;
+	float* tData;
 
-    transfer_raw_index_t* tIndex_All = (transfer_raw_index_t*)AllocBlock(sizeof(transfer_index_t) * (g_num_patches + 1));
-    float* tData_All = (float*)AllocBlock(sizeof(float) * (g_num_patches + 1));
+	transfer_raw_index_t* tIndex_All = (transfer_raw_index_t*)AllocBlock(sizeof(transfer_index_t) * (g_num_patches + 1));
+	float* tData_All = (float*)AllocBlock(sizeof(float) * (g_num_patches + 1));
 
-    count = 0;
+	count = 0;
 
-    while (1)
-    {
-        i = GetThreadWork();
-        if (i == -1)
-            break;
+	while (1)
+	{
+		i = GetThreadWork();
+		if (i == -1)
+			break;
 
-        patch = g_patches + i;
-        patch->iIndex = 0;
-        patch->iData = 0;
+		patch = g_patches + i;
+		patch->iIndex = 0;
+		patch->iData = 0;
 
+		tIndex = tIndex_All;
+		tData = tData_All;
 
-        tIndex = tIndex_All;
-        tData = tData_All;
+		VectorCopy(patch->origin, origin);
+		normal1 = getPlaneFromFaceNumber(patch->faceNumber)->normal;
 
-        VectorCopy(patch->origin, origin);
-        normal1 = getPlaneFromFaceNumber(patch->faceNumber)->normal;
-
-        area = patch->area;
+		area = patch->area;
 		vec3_t backorigin;
 		vec3_t backnormal;
 		if (patch->translucent_b)
 		{
-			VectorMA (patch->origin, -(g_translucentdepth + 2*PATCH_HUNT_OFFSET), normal1, backorigin);
-			VectorSubtract (vec3_origin, normal1, backnormal);
+			VectorMA(patch->origin, -(g_translucentdepth + 2 * PATCH_HUNT_OFFSET), normal1, backorigin);
+			VectorSubtract(vec3_origin, normal1, backnormal);
 		}
 		bool lighting_diversify;
 		vec_t lighting_power;
@@ -233,29 +245,30 @@ void            MakeScales(const int threadnum)
 		lighting_scale = g_lightingconeinfo[miptex][1];
 		lighting_diversify = (lighting_power != 1.0 || lighting_scale != 1.0);
 
-        // find out which patch2's will collect light
-        // from patch
-		// HLRAD_NOSWAP: patch collect light from patch2
+		for (j = 0, patch2 = g_patches; j < g_num_patches; j++, patch2++)
+		{
+			vec_t           dot1;
+			vec_t           dot2;
 
-        for (j = 0, patch2 = g_patches; j < g_num_patches; j++, patch2++)
-        {
-            vec_t           dot1;
-            vec_t           dot2;
-
-            vec3_t          transparency = {1.0,1.0,1.0};
+			vec3_t          transparency = { 1.0,1.0,1.0 };
 			bool useback;
 			useback = false;
 
-            if (!g_CheckVisBit(i, j
+			if (ShouldPatchBeRenderByThisLights(origin, patch2->origin, patch2->emitter_range * patch2->emitter_range))
+			{
+				continue;
+			}
+
+			if (!g_CheckVisBit(i, j
 				, transparency
 				, fastfind_index
-				) || (i == j))
-            {
+			) || (i == j))
+			{
 				if (patch->translucent_b)
 				{
 					if ((i == j) ||
 						!CheckVisBitBackwards(i, j, backorigin, backnormal
-						, transparency
+							, transparency
 						))
 					{
 						continue;
@@ -266,26 +279,26 @@ void            MakeScales(const int threadnum)
 				{
 					continue;
 				}
-            }
+			}
 
-            normal2 = getPlaneFromFaceNumber(patch2->faceNumber)->normal;
+			normal2 = getPlaneFromFaceNumber(patch2->faceNumber)->normal;
 
-            // calculate transferemnce
-            VectorSubtract(patch2->origin, origin, delta);
+			// calculate transferemnce
+			VectorSubtract(patch2->origin, origin, delta);
 			if (useback)
 			{
-				VectorSubtract (patch2->origin, backorigin, delta);
+				VectorSubtract(patch2->origin, backorigin, delta);
 			}
 			// move emitter back to its plane
-			VectorMA (delta, -PATCH_HUNT_OFFSET, normal2, delta);
+			VectorMA(delta, -PATCH_HUNT_OFFSET, normal2, delta);
 
-            dist = VectorNormalize(delta);
-            dot1 = DotProduct(delta, normal1);
+			dist = VectorNormalize(delta);
+			dot1 = DotProduct(delta, normal1);
 			if (useback)
 			{
-				dot1 = DotProduct (delta, backnormal);
+				dot1 = DotProduct(delta, backnormal);
 			}
-            dot2 = -DotProduct(delta, normal2);
+			dot2 = -DotProduct(delta, normal2);
 			bool light_behind_surface = false;
 			if (dot1 <= NORMAL_EPSILON)
 			{
@@ -300,10 +313,10 @@ void            MakeScales(const int threadnum)
 				&& !light_behind_surface
 				)
 			{
-				dot1 = lighting_scale * pow (dot1, lighting_power);
+				dot1 = lighting_scale * pow(dot1, lighting_power);
 			}
-            trans = (dot1 * dot2) / (dist * dist);         // Inverse square falloff factoring angle between patch normals
-            if (trans * patch2->area > 0.8f)
+			trans = (dot1 * dot2) / (dist * dist);
+			if (trans * patch2->area > 0.8f)
 				trans = 0.8f / patch2->area;
 			if (dist < patch2->emitter_range - ON_EPSILON)
 			{
@@ -312,9 +325,9 @@ void            MakeScales(const int threadnum)
 					trans = 0.0;
 				}
 				vec_t sightarea;
-				const vec_t *receiver_origin;
-				const vec_t *receiver_normal;
-				const Winding *emitter_winding;
+				const vec_t* receiver_origin;
+				const vec_t* receiver_normal;
+				const Winding* emitter_winding;
 				receiver_origin = origin;
 				receiver_normal = normal1;
 				if (useback)
@@ -323,15 +336,15 @@ void            MakeScales(const int threadnum)
 					receiver_normal = backnormal;
 				}
 				emitter_winding = patch2->winding;
-				sightarea = CalcSightArea (receiver_origin, receiver_normal, emitter_winding, patch2->emitter_skylevel
+				sightarea = CalcSightArea(receiver_origin, receiver_normal, emitter_winding, patch2->emitter_skylevel
 					, lighting_power, lighting_scale
-					);
-				
+				);
+
 				vec_t frac;
 				frac = dist / patch2->emitter_range;
-				frac = (frac - 0.5f) * 2.0f; // make a smooth transition between the two methods
-				frac = qmax (0, qmin (frac, 1));
-				trans = frac * trans + (1 - frac) * (sightarea / patch2->area); // because later we will multiply this back
+				frac = (frac - 0.5f) * 2.0f;
+				frac = qmax(0, qmin(frac, 1));
+				trans = frac * trans + (1 - frac) * (sightarea / patch2->area);
 			}
 			else
 			{
@@ -342,74 +355,72 @@ void            MakeScales(const int threadnum)
 			}
 
 			trans *= patch2->exposure;
-            trans = trans * VectorAvg(transparency); //hullu: add transparency effect
+			trans = trans * VectorAvg(transparency);
 			if (patch->translucent_b)
 			{
 				if (useback)
 				{
-					trans *= VectorAvg (patch->translucent_v);
+					trans *= VectorAvg(patch->translucent_v);
 				}
 				else
 				{
-					trans *= 1 - VectorAvg (patch->translucent_v);
+					trans *= 1 - VectorAvg(patch->translucent_v);
 				}
 			}
 
-            {
-
-
+			{
 				trans = trans * patch2->area;
-            }
+			}
 			if (trans <= 0.0)
 			{
 				continue;
 			}
 
-            *tData = trans;
-            *tIndex = j;
-            tData++;
-            tIndex++;
-            patch->iData++;
-            count++;
-        }
+			*tData = trans;
+			*tIndex = j;
+			tData++;
+			tIndex++;
+			patch->iData++;
+			count++;
+		}
 
-        // copy the transfers out
-        if (patch->iData)
-        {
+		// copy the transfers out
+		if (patch->iData)
+		{
 			unsigned	data_size = patch->iData * float_size[g_transfer_compress_type] + unused_size;
 
-            patch->tData = (transfer_data_t*)AllocBlock(data_size);
-            patch->tIndex = CompressTransferIndicies(tIndex_All, patch->iData, &patch->iIndex);
+			patch->tData = (transfer_data_t*)AllocBlock(data_size);
+			patch->tIndex = CompressTransferIndicies(tIndex_All, patch->iData, &patch->iIndex);
 
-            hlassume(patch->tData != NULL, assume_NoMemory);
-            hlassume(patch->tIndex != NULL, assume_NoMemory);
+			hlassume(patch->tData != NULL, assume_NoMemory);
+			hlassume(patch->tIndex != NULL, assume_NoMemory);
 
-            ThreadLock();
-            g_transfer_data_bytes += data_size;
-            ThreadUnlock();
+			ThreadLock();
+			g_transfer_data_bytes += data_size;
+			ThreadUnlock();
 
 			total = 1 / Q_PI;
-            {
-                unsigned        x;
-                transfer_data_t* t1 = patch->tData;
-                float* t2 = tData_All;
+			{
+				unsigned        x;
+				transfer_data_t* t1 = patch->tData;
+				float* t2 = tData_All;
 
 				float	f;
-				for (x = 0; x < patch->iData; x++, t1+=float_size[g_transfer_compress_type], t2++)
+				for (x = 0; x < patch->iData; x++, t1 += float_size[g_transfer_compress_type], t2++)
 				{
 					f = (*t2) * total;
-					float_compress (g_transfer_compress_type, t1, &f);
+					float_compress(g_transfer_compress_type, t1, &f);
 				}
-            }
-        }
-    }
+			}
+		}
+	}
 
-    FreeBlock(tIndex_All);
-    FreeBlock(tData_All);
+	FreeBlock(tIndex_All);
+	FreeBlock(tData_All);
 
-    ThreadLock();
-    g_total_transfer += count;
-    ThreadUnlock();
+	ThreadLock();
+	g_total_transfer += count;
+	ThreadUnlock();
 }
 
 #ifdef SYSTEM_WIN32
