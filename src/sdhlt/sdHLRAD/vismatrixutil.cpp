@@ -19,7 +19,7 @@ static float GetDistanceSquar(const vec3_t v1, const vec3_t v2)
 
 static inline bool ShouldPatchBeRenderByThisLights(const vec3_t pos, const vec3_t lightOrigin, const float effectiveDistanceSquar)
 {
-	return GetDistanceSquar(pos, lightOrigin) > effectiveDistanceSquar;
+	return GetDistanceSquar(pos, lightOrigin) > effectiveDistanceSquar; //Original code by Bruhgogogo
 }
 
 int             FindTransferOffsetPatchnum(transfer_index_t* tIndex, const patch_t* const patch, const unsigned patchnum)
@@ -245,6 +245,10 @@ void MakeScales(const int threadnum)
 		lighting_scale = g_lightingconeinfo[miptex][1];
 		lighting_diversify = (lighting_power != 1.0 || lighting_scale != 1.0);
 
+		// find out which patch2's will collect light
+		// from patch
+		// HLRAD_NOSWAP: patch collect light from patch2
+
 		for (j = 0, patch2 = g_patches; j < g_num_patches; j++, patch2++)
 		{
 			vec_t           dot1;
@@ -254,7 +258,7 @@ void MakeScales(const int threadnum)
 			bool useback;
 			useback = false;
 
-			if (ShouldPatchBeRenderByThisLights(origin, patch2->origin, patch2->emitter_range * patch2->emitter_range))
+			if (ShouldPatchBeRenderByThisLights(origin, patch2->origin, patch2->emitter_range * patch2->emitter_range)) //Original code by Bruhgogogo
 			{
 				continue;
 			}
@@ -315,7 +319,7 @@ void MakeScales(const int threadnum)
 			{
 				dot1 = lighting_scale * pow(dot1, lighting_power);
 			}
-			trans = (dot1 * dot2) / (dist * dist);
+            trans = (dot1 * dot2) / (dist * dist);         // Inverse square falloff factoring angle between patch normals
 			if (trans * patch2->area > 0.8f)
 				trans = 0.8f / patch2->area;
 			if (dist < patch2->emitter_range - ON_EPSILON)
@@ -342,9 +346,9 @@ void MakeScales(const int threadnum)
 
 				vec_t frac;
 				frac = dist / patch2->emitter_range;
-				frac = (frac - 0.5f) * 2.0f;
+				frac = (frac - 0.5f) * 2.0f; // make a smooth transition between the two methods
 				frac = qmax(0, qmin(frac, 1));
-				trans = frac * trans + (1 - frac) * (sightarea / patch2->area);
+				trans = frac * trans + (1 - frac) * (sightarea / patch2->area); // because later we will multiply this back
 			}
 			else
 			{
@@ -355,7 +359,7 @@ void MakeScales(const int threadnum)
 			}
 
 			trans *= patch2->exposure;
-			trans = trans * VectorAvg(transparency);
+            trans = trans * VectorAvg(transparency); //hullu: add transparency effect
 			if (patch->translucent_b)
 			{
 				if (useback)

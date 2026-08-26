@@ -2518,7 +2518,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
             {
                 for (; l; l = l->next)
                 {
-					// Culling
+					// distance based light cull by Bruhgogogo
 					if (l->type != emit_skylight)
 					{
 						float maxIntensity = qmax(l->intensity[0], qmax(l->intensity[1], l->intensity[2]));
@@ -3376,7 +3376,7 @@ void AOStats_Dump (void)
 	Log ("  %-31s | %14.0f\n", "testline:", tl_global);
 	Log ("  %-31s | %14.0f\n", "testline (AO):", g_aostats.calls_testline);
 	Log ("  %-31s | %14.0f\n", "testline (other):", (double)tl_other);
-	Log ("  %-31s | %14.2f s%s\n", "total AO time:", total, g_numthreads > 1 ? " (scaled)" : "");
+	Log ("  %-31s | %14.2f s\n", g_numthreads > 1 ? "total AO time (normalized):" : "total AO time:", total);
 	{
 		int top[5] = {-1, -1, -1, -1, -1};
 
