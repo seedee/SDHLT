@@ -821,7 +821,7 @@ restart:
     {
         if (h->bounds.m_Mins[i] < -BOGUS_RANGE / 2 || h->bounds.m_Maxs[i] > BOGUS_RANGE / 2)
         {
-            Fatal(assume_BRUSH_OUTSIDE_WORLD, "Entity %i, Brush %i: outside +/-%d: (%.0f %.0f %.0f)-(%.0f %.0f %.0f)",
+            Fatal(assume_BRUSH_OUTSIDE_WORLD, "Entity %i, Brush %i: outside world +/-%d: (%.0f %.0f %.0f)-(%.0f %.0f %.0f)",
 				b->originalentitynum, b->originalbrushnum,
                   BOGUS_RANGE / 2,
                   h->bounds.m_Mins[0], h->bounds.m_Mins[1], h->bounds.m_Mins[2],

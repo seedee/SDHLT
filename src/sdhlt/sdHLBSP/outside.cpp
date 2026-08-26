@@ -450,8 +450,15 @@ node_t*         FillOutside(node_t* node, const bool leakfile, const unsigned hu
         Log("skipped\n");
         return node;
     }
+    
 	if (hullnum == 2 && g_nohull2)
+    {
 		return node;
+    }
+    else if (hullnum == 3 && g_nohull3)
+    {
+		return node;
+    }
 
     //
     // place markers for all entities so

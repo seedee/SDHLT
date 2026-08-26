@@ -1884,7 +1884,7 @@ int             main(const int argc, char** argv)
                 Usage();
             }
 		}
-        else if (!strcasecmp(argv[i], "-wadautodetect"))
+        else if (!strcasecmp(argv[i], "-wadautodetect") || !strcasecmp(argv[i], "-nowadautodetect"))
         {
             g_bWadAutoDetect = true;
         }

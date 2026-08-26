@@ -294,11 +294,16 @@ inline bool LineSegmentIntersectsBounds (const vec3_t p1, const vec3_t p2, const
 bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 					, vec3_t &scaleout
 					, int &opaquestyleout // light must convert to this style. -1 = no convert
+					, opaquetracectl_t *ctl
 					)
 	{
 		int x;
 		VectorFill (scaleout, 1.0);
 		opaquestyleout = -1;
+		bool timing = (ctl != NULL && ctl->timing != 0); //seedee
+		double t0 = 0.0;
+
+		if (timing) t0 = I_FloatTime();
 	    for (x = 0; x < g_opaque_face_count; x++)
 		{
 			if (!TestLineOpaque (g_opaque_face_list[x].modelnum, g_opaque_face_list[x].origin, p1, p2))
@@ -307,20 +312,26 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 			}
 			if (g_opaque_face_list[x].transparency)
 			{
+				if (ctl) ctl->transparent_only++;
 				VectorMultiply (scaleout, g_opaque_face_list[x].transparency_scale, scaleout);
 				continue;
 			}
 			if (g_opaque_face_list[x].style != -1 && (opaquestyleout == -1 || g_opaque_face_list[x].style == opaquestyleout))
 			{
+				if (ctl) ctl->style_hits++; //Toggleable opaque entity (diagnostic only, AO currently ignores opaquestyle)
 				opaquestyleout = g_opaque_face_list[x].style;
 				continue;
 			}
+			if (ctl) ctl->solid_hits++;
 			VectorFill (scaleout, 0.0);
 			opaquestyleout = -1;
+			if (timing) ctl->time_brush += I_FloatTime() - t0;
 			return true;
 		}
-		if (TestSegmentAgainstStudioList(p1, p2)) //seedee
+		if (timing) ctl->time_brush += I_FloatTime() - t0;
+		if (TestSegmentAgainstStudioList(p1, p2, ctl ? ctl->studio : NULL)) //seedee
 		{
+			if (ctl) ctl->studio_hits++;
 			VectorFill(scaleout, 0.0);
 			opaquestyleout = -1;
 			return true;

@@ -141,10 +141,14 @@ vec_t			g_texlightgap = DEFAULT_TEXLIGHTGAP;
 
 // Ambient occlusion
 bool			g_ao_enable = DEFAULT_AO_ENABLE;
+bool			g_ao_stats = DEFAULT_AO_STATS;
 vec_t			g_ao_scale = DEFAULT_AO_SCALE;
 vec_t			g_ao_opacity = DEFAULT_AO_OPACITY;
 vec_t			g_ao_gain = DEFAULT_AO_GAIN;
 vec3_t			g_ao_color = { DEFAULT_AO_COLOR_RED, DEFAULT_AO_COLOR_GREEN, DEFAULT_AO_COLOR_BLUE };
+int				g_ao_level = DEFAULT_AO_LEVEL;
+vec_t			g_ao_minweight = DEFAULT_AO_MINWEIGHT;
+int				g_ao_studiomode = AO_STUDIOMODE_INHERIT;
 
 // Misc
 int             leafparents[MAX_MAP_LEAFS];
@@ -2649,7 +2653,9 @@ static void     RadWorld()
 	NamedRunThreadsOnIndividual(g_numfaces, g_estimate, FindFacePositions);
 
     // build initial facelights
+	AOStats_Reset(); //seedee
     NamedRunThreadsOnIndividual(g_numfaces, g_estimate, BuildFacelights);
+	AOStats_Dump();
 
 	FreePositionMaps ();
 
@@ -2732,10 +2738,14 @@ static void     Usage(const char* paramWarning = 0, bool mapfileWarning = false)
     Log("    -ambient r g b  : Set ambient world light (0.0 to 1.0, r g b)\n");
 	Log("    -ao             : Enable ambient occlusion (cosine-weighted hemisphere)\n"); //seedee
 	Log("    -aoscale #      : Set ray length (larger values = thicker, wider bands)\n");
-	Log("    -aogain #       : Set falloff exponent (larger values = sharper corners, smaller = softer spread )\n");
+	Log("    -aogain #       : Set falloff exponent (larger values = sharper corners, smaller = softer spread)\n");
+	Log("    -aolevel #      : Set hemisphere sampling level (1 to %d, lower values = fast compile at same quality)\n", SKYLEVELMAX);
+	Log("    -aominweight #  : Skip rays below this weight fraction (0.0 to 0.1)\n", (double)DEFAULT_AO_MINWEIGHT);
+	Log("    -aostudiomode v : Global zhlt_shadowmode override for AO only (fast, normal, slow, inherit)\n");
 	Log("    -aoopacity #    : Set opacity (0.0 to 1.0)\n");
 	Log("    -aocolor r g b  : Set tint color (0 to 255, r g b)\n");
-    Log("    -limiter #      : Set light clipping threshold (-1=None)\n");
+	Log("    -aostats        : Print ray/stage statistics after BuildFaceLights\n");
+    Log("    -limiter #      : Set light clipping threshold (-1 = none)\n");
     Log("    -circus         : Enable 'circus' mode for locating unlit lightmaps\n");
 	Log("    -nospread       : Disable sunlight spread angles for this compile\n");
     Log("    -nopaque        : Disable the opaque zhlt_lightflags for this compile\n\n");
@@ -2888,6 +2898,7 @@ static void     Settings()
     safe_snprintf(buf1, sizeof(buf1), "%3.1f %3.1f %3.1f", g_ambient[0], g_ambient[1], g_ambient[2]);
     safe_snprintf(buf2, sizeof(buf2), "%3.1f %3.1f %3.1f", DEFAULT_AMBIENT_RED, DEFAULT_AMBIENT_GREEN, DEFAULT_AMBIENT_BLUE);
     Log("ambient light        [ %17s ] [ %17s ]\n", buf1, buf2);
+
 	Log("ambient occlusion    [ %17s ] [ %17s ]\n", g_ao_enable ? "on" : "off", DEFAULT_AO_ENABLE ? "on" : "off");
 	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_ao_scale);
 	safe_snprintf(buf2, sizeof(buf2), "%3.3f", (double)DEFAULT_AO_SCALE);
@@ -2895,12 +2906,29 @@ static void     Settings()
 	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_ao_gain);
 	safe_snprintf(buf2, sizeof(buf2), "%3.3f", (double)DEFAULT_AO_GAIN);
 	Log("ao gain              [ %17s ] [ %17s ] (Min %3.3f) (Max %3.3f)\n", buf1, buf2, (double)MIN_AO_GAIN, (double)MAX_AO_GAIN);
+	safe_snprintf(buf1, sizeof(buf1), "%d", g_ao_level);
+	safe_snprintf(buf2, sizeof(buf2), "%d", DEFAULT_AO_LEVEL);
+	Log("ao sampling level    [ %17s ] [ %17s ]\n", buf1, buf2);
+	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_ao_minweight);
+	safe_snprintf(buf2, sizeof(buf2), "%3.3f", (double)DEFAULT_AO_MINWEIGHT);
+	Log("ao min weight        [ %17s ] [ %17s ]\n", buf1, buf2);
+
+	switch (g_ao_studiomode)
+	{
+	case AO_STUDIOMODE_FAST:   safe_snprintf(buf1, sizeof(buf1), "fast");    break;
+	case AO_STUDIOMODE_NORMAL: safe_snprintf(buf1, sizeof(buf1), "normal");  break;
+	case AO_STUDIOMODE_SLOW:   safe_snprintf(buf1, sizeof(buf1), "slow");    break;
+	default:                   safe_snprintf(buf1, sizeof(buf1), "inherit"); break;
+	}
+	Log("ao studio shadowmode [ %17s ] [ %17s ]\n", buf1, "inherit");
 	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_ao_opacity);
 	safe_snprintf(buf2, sizeof(buf2), "%3.3f", (double)DEFAULT_AO_OPACITY);
-	Log("ao opacity           [ %17s ] [ %17s ] (Min %3.3f) (Max %3.3f)\n", buf1, buf2, (double)MIN_AO_OPACITY, (double)MAX_AO_OPACITY);
+	Log("ao opacity           [ %17s ] [ %17s ]\n", buf1, buf2);
 	safe_snprintf(buf1, sizeof(buf1), "%3.1f %3.1f %3.1f", g_ao_color[0], g_ao_color[1], g_ao_color[2]);
 	safe_snprintf(buf2, sizeof(buf2), "%3.1f %3.1f %3.1f", DEFAULT_AO_COLOR_RED, DEFAULT_AO_COLOR_GREEN, DEFAULT_AO_COLOR_BLUE);
 	Log("ao color             [ %17s ] [ %17s ]\n", buf1, buf2);
+	Log("ao stats             [ %17s ] [ %17s ]\n", g_ao_stats ? "on" : "off", DEFAULT_AO_STATS ? "on" : "off");
+
     safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_limitthreshold);
     safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_LIMITTHRESHOLD);
     Log("light limit threshold[ %17s ] [ %17s ]\n", g_limitthreshold >= 0 ? buf1 : "None", buf2);
@@ -3962,7 +3990,7 @@ int             main(const int argc, char** argv)
 				Usage();
 			}
 		}
-		else if (!strcasecmp(argv[i], "-aogain"))
+		else if (!strcasecmp(argv[i], "-aogain") || !strcasecmp(argv[i], "-aofalloff"))
 		{
 			if (i + 1 < argc)
 			{
@@ -3971,9 +3999,75 @@ int             main(const int argc, char** argv)
 				if (g_ao_gain < MIN_AO_GAIN || g_ao_gain > MAX_AO_GAIN)
 				{
 					vec_t clamped = g_ao_gain < MIN_AO_GAIN ? MIN_AO_GAIN : MAX_AO_GAIN;
-					Log("-aogain %f out of range (Min %f, Max %f), clamped to %f\n",
-						g_ao_gain, (double)MIN_AO_GAIN, (double)MAX_AO_GAIN, clamped);
+					Log("-aogain %f out of range (Min %f, Max %f), clamped to %f\n", g_ao_gain, (double)MIN_AO_GAIN, (double)MAX_AO_GAIN, clamped);
 					g_ao_gain = clamped;
+				}
+			}
+			else
+			{
+				Usage();
+			}
+		}
+		else if (!strcasecmp(argv[i], "-aolevel") || !strcasecmp(argv[i], "-aosampling") || !strcasecmp(argv[i], "-aodensity"))
+		{
+			if (i + 1 < argc)
+			{
+				g_ao_level = atoi(argv[++i]);
+
+				if (g_ao_level < MIN_AO_LEVEL || g_ao_level > MAX_AO_LEVEL)
+				{
+					int clamped = g_ao_level < MIN_AO_LEVEL ? MIN_AO_LEVEL : MAX_AO_LEVEL;
+					Log("-aolevel %d out of range (Min %d, Max %d), clamped to %d\n", g_ao_level, MIN_AO_LEVEL, MAX_AO_LEVEL, clamped);
+					g_ao_level = clamped;
+				}
+			}
+			else
+			{
+				Usage();
+			}
+		}
+		else if (!strcasecmp(argv[i], "-aominweight"))
+		{
+			if (i + 1 < argc)
+			{
+				g_ao_minweight = atof(argv[++i]);
+				if (g_ao_minweight < MIN_AO_MINWEIGHT || g_ao_minweight > MAX_AO_MINWEIGHT)
+				{
+					vec_t clamped = g_ao_minweight < MIN_AO_MINWEIGHT ? MIN_AO_MINWEIGHT : MAX_AO_MINWEIGHT;
+					Log("-aominweight %f out of range (Min %f, Max %f), clamped to %f\n", (double)g_ao_minweight, (double)MIN_AO_MINWEIGHT, (double)MAX_AO_MINWEIGHT, (double)clamped);
+					g_ao_minweight = clamped;
+				}
+			}
+			else
+			{
+				Usage();
+			}
+		}
+		else if (!strcasecmp(argv[i], "-aostudiomode") || !strcasecmp(argv[i], "-aostudioshadowmode") || !strcasecmp(argv[i], "-aoshadowmode"))
+		{
+			if (i + 1 < argc)
+			{
+				const char *value = argv[++i];
+
+				if (!strcasecmp(value, "fast"))
+				{
+					g_ao_studiomode = AO_STUDIOMODE_FAST;
+				}
+				else if (!strcasecmp(value, "normal"))
+				{
+					g_ao_studiomode = AO_STUDIOMODE_NORMAL;
+				}
+				else if (!strcasecmp(value, "slow"))
+				{
+					g_ao_studiomode = AO_STUDIOMODE_SLOW;
+				}
+				else if (!strcasecmp(value, "inherit"))
+				{
+					g_ao_studiomode = AO_STUDIOMODE_INHERIT;
+				}
+				else
+				{
+					Error("Unknown ao studio shadowmode '%s'\n", value);
 				}
 			}
 			else
@@ -4022,6 +4116,10 @@ int             main(const int argc, char** argv)
 			{
 				Error("expected three color values after '-aocolor'\n");
 			}
+		}
+		else if (!strcasecmp(argv[i], "-aostats") || !strcasecmp(argv[i], "-aochart"))
+		{
+			g_ao_stats = true;
 		}
 		else if (!strcasecmp (argv[i], "-lang"))
 		{

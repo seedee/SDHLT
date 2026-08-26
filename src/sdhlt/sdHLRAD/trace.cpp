@@ -4,6 +4,7 @@
 #include "log.h" //--vluzacn
 #include "winding.h"
 #include "qrad.h"
+#include <atomic>
 
 // #define      ON_EPSILON      0.001
 
@@ -416,10 +417,15 @@ int             TestLine_r(const int node, const vec3_t start, const vec3_t stop
 		);
 }
 
+static std::atomic<long long> g_stat_testline_calls_acc{ 0 }; //Relaxed atomic (exact under threading)
+
 int             TestLine(const vec3_t start, const vec3_t stop
 						 , vec_t *skyhit
 						 )
 {
+	if (g_ao_stats) {
+		g_stat_testline_calls_acc.fetch_add(1, std::memory_order_relaxed);
+	}
 	int linecontent = 0;
     return TestLine_r(0, start, stop
 		, linecontent
@@ -427,6 +433,15 @@ int             TestLine(const vec3_t start, const vec3_t stop
 		);
 }
 
+void TestLineStats_Reset (void)
+{
+	g_stat_testline_calls_acc.store (0, std::memory_order_relaxed);
+}
+
+double TestLineStats_SyncGet (void)
+{
+	return (double)g_stat_testline_calls_acc.load (std::memory_order_relaxed);
+}
 
 typedef struct
 {
