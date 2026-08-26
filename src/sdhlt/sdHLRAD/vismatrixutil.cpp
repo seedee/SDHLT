@@ -523,6 +523,11 @@ void            MakeRGBScales(const int threadnum)
 			bool useback;
 			useback = false;
 
+			if (ShouldPatchBeRenderByThisLights(origin, patch2->origin, patch2->emitter_range * patch2->emitter_range))
+			{
+				continue;
+			}
+
             if (!g_CheckVisBit(i, j
 				, transparency
 				, fastfind_index

@@ -2531,11 +2531,6 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 						float fade = l->fade > 0.0f ? l->fade : 1.0f;
 						float effectiveDistanceSquar = maxIntensity * fade / fallofCullDistance;
 
-						if (effectiveDistanceSquar <= fallofCullDistance)
-						{
-							continue;
-						}
-
 						if (ShouldPatchBeRenderByThisLights(pos, l->origin, effectiveDistanceSquar))
 						{
 							continue;
