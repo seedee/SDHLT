@@ -2437,7 +2437,7 @@ static void     BounceLight()
     for (i = 0; i < g_numbounce; i++)
     {
         Log("Bounce %u ", i + 1);
-	if(g_rgb_transfers)
+		if(g_rgb_transfers)
 	       	{NamedRunThreadsOn(g_num_patches, g_estimate, GatherRGBLight);}
         else
         	{NamedRunThreadsOn(g_num_patches, g_estimate, GatherLight);}

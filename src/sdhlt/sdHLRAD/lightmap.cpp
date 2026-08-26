@@ -6,7 +6,7 @@ bool            g_sky_lighting_fix = DEFAULT_SKY_LIGHTING_FIX;
 
 //#define TEXTURE_STEP   16.0
 
-constexpr float fallofCullDistance = 0.001f;
+constexpr float fallofCullDistance = 0.4f;
 
 static float GetDistanceSquar(const vec3_t v1, const vec3_t v2)
 {
@@ -16,9 +16,37 @@ static float GetDistanceSquar(const vec3_t v1, const vec3_t v2)
 	return x * x + y * y + z * z;
 }
 
-static inline bool ShouldPatchBeRenderByThisLights(const vec3_t pos, const vec3_t lightOrigin, const float effectiveDistanceSquar)
+static inline bool CullPointByDistance(const vec3_t pos, const directlight_t* light)
 {
-	return GetDistanceSquar(pos, lightOrigin) > effectiveDistanceSquar;
+	if (light->type == emit_skylight)
+		return false;
+
+	float maxIntensity = qmax(light->intensity[0], qmax(light->intensity[1], light->intensity[2]));
+
+	if (maxIntensity <= fallofCullDistance)
+	{
+		return true;
+	}
+
+	float fade = light->fade > 0.0f ? light->fade : 1.0f;
+	float effectiveDistanceSquar = maxIntensity * fade / fallofCullDistance;
+
+	return GetDistanceSquar(pos, light->origin) > effectiveDistanceSquar;
+}
+
+static inline bool CullPointByNormal(const vec3_t pos, const vec3_t normal, const directlight_t* light)
+{
+	if (light->type == emit_skylight)
+		return false;
+
+	vec3_t delta;
+	VectorSubtract(light->origin, pos, delta);
+
+	vec_t dist2 = DotProduct(delta, delta);
+	if (dist2 < MINIMUM_PATCH_DISTANCE * MINIMUM_PATCH_DISTANCE)
+		return false;
+
+	return DotProduct(normal, delta) <= 0;
 }
 
 // =====================================================================================
@@ -2519,23 +2547,9 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                 for (; l; l = l->next)
                 {
 					// Culling
-					if (l->type != emit_skylight)
-					{
-						float maxIntensity = qmax(l->intensity[0], qmax(l->intensity[1], l->intensity[2]));
+					if (CullPointByDistance(pos, l)) continue;
+					if (CullPointByNormal(pos, normal, l)) continue;
 
-						if (maxIntensity <= fallofCullDistance)
-						{
-							continue;
-						}
-
-						float fade = l->fade > 0.0f ? l->fade : 1.0f;
-						float effectiveDistanceSquar = maxIntensity * fade / fallofCullDistance;
-
-						if (ShouldPatchBeRenderByThisLights(pos, l->origin, effectiveDistanceSquar))
-						{
-							continue;
-						}
-					}
                     // skylights work fundamentally differently than normal lights
                     if (l->type == emit_skylight)
                     {
