@@ -17,31 +17,6 @@ static float GetDistanceSquar(const vec_t* v1, const vec_t* v2)
     return x * x + y * y + z * z;
 }
 
-static inline bool CullPatchByDistance(const vec_t* pos, const vec_t* lightOrigin, const float effectiveDistanceSquar)
-{
-    return GetDistanceSquar(pos, lightOrigin) > effectiveDistanceSquar;
-}
-
-static inline bool CullPatchByNormal(const vec_t* origin, const vec_t* normal, const vec_t* target_origin, const vec_t* target_normal)
-{
-    vec3_t delta;
-    VectorSubtract(target_origin, origin, delta);
-
-    vec_t dist = VectorNormalize(delta);
-    if (dist < MINIMUM_PATCH_DISTANCE)
-        return true;
-
-    vec_t dot1 = DotProduct(delta, normal);
-    if (dot1 <= NORMAL_EPSILON)
-        return true;
-
-    vec_t dot2 = -DotProduct(delta, target_normal);
-    if (dot2 * dist <= MINIMUM_PATCH_DISTANCE)
-        return true;
-
-    return false;
-}
-
 int             FindTransferOffsetPatchnum(transfer_index_t* tIndex, const patch_t* const patch, const unsigned patchnum)
 {
     //
@@ -248,7 +223,6 @@ void MakeScales(const int threadnum)
 
         VectorCopy(patch->origin, origin);
         normal1 = getPlaneFromFaceNumber(patch->faceNumber)->normal;
-        vec_t maxdist2 = patch->emitter_range * patch->emitter_range;
 
         area = patch->area;
         vec3_t backorigin;
@@ -272,39 +246,42 @@ void MakeScales(const int threadnum)
             vec_t           dot2;
 
             vec3_t          transparency = { 1.0,1.0,1.0 };
-            bool useback;
-            useback = false;
+            bool useback = false;
 
+            vec3_t delta_pre;
+            VectorSubtract(patch2->origin, origin, delta_pre);
+            vec_t dist2 = DotProduct(delta_pre, delta_pre);
+
+            if (patch2->area / dist2 < 1e-6f) //Conservative upper bound, so cull is safe (|trans| <= area/dist^2)
+            {
+                continue;
+            }
             normal2 = getPlaneFromFaceNumber(patch2->faceNumber)->normal;
+            vec_t dot1_pre = DotProduct(delta_pre, normal1);
 
-            if (CullPatchByDistance(origin, patch2->origin, maxdist2))
+            if (dot1_pre <= NORMAL_EPSILON)
             {
                 if (patch->translucent_b)
                 {
-                    if (CullPatchByDistance(backorigin, patch2->origin, maxdist2))
+                    vec_t dot1_back = DotProduct(delta_pre, backnormal);
+
+                    if (dot1_back <= NORMAL_EPSILON)
+                    {
                         continue;
+                    }
                     useback = true;
                 }
                 else
-                {
                     continue;
-                }
             }
+            vec_t dot2_pre = -DotProduct(delta_pre, normal2);
+            vec_t dist_pre = sqrt(dist2);
 
-            if (CullPatchByNormal(origin, normal1, patch2->origin, normal2))
+            if (dot2_pre * dist_pre <= MINIMUM_PATCH_DISTANCE)
             {
-                if (patch->translucent_b)
-                {
-                    if (CullPatchByNormal(backorigin, backnormal, patch2->origin, normal2))
-                        continue;
-                    useback = true;
-                }
-                else
-                {
-                    continue;
-                }
+                continue;
             }
-
+            //Expensive
             if (!g_CheckVisBit(i, j, transparency, fastfind_index) || (i == j))
             {
                 if (patch->translucent_b)
@@ -320,22 +297,20 @@ void MakeScales(const int threadnum)
                     continue;
                 }
             }
-
-            VectorSubtract(patch2->origin, origin, delta);
             if (useback)
             {
                 VectorSubtract(patch2->origin, backorigin, delta);
             }
-            VectorMA(delta, -PATCH_HUNT_OFFSET, normal2, delta);
-
-            dist = VectorNormalize(delta);
-            dot1 = DotProduct(delta, normal1);
-            if (useback)
+            else
             {
-                dot1 = DotProduct(delta, backnormal);
+                VectorSubtract(patch2->origin, origin, delta);
             }
+            VectorMA(delta, -PATCH_HUNT_OFFSET, normal2, delta); //Actual transfer
+            dist = VectorNormalize(delta);
+            dot1 = DotProduct(delta, useback ? backnormal : normal1);
             dot2 = -DotProduct(delta, normal2);
             bool light_behind_surface = false;
+
             if (dot1 <= NORMAL_EPSILON)
             {
                 light_behind_surface = true;
@@ -522,7 +497,6 @@ void MakeRGBScales(const int threadnum)
 
         VectorCopy(patch->origin, origin);
         normal1 = getPlaneFromFaceNumber(patch->faceNumber)->normal;
-        vec_t maxdist2 = patch->emitter_range * patch->emitter_range;
 
         area = patch->area;
         vec3_t backorigin;
@@ -546,39 +520,42 @@ void MakeRGBScales(const int threadnum)
             vec_t           dot2;
 
             vec3_t          transparency = { 1.0,1.0,1.0 };
-            bool useback;
-            useback = false;
+            bool useback = false;
 
+            vec3_t delta_pre;
+            VectorSubtract(patch2->origin, origin, delta_pre);
+            vec_t dist2 = DotProduct(delta_pre, delta_pre);
+
+            if (patch2->area / dist2 < 1e-6f) //Conservative upper bound, so cull is safe (|trans| <= area/dist^2)
+            {
+                continue;
+            }
             normal2 = getPlaneFromFaceNumber(patch2->faceNumber)->normal;
+            vec_t dot1_pre = DotProduct(delta_pre, normal1);
 
-            if (CullPatchByDistance(origin, patch2->origin, maxdist2))
+            if (dot1_pre <= NORMAL_EPSILON)
             {
                 if (patch->translucent_b)
                 {
-                    if (CullPatchByDistance(backorigin, patch2->origin, maxdist2))
+                    vec_t dot1_back = DotProduct(delta_pre, backnormal);
+
+                    if (dot1_back <= NORMAL_EPSILON)
+                    {
                         continue;
+                    }
                     useback = true;
                 }
                 else
-                {
                     continue;
-                }
             }
+            vec_t dot2_pre = -DotProduct(delta_pre, normal2);
+            vec_t dist_pre = sqrt(dist2);
 
-            if (CullPatchByNormal(origin, normal1, patch2->origin, normal2))
+            if (dot2_pre * dist_pre <= MINIMUM_PATCH_DISTANCE)
             {
-                if (patch->translucent_b)
-                {
-                    if (CullPatchByNormal(backorigin, backnormal, patch2->origin, normal2))
-                        continue;
-                    useback = true;
-                }
-                else
-                {
-                    continue;
-                }
+                continue;
             }
-
+            //Expensive
             if (!g_CheckVisBit(i, j, transparency, fastfind_index) || (i == j))
             {
                 if (patch->translucent_b)
@@ -594,14 +571,15 @@ void MakeRGBScales(const int threadnum)
                     continue;
                 }
             }
-
-            VectorSubtract(patch2->origin, origin, delta);
             if (useback)
             {
                 VectorSubtract(patch2->origin, backorigin, delta);
             }
-            VectorMA(delta, -PATCH_HUNT_OFFSET, normal2, delta);
-
+            else
+            {
+                VectorSubtract(patch2->origin, origin, delta);
+            }
+            VectorMA(delta, -PATCH_HUNT_OFFSET, normal2, delta); //Actual transfer
             dist = VectorNormalize(delta);
             dot1 = DotProduct(delta, normal1);
             if (useback)
