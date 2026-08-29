@@ -28,7 +28,7 @@ The default shadow mode `1` will trace each triangle normally and supports trans
 > If the shadow covers the point underneath the model’s origin, this could affect its brightness in unwanted ways. Control it by setting a custom `light_origin` on the entity (or move the mesh origin internally).
 
 ### Other
-- Percentage-closer filtering is added to help anti-alias hard shadow edges. Increases compile times, so lower values first.
+- Percentage-closer filtering can anti-alias hard shadow edges. It also produces smooth contact darkening where surfaces are already more occluded as a side effect. Increases compile times, so use lower values first.
 - Bilateral (edge-preserving) filtering can be enabled on blurred lightmap samples to fix thin shadows appearing like dotted lines due to light bleeding into shadows. 
 - Deathmatch Classic maps can further push clipnode limits by removing clip hull 3. Not recommended in regular Half-Life 1 without your own Quake DM style mods.
 - Minor performance boosts before tracing BuildFacelights, filtering direct lights by distance (exact inverse-square peak contribution threshold) and by surface facing.
@@ -68,7 +68,7 @@ The default shadow mode `1` will trace each triangle normally and supports trans
 > - `-aocolor r g b` controls the tint color of the AO. Darkens toward black by default, any other color tints the occlusion. Useful for stylized effects.<br />
 > - `-aostats` displays a chart of ambient occlusion statistics.
 > - `-blurclamp #` limits blur bleeding into shadow edges (bilateral filtering) with `#` as the suppression strength. Default `0.0` keeps classic blur, higher values caps how much a brighter sample contributes. `0.5` means any sample 5x brighter than the luxel is limited to 50% weight, `0.75` caps 2.5x brighter at 25%, etc.
-> - `-pcf #` sets anti-aliasing level for shadow edges, which traces `#²` shadow rays per lightmap texel (percentage-closer filtering). Default `1` disables this, higher values increase compile times.
+> - `-pcf #` sets anti-aliasing level for shadow edges. It traces `#²` shadow rays per lightmap texel (percentage-closer filtering). Includes contact darkening near occluded geometry. Default `1` disables this and uses one binary shadow test per sample, higher values increase compile times.
 
 ### Entities
 
