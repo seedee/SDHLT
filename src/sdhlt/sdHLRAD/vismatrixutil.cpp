@@ -252,32 +252,33 @@ void MakeScales(const int threadnum)
             VectorSubtract(patch2->origin, origin, delta_pre);
             vec_t dist2 = DotProduct(delta_pre, delta_pre);
 
-            if (patch2->area / dist2 < 1e-6f) //Conservative upper bound, so cull is safe (|trans| <= area/dist^2)
+            if (dist2 > patch2->area * 1e6f) //Conservative bound: stored |trans| <= area/dist^2 (x lighting_scale under info_angularfade)
             {
                 continue;
             }
             normal2 = getPlaneFromFaceNumber(patch2->faceNumber)->normal;
+            vec_t dist_pre = sqrt(dist2);
             vec_t dot1_pre = DotProduct(delta_pre, normal1);
 
-            if (dot1_pre <= NORMAL_EPSILON)
+            if (dot1_pre <= NORMAL_EPSILON * dist_pre)
             {
                 if (patch->translucent_b)
                 {
                     vec_t dot1_back = DotProduct(delta_pre, backnormal);
 
-                    if (dot1_back <= NORMAL_EPSILON)
+                    if (dot1_back <= NORMAL_EPSILON * dist_pre)
                     {
                         continue;
                     }
-                    useback = true;
                 }
                 else
+                {
                     continue;
+                }
             }
             vec_t dot2_pre = -DotProduct(delta_pre, normal2);
-            vec_t dist_pre = sqrt(dist2);
 
-            if (dot2_pre * dist_pre <= MINIMUM_PATCH_DISTANCE)
+            if (dot2_pre <= MINIMUM_PATCH_DISTANCE)
             {
                 continue;
             }
@@ -526,32 +527,33 @@ void MakeRGBScales(const int threadnum)
             VectorSubtract(patch2->origin, origin, delta_pre);
             vec_t dist2 = DotProduct(delta_pre, delta_pre);
 
-            if (patch2->area / dist2 < 1e-6f) //Conservative upper bound, so cull is safe (|trans| <= area/dist^2)
+            if (dist2 > patch2->area * 1e6f) //Conservative bound: stored |trans| <= area/dist^2 (x lighting_scale under info_angularfade)
             {
                 continue;
             }
             normal2 = getPlaneFromFaceNumber(patch2->faceNumber)->normal;
+            vec_t dist_pre = sqrt(dist2);
             vec_t dot1_pre = DotProduct(delta_pre, normal1);
 
-            if (dot1_pre <= NORMAL_EPSILON)
+            if (dot1_pre <= NORMAL_EPSILON * dist_pre)
             {
                 if (patch->translucent_b)
                 {
                     vec_t dot1_back = DotProduct(delta_pre, backnormal);
 
-                    if (dot1_back <= NORMAL_EPSILON)
+                    if (dot1_back <= NORMAL_EPSILON * dist_pre)
                     {
                         continue;
                     }
-                    useback = true;
                 }
                 else
+                {
                     continue;
+                }
             }
             vec_t dot2_pre = -DotProduct(delta_pre, normal2);
-            vec_t dist_pre = sqrt(dist2);
 
-            if (dot2_pre * dist_pre <= MINIMUM_PATCH_DISTANCE)
+            if (dot2_pre <= MINIMUM_PATCH_DISTANCE)
             {
                 continue;
             }

@@ -6,7 +6,7 @@ bool            g_sky_lighting_fix = DEFAULT_SKY_LIGHTING_FIX;
 
 //#define TEXTURE_STEP   16.0
 
-constexpr float fallofCullDistance = 0.4f;
+constexpr float fallofCullDistance = 0.5f;
 
 static float GetDistanceSquar(const vec3_t v1, const vec3_t v2)
 {
