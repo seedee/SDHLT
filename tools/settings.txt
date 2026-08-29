@@ -7,14 +7,14 @@
 //   Basically, it directly modifies the command line when the program starts.
 //   The command line is treated as a sequence of parameters.
 //     For example, the command line
-//            tools\hlrad.exe "My Maps\mymap" -extra -texchop 64
+//            tools\sdHLRAD.exe "My Maps\mymap" -extra -texchop 64
 //       is converted into 5 parameters:
-//            "<hlrad>"        (the first parameter will always be replaced by the program name)
+//            "*HLRAD>"       (The wildcard is used for compatibility and legacy purposes.)
 //            "My Maps\mymap"
 //            "-extra"
 //            "-texchop"
 //            "64"
-//       .
+//       
 //   This file is composed of commands. Each word that begins with '#' is a command. Some commands can be followed with a sequence of parameters (denote as A B C).
 //   If a parameter has space in itself, it should be quoted by '"'.
 //   List of commands:
@@ -40,7 +40,6 @@
 //   -onlyents
 //   -wadautodetect
 //   -nowadtextures
-//   -wadinclude #
 //   -wadcfgfile #
 // 
 // HLBSP:
@@ -74,46 +73,56 @@
 
 
 
-#ifndef <ripent>              // CSG\BSP\VIS\RAD
+#ifndef *RIPENT> // ------------ [CSG\BSP\VIS\RAD] ------------
   #ifndef -high
     #ifndef -low
       #define -low
     #endif
   #endif
   #ifndef -console 0
-  //#define -estimate
+  //#define -estimate         // Show estimate if console enabled
   #endif
 #endif
 
-#ifdef <hlcsg>                // CSG
-  #ifndef -wadautodetect
-    #define -wadautodetect
+#ifdef *HLCSG> // -------------- [CSG] --------------
+  #ifndef -cliptype precise
+  //#define -cliptype precise // No floaty ramps
   #endif
 #endif
 
-#ifdef <hlbsp>                // BSP
-  #ifndef -chart
-    #define -chart
+#ifdef *HLBSP> // -------------- [BSP] --------------
+  #ifndef -nohull2
+  //#define -nohull2          // Counter-Strike
+  #endif
+  #ifndef -nohull3
+  //#define -nohull3          // Deathmatch Classic
   #endif
 #endif
 
-#ifdef <hlvis>                // VIS
+#ifdef *HLVIS> // -------------- [VIS] --------------
   #ifndef -full
-  //#define -full
+  //#define -full             // Final
   #endif
 #endif
 
-#ifdef <hlrad>                // RAD
-  #ifdef -sparse
-    #undef -sparse
-    #define -vismatrix sparse
+#ifdef *HLRAD> // -------------- [RAD] --------------
+  #ifndef -extra                 
+  //##define -extra           // Final
+  #endif                         
+  #ifndef -ao                 // Final
+  //##define -ao                 
+  //##define -aostats            
   #endif
-  #ifdef -nomatrix
-    #undef -nomatrix
-    #define -vismatrix off
-  #endif
-#endif
-
-#ifdef <ripent>               // RIPENT
+  #ifdef -sparse                 
+    #undef -sparse               
+    #define -vismatrix sparse    
+  #endif                         
+  #ifdef -nomatrix               
+    #undef -nomatrix             
+    #define -vismatrix off       
+  #endif                         
+#endif                           
+								 
+#ifdef *RIPENT> // ------------- [RIPENT] -------------
 #endif
 
