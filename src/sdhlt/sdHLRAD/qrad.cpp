@@ -136,6 +136,8 @@ vec_t			g_corings[ALLSTYLES];
 vec3_t*			g_translucenttextures = NULL;
 vec_t			g_translucentdepth = DEFAULT_TRANSLUCENTDEPTH;
 vec_t			g_blur = DEFAULT_BLUR;
+vec_t			g_blurclamp_strength = DEFAULT_BLURCLAMP_STRENGTH;
+int				g_pcf = DEFAULT_PCF;
 bool			g_noemitterrange = DEFAULT_NOEMITTERRANGE;
 vec_t			g_texlightgap = DEFAULT_TEXLIGHTGAP;
 
@@ -2818,8 +2820,10 @@ static void     Usage(const char* paramWarning = 0, bool mapfileWarning = false)
 	Log("   -texreflectgamma # : Gamma that relates reflectivity to texture color bits.\n");
 	Log("   -texreflectscale # : Reflectivity for 255-white texture.\n");
 	Log("   -blur #        : Enlarge lightmap sample to blur the lightmap.\n");
-	Log("   -noemitterrange: Don't fix pointy texlights.\n");
+	Log("   -blurclamp #   : Limit blured light bleeding into shadow edges (0 = off, %f to %f)\n", (double)MIN_BLURCLAMP_STRENGTH, (double)MAX_BLURCLAMP_STRENGTH);
 	Log("   -nobleedfix    : Don't fix wall bleeding problem for large blur value.\n");
+	Log("   -noemitterrange: Don't fix pointy texlights.\n");
+	Log("   -pcf #         : PCF taps per axis for softer shadow edges (1 = off, 1 to %d, cost scales with #^2.\n", (int)MAX_PCF);
 	Log("   -drawpatch     : Export light patch positions to file 'mapname_patch.pts'.\n");
 	Log("   -drawsample x y z r    : Export light sample positions in an area to file 'mapname_sample.pts'.\n");
 	Log("   -drawedge      : Export smooth edge positions to file 'mapname_edge.pts'.\n");
@@ -3048,8 +3052,14 @@ static void     Settings()
 	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_blur);
 	safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_BLUR);
 	Log("blur size            [ %17s ] [ %17s ]\n", buf1, buf2);
-	Log("no emitter range     [ %17s ] [ %17s ]\n", g_noemitterrange ? "on" : "off", DEFAULT_NOEMITTERRANGE ? "on" : "off");
+	safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_blurclamp_strength);
+	safe_snprintf(buf2, sizeof(buf2), "%3.3f", DEFAULT_BLURCLAMP_STRENGTH);
+	Log("blur bleed clamp     [ %17s ] [ %17s ] (Min %3.3f) (Max %3.3f)\n", buf1, buf2, (double)MIN_BLURCLAMP_STRENGTH, (double)MAX_BLURCLAMP_STRENGTH);
 	Log("wall bleeding fix    [ %17s ] [ %17s ]\n", g_bleedfix ? "on" : "off", DEFAULT_BLEEDFIX ? "on" : "off");
+	Log("no emitter range     [ %17s ] [ %17s ]\n", g_noemitterrange ? "on" : "off", DEFAULT_NOEMITTERRANGE ? "on" : "off");
+	safe_snprintf(buf1, sizeof(buf1), "%d", g_pcf);
+	safe_snprintf(buf2, sizeof(buf2), "%d", DEFAULT_PCF);
+	Log("pcf taps per axis    [ %17s ] [ %17s ] (Max %d)\n", buf1, buf2, (int)MAX_PCF);
 
     Log("\n\n");
 }
@@ -3942,6 +3952,42 @@ int             main(const int argc, char** argv)
 			if (i + 1 < argc)
 			{
 				g_blur = atof (argv[++i]);
+			}
+			else
+			{
+				Usage ();
+			}
+		}
+		else if (!strcasecmp (argv[i], "-blurclamp"))
+		{
+			if (i + 1 < argc)
+			{
+				g_blurclamp_strength = atof(argv[++i]);
+			}
+			else
+			{
+				Usage ();
+			}
+			if (g_blurclamp_strength < MIN_BLURCLAMP_STRENGTH || g_blurclamp_strength > MAX_BLURCLAMP_STRENGTH)
+			{
+				vec_t clamped = g_blurclamp_strength < MIN_BLURCLAMP_STRENGTH ? MIN_BLURCLAMP_STRENGTH : MAX_BLURCLAMP_STRENGTH;
+				Log("-blurclamp %f out of range (Min %f, Max %f), clamped to %f\n",
+					g_blurclamp_strength, (double)MIN_BLURCLAMP_STRENGTH, (double)MAX_BLURCLAMP_STRENGTH, (double)clamped);
+				g_blurclamp_strength = clamped;
+			}
+		}
+		else if (!strcasecmp (argv[i], "-pcf"))
+		{
+			if (i + 1 < argc)
+			{
+				g_pcf = atoi (argv[++i]);
+
+				if (g_pcf < 1 || g_pcf > MAX_PCF)
+				{
+					int clamped = g_pcf < 1 ? 1 : MAX_PCF;
+					Log("-pcf %d out of range (Min %d, Max %d), clamped to %d\n", g_pcf, 1, (int)MAX_PCF, clamped);
+					g_pcf = clamped;
+				}
 			}
 			else
 			{

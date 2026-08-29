@@ -137,6 +137,13 @@
 	#define DEFAULT_BLUR 1.5 // classic lighting is equivalent to "-blur 1.0"
 	#define DEFAULT_NOEMITTERRANGE false
 	#define DEFAULT_BLEEDFIX true
+	#define MIN_BLURCLAMP_STRENGTH 0.0f
+	#define DEFAULT_BLURCLAMP_STRENGTH 0.5f //0.5 = samples >= 2x brighter capped at 50%; 0.75 = samples >= 4x brighter capped at 25%; etc
+	#define MAX_BLURCLAMP_STRENGTH 1.0f
+	#define DEFAULT_BLURCLAMP_SCALE 1.0f
+	#define DEFAULT_BLURCLAMP_OFFSET 0.0f
+	#define DEFAULT_PCF 1
+	#define MAX_PCF 8
 	#define DEFAULT_EMBEDLIGHTMAP_POWEROFTWO true
 	#define DEFAULT_EMBEDLIGHTMAP_DENOMINATOR 188.0
 	#define DEFAULT_EMBEDLIGHTMAP_GAMMA 1.05
@@ -507,6 +514,8 @@ extern vec3_t	g_jitter_hack;
 	extern vec_t g_blur;
 	extern bool g_noemitterrange;
 	extern bool g_bleedfix;
+	extern vec_t g_blurclamp_strength;
+	extern int g_pcf;
 	extern vec_t g_maxdiscardedlight;
 	extern vec3_t g_maxdiscardedpos;
 	extern vec_t g_texlightgap;

@@ -2484,6 +2484,128 @@ void BuildDiffuseNormals ()
 	free (edges);
 	free (triangles);
 }
+
+// =====================================================================================
+//  Percentage-Closer Filtering												    //fixxor
+//      Offsets the receiver position in the face's texture plane and averages
+//      the binary shadow test results to produce a smooth visibility fraction.
+//      seedee: tap clipping to face's UV extents (visibility over tested taps)
+// =====================================================================================
+
+typedef struct
+{
+	vec3_t textoworld[2];
+	vec3_t worldtotex[2];
+	vec_t  texshift[2]; //tex->vecs[x][3]
+	vec_t  texbounds[4]; //smin, smax, tmin, tmax
+}
+pcfplane_t;
+
+static bool PCFTapValid (const vec3_t tap, const pcfplane_t *p) //seedee
+{
+	vec_t s = DotProduct (tap, p->worldtotex[0]) + p->texshift[0];
+	vec_t t = DotProduct (tap, p->worldtotex[1]) + p->texshift[1];
+	return s >= p->texbounds[0] && s <= p->texbounds[1] && t >= p->texbounds[2] && t <= p->texbounds[3];
+}
+
+static float PCFShadowPoint (const vec3_t pos, const vec3_t target, const pcfplane_t *p)
+{
+	if (g_pcf <= 1)
+	{
+		return (TestLine (pos, target) == CONTENTS_EMPTY) ? 1.0f : 0.0f; //fixxor
+	}
+	int visible = 0;
+	int tested = 0;
+	const int n = g_pcf;
+	const vec_t range = TEXTURE_STEP;
+	const vec_t step  = range / n;
+	const vec_t start = -range / 2.0 + step / 2.0;
+	const float rot = 0.70710678118f; //cos(45deg) == sin(45deg)
+
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			vec_t raw_s = start + i * step;
+			vec_t raw_t = start + j * step;
+			vec_t rot_s = raw_s * rot - raw_t * rot;
+			vec_t rot_t = raw_s * rot + raw_t * rot;
+			vec3_t offset_pos;
+			VectorCopy(pos, offset_pos);
+			VectorMA(offset_pos, rot_s, p->textoworld[0], offset_pos);
+			VectorMA(offset_pos, rot_t, p->textoworld[1], offset_pos);
+
+			if (!PCFTapValid (offset_pos, p))
+			{
+				continue;
+			}
+			tested++;
+
+			if (TestLine (offset_pos, target) == CONTENTS_EMPTY)
+			{
+				visible++;
+			}
+		}
+	}
+	if (tested == 0)
+	{
+		return 0.0f;
+	}
+	return (float)visible / (float)tested;
+}
+
+static float PCFShadowSky (const vec3_t pos, const vec3_t skydir, const pcfplane_t *p)
+{
+	if (g_pcf <= 1)
+	{
+		vec3_t delta;
+		VectorScale(skydir, -BOGUS_RANGE, delta);
+		VectorAdd(pos, delta, delta);
+		return (TestLine (pos, delta) == CONTENTS_SKY) ? 1.0f : 0.0f;
+	}
+	int visible = 0;
+	int tested = 0;
+	const int n = g_pcf;
+	const vec_t range = TEXTURE_STEP;
+	const vec_t step  = range / n;
+	const vec_t start = -range / 2.0 + step / 2.0;
+	const float rot = 0.70710678118f;
+
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			vec_t raw_s = start + i * step;
+			vec_t raw_t = start + j * step;
+			vec_t rot_s = raw_s * rot - raw_t * rot;
+			vec_t rot_t = raw_s * rot + raw_t * rot;
+			vec3_t offset_pos;
+			VectorCopy(pos, offset_pos);
+			VectorMA(offset_pos, rot_s, p->textoworld[0], offset_pos);
+			VectorMA(offset_pos, rot_t, p->textoworld[1], offset_pos);
+
+			if (!PCFTapValid (offset_pos, p))
+			{
+				continue;
+			}
+			tested++;
+			vec3_t delta;
+			VectorScale(skydir, -BOGUS_RANGE, delta);
+			VectorAdd(offset_pos, delta, delta);
+
+			if (TestLine (offset_pos, delta) == CONTENTS_SKY)
+			{
+				visible++;
+			}
+		}
+	}
+	if (tested == 0)
+	{
+		return 0.0f;
+	}
+	return (float)visible / (float)tested;
+}
+
 static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const vec3_t normal, vec3_t* sample
 								  , byte* styles
 								  , int step
@@ -2537,6 +2659,28 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 		}
 	}
 
+	pcfplane_t pcfplane;
+	{
+		const dface_t *f = &g_dfaces[texlightgap_surfacenum];
+		const texinfo_t *tex = &g_texinfo[f->texinfo];
+		int bmins[2], bmaxs[2];
+		GetFaceExtents (texlightgap_surfacenum, bmins, bmaxs);
+
+		for (int x = 0; x < 2; x++)
+		{
+			VectorCopy (texlightgap_textoworld[x], pcfplane.textoworld[x]);
+
+			for (int y = 0; y < 3; y++)
+			{
+				pcfplane.worldtotex[x][y] = tex->vecs[x][y];
+			}
+			pcfplane.texshift[x] = tex->vecs[x][3];
+		}
+		pcfplane.texbounds[0] = bmins[0] * TEXTURE_STEP;
+		pcfplane.texbounds[1] = bmaxs[0] * TEXTURE_STEP;
+		pcfplane.texbounds[2] = bmins[1] * TEXTURE_STEP;
+		pcfplane.texbounds[3] = bmaxs[1] * TEXTURE_STEP;
+	}
     for (i = 0; i < 1 + g_dmodels[0].visleafs; i++)
     {
         l = directlights[i];
@@ -2579,21 +2723,21 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							{
 								continue;
 							}
-
 							// search back to see if we can hit a sky brush
 							VectorScale (l->sunnormals[j], -BOGUS_RANGE, delta);
 							VectorAdd(pos, delta, delta);
 							vec3_t skyhit;
 							VectorCopy (delta, skyhit);
+
 							if (TestLine(pos, delta
 								, skyhit
 								) != CONTENTS_SKY)
 							{
 								continue;                      // occluded
 							}
-
 							vec3_t transparency;
 							int opaquestyle;
+
 							if (TestSegmentAgainstOpaqueList(pos, 
 								skyhit
 								, transparency
@@ -2602,16 +2746,23 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							{
 								continue;
 							}
+							float skyvis = (g_pcf > 1) ? PCFShadowSky (pos, l->sunnormals[j], &pcfplane) : 1.0f;
 
+							if (skyvis <= 0.0f)
+							{
+								continue;
+							}
 							vec3_t add_one;
+
 							if (lighting_diversify)
 							{
 								dot = lighting_scale * pow (dot, lighting_power);
 							}
-							VectorScale (l->intensity, dot * l->sunnormalweights[j], add_one);
+							VectorScale (l->intensity, dot * l->sunnormalweights[j] * skyvis, add_one);
 							VectorMultiply(add_one, transparency, add_one);
 							// add to the total brightness of this sample
 							style = l->style;
+
 							if (opaquestyle != -1)
 							{
 								if (style == 0 || style == opaquestyle)
@@ -2661,15 +2812,16 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								VectorAdd(pos, delta, delta);
 								vec3_t skyhit;
 								VectorCopy (delta, skyhit);
+
 								if (TestLine(pos, delta
 									, skyhit
 									) != CONTENTS_SKY)
 								{
 									continue;                                  // occluded
 								}
-
 								vec3_t transparency;
 								int opaquestyle;
+
 								if (TestSegmentAgainstOpaqueList(pos, 
 									skyhit
 									, transparency
@@ -2678,20 +2830,27 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								{
 									continue;
 								}
+								float skyvis = (g_pcf > 1) ? PCFShadowSky (pos, skynormals[j], &pcfplane) : 1.0f;
 
-								vec_t factor = qmin (qmax (0.0, (1 - DotProduct (l->normal, skynormals[j])) / 2), 1.0); // how far this piece of sky has deviated from the sun
+								if (skyvis <= 0.0f)
+								{
+									continue;
+								}
+								vec_t factor = qmin (qmax (0.0, (1 - DotProduct (l->normal, skynormals[j])) / 2), 1.0); //How far this piece of sky has deviated from the sun
 								VectorScale (l->diffuse_intensity, 1 - factor, sky_intensity);
 								VectorMA (sky_intensity, factor, l->diffuse_intensity2, sky_intensity);
 								VectorScale (sky_intensity, skyweights[j] * g_indirect_sun / 2, sky_intensity);
 								vec3_t add_one;
+
 								if (lighting_diversify)
 								{
 									dot = lighting_scale * pow (dot, lighting_power);
 								}
-								VectorScale(sky_intensity, dot, add_one);
+								VectorScale(sky_intensity, dot * skyvis, add_one);
 								VectorMultiply(add_one, transparency, add_one);
 								// add to the total brightness of this sample
 								style = l->style;
+
 								if (opaquestyle != -1)
 								{
 									if (style == 0 || style == opaquestyle)
@@ -2905,14 +3064,18 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
                             break;
                         }
                         }
-						if (TestLine (pos, 
+						float shadowvis = PCFShadowPoint (pos, 
 							testline_origin
-							) != CONTENTS_EMPTY)
+							, &pcfplane
+							);
+
+						if (shadowvis <= 0.0f)
 						{
 							continue;
 						}
 						vec3_t transparency;
 						int opaquestyle;
+
 						if (TestSegmentAgainstOpaqueList (pos, 
 							testline_origin
 							, transparency
@@ -2921,8 +3084,10 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 							continue;
 						}
 						VectorMultiply (add, transparency, add);
-						// add to the total brightness of this sample
+						VectorScale (add, shadowvis, add);
+						//Add to the total brightness of this sample
 						style = l->style;
+
 						if (opaquestyle != -1)
 						{
 							if (style == 0 || style == opaquestyle)
@@ -4005,14 +4170,30 @@ void            BuildFacelights(const int facenum)
 		int s_center, t_center;
 		vec_t sizehalf;
 		vec_t weighting, subsamples;
+		vec_t style_subsamples[ALLSTYLES];
+		vec_t center_maxlight[ALLSTYLES];
 		vec3_t centernormal;
 		vec_t weighting_correction;
 		int pass;
 		s_center = (i % lightmapwidth) * l.lmcache_density + l.lmcache_offset;
 		t_center = (i / lightmapwidth) * l.lmcache_density + l.lmcache_offset;
+		const int center_pos = s_center + l.lmcachewidth * t_center;
 		sizehalf = 0.5 * g_blur * l.lmcache_density;
 		subsamples = 0.0;
-		VectorCopy (l.lmcache_normal[s_center + l.lmcachewidth * t_center], centernormal);
+
+		for (j = 0; j < ALLSTYLES; j++)
+		{
+			style_subsamples[j] = 0.0;
+		}
+		if (g_blurclamp_strength > 0.0f)
+		{
+			for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
+			{
+				center_maxlight[j] = VectorMaximum (l.lmcache[center_pos][j]);
+			}
+		}
+		VectorCopy (l.lmcache_normal[center_pos], centernormal);
+
 		if (g_bleedfix && !g_drawnudge)
 		{
 			int s_origin = s_center;
@@ -4102,7 +4283,21 @@ void            BuildFacelights(const int facenum)
 				weighting = weighting * weighting_correction;
 				for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
 				{
-					VectorMA (fl_samples[j][i].light, weighting, l.lmcache[pos][j], fl_samples[j][i].light);
+					vec_t style_weighting = weighting;
+
+					if (g_blurclamp_strength > 0.0f)
+					{
+						vec_t sample_maxlight = VectorMaximum (l.lmcache[pos][j]);
+
+						if (sample_maxlight > 0.0f && sample_maxlight > center_maxlight[j] * DEFAULT_BLURCLAMP_SCALE + DEFAULT_BLURCLAMP_OFFSET)
+						{
+							vec_t natural_weight = qmax(center_maxlight[j] + DEFAULT_BLURCLAMP_OFFSET, 0.0f) / sample_maxlight;
+							vec_t value_weighting = qmax(natural_weight, 1.0f - g_blurclamp_strength); //Strength blend ~seedee
+							style_weighting *= value_weighting;
+						}
+					}
+					VectorMA (fl_samples[j][i].light, style_weighting, l.lmcache[pos][j], fl_samples[j][i].light);
+					style_subsamples[j] += style_weighting;
 				}
 				subsamples += weighting;
 			}
@@ -4117,6 +4312,7 @@ void            BuildFacelights(const int facenum)
 			for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
 			{
 				VectorClear (fl_samples[j][i].light);
+				style_subsamples[j] = 0.0;
 			}
 		}
 	  }
@@ -4124,7 +4320,14 @@ void            BuildFacelights(const int facenum)
 		{
 			for (j = 0; j < ALLSTYLES && f_styles[j] != 255; j++)
 			{
-				VectorScale (fl_samples[j][i].light, 1.0 / subsamples, fl_samples[j][i].light);
+				if (style_subsamples[j] > NORMAL_EPSILON)
+				{
+					VectorScale(fl_samples[j][i].light, 1.0 / style_subsamples[j], fl_samples[j][i].light);
+				}
+				else
+				{
+					VectorClear(fl_samples[j][i].light);
+				}
 			}
 		}
     } // end of i loop
