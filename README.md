@@ -27,6 +27,12 @@ The default shadow mode `1` will trace each triangle normally and supports trans
 > [!TIP]
 > If the shadow covers the point underneath the model’s origin, this could affect its brightness in unwanted ways. Control it by setting a custom `light_origin` on the entity (or move the mesh origin internally).
 
+### Other
+- Percentage-closer filtering is added to help anti-alias hard shadow edges. Increases compile times, so lower values first.
+- Bilateral (edge-preserving) filtering can be enabled on blurred lightmap samples to fix thin shadows appearing like dotted lines due to light bleeding into shadows. 
+- Deathmatch Classic maps can further push clipnode limits by removing clip hull 3. Not recommended in regular Half-Life 1 without your own Quake DM style mods.
+- Minor performance boosts before tracing BuildFacelights, filtering direct lights by distance (exact inverse-square peak contribution threshold) and by surface facing.
+
 ### Compile parameters
 #### CSG
 - `-worldextent #` extends the world geometry limit, increase this if you get "brush outside world" errors. Default value of `65536` allows geometry in the range of `+/-32768`. Entities are limited to `+/-8192` by the engine.
@@ -35,7 +41,7 @@ The default shadow mode `1` will trace each triangle normally and supports trans
 
 > [!Warning]
 > Unreleased on v1.2.0:<br />
-> - `-nohull3` disables generating clip hull 3, used for crouching and small pushables. Can be used for Deathmatch Classic maps.
+> - `-nohull3` disables generating clip hull 3, used for crouching and small pushables.
 
 #### VIS
 - `-nofixprt` disables J.A.C.K. related .prt file reformatting, allows for importing into Worldcraft directly after VIS.
@@ -48,7 +54,7 @@ The default shadow mode `1` will trace each triangle normally and supports trans
 > Unreleased on v1.2.0:<br />
 > - `-ao` enables ambient occlusion. Entities are only occluded if flagged opaque to light. Studiomodels are occluded based on `zhlt_shadowmode`.<br />
 > - `-aoscale #` sets how far the rays reach, i.e. where AO exists and the maximum distance at which geometry counts as occluding. Higher values make the dark bands reach further out from corners and look thicker.<br />
-> - `-aogain #` sets the exponent shaping the falloff curve, or how closely AO bands hug corners. Scale is the reach, gain is the distribution within that reach. Linear by default. `<1` spreads it further away. `>1` keeps AO only in the deepest corners while half-occluded areas shrink.<br />
+> - `-aogain #` sets the exponent shaping the falloff curve, or how closely AO bands hug corners. If scale is the reach, gain is the distribution within that reach. Linear by default. `<1` spreads it further away. `>1` keeps AO only in the deepest corners while half-occluded areas shrink.<br />
 > - `-aolevel #` sets the quality, or density of ray directions traced across the hemisphere per luxel. Default `3` tests 66 ray directions for each luxel, which is enough for most maps. Lower values shouldn't be used for final compiles. The sampling levels map onto RAD's geodesic tables used for sky lighting.<br />
 >
 > | Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
@@ -61,6 +67,8 @@ The default shadow mode `1` will trace each triangle normally and supports trans
 > - `-aoopacity #` controls AO visibility. Multiplies computed occlusion to form the final blend factor alpha.<br />
 > - `-aocolor r g b` controls the tint color of the AO. Darkens toward black by default, any other color tints the occlusion. Useful for stylized effects.<br />
 > - `-aostats` displays a chart of ambient occlusion statistics.
+> - `-blurclamp #` limits blur bleeding into shadow edges (bilateral filtering) with `#` as the suppression strength. Default `0.0` keeps classic blur, higher values caps how much a brighter sample contributes. `0.5` means any sample 5x brighter than the luxel is limited to 50% weight, `0.75` caps 2.5x brighter at 25%, etc.
+> - `-pcf #` sets anti-aliasing level for shadow edges, which traces `#²` shadow rays per lightmap texel (percentage-closer filtering). Default `1` disables this, higher values increase compile times.
 
 ### Entities
 
@@ -75,7 +83,7 @@ The default shadow mode `1` will trace each triangle normally and supports trans
 - **cur_tool** textures, which act like **CONTENTWATER** and *func_pushable* with a speed of `2048 units/s` in -Y. This texture is always fullbright.
 
 ## Planned
-- [ ] Optimization for BuildFacelights and MakeScales
+- [x] Optimization for BuildFacelights and MakeScales
 - [ ] Optimization for LeafThread
 - [ ] Tool textures, .res generation and more
 - [ ] Full code and textures documentation
