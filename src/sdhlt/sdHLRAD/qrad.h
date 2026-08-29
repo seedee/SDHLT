@@ -138,7 +138,7 @@
 	#define DEFAULT_NOEMITTERRANGE false
 	#define DEFAULT_BLEEDFIX true
 	#define MIN_BLURCLAMP_STRENGTH 0.0f
-	#define DEFAULT_BLURCLAMP_STRENGTH 0.5f //0.5 = samples >= 2x brighter capped at 50%; 0.75 = samples >= 4x brighter capped at 25%; etc
+	#define DEFAULT_BLURCLAMP_STRENGTH 0.0f //0.5 = samples >= 2x brighter capped at 50%; 0.75 = samples >= 4x brighter capped at 25%; etc
 	#define MAX_BLURCLAMP_STRENGTH 1.0f
 	#define DEFAULT_BLURCLAMP_SCALE 1.0f
 	#define DEFAULT_BLURCLAMP_OFFSET 0.0f
