@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Percentage-closer filtering for soft shadow edges with `-pcf #`.
 - Bilateral filtering with `-blurclamp #` to fix light bleeding into shadow edges.
 - `nohull3`, skips clip hull 3 used for crouching and small pushables.
+- Compiled Linux binaries for standard architectures.
 
 ### Changed
 - Culling optimization before BuildFaceLights and MakeScales. Fewer ray casts for the same lighting.
