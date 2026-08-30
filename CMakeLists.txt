@@ -20,7 +20,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/tools)
 
 set(SDHLT_PREFIX "sd" CACHE STRING "Executable prefix.")
 set(SDHLT_GAME_PREFIX "HL" CACHE STRING "Executable game prefix.")
-set(CMAKE_CXX_COMPILER "g++")
+# set(CMAKE_CXX_COMPILER "g++")
 
 message("${CMAKE_PROJECT_NAME} > Tools will use prefix \"${SDHLT_PREFIX}${SDHLT_GAME_PREFIX}\"")
 
@@ -235,6 +235,8 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
         SYSTEM_WIN32
         STDC_HEADERS
     )
+	# Match Visual Studio projects (static CRT so users don't need VC++ redistributable)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     message("${CMAKE_PROJECT_NAME} > Configuring for ${CMAKE_SYSTEM_NAME}")
 else()
     add_compile_definitions(VERSION_OTHER)
@@ -260,8 +262,9 @@ set_target_properties(RIPENT
         PREFIX ${SDHLT_PREFIX}
 )
 
-target_compile_definitions(BSP PRIVATE SDHLBSP DOUBLEVEC_T)
-target_compile_definitions(CSG PRIVATE SDHLCSG DOUBLEVEC_T)
-target_compile_definitions(RAD PRIVATE SDHLRAD)
-target_compile_definitions(VIS PRIVATE SDHLVIS)
-target_compile_definitions(RIPENT PRIVATE SDRIPENT)
+if (WIN32 AND SDHLT_64BIT)
+    foreach(t BSP CSG RAD VIS)
+        set_target_properties(${t} PROPERTIES OUTPUT_NAME "${SDHLT_PREFIX}${SDHLT_GAME_PREFIX}${t}_x64")
+    endforeach()
+    set_target_properties(RIPENT PROPERTIES OUTPUT_NAME "${SDHLT_PREFIX}RIPENT_x64")
+endif()
