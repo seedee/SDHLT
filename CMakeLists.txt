@@ -267,9 +267,15 @@ set_target_properties(RIPENT
         PREFIX ${SDHLT_PREFIX}
 )
 
+target_compile_definitions(BSP PRIVATE SDHLBSP DOUBLEVEC_T)
+target_compile_definitions(CSG PRIVATE SDHLCSG DOUBLEVEC_T)
+target_compile_definitions(RAD PRIVATE SDHLRAD)
+target_compile_definitions(VIS PRIVATE SDHLVIS)
+target_compile_definitions(RIPENT PRIVATE SDRIPENT)
+
 if (WIN32 AND SDHLT_64BIT)
     foreach(t BSP CSG RAD VIS)
-        set_target_properties(${t} PROPERTIES OUTPUT_NAME "${SDHLT_PREFIX}${SDHLT_GAME_PREFIX}${t}_x64")
+        set_target_properties(${t} PROPERTIES OUTPUT_NAME "${t}_x64")
     endforeach()
-    set_target_properties(RIPENT PROPERTIES OUTPUT_NAME "${SDHLT_PREFIX}RIPENT_x64")
+    set_target_properties(RIPENT PROPERTIES OUTPUT_NAME "RIPENT_x64")
 endif()

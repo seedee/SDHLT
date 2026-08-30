@@ -27,7 +27,6 @@ jobs:
       #
       # Each row builds CMakeLists.txt with different args, SDHLT_64BIT switches VERSION_32BIT/VERSION_64BIT and the _x64 naming.
       matrix:
-        build_type: [Release]
         include:
           - os: ubuntu-latest
             id: linux
@@ -65,14 +64,14 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
 
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest --build-config ${{ matrix.build_type }}
-
+      run: ctest --build-config Release
+        
     - name: Stage binaries
       # CMakeLists.txt sets tools/ as CMAKE_RUNTIME_OUTPUT_DIRECTORY.
       shell: bash
@@ -100,13 +99,13 @@ jobs:
 
       - name: Package release zip
         run: |
-          mkdir -p "dist/sdhlt-${GITHUB_REF_NAME}"
+          mkdir -p "dist/sdhlt-${GITHUB_REF_NAME}/tools"
           cp README.md LICENSE.md CHANGELOG.md "dist/sdhlt-${GITHUB_REF_NAME}/"
           cp media/banner.png "dist/sdhlt-${GITHUB_REF_NAME}/"
-          cp tools/wad.cfg tools/settings.txt tools/sdhlt.fgd tools/sdhlt.wad tools/lights.rad "dist/sdhlt-${GITHUB_REF_NAME}/"
-          cp stage/linux/*  "dist/sdhlt-${GITHUB_REF_NAME}/linux/"
-          cp stage/win32/*  "dist/sdhlt-${GITHUB_REF_NAME}/win32/"
-          cp stage/win64/*  "dist/sdhlt-${GITHUB_REF_NAME}/win64/"
+          cp tools/wad.cfg tools/settings.txt tools/sdhlt.fgd tools/sdhlt.wad tools/lights.rad "dist/sdhlt-${GITHUB_REF_NAME}/tools/"
+          cp stage/linux/*  "dist/sdhlt-${GITHUB_REF_NAME}/tools/"
+          cp stage/win32/*  "dist/sdhlt-${GITHUB_REF_NAME}/tools/"
+          cp stage/win64/*  "dist/sdhlt-${GITHUB_REF_NAME}/tools/"
           cd dist
           zip -r "sdhlt-${GITHUB_REF_NAME}.zip" "sdhlt-${GITHUB_REF_NAME}"
 
