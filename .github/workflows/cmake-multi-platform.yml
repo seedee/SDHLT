@@ -101,11 +101,11 @@ jobs:
         run: |
           mkdir -p "dist/sdhlt-${GITHUB_REF_NAME}/tools"
           cp README.md LICENSE.md CHANGELOG.md "dist/sdhlt-${GITHUB_REF_NAME}/"
-          cp media/banner.png "dist/sdhlt-${GITHUB_REF_NAME}/"
+          cp media/banner.png "dist/sdhlt-${GITHUB_REF_NAME}/media/"
           cp tools/wad.cfg tools/settings.txt tools/sdhlt.fgd tools/sdhlt.wad tools/lights.rad "dist/sdhlt-${GITHUB_REF_NAME}/tools/"
-          cp stage/linux/*  "dist/sdhlt-${GITHUB_REF_NAME}/tools/"
-          cp stage/win32/*  "dist/sdhlt-${GITHUB_REF_NAME}/tools/"
-          cp stage/win64/*  "dist/sdhlt-${GITHUB_REF_NAME}/tools/"
+          cp stage/linux/*  "dist/sdhlt-${GITHUB_REF_NAME}/tools/linux/"
+          cp stage/win32/*  "dist/sdhlt-${GITHUB_REF_NAME}/tools/Win32/"
+          cp stage/win64/*  "dist/sdhlt-${GITHUB_REF_NAME}/tools/Win64"
           cd dist
           zip -r "sdhlt-${GITHUB_REF_NAME}.zip" "sdhlt-${GITHUB_REF_NAME}"
 
