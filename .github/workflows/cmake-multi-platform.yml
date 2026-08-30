@@ -1,0 +1,119 @@
+# This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
+name: CMake on multiple platforms
+
+on:
+  push:
+    branches: [ "master" ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
+      fail-fast: false
+
+      # Set up a matrix to run the following 3 configurations:
+      # 1. <Windows x86, Release, latest MSVC compiler toolchain on the default runner image, Win32 generator>
+      # 2. <Windows x64, Release, latest MSVC compiler toolchain on the default runner image, x64 generator>
+      # 3. <Linux, Release, latest GCC compiler toolchain on the default runner image, default generator>
+      #
+      # Each row builds CMakeLists.txt with different args, SDHLT_64BIT switches VERSION_32BIT/VERSION_64BIT and the _x64 naming.
+      matrix:
+        build_type: [Release]
+        include:
+          - os: ubuntu-latest
+            id: linux
+            args: -DCMAKE_BUILD_TYPE=Release
+            bins: tools/sdHLCSG tools/sdHLBSP tools/sdHLVIS tools/sdHLRAD tools/sdRIPENT
+          - os: windows-latest
+            id: win32
+            args: -A Win32 -DSDHLT_64BIT=OFF
+            bins: tools/sdHLCSG.exe tools/sdHLBSP.exe tools/sdHLVIS.exe tools/sdHLRAD.exe tools/sdRIPENT.exe
+          - os: windows-latest
+            id: win64
+            args: -A x64 -DSDHLT_64BIT=ON
+            bins: tools/sdHLCSG_x64.exe tools/sdHLBSP_x64.exe tools/sdHLVIS_x64.exe tools/sdHLRAD_x64.exe tools/sdRIPENT_x64.exe
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set reusable strings
+      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      # Compilers are auto-detected (cl on Windows, g++ on Linux)
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        ${{ matrix.args }}
+        -S ${{ github.workspace }}
+
+    - name: Build
+      # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+
+    - name: Test
+      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: ctest --build-config ${{ matrix.build_type }}
+
+    - name: Stage binaries
+      # CMakeLists.txt sets tools/ as CMAKE_RUNTIME_OUTPUT_DIRECTORY.
+      shell: bash
+      run: |
+        mkdir -p "stage/${{ matrix.id }}"
+        cp ${{ matrix.bins }} "stage/${{ matrix.id }}/"
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.id }}
+        path: stage/${{ matrix.id }}
+        if-no-files-found: error
+
+  bundle:
+    # Only package and release on version tags.
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: stage
+
+      - name: Package release zip
+        run: |
+          mkdir -p "dist/sdhlt-${GITHUB_REF_NAME}"
+          cp README.md LICENSE.md CHANGELOG.md "dist/sdhlt-${GITHUB_REF_NAME}/"
+          cp media/banner.png "dist/sdhlt-${GITHUB_REF_NAME}/"
+          cp tools/wad.cfg tools/settings.txt tools/sdhlt.fgd tools/sdhlt.wad tools/lights.rad "dist/sdhlt-${GITHUB_REF_NAME}/"
+          cp stage/linux/*  "dist/sdhlt-${GITHUB_REF_NAME}/linux/"
+          cp stage/win32/*  "dist/sdhlt-${GITHUB_REF_NAME}/win32/"
+          cp stage/win64/*  "dist/sdhlt-${GITHUB_REF_NAME}/win64/"
+          cd dist
+          zip -r "sdhlt-${GITHUB_REF_NAME}.zip" "sdhlt-${GITHUB_REF_NAME}"
+
+      - name: Attach to draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          generate_release_notes: true
+          overwrite_files: true
+          files: dist/*.zip
