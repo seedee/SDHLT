@@ -99,11 +99,15 @@ jobs:
 
       - name: Package release zip
         run: |
-          mkdir -p "dist/sdhlt-${GITHUB_REF_NAME}/tools"
+          mkdir -p "dist/sdhlt-${GITHUB_REF_NAME}/media" \
+                   "dist/sdhlt-${GITHUB_REF_NAME}/tools" \
+                   "dist/sdhlt-${GITHUB_REF_NAME}/tools/Linux" \
+                   "dist/sdhlt-${GITHUB_REF_NAME}/tools/Win32" \
+                   "dist/sdhlt-${GITHUB_REF_NAME}/tools/Win64"
           cp README.md LICENSE.md CHANGELOG.md "dist/sdhlt-${GITHUB_REF_NAME}/"
           cp media/banner.png "dist/sdhlt-${GITHUB_REF_NAME}/media/"
           cp tools/wad.cfg tools/settings.txt tools/sdhlt.fgd tools/sdhlt.wad tools/lights.rad "dist/sdhlt-${GITHUB_REF_NAME}/tools/"
-          cp stage/linux/*  "dist/sdhlt-${GITHUB_REF_NAME}/tools/linux/"
+          cp stage/linux/*  "dist/sdhlt-${GITHUB_REF_NAME}/tools/Linux/"
           cp stage/win32/*  "dist/sdhlt-${GITHUB_REF_NAME}/tools/Win32/"
           cp stage/win64/*  "dist/sdhlt-${GITHUB_REF_NAME}/tools/Win64"
           cd dist
