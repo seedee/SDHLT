@@ -2,16 +2,21 @@
 
 <sub>Half-Life engine map compile tools, based on Vluzacn's ZHLT v34 with code contributions from various contributors. Based on Valve's version, modified with permission.</sub>
 
-![GitHub Release](https://img.shields.io/github/v/release/seedee/SDHLT)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/seedee/SDHLT/total)
-![Stars](https://img.shields.io/github/stars/seedee/SDHLT)
-![GitHub watchers](https://img.shields.io/github/watchers/seedee/SDHLT)
-![GitHub contributors](https://img.shields.io/github/contributors/seedee/SDHLT?label=contributors%20welcome)
-![GitHub Issues](https://img.shields.io/github/issues/seedee/SDHLT)
-![GitHub Pull Requests](https://img.shields.io/github/issues-pr/seedee/SDHLT)
-![Star If Useful](https://camo.githubusercontent.com/9c0c22588eec3bd51fe90891f616b6a51cb070ec0a8d534b4d96fb25afaf872e/68747470733a2f2f696d672e736869656c64732e696f2f7374617469632f76313f6c6162656c3d254630253946253843253946266d6573736167653d496625323055736566756c267374796c653d7374796c653d666c617426636f6c6f723d424334453939)
+<div align="center">
+<a target="_BLANK" href="https://github.com/seedee/SDHLT/releases"><img alt="Release" src="https://img.shields.io/github/v/release/seedee/SDHLT?label=Release" /></a>
+<a target="_BLANK" href="https://github.com/seedee/SDHLT/releases"><img alt="Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/seedee/SDHLT/total?label=Downloads" /></a>
+<a target="_BLANK" href="https://github.com/seedee/SDHLT/actions/workflows/cmake-multi-platform.yml"><img alt="CMake on multiple platforms" src="https://github.com/seedee/SDHLT/actions/workflows/cmake-multi-platform.yml/badge.svg" /></a>
+<br />
+<a target="_BLANK" href="https://github.com/seedee/SDHLT/graphs/contributors"><img alt="Contributors welcome" src="https://img.shields.io/github/contributors/seedee/SDHLT?label=Contributors%20welcome" /></a>
+<a target="_BLANK" href="https://github.com/seedee/SDHLT/issues"><img alt="Issues" src="https://img.shields.io/github/issues/seedee/SDHLT?label=Issues" /></a>
+<a target="_BLANK" href="https://github.com/seedee/SDHLT/pulls"><img alt="Pull requests" src="https://img.shields.io/github/issues-pr/seedee/SDHLT?label=Pull%20requests" /></a>
+<br />
+<a target="_BLANK" href="https://github.com/seedee/SDHLT/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/seedee/SDHLT?style=flat&label=Stars" /></a>
+<a target="_BLANK" href=""><img alt="Star if useful" src="https://img.shields.io/badge/-Star_if_useful-orange?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIGRhdGEtY29tcG9uZW50PSJPY3RpY29uIiBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgY2xhc3M9Im9jdGljb24gb2N0aWNvbi1zdGFyLWZpbGwgU3RhckJ1dHRvbi1tb2R1bGVfX3N0YXJyZWRJY29uX19CSVlRNSIgdmlld0JveD0iMCAwIDE2IDE2IiB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IiNlM2IzNDEiIGRpc3BsYXk9ImlubGluZS1ibG9jayIgb3ZlcmZsb3c9InZpc2libGUiIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjp0ZXh0LWJvdHRvbSI%2BPHBhdGggZD0iTTggLjI1YS43NS43NSAwIDAgMSAuNjczLjQxOGwxLjg4MiAzLjgxNSA0LjIxLjYxMmEuNzUuNzUgMCAwIDEgLjQxNiAxLjI3OWwtMy4wNDYgMi45Ny43MTkgNC4xOTJhLjc1MS43NTEgMCAwIDEtMS4wODguNzkxTDggMTIuMzQ3bC0zLjc2NiAxLjk4YS43NS43NSAwIDAgMS0xLjA4OC0uNzlsLjcyLTQuMTk0TC44MTggNi4zNzRhLjc1Ljc1IDAgMCAxIC40MTYtMS4yOGw0LjIxLS42MTFMNy4zMjcuNjY4QS43NS43NSAwIDAgMSA4IC4yNVoiPjwvcGF0aD48L3N2Zz4%3D&label=%20&labelColor=grey"></a>
+<a target="_BLANK" href="https://github.com/seedee/SDHLT/watchers"><img alt="Watchers" src="https://img.shields.io/github/watchers/seedee/SDHLT?style=flat&label=Watchers" /></a>
+</div>
 
-New features include ambient occlusion, opaque studio models, new entities, tool textures, extendable world size limits, portal file optimisation for J.A.C.K. map editor and other minor bug fixes and improvements.
+New features include ambient occlusion, opaque studio models, shadow filtering, new entities, tool textures, extendable world size limits, portal file optimisation for J.A.C.K. map editor and other minor bug fixes and improvements.
 
 ## Usage
 
