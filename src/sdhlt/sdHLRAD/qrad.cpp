@@ -2823,7 +2823,7 @@ static void     Usage(const char* paramWarning = 0, bool mapfileWarning = false)
 	Log("   -blurclamp #   : Limit blured light bleeding into shadow edges (0 = off, %f to %f)\n", (double)MIN_BLURCLAMP_STRENGTH, (double)MAX_BLURCLAMP_STRENGTH);
 	Log("   -nobleedfix    : Don't fix wall bleeding problem for large blur value.\n");
 	Log("   -noemitterrange: Don't fix pointy texlights.\n");
-	Log("   -pcf #         : PCF taps per axis for softer shadow edges (1 = off, 1 to %d, cost scales with #^2.\n", (int)MAX_PCF);
+	Log("   -pcf #         : PCF taps per axis for softer shadow edges (1 = off, 1 to %d, cost scales with #^2)\n", (int)MAX_PCF);
 	Log("   -drawpatch     : Export light patch positions to file 'mapname_patch.pts'.\n");
 	Log("   -drawsample x y z r    : Export light sample positions in an area to file 'mapname_sample.pts'.\n");
 	Log("   -drawedge      : Export smooth edge positions to file 'mapname_edge.pts'.\n");
@@ -3149,9 +3149,30 @@ void            ReadInfoTexAndMinlights()
 		}
     }
 }
-
 const char* lights_rad = "lights.rad";
 const char* ext_rad = ".rad";
+
+// =====================================================================================
+//  TryReadLightFile
+// =====================================================================================
+static bool TryReadLightFile(const char* const dir, const char* const filename, const bool defaultextension)
+{
+    char path[_MAX_PATH];
+    safe_strncpy(path, dir, _MAX_PATH);
+    safe_strncat(path, filename, _MAX_PATH);
+
+    if (defaultextension)
+    {
+        DefaultExtension(path, ext_rad);
+    }
+    if (q_exists(path))
+    {
+        ReadLightFile(path);
+        return true;
+    }
+    return false;
+}
+
 // =====================================================================================
 //  LoadRadFiles
 // =====================================================================================
@@ -3163,6 +3184,8 @@ void            LoadRadFiles(const char* const mapname, const char* const user_r
     char mapfile[_MAX_PATH];
     char mapdir[_MAX_PATH];
     char appdir[_MAX_PATH];
+    char appdir_parent[_MAX_PATH];
+    bool found;
 
     // Get application directory (only an approximation on posix systems)
     // try looking in the directory we were run from
@@ -3176,101 +3199,68 @@ void            LoadRadFiles(const char* const mapname, const char* const user_r
 #endif
         ExtractFilePath(tmp, appdir);
     }
+    // Get app's parent dir
+    ExtractFilePath(appdir, appdir_parent);
 
     // Get map directory
     ExtractFilePath(mapname, mapdir);
 	ExtractFile(mapname, mapfile);
 
-    // Look for lights.rad in mapdir
-    safe_strncpy(global_lights, mapdir, _MAX_PATH);
-    safe_strncat(global_lights, lights_rad, _MAX_PATH);
-    if (q_exists(global_lights))
+    // Look for lights.rad in mapdir, then app's parent dir, then appdir
+    found = TryReadLightFile(mapdir, lights_rad, false);
+    
+    if (!found && appdir_parent[0])
     {
-        ReadLightFile(global_lights);
+        found = TryReadLightFile(appdir_parent, lights_rad, false);
     }
-    else
+    if (!found)
     {
-        // Look for lights.rad in appdir
-        safe_strncpy(global_lights, appdir, _MAX_PATH);
-        safe_strncat(global_lights, lights_rad, _MAX_PATH);
+        found = TryReadLightFile(appdir, lights_rad, false);
+    }
+    if (!found)
+    {
+        // Look for lights.rad in current working directory
+        safe_strncpy(global_lights, lights_rad, _MAX_PATH);
         if (q_exists(global_lights))
         {
             ReadLightFile(global_lights);
         }
-        else
-        {
-            // Look for lights.rad in current working directory
-            safe_strncpy(global_lights, lights_rad, _MAX_PATH);
-            if (q_exists(global_lights))
-            {
-                ReadLightFile(global_lights);
-            }
-        }
     }
-   
     // Look for mapname.rad in mapdir
     safe_strncpy(mapname_lights, mapdir, _MAX_PATH);
     safe_strncat(mapname_lights, mapfile, _MAX_PATH);
 	safe_strncat(mapname_lights, ext_rad, _MAX_PATH);
+
     if (q_exists(mapname_lights))
     {
         ReadLightFile(mapname_lights);
     }
-
-
     if (user_rad)
     {
-        char user_lights[_MAX_PATH];
         char userfile[_MAX_PATH];
-
         ExtractFile(user_rad, userfile);
-
+        
         // Look for user.rad from command line (raw)
-        safe_strncpy(user_lights, user_rad, _MAX_PATH);
-        if (q_exists(user_lights))
+        found = TryReadLightFile("", user_rad, false);
+        if (!found) // Try again with .rad enforced as extension
         {
-            ReadLightFile(user_lights);
+        	found = TryReadLightFile("", user_rad, true);
         }
-        else
+        if (!found) // Look for user.rad in mapdir
         {
-            // Try again with .rad enforced as extension
-            DefaultExtension(user_lights, ext_rad);
-            if (q_exists(user_lights))
-            {
-                ReadLightFile(user_lights);
-            }
-            else
-            {
-                // Look for user.rad in mapdir
-                safe_strncpy(user_lights, mapdir, _MAX_PATH);
-                safe_strncat(user_lights, userfile, _MAX_PATH);
-                DefaultExtension(user_lights, ext_rad);
-                if (q_exists(user_lights))
-                {
-                    ReadLightFile(user_lights);
-                }
-                else
-                {
-                    // Look for user.rad in appdir
-                    safe_strncpy(user_lights, appdir, _MAX_PATH);
-                    safe_strncat(user_lights, userfile, _MAX_PATH);
-                    DefaultExtension(user_lights, ext_rad);
-                    if (q_exists(user_lights))
-                    {
-                        ReadLightFile(user_lights);
-                    }
-                    else
-                    {
-                        // Look for user.rad in current working directory
-                        safe_strncpy(user_lights, userfile, _MAX_PATH);
-                        DefaultExtension(user_lights, ext_rad);
-                        if (q_exists(user_lights))
-                        {
-                            ReadLightFile(user_lights);
-                        }
-                    }
-                }
-            }
+        	found = TryReadLightFile(mapdir, userfile, true);
+        }
+        if (!found && appdir_parent[0]) // Look for user.rad in the app's parent directory
+        {
+        	found = TryReadLightFile(appdir_parent, userfile, true);
+        }
+        if (!found) // Look for user.rad in appdir
+        {
+        	found = TryReadLightFile(appdir, userfile, true);
+        }
+        if (!found) // Look for user.rad in current working directory
+        {
+        	TryReadLightFile("", userfile, true);
         }
     }
 	ReadInfoTexAndMinlights(); // AJM + seedee

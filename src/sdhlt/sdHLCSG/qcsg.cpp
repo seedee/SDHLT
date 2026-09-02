@@ -2167,22 +2167,44 @@ int             main(const int argc, char** argv)
         char wadCfgPath[_MAX_PATH];
 		ExtractFilePath (mapDirPath, wadCfgPath); //Append wad.cfg name
 		safe_strncat (wadCfgPath, g_wadcfgfile, _MAX_PATH);
+
 		if (q_exists (wadCfgPath)) //Update global if file exists
 		{
 			g_wadcfgfile = strdup (wadCfgPath); 
 		}
 		else
 		{
+            char exeDirPath[_MAX_PATH];
+            char exeParentPath[_MAX_PATH];
+            bool found = false;
 #ifdef SYSTEM_WIN32 //Look relative to exe
 			GetModuleFileName (NULL, mapDirPath, _MAX_PATH);
 #else //Fallback
 			safe_strncpy (mapDirPath, argv[0], _MAX_PATH);
 #endif
-			ExtractFilePath (mapDirPath, wadCfgPath);
-			safe_strncat (wadCfgPath, g_wadcfgfile, _MAX_PATH);
-			if (q_exists (wadCfgPath))
+			ExtractFilePath (mapDirPath, exeDirPath);
+			ExtractFilePath (exeDirPath, exeParentPath);
+
+			if (exeParentPath[0]) //Bundled binaries fix
 			{
-				g_wadcfgfile = strdup (wadCfgPath);
+				safe_strncpy (wadCfgPath, exeParentPath, _MAX_PATH);
+				safe_strncat (wadCfgPath, g_wadcfgfile, _MAX_PATH);
+
+				if (q_exists (wadCfgPath))
+				{
+					g_wadcfgfile = strdup (wadCfgPath);
+					found = true;
+				}
+			}
+			if (!found)
+			{
+				safe_strncpy (wadCfgPath, exeDirPath, _MAX_PATH);
+				safe_strncat (wadCfgPath, g_wadcfgfile, _MAX_PATH);
+
+				if (q_exists (wadCfgPath))
+				{
+					g_wadcfgfile = strdup (wadCfgPath);
+				}
 			}
 		}
 	}
@@ -2240,20 +2262,37 @@ int             main(const int argc, char** argv)
 	if (g_wadconfigname) //If wadconfig had a name provided //seedee
 	{
         char exePath[_MAX_PATH];
+		char exeDirPath[_MAX_PATH];
+		char exeParentPath[_MAX_PATH];
         char wadCfgPath[_MAX_PATH];
 #ifdef SYSTEM_WIN32 //Get exe path
         GetModuleFileName(NULL, exePath, _MAX_PATH);
 #else //Fallback
         safe_strncpy(exePath, argv[0], _MAX_PATH);
 #endif
-        ExtractFilePath(exePath, wadCfgPath);
-        safe_strncat(wadCfgPath, "wad.cfg", _MAX_PATH);
+        ExtractFilePath (exePath, exeDirPath);
+        ExtractFilePath (exeDirPath, exeParentPath);
 
-        if (g_wadcfgfile) //If provided override the default
+        if (exeParentPath[0]) //Bundled binaries fix
         {
-            safe_strncpy(wadCfgPath, g_wadcfgfile, _MAX_PATH);
+            safe_strncpy (wadCfgPath, exeParentPath, _MAX_PATH);
         }
-        LoadWadconfig(wadCfgPath, g_wadconfigname);
+        else
+        {
+            safe_strncpy (wadCfgPath, exeDirPath, _MAX_PATH);
+        }
+        safe_strncat (wadCfgPath, "wad.cfg", _MAX_PATH);
+
+        if (exeParentPath[0] && !q_exists (wadCfgPath))
+        {
+            safe_strncpy (wadCfgPath, exeDirPath, _MAX_PATH);
+            safe_strncat (wadCfgPath, "wad.cfg", _MAX_PATH);
+        }
+        if (g_wadcfgfile) //If provided override default
+        {
+            safe_strncpy (wadCfgPath, g_wadcfgfile, _MAX_PATH);
+        }
+        LoadWadconfig (wadCfgPath, g_wadconfigname);
 	}
 	else if (g_wadcfgfile)
 	{
