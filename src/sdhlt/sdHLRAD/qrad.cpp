@@ -132,6 +132,7 @@ vec_t           g_texchop = DEFAULT_TEXCHOP;
 opaqueList_t*   g_opaque_face_list = NULL;
 unsigned        g_opaque_face_count = 0;
 unsigned        g_max_opaque_face_count = 0;               // Current array maximum (used for reallocs)
+bool			*g_face_occludes_ao = NULL;
 vec_t			g_corings[ALLSTYLES];
 vec3_t*			g_translucenttextures = NULL;
 vec_t			g_translucentdepth = DEFAULT_TRANSLUCENTDEPTH;
@@ -1704,6 +1705,28 @@ static void		LoadOpaqueEntities()
 			facecount += CountOpaqueFaces (g_opaque_face_list[i].modelnum);
 		}
 		Log("%i opaque faces\n", facecount);
+	}
+	{
+		g_face_occludes_ao = (bool *)calloc (g_numfaces, sizeof (bool));
+		hlassume (g_face_occludes_ao != NULL, assume_NoMemory);
+
+		for (int i = 0; i < g_dmodels[0].numfaces; i++)
+		{
+			g_face_occludes_ao[g_dmodels[0].firstface + i] = true;
+		}
+		for (int i = 0; i < g_opaque_face_count; i++)
+		{
+			if (g_opaque_face_list[i].transparency || g_opaque_face_list[i].style != -1)
+			{
+				continue;
+			}
+			dmodel_t *m = &g_dmodels[g_opaque_face_list[i].modelnum];
+
+			for (int j = 0; j < m->numfaces; j++)
+			{
+				g_face_occludes_ao[m->firstface + j] = true;
+			}
+		}
 	}
 }
 

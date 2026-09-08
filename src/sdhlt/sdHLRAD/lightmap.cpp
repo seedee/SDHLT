@@ -2611,6 +2611,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								  , int step
 								  , int miptex
 								  , int texlightgap_surfacenum
+								  , vec3_t *emitteroccl
 								  )
 {
     int             i;
@@ -2627,6 +2628,8 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 	bool			sky_used = false;
 	vec3_t			testline_origin;
 	vec3_t			adds[ALLSTYLES];
+	vec3_t			emitteradds[ALLSTYLES];
+	memset (emitteradds, 0, ALLSTYLES * sizeof(vec3_t));
 	int				style;
 	memset (adds, 0, ALLSTYLES * sizeof(vec3_t));
 	bool			lighting_diversify;
@@ -3096,6 +3099,11 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								continue; // dynamic light of other styles hits this toggleable opaque entity, then it completely vanishes.
 						}
 						VectorAdd (adds[style], add, adds[style]);
+
+						if (emitteroccl && l->type == emit_surface && l->patch && g_face_occludes_ao[l->patch->faceNumber])
+						{
+							VectorAdd (emitteradds[style], add, emitteradds[style]);
+						}
                     } // end emit_skylight
 
                 }
@@ -3132,6 +3140,11 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 			}
 
 			VectorAdd(sample[style_index], adds[style], sample[style_index]);
+
+			if (emitteroccl)
+			{
+				VectorAdd (emitteroccl[style_index], emitteradds[style], emitteroccl[style_index]);
+			}
 		}
 		else
 		{
@@ -3659,6 +3672,9 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 		vec3_t *normal_out;
 		bool nudged;
 		int *wallflags_out;
+		vec3_t emitterlight[ALLSTYLES];
+		vec3_t emitterlight2[ALLSTYLES];
+		memset (emitterlight, 0, sizeof (emitterlight));
 
 		// prepare input parameter and output parameter
 		{
@@ -3838,12 +3854,15 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 					, 0
 					, l->miptex
 					, surface
+					, emitterlight
 					);
 			}
 			if (l->translucent_b)
 			{
 				vec3_t sampled2[ALLSTYLES];
 				memset (sampled2, 0, ALLSTYLES * sizeof (vec3_t));
+				memset (emitterlight2, 0, sizeof (emitterlight2));
+
 				if (!blocked)
 				{
 					GatherSampleLight(spot2, pvs2, pointnormal2, sampled2
@@ -3851,6 +3870,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 						, 0
 						, l->miptex
 						, surface
+						, emitterlight2
 						);
 				}
 				for (j = 0; j < ALLSTYLES && styles[j] != 255; j++)
@@ -3858,6 +3878,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 					for (int x = 0; x < 3; x++)
 					{
 						sampled[j][x] = (1.0 - l->translucent_v[x]) * sampled[j][x] + l->translucent_v[x] * sampled2[j][x];
+						emitterlight[j][x] = (1.0 - l->translucent_v[x]) * emitterlight[j][x] + l->translucent_v[x] * emitterlight2[j][x];
 					}
 				}
 			}
@@ -4011,8 +4032,14 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 					{
 						for (int x = 0; x < 3; x++)
 						{
-							sampled[j][x] = sampled[j][x] * (1.0 - alpha) + g_ao_color[x] * alpha; //Interpolate the AO color with the sampled light based on occlusion
-			
+							vec_t e = emitterlight[j][x];
+
+							if (e > sampled[j][x]) //Exempt occluding texlights
+							{
+								e = sampled[j][x];
+							}
+							sampled[j][x] = (sampled[j][x] - e) * (1.0 - alpha) + e + g_ao_color[x] * alpha; //Interpolate the AO color with the sampled light based on occlusion
+
 							if (sampled[j][x] < 0.0)
 							{
 								sampled[j][x] = 0.0;
@@ -4418,12 +4445,14 @@ void            BuildFacelights(const int facenum)
 				, 1
 				, l.miptex
 				, facenum
+				, NULL
 				);
 			GatherSampleLight (spot2, pvs2, normal2, backsampled, 
 				patch->totalstyle_all
 				, 1
 				, l.miptex
 				, facenum
+				, NULL
 				);
 			for (j = 0; j < ALLSTYLES && patch->totalstyle_all[j] != 255; j++)
 			{
@@ -4441,6 +4470,7 @@ void            BuildFacelights(const int facenum)
 				, 1
 				, l.miptex
 				, facenum
+				, NULL
 				);
 		}
 	}
