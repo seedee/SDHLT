@@ -4030,6 +4030,20 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 				{
 					for (j = 0; j < ALLSTYLES && styles[j] != 255; j++)
 					{
+						vec_t aocolorshare = 1.0;
+						{
+							vec_t s_max = VectorMaximum (sampled[j]);
+							vec_t e_max = VectorMaximum (emitterlight[j]);
+
+							if (e_max > s_max)
+							{
+								e_max = s_max;
+							}
+							if (s_max > 0.0) //Fraction of the sample's light that can be aocolored
+							{
+								aocolorshare = 1.0 - e_max / s_max;
+							}
+						}
 						for (int x = 0; x < 3; x++)
 						{
 							vec_t e = emitterlight[j][x];
@@ -4038,7 +4052,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 							{
 								e = sampled[j][x];
 							}
-							sampled[j][x] = (sampled[j][x] - e) * (1.0 - alpha) + e + g_ao_color[x] * alpha; //Interpolate the AO color with the sampled light based on occlusion
+							sampled[j][x] = (sampled[j][x] - e) * (1.0 - alpha) + e + g_ao_color[x] * alpha * aocolorshare; //Interpolate the AO color with the sampled light based on occlusion
 
 							if (sampled[j][x] < 0.0)
 							{
