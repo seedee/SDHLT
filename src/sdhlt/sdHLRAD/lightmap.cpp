@@ -4052,7 +4052,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 							{
 								e = sampled[j][x];
 							}
-							sampled[j][x] = (sampled[j][x] - e) * (1.0 - alpha) + e + g_ao_color[x] * alpha * aocolorshare; //Interpolate the AO color with the sampled light based on occlusion
+							sampled[j][x] = (sampled[j][x] - e) * (1.0 - alpha) + e + g_ao_color_linear[x] * alpha * aocolorshare; //Interpolate the pre-inverted AO color with the sampled light based on occlusion
 
 							if (sampled[j][x] < 0.0)
 							{

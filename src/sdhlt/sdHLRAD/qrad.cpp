@@ -149,6 +149,7 @@ vec_t			g_ao_scale = DEFAULT_AO_SCALE;
 vec_t			g_ao_opacity = DEFAULT_AO_OPACITY;
 vec_t			g_ao_gain = DEFAULT_AO_GAIN;
 vec3_t			g_ao_color = { DEFAULT_AO_COLOR_RED, DEFAULT_AO_COLOR_GREEN, DEFAULT_AO_COLOR_BLUE };
+vec3_t			g_ao_color_linear = { DEFAULT_AO_COLOR_RED, DEFAULT_AO_COLOR_GREEN, DEFAULT_AO_COLOR_BLUE };
 int				g_ao_level = DEFAULT_AO_LEVEL;
 vec_t			g_ao_minweight = DEFAULT_AO_MINWEIGHT;
 int				g_ao_studiomode = AO_STUDIOMODE_INHERIT;
@@ -2588,6 +2589,51 @@ static void ExtendLightmapBuffer ()
 }
 
 // =====================================================================================
+//  FinalizeAOColor
+//      FinalLightFace scales and gamma corrects the samples that CalcLightmap blends
+//      aocolor into. Pre-inverts that to get the expected linear color.
+// =====================================================================================
+static void FinalizeAOColor()
+{
+	for (int x = 0; x < 3; x++)
+	{
+		vec_t gamma = g_colour_qgamma[x];
+		vec_t scale = g_colour_lightscale[x] * g_direct_scale; //Direct light is scaled by dscale before FinalLightFace gamma correction
+		
+		if (gamma > 0.0 && scale > 0.0)
+		{
+			g_ao_color_linear[x] = (vec_t)(256.0 * pow (qmin (g_ao_color[x], 255.0f) / 256.0, 1.0 / gamma) / scale); //Inverse of FinalLightFace lightscale and gamma transform
+		}
+		else
+		{
+			g_ao_color_linear[x] = g_ao_color[x]; //Keep the same value if the forward transfer can't be inverted
+		}
+	}
+	if (g_limitthreshold >= 0.0 && g_limitthreshold < 255.0)
+	{
+		for (int x = 0; x < 3; x++)
+		{
+			if (g_ao_color[x] > g_limitthreshold) //Above the threshold the color is scaled down, not clipped
+			{
+				Warning ("ao color %g %g %g exceeds light limit threshold %g and will be capped.\n", (double)g_ao_color[0], (double)g_ao_color[1], (double)g_ao_color[2], (double)g_limitthreshold);
+				break;
+			}
+		}
+	}
+	if (g_minlight > 0)
+	{
+		for (int x = 0; x < 3; x++)
+		{
+			if (g_ao_color[x] > 0.0 && g_ao_color[x] < g_minlight)
+			{
+				Warning ("ao color %g %g %g is below minimum final light %d and will be raised.\n", (double)g_ao_color[0], (double)g_ao_color[1], (double)g_ao_color[2], (int)g_minlight);
+				break;
+			}
+		}
+	}
+}
+
+// =====================================================================================
 //  RadWorld
 // =====================================================================================
 static void     RadWorld()
@@ -4322,6 +4368,10 @@ int             main(const int argc, char** argv)
 	if (g_blur < 1.0)
 	{
 		g_blur = 1.0;
+	}
+	if (g_ao_enable)
+	{
+		FinalizeAOColor();
 	}
     RadWorld();
 	FreeStudioModels(); //seedee

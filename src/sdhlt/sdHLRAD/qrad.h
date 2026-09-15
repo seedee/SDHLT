@@ -529,6 +529,7 @@ extern vec_t g_ao_scale;
 extern vec_t g_ao_opacity;
 extern vec_t g_ao_gain;
 extern vec3_t g_ao_color;
+extern vec3_t g_ao_color_linear;
 extern int g_ao_level;
 extern vec_t g_ao_minweight;
 extern int g_ao_studiomode; //AO_STUDIOMODE_*
