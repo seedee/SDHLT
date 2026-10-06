@@ -80,7 +80,12 @@ The default shadow mode `1` will trace each triangle normally and supports trans
 
 ### Entities
 
-- *info_portal* and *info_leaf* ared used to create a portal from the leaf the *info_portal* is inside, to the selected leaf the *info_leaf* is inside. Forces target leaf to be visible from the current one, making all entities inside it visible.
+- *info_portal* and *info_leaf* ared used to create a portal from the leaf the *info_portal* is inside, to the selected leaf the *info_leaf* is inside.  
+The `target` key allows a space-separated list of *info_leaf* names, so make sure your `targetname` doesn't have spaces.  
+Even if blocked by geometry, the `target` leaf is forced to be visible from the current leaf, making all faces and entities inside it visible.  
+The `neighbor` key on either entity also includes layers of surrounding leaves too.  
+The `reverse` key seals those leaves off instead, culling areas otherwise rendered normally.  
+Should be used with **HINT** for consistent and predictable leaf generation. For ease of use, import the portal file to your map editor.
 - *info_minlights* used to set minlights for textures, works on world geometry too. Works similarly to `_minlight` but per-texture.
 
 ### Textures

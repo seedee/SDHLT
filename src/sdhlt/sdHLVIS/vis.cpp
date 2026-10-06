@@ -521,32 +521,87 @@ static void     LeafThread(int unused)
 #pragma warning(pop)
 #endif
 
-// Recursively add `add` to `current` visibility leaf.
 std::unordered_map<int, bool> leaf_flow_add_exclude = {};
-static void LeafFlowNeighborAddLeaf(const int current, const int add, const int neighbor)
-{
-    auto outbuffer = g_uncompressed + current * g_bitbytes;
 
-    outbuffer[add >> 3] |= (1 << (add & 7));
+//Recursively collect the leaves within neighbor portal jumps of current
+static void LeafFlowNeighborCollect(const int current, const int neighbor, std::vector<int> &cluster)
+{
+    cluster.push_back(current);
     leaf_flow_add_exclude[current] = true;
-    
+
     if (neighbor == 0)
     {
         return;
     }
-
     auto leaf = &g_leafs[current];
 
     for (int i = 0; i < leaf->numportals; i++)
     {
         auto p = leaf->portals[i];
 
-        if (leaf_flow_add_exclude[p->leaf]) {
-            // Log("leaf %d neighbor %d is excluded\n", current, p->leaf);
+        if (leaf_flow_add_exclude[p->leaf])
+        {
             continue;
         }
+        LeafFlowNeighborCollect (p->leaf, neighbor - 1, cluster);
+    }
+}
 
-        LeafFlowNeighborAddLeaf(p->leaf, add, neighbor - 1);
+//Links the leaf clusters grown around each end of every info_portal
+static void ApplyRoomLinks()
+{
+    unsigned i;
+
+    for (i = 0; i < g_portalleafs; i++)
+    {
+        for (roomlink_t &link : g_leafinfos[i].links)
+        {
+            std::vector<int> source;
+            std::vector<int> target;
+            LeafFlowNeighborCollect (i, link.neighbor, source);
+            leaf_flow_add_exclude.clear();
+            LeafFlowNeighborCollect (link.leaf, link.target_neighbor, target);
+            leaf_flow_add_exclude.clear();
+            Verbose("info_portal leaf %i links %i leaves to %i leaves at neighbor %i and %i\n", (int)i, (int)source.size(), (int)target.size(), link.neighbor, link.target_neighbor);
+
+            if ((long long)source.size() * (long long)target.size() > 262144)
+            {
+                Warning("info_portal at leaf %i links too many leaves, lower the neighbor values", (int)i);
+            }
+            if (link.reverse)
+            {
+                for (int from : source)
+                {
+                    for (int to : target)
+                    {
+                        if (from != to)
+                        {
+                            g_leafinfos[from].removed_leaves.push_back(to);
+
+                            if (!link.oneway)
+                            {
+                                g_leafinfos[to].removed_leaves.push_back(from);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int from : source)
+                {
+                    for (int to : target)
+                    {
+                        g_uncompressed[from * g_bitbytes + (to >> 3)] |= (1 << (to & 7));
+
+                        if (!link.oneway)
+                        {
+                            g_uncompressed[to * g_bitbytes + (from >> 3)] |= (1 << (from & 7));
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -624,8 +679,15 @@ static void     LeafFlow(const int leafnum)
 			outbuffer[i >> 3] |= (1 << (i & 7));
 		}
 	}
-
+	for (int r : g_leafinfos[leafnum].removed_leaves) //Reversed info_portal must clear bits after portal flow
+	{
+		if (r != leafnum)
+		{
+			outbuffer[r >> 3] &= ~(1 << (r & 7));
+		}
+	}
     numvis = 0;
+
     for (i = 0; i < g_portalleafs; i++)
     {
         if (outbuffer[i >> 3] & (1 << (i & 7)))
@@ -843,18 +905,7 @@ static void     CalcVis()
 
 		CalcPortalVis();
 
-        // Add additional leaves to the uncompressed vis.
-        for (i = 0; i < g_portalleafs; i++)
-        {
-            if (!g_leafinfos[i].additional_leaves.empty())
-            {
-                for (int leaf : g_leafinfos[i].additional_leaves)
-                {
-                    LeafFlowNeighborAddLeaf(i, leaf, g_leafinfos[i].neighbor);
-                    leaf_flow_add_exclude.clear();
-                }
-            }
-        }
+        ApplyRoomLinks(); //Seal leaf links requested by info_portals
 
 		//
 		// assemble the leaf vis lists by oring and compressing the portal lists
@@ -876,6 +927,9 @@ static void     CalcVis()
 			// We need to reset the uncompressed variable and portal visbits
 			free(g_uncompressed);
 			g_uncompressed = (byte*)calloc(g_portalleafs, g_bitbytes);
+
+			//Reapply the links, the reset buffer lost them.
+			ApplyRoomLinks();
 
 			vismap_p = g_dvisdata;
 
@@ -1004,14 +1058,22 @@ static void     LoadPortals(char* portal_image)
 
             if (0 <= d1 && d1 < g_leafcounts[i])
             {
-                for (int k = 0; k < g_portalleafs; k++)
+                for (int t = 0; t < (int)g_room[j].target_visleafnums.size(); t++)
                 {
-                    int d2 = g_room[j].target_visleafnum - g_leafstarts[k];
-
-                    if (0 <= d2 && d2 < g_leafcounts[k])
+                    for (int k = 0; k < g_portalleafs; k++)
                     {
-                        g_leafinfos[i].additional_leaves.push_back(k);
-                        g_leafinfos[i].neighbor = g_room[j].neighbor;
+                        int d2 = g_room[j].target_visleafnums[t] - g_leafstarts[k];
+
+                        if (0 <= d2 && d2 < g_leafcounts[k])
+                        {
+                            roomlink_t link;
+                            link.leaf = k;
+                            link.neighbor = g_room[j].neighbor;
+                            link.target_neighbor = g_room[j].target_neighbors[t];
+                            link.reverse = g_room[j].reverse != 0;
+                            link.oneway = g_room[j].oneway != 0;
+                            g_leafinfos[i].links.push_back(link);
+                        }
                     }
                 }
             }
@@ -1883,38 +1945,52 @@ int             main(const int argc, char** argv)
                     GetVectorForKey (&g_entities[i], "origin", room_origin);
                     g_room[g_room_count].visleafnum = VisLeafnumForPoint (room_origin);
                     g_room[g_room_count].neighbor = CLAMP(IntForKey (&g_entities[i], "neighbor"), 0, MAX_ROOM_NEIGHBOR);
-
+                    g_room[g_room_count].reverse = IntForKey (&g_entities[i], "reverse");
+                    g_room[g_room_count].oneway = IntForKey (&g_entities[i], "oneway");
                     const char* target = ValueForKey (&g_entities[i], "target");
 
                     if (strlen(target) == 0)
                     {
                         continue;
                     }
+                    char targetbuffer[MAX_VAL];
+                    safe_snprintf(targetbuffer, sizeof(targetbuffer), "%s", target);
+                    char* name = strtok(targetbuffer, " \t"); //targetnames usually have no spaces
 
-                    bool has_target = false;
-
-                    // Find the target entity.
-                    // Rewalk yes, very sad.
-                    for (int j = 0; j < g_numentities; j++)
+                    while (name != NULL)
                     {
-                        const char* current_entity_classname_nested = ValueForKey (&g_entities[j], "classname");
+                        bool has_target = false;
 
-                        // Find a `info_leaf` and check if its targetname matches our target
-                        if (!strcmp (current_entity_classname_nested, "info_leaf")
-                            && !strcmp(ValueForKey (&g_entities[j], "targetname"), target))
+                        // Find the target entity.
+                        // Rewalk yes, very sad.
+                        for (int j = 0; j < g_numentities; j++)
                         {
-                            vec3_t room_target_origin;
+                            const char* current_entity_classname_nested = ValueForKey (&g_entities[j], "classname");
 
-                            GetVectorForKey (&g_entities[j], "origin", room_target_origin);
-                            g_room[g_room_count].target_visleafnum = VisLeafnumForPoint (room_target_origin);
+                            // Find a `info_leaf` and check if its targetname matches our target
+                            if (!strcmp (current_entity_classname_nested, "info_leaf")
+                                && !strcmp (ValueForKey (&g_entities[j], "targetname"), name))
+                            {
+                                vec3_t room_target_origin;
 
-                            has_target = true;
+                                GetVectorForKey (&g_entities[j], "origin", room_target_origin);
+                                g_room[g_room_count].target_visleafnums.push_back (VisLeafnumForPoint (room_target_origin));
+                                g_room[g_room_count].target_neighbors.push_back (CLAMP (IntForKey (&g_entities[j], "neighbor"), 0, MAX_ROOM_NEIGHBOR));
+
+                                has_target = true;
+                                break; //Duplicated targetnames resolve to a single leaf
+                            }
                         }
+                        if (!has_target)
+                        {
+                            Warning("Entity %d (info_portal) target %s does not have a matching info_leaf.", i, name);
+                        }
+                        name = strtok(NULL, " \t");
                     }
 
-                    if (!has_target)
+                    if (g_room[g_room_count].target_visleafnums.empty())
                     {
-                        Warning("Entity %d (info_portal) does not have a target leaf.", i);
+                        continue;
                     }
 
                     g_room_count++;

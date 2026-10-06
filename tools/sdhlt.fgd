@@ -1,5 +1,5 @@
 // Additional sdhlt.fgd file containing map editor related entities.
-// For SDHLT v1.2.0
+// For SDHLT v1.3.1
 // For studiomodel shadows, add the following keyvalues into cycler_sprite and other entities that have a model key
 
 //	zhlt_studioshadow(choices) :"Opaque (Blocks Light)" : "" =
@@ -104,19 +104,27 @@
 ]
 
 // info_portal
-// TODO: vector for target so it can do a lot. Though doing the entity won't be as simple.
-// That means we need to parse string and what not. 
-// For the time being, ONE target is good enough.
-@PointClass color(255 200 200) = info_portal : "Create a portal to the selected info_leaf, from the leaf the info_portal is inside. Forces target leaf to be visible from the current one."
+@PointClass color(255 200 200) = info_portal : "Create a portal to the selected info_leaf, from the leaf the info_portal is inside. Effectively creating a window, forces the target leaf and its neighboring leaves to be visible from the current leaf and its neighbor leaves. If reversed, seals those leaves off instead, culling areas that are otherwise rendered. Allows a space-separated list of target names, so make sure your info_leaf targetnames dont have spaces. Should be used with HINT for consistent and predictable leaf generation. For ease of use, import portal file to your map editor."
 [
-	target(target_source) : "Name of info_leaf"
-	neighbor(integer) : "TODO: Layers of neighboring leaves to be affected" : 1
+	target(target_destination) : "Name(s) of info_leaf"
+	neighbor(integer) : "Layers of neighbor leaves to affect" : 0
+	reverse(choices) : "Reversed (block VIS)" : "" =
+	[
+		"": "No"
+		1: "Yes"
+	]
+	oneway(choices) : "One way (info_portal side only)" : "" =
+	[
+		"": "No"
+		1: "Yes"
+	]
 ]
 
 // info_leaf
-@PointClass color(200 200 255) = info_leaf : "Works with info_portal. Used to select a leaf the info_leaf is inside."
+@PointClass color(200 200 255) = info_leaf : "Works with info_portal. Used to select a leaf the info_leaf is inside, and how many layers around it the link covers."
 [
-	targetname(target_destination) : "Name"
+	targetname(target_source) : "Name (no spaces)"
+	neighbor(integer) : "Layers of neighbor leaves to affect" : 0
 ]
 
 // info_sunlight
