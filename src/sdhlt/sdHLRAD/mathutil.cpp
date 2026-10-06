@@ -306,7 +306,17 @@ bool            TestSegmentAgainstOpaqueList(const vec_t* p1, const vec_t* p2
 		if (timing) t0 = I_FloatTime();
 	    for (x = 0; x < g_opaque_face_count; x++)
 		{
-			if (!TestLineOpaque (g_opaque_face_list[x].modelnum, g_opaque_face_list[x].origin, p1, p2))
+			int r = TestLineOpaque (g_opaque_face_list[x].modelnum, g_opaque_face_list[x].origin, p1, p2, ctl && ctl->skip_emissive);
+
+			if (r == 2) //Ray ends at texlight face with no occlusion
+			{
+				if (ctl) ctl->emissive_stop = true;
+				VectorFill (scaleout, 0.0);
+				opaquestyleout = -1;
+				if (timing) ctl->time_brush += I_FloatTime() - t0;
+				return false;
+			}
+			if (!r)
 			{
 				continue;
 			}

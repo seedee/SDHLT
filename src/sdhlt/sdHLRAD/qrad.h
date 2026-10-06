@@ -167,7 +167,7 @@
 
 	#define MIN_AO_OPACITY			0.0
 	#define DEFAULT_AO_OPACITY		1.0
-	#define MAX_AO_OPACITY			1.0
+	#define MAX_AO_OPACITY			8.0
 
 	#define DEFAULT_AO_COLOR_RED	0.0
 	#define DEFAULT_AO_COLOR_GREEN	0.0
@@ -185,6 +185,12 @@
 	#define AO_STUDIOMODE_FAST		0
 	#define AO_STUDIOMODE_NORMAL	1
 	#define AO_STUDIOMODE_SLOW		2
+
+	#define AO_MODE_NORMAL			0			//Pre-inverted through the FinalLightFace transfer
+	#define AO_MODE_ADDITIVE		1			//Enters sample as raw linear light
+	#define MIN_AO_MODE				AO_MODE_NORMAL
+	#define DEFAULT_AO_MODE			AO_MODE_NORMAL
+	#define MAX_AO_MODE				AO_MODE_ADDITIVE
 
 	#define AO_SATURATION_EPSILON	0.001		//Stop tracing when occlusion cannot drop below 99.9%
 	#define AO_TIMER_SAMPLE			16			//Sample wall-clock on every Nth AO ray. I_FloatTime() costs a syscall
@@ -472,7 +478,7 @@ extern vec_t    g_texchop; // Chop value for texture lights
 extern opaqueList_t* g_opaque_face_list;
 extern unsigned      g_opaque_face_count; // opaque entity count //HLRAD_OPAQUE_NODE
 extern unsigned      g_max_opaque_face_count;    // Current array maximum (used for reallocs)
-extern bool			 *g_face_occludes_ao;
+extern bool			 *g_face_emissive;
 
 // ------------------------------------------------------------------------
 // Changes by Adam Foster - afoster@compsoc.man.ac.uk
@@ -529,10 +535,11 @@ extern vec_t g_ao_scale;
 extern vec_t g_ao_opacity;
 extern vec_t g_ao_gain;
 extern vec3_t g_ao_color;
-extern vec3_t g_ao_color_linear;
+extern vec3_t g_ao_color_linear; //Linear sample space blend by FinalizeAOColor
 extern int g_ao_level;
 extern vec_t g_ao_minweight;
 extern int g_ao_studiomode; //AO_STUDIOMODE_*
+extern int g_ao_mode; //AO_MODE_*
 
 //Stats/control block from one studio trace (threaded through AO -> OpaqueList -> StudioList). NULL = not tracked.
 //Counters always fill in, timers only when timing !=0 (slow clock reads). Zero the stat fields before each ray, add results to your own totals after.
@@ -559,6 +566,8 @@ typedef struct
 	double           style_hits;       //Toggleable (styled) opaque encounters
 	double           transparent_only; //Segments passing only transparent faces
 	double           studio_hits;      //Blocked by studiomodel
+	bool             skip_emissive;    //1 = texlight faces don't occlude AO
+	bool             emissive_stop;    //Ray ends on a texlight face on opaque encounter
 	studiotracectl_t *studio;          //Forwarded to TestSegmentAgainstStudioList
 }
 opaquetracectl_t;
@@ -590,6 +599,7 @@ extern void		AddPatchLights (int facenum);
 extern void		FreeFacelightDependencyList ();
 extern int      TestLine(const vec3_t start, const vec3_t stop
 						 , vec_t *skyhitout = NULL
+						 , vec_t *solidhitout = NULL
 						 );
 void            TestLineStats_Reset(void);
 double          TestLineStats_SyncGet(void);
@@ -603,7 +613,7 @@ typedef struct
 extern opaquemodel_t *opaquemodels;
 #endif
 extern void		CreateOpaqueNodes();
-extern int		TestLineOpaque(int modelnum, const vec3_t modelorigin, const vec3_t start, const vec3_t stop);
+extern int		TestLineOpaque(int modelnum, const vec3_t modelorigin, const vec3_t start, const vec3_t stop, bool skipemissive = false);
 extern int		CountOpaqueFaces(int modelnum);
 extern void		DeleteOpaqueNodes();
 #ifdef OPAQUE_NODE_INLINECALL

@@ -147,6 +147,7 @@ extern bool CDECL FORMAT_PRINTF(3,4) safe_snprintf(char* const dest, const size_
 extern bool     safe_strncpy(char* const dest, const char* const src, const size_t count);
 extern bool     safe_strncat(char* const dest, const char* const src, const size_t count);
 extern bool     TerminatedString(const char* buffer, const int size);
+extern bool     ParseIntArg(const char* value, int& out);
 
 extern char*    FlipSlashes(char* string);
 

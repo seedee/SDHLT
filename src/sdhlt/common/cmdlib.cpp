@@ -425,3 +425,22 @@ bool            TerminatedString(const char* buffer, const int size)
     }
     return false;
 }
+
+bool ParseIntArg(const char* value, int& out)
+{
+    char* end = NULL;
+    long number;
+    
+    if (value == NULL || *value == '\0')
+    {
+        return false;
+    }
+    number = strtol(value, &end, 10);
+    
+    if (end == value || *end != '\0')
+    {
+        return false;
+    }
+    out = (int)number;
+    return true;
+}

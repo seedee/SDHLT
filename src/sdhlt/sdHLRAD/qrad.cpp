@@ -132,7 +132,7 @@ vec_t           g_texchop = DEFAULT_TEXCHOP;
 opaqueList_t*   g_opaque_face_list = NULL;
 unsigned        g_opaque_face_count = 0;
 unsigned        g_max_opaque_face_count = 0;               // Current array maximum (used for reallocs)
-bool			*g_face_occludes_ao = NULL;
+bool			*g_face_emissive = NULL;
 vec_t			g_corings[ALLSTYLES];
 vec3_t*			g_translucenttextures = NULL;
 vec_t			g_translucentdepth = DEFAULT_TRANSLUCENTDEPTH;
@@ -153,6 +153,7 @@ vec3_t			g_ao_color_linear = { DEFAULT_AO_COLOR_RED, DEFAULT_AO_COLOR_GREEN, DEF
 int				g_ao_level = DEFAULT_AO_LEVEL;
 vec_t			g_ao_minweight = DEFAULT_AO_MINWEIGHT;
 int				g_ao_studiomode = AO_STUDIOMODE_INHERIT;
+int				g_ao_mode = DEFAULT_AO_MODE;
 
 // Misc
 int             leafparents[MAX_MAP_LEAFS];
@@ -1708,26 +1709,8 @@ static void		LoadOpaqueEntities()
 		Log("%i opaque faces\n", facecount);
 	}
 	{
-		g_face_occludes_ao = (bool *)calloc (g_numfaces, sizeof (bool));
-		hlassume (g_face_occludes_ao != NULL, assume_NoMemory);
-
-		for (int i = 0; i < g_dmodels[0].numfaces; i++)
-		{
-			g_face_occludes_ao[g_dmodels[0].firstface + i] = true;
-		}
-		for (int i = 0; i < g_opaque_face_count; i++)
-		{
-			if (g_opaque_face_list[i].transparency || g_opaque_face_list[i].style != -1)
-			{
-				continue;
-			}
-			dmodel_t *m = &g_dmodels[g_opaque_face_list[i].modelnum];
-
-			for (int j = 0; j < m->numfaces; j++)
-			{
-				g_face_occludes_ao[m->firstface + j] = true;
-			}
-		}
+		g_face_emissive = (bool *)calloc (g_numfaces, sizeof (bool));
+		hlassume (g_face_emissive != NULL, assume_NoMemory);
 	}
 }
 
@@ -2589,33 +2572,48 @@ static void ExtendLightmapBuffer ()
 }
 
 // =====================================================================================
-//  FinalizeAOColor
-//      FinalLightFace scales and gamma corrects the samples that CalcLightmap blends
-//      aocolor into. Pre-inverts that to get the expected linear color.
+//  FinalizeAOColor																//seedee
+//      Inverts lightscale and gamma transfer FinalLightFace applies to samples that
+//      CalcLightmap blends g_ao_color_linear into, matching aocolor to displayed color.
+//      Additive mode keeps aocolor as raw linear light.
 // =====================================================================================
 static void FinalizeAOColor()
 {
+	vec3_t displayed;
+
 	for (int x = 0; x < 3; x++)
 	{
 		vec_t gamma = g_colour_qgamma[x];
 		vec_t scale = g_colour_lightscale[x] * g_direct_scale; //Direct light is scaled by dscale before FinalLightFace gamma correction
-		
-		if (gamma > 0.0 && scale > 0.0)
+
+		if (g_ao_mode == AO_MODE_ADDITIVE)
 		{
-			g_ao_color_linear[x] = (vec_t)(256.0 * pow (qmin (g_ao_color[x], 255.0f) / 256.0, 1.0 / gamma) / scale); //Inverse of FinalLightFace lightscale and gamma transform
+			g_ao_color_linear[x] = g_ao_color[x];
+		}
+		else if (gamma > 0.0 && scale > 0.0) //Inverse of FinalLightFace lightscale and gamma transform
+		{
+			g_ao_color_linear[x] = (vec_t)(256.0 * pow (qmin (g_ao_color[x], 255.0f) / 256.0, 1.0 / gamma) / scale);
+		}
+		else //Keep the same value if the forward transfer cannot be inverted
+		{
+			g_ao_color_linear[x] = g_ao_color[x];
+		}
+		if (gamma > 0.0 && scale > 0.0) //What saturated occlusion shows in the lightmap
+		{
+			displayed[x] = (vec_t)(256.0 * pow (g_ao_color_linear[x] * scale / 256.0, gamma));
 		}
 		else
 		{
-			g_ao_color_linear[x] = g_ao_color[x]; //Keep the same value if the forward transfer can't be inverted
+			displayed[x] = g_ao_color_linear[x] * scale;
 		}
 	}
 	if (g_limitthreshold >= 0.0 && g_limitthreshold < 255.0)
 	{
 		for (int x = 0; x < 3; x++)
 		{
-			if (g_ao_color[x] > g_limitthreshold) //Above the threshold the color is scaled down, not clipped
+			if (displayed[x] > g_limitthreshold)
 			{
-				Warning ("ao color %g %g %g exceeds light limit threshold %g and will be capped.\n", (double)g_ao_color[0], (double)g_ao_color[1], (double)g_ao_color[2], (double)g_limitthreshold);
+				Warning ("ao color %g %g %g exceeds light limit threshold %g and will be capped.\n", (double)displayed[0], (double)displayed[1], (double)displayed[2], (double)g_limitthreshold);
 				break;
 			}
 		}
@@ -2624,9 +2622,9 @@ static void FinalizeAOColor()
 	{
 		for (int x = 0; x < 3; x++)
 		{
-			if (g_ao_color[x] > 0.0 && g_ao_color[x] < g_minlight)
+			if (displayed[x] > 0.0 && displayed[x] < g_minlight)
 			{
-				Warning ("ao color %g %g %g is below minimum final light %d and will be raised.\n", (double)g_ao_color[0], (double)g_ao_color[1], (double)g_ao_color[2], (int)g_minlight);
+				Warning ("ao color %g %g %g is below minimum final light %d and will be raised.\n", (double)displayed[0], (double)displayed[1], (double)displayed[2], (int)g_minlight);
 				break;
 			}
 		}
@@ -2811,10 +2809,11 @@ static void     Usage(const char* paramWarning = 0, bool mapfileWarning = false)
 	Log("    -aoscale #      : Set ray length (larger values = thicker, wider bands)\n");
 	Log("    -aogain #       : Set falloff exponent (larger values = sharper corners, smaller = softer spread)\n");
 	Log("    -aolevel #      : Set hemisphere sampling level (1 to %d, lower values = fast compile at same quality)\n", SKYLEVELMAX);
-	Log("    -aominweight #  : Skip rays below this weight fraction (0.0 to 0.1)\n", (double)DEFAULT_AO_MINWEIGHT);
-	Log("    -aostudiomode v : Global zhlt_shadowmode override for AO only (fast, normal, slow, inherit)\n");
-	Log("    -aoopacity #    : Set opacity (0.0 to 1.0)\n");
+	Log("    -aominweight #  : Skip rays weighing below this fraction of the mean ray weight (0.0 to %0.3f, default %0.3f)\n", (double)MAX_AO_MINWEIGHT, (double)DEFAULT_AO_MINWEIGHT);
+	Log("    -aostudio #     : Global zhlt_shadowmode override for AO only (0 = inherit, 1 = fast, 2 = normal, 3 = slow)\n");
+	Log("    -aoopacity #    : Set opacity (0.0 to %0.3f, default %0.3f)\n", (double)MAX_AO_OPACITY, (double)DEFAULT_AO_OPACITY);
 	Log("    -aocolor r g b  : Set tint color (0 to 255, r g b)\n");
+	Log("    -aomode #       : Set tint blend mode (0 = normal, displayed RGB, 1 = additive, raw linear light)\n");
 	Log("    -aostats        : Print ray/stage statistics after BuildFaceLights\n");
     Log("    -limiter #      : Set light clipping threshold (-1 = none)\n");
     Log("    -circus         : Enable 'circus' mode for locating unlit lightmaps\n");
@@ -3000,6 +2999,13 @@ static void     Settings()
 	safe_snprintf(buf1, sizeof(buf1), "%3.1f %3.1f %3.1f", g_ao_color[0], g_ao_color[1], g_ao_color[2]);
 	safe_snprintf(buf2, sizeof(buf2), "%3.1f %3.1f %3.1f", DEFAULT_AO_COLOR_RED, DEFAULT_AO_COLOR_GREEN, DEFAULT_AO_COLOR_BLUE);
 	Log("ao color             [ %17s ] [ %17s ]\n", buf1, buf2);
+
+	switch (g_ao_mode)
+	{
+	case AO_MODE_ADDITIVE:     safe_snprintf(buf1, sizeof(buf1), "additive"); break;
+	default:                   safe_snprintf(buf1, sizeof(buf1), "normal");  break;
+	}
+	Log("ao blend mode        [ %17s ] [ %17s ]\n", buf1, "normal");
 	Log("ao stats             [ %17s ] [ %17s ]\n", g_ao_stats ? "on" : "off", DEFAULT_AO_STATS ? "on" : "off");
 
     safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_limitthreshold);
@@ -4148,13 +4154,18 @@ int             main(const int argc, char** argv)
 				Usage();
 			}
 		}
-		else if (!strcasecmp(argv[i], "-aostudiomode") || !strcasecmp(argv[i], "-aostudioshadowmode") || !strcasecmp(argv[i], "-aoshadowmode"))
+		else if (!strcasecmp(argv[i], "-aostudio") || !strcasecmp(argv[i], "-aostudiomode") || !strcasecmp(argv[i], "-aostudioshadowmode") || !strcasecmp(argv[i], "-aoshadowmode"))
 		{
 			if (i + 1 < argc)
 			{
 				const char *value = argv[++i];
+				int mode;
 
-				if (!strcasecmp(value, "fast"))
+				if (!strcasecmp(value, "inherit"))
+				{
+					g_ao_studiomode = AO_STUDIOMODE_INHERIT;
+				}
+				else if (!strcasecmp(value, "fast"))
 				{
 					g_ao_studiomode = AO_STUDIOMODE_FAST;
 				}
@@ -4166,9 +4177,18 @@ int             main(const int argc, char** argv)
 				{
 					g_ao_studiomode = AO_STUDIOMODE_SLOW;
 				}
-				else if (!strcasecmp(value, "inherit"))
+				else if (ParseIntArg(value, mode))
 				{
-					g_ao_studiomode = AO_STUDIOMODE_INHERIT;
+					static const int argmap[] = { AO_STUDIOMODE_INHERIT, AO_STUDIOMODE_FAST, AO_STUDIOMODE_NORMAL, AO_STUDIOMODE_SLOW };
+					int max = (int)(sizeof(argmap) / sizeof(argmap[0])) - 1;
+
+					if (mode < 0 || mode > max)
+					{
+						int clamped = mode < 0 ? 0 : max;
+						Log("-%s %s out of range (Min %d, Max %d), clamped to %d\n", argv[i - 1], value, 0, max, clamped);
+						mode = clamped;
+					}
+					g_ao_studiomode = argmap[mode];
 				}
 				else
 				{
@@ -4220,6 +4240,41 @@ int             main(const int argc, char** argv)
 			else
 			{
 				Error("expected three color values after '-aocolor'\n");
+			}
+		}
+		else if (!strcasecmp(argv[i], "-aomode") || !strcasecmp(argv[i], "-aoblendmode"))
+		{
+			if (i + 1 < argc)
+			{
+				const char *value = argv[++i];
+				int mode;
+
+				if (!strcasecmp(value, "normal"))
+				{
+					g_ao_mode = AO_MODE_NORMAL;
+				}
+				else if (!strcasecmp(value, "additive"))
+				{
+					g_ao_mode = AO_MODE_ADDITIVE;
+				}
+				else if (ParseIntArg (value, mode))
+				{
+					if (mode < MIN_AO_MODE || mode > MAX_AO_MODE)
+					{
+						int clamped = mode < MIN_AO_MODE ? MIN_AO_MODE : MAX_AO_MODE;
+						Log("-%s %s out of range (Min %d, Max %d), clamped to %d\n", argv[i - 1], value, MIN_AO_MODE, MAX_AO_MODE, clamped);
+						mode = clamped;
+					}
+					g_ao_mode = mode;
+				}
+				else
+				{
+					Error("Unknown ao blend mode '%s'\n", value);
+				}
+			}
+			else
+			{
+				Usage();
 			}
 		}
 		else if (!strcasecmp(argv[i], "-aostats") || !strcasecmp(argv[i], "-aochart"))
