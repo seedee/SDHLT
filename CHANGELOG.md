@@ -4,23 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.1-pre] - Mmm DD YYYY
+## [1.3.1] - Oct 14 2026
 
 ### Added
 - `-aomode #` controls blend mode for `-aocolor`, similar to Photoshop blend modes. The previous blend mode is now additive.
-- *info_portal* is now reversible to block visibility from the source leaf, and allows growing the linked leaf cluster independently.
-
+- Relightmap script that recompiles lighting of an existing BSP.
 ### Changed
 - The default `-aocolor` blend mode is now applied as displayed RGB. The previous raw linear light behaviour was moved to `-aomode additive` (`1`).
 - `-aostudiomode #` shortened to `-aostudio #` for brevity (old name won't break compiles). Now accepts integer input.
 - `-aoopacity` upper limit raised to `8`.
-- *info_portal* links are now bidirectional by default, the target side also sees the source side unless `oneway` is set.
+- *info_portal* is now reversible to block visibility from the source leaf, and allows growing a cluster of leaf layers around the targeted entity too. Links are now bidirectional by default, the target side also sees the source side unless `oneway` is set. Target matching is now classname-agnostic, so it can target any entity with a targetname, and supports multiple targetnames separated by semicolons.
+
+### Removed
+- The *info_leaf* class. Any entity with a targetname replaces it as an *info_portal* target.
 
 ### Fixed
 - Tool configs (settings.txt, wad.cfg) lookup now searches the parent directory correctly, previously they were undetected with per-architecture subfolders.
-- Multiple *info_portal* entities sharing a leaf no longer overwrite each other's `neighbor` depth.
-- *info_portal* targeting a missing *info_leaf* no longer link to a bogus leaf.
-- *info_portal* links dropping out when VIS ran with `-maxdistance`.
+- Multiple *info_portal* entities sharing a leaf no longer overwrite each other's `neighbor` depth. *info_portal* targeting a missing entity no longer links to a bogus leaf. *info_portal* links no longer drop out when VIS is ran with `-maxdistance`.
+- VIS thread priority override from *info_compile_parameters* not applying.
 
 ## [1.3.0] - Aug 30 2026
 
@@ -94,8 +95,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Automatic embedding of tool texture WAD file can now be controlled in settings.txt.
 
-[1.3.0]: https://github.com/seedee/SDHLT/compare/v1.3.0...v1.3.1
-[1.2.0]: https://github.com/seedee/SDHLT/compare/v1.2.0...v1.3.0
+[1.3.1]: https://github.com/seedee/SDHLT/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/seedee/SDHLT/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/seedee/SDHLT/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/seedee/SDHLT/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/seedee/SDHLT/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/seedee/SDHLT/releases/tag/v1.1.0

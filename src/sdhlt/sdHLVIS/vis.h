@@ -149,14 +149,16 @@ extern unsigned int g_maxdistance;
 
 // This allows the current leaf to have portal to selected leaves.
 #define MAX_ROOM_NEIGHBOR 16
+#define MAX_ENT_LEAFS 48 //Max BSP leaves stored per-entity for PVS tests, beyond which the engine discards the leaf list, falling back to a headnode (node-subtree PVS) test
+
 typedef struct
 {
     int visleafnum;
     int neighbor;
+    int targetneighbor;
     int reverse;
     int oneway;
     std::vector<int> target_visleafnums;
-    std::vector<int> target_neighbors;
 }
 room_t;
 extern const int g_room_max;

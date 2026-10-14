@@ -22,8 +22,8 @@ New features include ambient occlusion, opaque studio models, shadow filtering, 
 
 1. Open the configuration dialog of your map editor or batch compiler.
 2. Set CSG, BSP, VIS, RAD tool paths to *sdHLCSG.exe*, *sdHLBSP.exe*, *sdHLVIS.exe*, *sdHLRAD.exe*, use the *_x64.exe* editions if running on 64-bit.  
-3. Add *sdhlt.wad* into your wad list. This is required to compile maps.
-4. Add *sdhlt.fgd* into your fgd list.
+3. Add *sdhlt.wad* into your WAD list. This is required to compile maps.
+4. Add *sdhlt.fgd* into your FGD list.
 
 > [!NOTE]
 > The main benefit of the 64-bit version is no memory allocation failures, because the 64-bit tools have access to more than 2GB of system memory.
@@ -46,8 +46,10 @@ The default shadow mode `1` will trace each triangle normally and supports trans
 - Bilateral (edge-preserving) filtering can be enabled on blurred lightmap samples to fix thin shadows appearing like dotted lines due to light bleeding into shadows. 
 - Deathmatch Classic maps can further push clipnode limits by removing clip hull 3. Not recommended in regular Half-Life 1 without your own Quake DM style mods.
 - Minor performance boosts before tracing BuildFacelights, filtering direct lights by distance (exact inverse-square peak contribution threshold) and by surface facing.
+- Relightmap script to quickly re-RAD existing maps, work in progress.
 
 ### Compile parameters
+
 #### CSG
 - `-worldextent #` extends the world geometry limit, increase this if you get "brush outside world" errors. Default value of `65536` allows geometry in the range of `+/-32768`. Entities are limited to `+/-8192` by the engine.
 
@@ -60,7 +62,7 @@ The default shadow mode `1` will trace each triangle normally and supports trans
 #### RAD
 - `-pre25` is an alias to override light clipping threshold limiter to `188`. Use this when creating legacy pre-25th anniversary maps.
 - `-nostudioshadow` disables studio model shadow tracing.
-- `-ao` enables ambient occlusion. Entities are only occluded if flagged opaque to light. Studiomodels are occluded based on `zhlt_shadowmode`.<br />
+- `-ao` enables ambient occlusion. Entities are only occluded if flagged opaque to light. Studiomodels are occluded based on `zhlt_studioshadow`.<br />
 - `-aoscale #` sets how far the rays reach, i.e. where AO exists and the maximum distance at which geometry counts as occluding. Higher values make the dark bands reach further out from corners and look thicker.<br />
 - `-aogain #` sets the exponent shaping the falloff curve, or how closely AO bands hug corners. If scale is the reach, gain is the distribution within that reach. Linear by default. `<1` spreads it further away. `>1` keeps AO only in the deepest corners while half-occluded areas shrink.<br />
 - `-aolevel #` sets the quality, or density of ray directions traced across the hemisphere per luxel. Default `3` tests 66 ray directions for each luxel, which is enough for most maps. Lower values shouldn't be used for final compiles. The sampling levels map onto RAD's geodesic tables used for sky lighting.<br />
@@ -80,23 +82,27 @@ The default shadow mode `1` will trace each triangle normally and supports trans
 
 ### Entities
 
-- *info_portal* and *info_leaf* ared used to create a portal from the leaf the *info_portal* is inside, to the selected leaf the *info_leaf* is inside.  
-The `target` key allows a space-separated list of *info_leaf* names, so make sure your `targetname` doesn't have spaces.  
-Even if blocked by geometry, the `target` leaf is forced to be visible from the current leaf, making all faces and entities inside it visible.  
-The `neighbor` key on either entity also includes layers of surrounding leaves too.  
-The `reverse` key seals those leaves off instead, culling areas otherwise rendered normally.  
-Should be used with **HINT** for consistent and predictable leaf generation. For ease of use, import the portal file to your map editor.
 - *info_minlights* used to set minlights for textures, works on world geometry too. Works similarly to `_minlight` but per-texture.
+- *info_portal* creates a portal from the leaf this entity is inside, to the selected leaf of the target entity, creating a two-way link for VIS. Even if blocked by geometry, the target leaves are forced visible from the current leaf, making all faces and entities inside them visible too.  
+The `target` key accepts a semicolon-separated list of names, so make sure your `targetname` doesn't have semicolons.  
+Any entity can be targeted including brush entities, which contribute every leaf their faces occupy. Otherwise you can use *info_target*.
+The `neighbor` key grows the layers of leaves around the *info_portal*, and `targetneighbor` grows layers around the target (max 16 for both).  
+The `reverse` key seals those leaves off instead, culling areas otherwise rendered normally, and `oneway` limits the effect to the *info_portal* side.  
+Should be used alongside **HINT** for consistent and predictable leaf generation. For ease of use, import the portal file to your map editor.
 
 ### Textures
 
-- Support for `%` texture flag, sets the minlight for this texture. **%texname** alone is equivalent to `_minlight 1.0`, while **%`#`texname** where **`#`** is an integer in a range of `0-255`.
+- Support for `%` texture flag, sets the minlight for this texture. **%texname** alone is equivalent to `_minlight 1.0`, while **%`#`texname** controls brightness where **`#`** is an integer in a range of `0-255`.
 - **BEVELHINT** texture, which acts like **SOLIDHINT** and **BEVEL**. Eliminates unnecessary face subdivision and bevels clipnodes at the same time. Useful on complex shapes such as terrain, spiral staircase clipping, etc.
-- **SPLITFACE** texture. Brushes with this texture will subdivide faces they touch along their edges, similarly to `zhlt_chopdown`.
+- **SPLITFACE** texture. Brushes with this texture will subdivide other faces they touch like a cookie-cutter, similarly to `zhlt_chopdown`.
 - **cur_tool** textures, which act like **CONTENTWATER** and *func_pushable* with a speed of `2048 units/s` in -Y. This texture is always fullbright.
 
 ## Planned
 - [x] Optimization for BuildFacelights and MakeScales
 - [ ] Optimization for LeafThread
-- [ ] Tool textures, .res generation and more
+- [ ] Deletion of invisible brush models (triggers, etc)
+- [ ] BLOCKLIGHT tool texture
+- [ ] info_compile_parameters rework
+- [ ] Automatic .res generation for servers
+- [ ] Some form of GPU acceleration
 - [ ] Full code and textures documentation

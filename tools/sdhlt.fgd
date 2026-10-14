@@ -94,7 +94,7 @@
 // info_overview_point
 // It makes all entities visible from this place. This is useful for overview mode (dev_overview 1).
 // If "Reversed" is selected, this place will become visible from the entire map. This is useful for large skybox model.
-@PointClass color(255 0 0) = info_overview_point : "Disable VIS here by creating portals to every other leaf. Lag/wallhack warning. If reversed, every other leaf has a portal to this one."
+@PointClass color(255 0 0) = info_overview_point : "Disable VIS in the leaf this entity is in, by creating portals to every other leaf. Lag/wallhack warning. If reversed, every other leaf has a portal to this one, forcing all entities inside to be rendered everywhere."
 [
 	reverse(choices) : "Reversed (3D skybox)" : "" =
 	[
@@ -104,10 +104,12 @@
 ]
 
 // info_portal
-@PointClass color(255 200 200) = info_portal : "Create a portal to the selected info_leaf, from the leaf the info_portal is inside. Effectively creating a window, forces the target leaf and its neighboring leaves to be visible from the current leaf and its neighbor leaves. If reversed, seals those leaves off instead, culling areas that are otherwise rendered. Allows a space-separated list of target names, so make sure your info_leaf targetnames dont have spaces. Should be used with HINT for consistent and predictable leaf generation. For ease of use, import portal file to your map editor."
+// Creates a VIS link from this entity to a target entity.
+@PointClass color(255 200 200) = info_portal : "Create a portal to the selected entity, from the leaf the info_portal is inside. Effectively creating a window, forces the target leaf and its neighboring leaves to be visible from the current leaf and its neighbors. If reversed, seals those leaves off instead, culling areas that are otherwise rendered. Allows a semicolon-separated list of target names, so make sure your targetnames dont have semicolons. Should be used with HINT for consistent and predictable leaf generation. For ease of use, import portal file to your map editor."
 [
-	target(target_destination) : "Name(s) of info_leaf"
-	neighbor(integer) : "Layers of neighbor leaves to affect" : 0
+	target(target_destination) : "Target(s)"
+	neighbor(integer) : "Leaf layers to affect around here" : 0
+	targetneighbor(integer) : "Leaf layers to affect around target" : 0
 	reverse(choices) : "Reversed (block VIS)" : "" =
 	[
 		"": "No"
@@ -118,13 +120,6 @@
 		"": "No"
 		1: "Yes"
 	]
-]
-
-// info_leaf
-@PointClass color(200 200 255) = info_leaf : "Works with info_portal. Used to select a leaf the info_leaf is inside, and how many layers around it the link covers."
-[
-	targetname(target_source) : "Name (no spaces)"
-	neighbor(integer) : "Layers of neighbor leaves to affect" : 0
 ]
 
 // info_sunlight
