@@ -1,18 +1,22 @@
 #!/usr/bin/env bash
 # relightmap.sh for SDHLT v1.3.1 - recompiles light in any map
 # ------------------------------------------------------------
-# Keep tool binaries as shipped in Win64/, Win32/ or Linux/
-
-# Optional: a .wa_ file next to the input map (compile-time WAD)
-# containing all used map textures, sed for bounced light,
-# texlights and transparency. Not required for maps with all
-# textures embedded (i.e. -nowadtextures)
 #
 # Usage: ./relightmap.sh [-t tool-binary] <map.bsp> [rad params...]
 #   -t  use a specific RAD binary if none found next to this script
 #   -h  prints this help
 #
-# Example: ./relightmap.sh -t Linux/sdHLRAD c1a0.bsp -extra -ao -aostats -smooth 240 -smooth2 240 -low
+# Notes:
+#   Expects a .wa_ file next to the input map (compile-time WAD)
+#   containing all used map textures, used for bounced light,
+#   texlights and transparency. Optional for maps with all
+#   textures embedded (i.e. -nowadtextures)
+#
+#
+# Examples:
+#   ./relightmap.sh c1a0.bsp -extra -ao -aostats -smooth 240 -smooth2 240 -low
+#   ./relightmap.sh -t Linux/sdHLRAD another_map.bsp -extra -bounce 8
+
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
