@@ -123,7 +123,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <OutputFile>$(SolutionDir)..\..\tools\sdRIPENT.exe</OutputFile>
+      <OutputFile>$(SolutionDir)..\..\tools\Win32\sdRIPENT.exe</OutputFile>
       <AdditionalDependencies>binmode.obj;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>4194304</StackReserveSize>
       <StackCommitSize>1048576</StackCommitSize>
@@ -169,7 +169,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <OutputFile>$(SolutionDir)..\..\tools\sdRIPENT.exe</OutputFile>
+      <OutputFile>$(SolutionDir)..\..\tools\Win32\sdRIPENT.exe</OutputFile>
       <AdditionalDependencies>binmode.obj;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>4194304</StackReserveSize>
       <StackCommitSize>1048576</StackCommitSize>
@@ -215,7 +215,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <OutputFile>$(SolutionDir)..\..\tools\sdRIPENT_x64.exe</OutputFile>
+      <OutputFile>$(SolutionDir)..\..\tools\Win64\sdRIPENT_x64.exe</OutputFile>
       <AdditionalDependencies>binmode.obj;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>4194304</StackReserveSize>
       <StackCommitSize>1048576</StackCommitSize>
@@ -261,7 +261,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <OutputFile>$(SolutionDir)..\..\tools\sdRIPENT_x64.exe</OutputFile>
+      <OutputFile>$(SolutionDir)..\..\tools\Win64\sdRIPENT_x64.exe</OutputFile>
       <AdditionalDependencies>binmode.obj;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>4194304</StackReserveSize>
       <StackCommitSize>1048576</StackCommitSize>

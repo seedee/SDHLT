@@ -4,7 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - Oct 14 2026
+
+### Added
+- `-aomode #` controls blend mode for `-aocolor`, similar to Photoshop blend modes. The previous blend mode is now additive.
+- Relightmap script that recompiles lighting of an existing BSP.
+### Changed
+- The default `-aocolor` blend mode is now applied as displayed RGB. The previous raw linear light behaviour was moved to `-aomode additive` (`1`).
+- `-aostudiomode #` shortened to `-aostudio #` for brevity (old name won't break compiles). Now accepts integer input.
+- `-aoopacity` upper limit raised to `8`.
+- *info_portal* is now reversible to block visibility from the source leaf, and allows growing a cluster of leaf layers around the targeted entity too. Links are now bidirectional by default, the target side also sees the source side unless `oneway` is set. Target matching is now classname-agnostic, so it can target any entity with a targetname, and supports multiple targetnames separated by semicolons.
+
+### Removed
+- The *info_leaf* class. Any entity with a targetname replaces it as an *info_portal* target.
+
+### Fixed
+- Tool configs (settings.txt, wad.cfg) lookup now searches the parent directory correctly, previously they were undetected with per-architecture subfolders.
+- Multiple *info_portal* entities sharing a leaf no longer overwrite each other's `neighbor` depth. *info_portal* targeting a missing entity no longer links to a bogus leaf. *info_portal* links no longer drop out when VIS is ran with `-maxdistance`.
+- VIS thread priority override from *info_compile_parameters* not applying.
+
 ## [1.3.0] - Aug 30 2026
+
 ### Added
 - Ray-traced ambient occlusion with `-ao`, `-aoscale #`, `-aostats` and 6 more compile parameters.
 - Percentage-closer filtering for soft shadow edges with `-pcf #`.
@@ -24,52 +44,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Default parameter sequence in settings.txt not matching tool binaries.
 
 ## [1.2.0] - Jul 11 2024
+
 ### Added
-- Studiomodel shadows with 3 shadow modes and `-nostudioshadow`
-- *info_portal* and *info_leaf*
-- *info_minlights* and `%` texture flag
-- `-pre25`, increase `-limiter` default to `255`
+- Studiomodel shadows with 3 shadow modes and `-nostudioshadow`.
+- *info_portal* and *info_leaf*.
+- *info_minlights* and `%` texture flag.
+- `-pre25`, increase `-limiter` default to `255`.
 
 ### Changed
-- Increase `-bounce` to min `12` if using `-expert`
-- Enable `-wadautodetect` by default
-- Reformatted texture-related logging to look like resgen
-- Add CMake config and Makefile
+- Increase `-bounce` to min `12` if using `-expert`.
+- Enable `-wadautodetect` by default.
+- Reformatted texture-related logging to look like resgen.
+- Add CMake config and Makefile.
 
 ### Fixed
-- Potential buffer overrun in `PushWadPath`
+- Potential buffer overrun in PushWadPath.
 
 ## [1.1.2] - Sep 09 2022
+
 ### Changed
-- Reasons for skipping portal file optimisation process are more detailed
+- Reasons for skipping portal file optimisation process are more detailed.
 
 ### Fixed
-- Fatal errors replaced with generic log messages when skipping optimisation of portal file
+- Fatal errors replaced with generic log messages when skipping optimisation of portal file.
 
 ## [1.1.1] - Aug 27 2022
+
 ### Changed
-- Portal file optimisation process more streamlined. Separate .prt file is no longer created, instead the same one is optimised after VIS compilation
-- Automatic embedding of tool texture WAD file is hard-coded again due to lazy mappers
-- `-chart` parameter now enabled by default
+- Portal file optimisation process more streamlined. Separate .prt file is no longer created, instead the same one is optimised after VIS compilation.
+- Automatic embedding of tool texture WAD file is hard-coded again due to lazy mappers.
+- `-chart` parameter now enabled by default.
 
 ### Fixed
-- Bug with `-worldextent` CSG argument, where the default map size was +/-2048
+- Bug with `-worldextent` CSG argument, where the default map size was +/-2048.
 
 ## [1.1.0] - Jul 04 2020
+
 ### Added
-- `-worldextent` CSG parameter. Extends map geometry limits beyond +/-32768
-- Optimised portal file workflow for J.A.C.K, allowing import of .prt file into the editor directly after BSP compilation
-- Higher resolution image textures to tool texture WAD file
+- `-worldextent` CSG parameter. Extends map geometry limits beyond +/-32768.
+- Optimised portal file workflow for J.A.C.K, allowing import of .prt file into the editor directly after BSP compilation.
+- Higher resolution image textures to tool texture WAD file.
 
 ## 1.0.0 - Mar 09 2020
-### Added
-- BEVELHINT tool texture, which acts like SOLIDHINT and BEVEL. Eliminates unnecessary face subdivision and bevels clipnodes at the same time
-- SPLITFACE tool texture. Brushes with this texture will subdivide faces they touch along their edges
-- !cur_ tool textures, which act like CONTENTWATER and func_pushable with a speed of 2048 units/s
-### Changed
-- Automatic embedding of tool texture WAD file can now be controlled in settings.txt
 
-[1.2.0]: https://github.com/seedee/SDHLT/compare/v1.2.0...v1.3.0
+### Added
+- BEVELHINT tool texture, which acts like SOLIDHINT and BEVEL. Eliminates unnecessary face subdivision and bevels clipnodes at the same time.
+- SPLITFACE tool texture. Brushes with this texture will subdivide faces they touch along their edges.
+- !cur_ tool textures, which act like CONTENTWATER and func_pushable with a speed of 2048 units/s.
+
+### Changed
+- Automatic embedding of tool texture WAD file can now be controlled in settings.txt.
+
+[1.3.1]: https://github.com/seedee/SDHLT/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/seedee/SDHLT/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/seedee/SDHLT/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/seedee/SDHLT/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/seedee/SDHLT/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/seedee/SDHLT/releases/tag/v1.1.0

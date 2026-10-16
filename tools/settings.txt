@@ -107,11 +107,11 @@
 
 #ifdef *HLRAD> // -------------- [RAD] --------------
   #ifndef -extra                 
-  //##define -extra           // Final
+  //#define -extra           // Final
   #endif                         
   #ifndef -ao                 // Final
-  //##define -ao                 
-  //##define -aostats            
+  //#define -ao                 
+  //#define -aostats            
   #endif
   #ifdef -sparse                 
     #undef -sparse               

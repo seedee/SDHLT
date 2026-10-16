@@ -96,6 +96,7 @@ Temporary Items
 !/tools/*.fgd
 !/tools/*.wad
 !/tools/*.txt
+!/tools/*.sh
 !/tools/lights.rad
 !/tools/wad.cfg
 

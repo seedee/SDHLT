@@ -9,6 +9,8 @@
 #include "blockmem.h"
 #include "log.h"
 #include "mathlib.h"
+#include <errno.h>
+#include <limits.h>
 
 #ifdef SYSTEM_POSIX
 #ifdef HAVE_SYS_STAT_H
@@ -424,4 +426,28 @@ bool            TerminatedString(const char* buffer, const int size)
         }
     }
     return false;
+}
+
+bool ParseIntArg(const char* value, int& out)
+{
+    char* end = NULL;
+    long number;
+    
+    if (value == NULL || *value == '\0')
+    {
+        return false;
+    }
+    errno = 0;
+    number = strtol(value, &end, 10);
+    
+    if (end == value || *end != '\0')
+    {
+        return false;
+    }
+    if (errno == ERANGE || number < INT_MIN || number > INT_MAX)
+    {
+        return false;
+    }
+    out = (int)number;
+    return true;
 }

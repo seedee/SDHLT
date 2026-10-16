@@ -19,7 +19,7 @@
 
 #define HACK_VERSIONSTRING "VL34" //--vluzacn
 
-#define SDHLT_VERSIONSTRING "v1.3.0"
+#define SDHLT_VERSIONSTRING "v1.3.1"
 
 #if !defined (SDHLCSG) && !defined (SDHLBSP) && !defined (SDHLVIS) && !defined (SDHLRAD) && !defined (SDRIPENT) //seedee
 #error "You must define one of these in the settings of each project: SDHLCSG, SDHLBSP, SDHLVIS, SDHLRAD, SDRIPENT. The most likely cause is that you didn't load the project from the .sln file."
@@ -147,6 +147,7 @@ extern bool CDECL FORMAT_PRINTF(3,4) safe_snprintf(char* const dest, const size_
 extern bool     safe_strncpy(char* const dest, const char* const src, const size_t count);
 extern bool     safe_strncat(char* const dest, const char* const src, const size_t count);
 extern bool     TerminatedString(const char* buffer, const int size);
+extern bool     ParseIntArg(const char* value, int& out);
 
 extern char*    FlipSlashes(char* string);
 

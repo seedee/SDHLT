@@ -259,6 +259,7 @@ void ParseParamFile (const int argc, char ** const argv, int &argcnew, char **&a
 	char *s;
 	const char *c, *c0;
 	char filepath[_MAX_PATH];
+	char parentpath[_MAX_PATH];
 	s = NULL;
 
 	char tmp[_MAX_PATH];
@@ -268,8 +269,22 @@ void ParseParamFile (const int argc, char ** const argv, int &argcnew, char **&a
 	safe_strncpy (tmp, argv[0], _MAX_PATH);
 #endif
 	ExtractFilePath (tmp, filepath);
-	strcat (filepath, paramfilename);
-	f = fopen (filepath, "r");
+	ExtractFilePath (filepath, parentpath);
+
+	if (parentpath[0]) //Bundled binaries fix
+	{
+		strcat(parentpath, paramfilename);
+		f = fopen(parentpath, "r");
+	}
+	else
+	{
+		f = NULL;
+	}
+	if (!f)
+	{
+		strcat(filepath, paramfilename);
+		f = fopen(filepath, "r");
+	}
 	if (f)
 	{
 		int len = 0x100000;

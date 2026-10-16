@@ -1693,6 +1693,8 @@ void            CreateDirectLights()
 				&& FloatForKey (g_face_texlights[p->faceNumber], "_scale") <= 0)
 			) //LRC
         {
+			//Texlight faces are sources of indirect light for AO, not occluders
+			g_face_emissive[p->faceNumber] = true;
             numdlights++;
             dl = (directlight_t*)calloc(1, sizeof(directlight_t));
 
@@ -2611,6 +2613,7 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								  , int step
 								  , int miptex
 								  , int texlightgap_surfacenum
+								  , vec3_t *emitteroccl
 								  )
 {
     int             i;
@@ -2627,6 +2630,8 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 	bool			sky_used = false;
 	vec3_t			testline_origin;
 	vec3_t			adds[ALLSTYLES];
+	vec3_t			emitteradds[ALLSTYLES];
+	memset (emitteradds, 0, ALLSTYLES * sizeof(vec3_t));
 	int				style;
 	memset (adds, 0, ALLSTYLES * sizeof(vec3_t));
 	bool			lighting_diversify;
@@ -3096,6 +3101,11 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 								continue; // dynamic light of other styles hits this toggleable opaque entity, then it completely vanishes.
 						}
 						VectorAdd (adds[style], add, adds[style]);
+
+						if (emitteroccl && l->type == emit_surface && l->patch)
+						{
+							VectorAdd (emitteradds[style], add, emitteradds[style]);
+						}
                     } // end emit_skylight
 
                 }
@@ -3132,6 +3142,11 @@ static void     GatherSampleLight(const vec3_t pos, const byte* const pvs, const
 			}
 
 			VectorAdd(sample[style_index], adds[style], sample[style_index]);
+
+			if (emitteroccl)
+			{
+				VectorAdd (emitteroccl[style_index], emitteradds[style], emitteroccl[style_index]);
+			}
 		}
 		else
 		{
@@ -3441,6 +3456,8 @@ typedef struct
 	double rays_skipped_saturated;	//Weight assumed occluded at early-out
 	double hits_world;
 	double hits_opaquebrush;
+	double hits_emissive_world;
+	double hits_emissive_opaquebrush;
 	double hits_opaquestyle;		//Styled-opaque encounters (diagnostic: AO ignores opaquestyle)
 	double hits_studio;
 	double calls_testline;			//Exact AO-scoped TestLine calls
@@ -3472,6 +3489,8 @@ static void AOStats_Flush (const aostats_t *s, const double *modelhits)
 	g_aostats.rays_skipped_saturated	+= s->rays_skipped_saturated;
 	g_aostats.hits_world				+= s->hits_world;
 	g_aostats.hits_opaquebrush			+= s->hits_opaquebrush;
+	g_aostats.hits_emissive_world		+= s->hits_emissive_world;
+	g_aostats.hits_emissive_opaquebrush += s->hits_emissive_opaquebrush;
 	g_aostats.hits_opaquestyle			+= s->hits_opaquestyle;
 	g_aostats.hits_studio				+= s->hits_studio;
 	g_aostats.calls_testline			+= s->calls_testline;
@@ -3521,15 +3540,19 @@ void AOStats_Dump (void)
 
 	if (g_aostats.samples > 0 && g_aostats.rays_fired == 0)
 	{
-		Log("Warning: AO fired 0 rays for %.0f samples, -aominweight %.0f too high for this sampling level\n", g_aostats.samples, g_ao_minweight);
+		Log("Warning: AO fired 0 rays for %.0f samples, -aominweight %0.3f too high for this sampling level\n", g_aostats.samples, g_ao_minweight);
 	}
 	Log ("  %-31s | %14.0f\n", "skipped (cosine):", g_aostats.rays_skipped_cosine);
 	Log ("  %-31s | %14.0f weight\n", "skipped (low weight):", g_aostats.rays_skipped_weight);
 	Log ("  %-31s | %14.0f weight\n", "skipped (saturated):", g_aostats.rays_skipped_saturated);
-	Log ("  %-31s | %.1f%% / %.1f%% / %.1f%%\n", "hit (world/brush/studio):",
-		100.0 * g_aostats.hits_world       / fired,
+	Log ("  %-31s | %5.1f%% / %5.1f%%\n", "hit (world/emissive):",
+		100.0 * g_aostats.hits_world / fired,
+		100.0 * g_aostats.hits_emissive_world / fired);
+	Log ("  %-31s | %5.1f%% / %5.1f%%\n", "hit (brush/emissive):",
 		100.0 * g_aostats.hits_opaquebrush / fired,
-		100.0 * g_aostats.hits_studio      / fired);
+		100.0 * g_aostats.hits_emissive_opaquebrush / fired);
+	Log ("  %-31s | %5.1f%%\n", "hit (studio):",
+		100.0 * g_aostats.hits_studio / fired);
 
 	if (staged > 0.0)
 	{
@@ -3537,7 +3560,7 @@ void AOStats_Dump (void)
 	}
 	if (staged > 0.0)
 	{
-		Log ("  %-31s | %.1f%% / %.1f%% / %.1f%%\n",
+		Log ("  %-31s | %5.1f%% / %5.1f%% / %5.1f%%\n",
 			"occluders (world/brush/studio):",
 			100.0 * bsp    / staged,
 			100.0 * brush  / staged,
@@ -3615,6 +3638,44 @@ static void GetFaceWorldBounds (int facenum, vec3_t mins, vec3_t maxs)
 }
 
 // =====================================================================================
+//  FindFaceInLeaf																//seedee
+//      Resolves the world face at a solid ray hit so AO can reject emissive faces
+// =====================================================================================
+static int FindFaceInLeaf (const vec3_t query, const vec3_t hitpos, const vec3_t dir)
+{
+	dleaf_t *leaf = PointInLeaf (query);
+
+	for (int i = 0; i < leaf->nummarksurfaces; i++)
+	{
+		int facenum = g_dmarksurfaces[leaf->firstmarksurface + i];
+		const dplane_t *plane = getPlaneFromFaceNumber (facenum);
+		vec_t dist = DotProduct (hitpos, plane->normal) - plane->dist;
+
+		if (fabs (dist) <= ON_EPSILON && DotProduct (plane->normal, dir) < 0.0) //Contains hit point and its normal faces against the ray
+		{
+			return facenum;
+		}
+	}
+	return -1;
+}
+
+static int HitFace (const vec3_t hitpos, const vec3_t dir)
+{
+	vec3_t query;
+	int facenum;
+
+	VectorMA (hitpos, -ON_EPSILON, dir, query);
+	facenum = FindFaceInLeaf (query, hitpos, dir);
+
+	if (facenum < 0) //Closer retry, failure stays conservative
+	{
+		VectorMA (hitpos, -ON_EPSILON / 4, dir, query);
+		facenum = FindFaceInLeaf (query, hitpos, dir);
+	}
+	return facenum;
+}
+
+// =====================================================================================
 //  BuildFacelights
 // =====================================================================================
 void CalcLightmap (lightinfo_t *l, byte *styles)
@@ -3659,6 +3720,9 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 		vec3_t *normal_out;
 		bool nudged;
 		int *wallflags_out;
+		vec3_t emitterlight[ALLSTYLES];
+		vec3_t emitterlight2[ALLSTYLES];
+		memset (emitterlight, 0, sizeof (emitterlight));
 
 		// prepare input parameter and output parameter
 		{
@@ -3838,12 +3902,15 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 					, 0
 					, l->miptex
 					, surface
+					, emitterlight
 					);
 			}
 			if (l->translucent_b)
 			{
 				vec3_t sampled2[ALLSTYLES];
 				memset (sampled2, 0, ALLSTYLES * sizeof (vec3_t));
+				memset (emitterlight2, 0, sizeof (emitterlight2));
+
 				if (!blocked)
 				{
 					GatherSampleLight(spot2, pvs2, pointnormal2, sampled2
@@ -3851,6 +3918,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 						, 0
 						, l->miptex
 						, surface
+						, emitterlight2
 						);
 				}
 				for (j = 0; j < ALLSTYLES && styles[j] != 255; j++)
@@ -3858,6 +3926,7 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 					for (int x = 0; x < 3; x++)
 					{
 						sampled[j][x] = (1.0 - l->translucent_v[x]) * sampled[j][x] + l->translucent_v[x] * sampled2[j][x];
+						emitterlight[j][x] = (1.0 - l->translucent_v[x]) * emitterlight[j][x] + l->translucent_v[x] * emitterlight2[j][x];
 					}
 				}
 			}
@@ -3926,14 +3995,22 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 							bool prof_ray = ao_timing && ((k & (AO_TIMER_SAMPLE - 1)) == 0);
 							vec3_t dest;
 							VectorMA(spot, g_ao_scale, aonormals[k], dest); //Set 'dest' exactly 'g_ao_scale' units away from 'spot' in the ray direction
+							vec3_t hitpos;
 							ao_local.rays_fired++;
 							ao_local.calls_testline++;
 							double ts = 0.0;
 
 							if (prof_ray) ts = I_FloatTime ();
-							if (TestLine(spot, dest) == CONTENTS_SOLID) //!= CONTENTS_EMPTY
+							if (TestLine(spot, dest, NULL, hitpos) == CONTENTS_SOLID) //!= CONTENTS_EMPTY
 							{
 								if (prof_ray) ao_local.time_testline += I_FloatTime () - ts;
+								int hitfacenum = HitFace (hitpos, aonormals[k]);
+
+								if (hitfacenum >= 0 && g_face_emissive[hitfacenum])
+								{
+									ao_local.hits_emissive_world++;
+									continue;
+								}
 								occluded += w; //Hit world/solid
 								ao_local.hits_world++;
 
@@ -3960,6 +4037,8 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 							octl.style_hits = 0.0;
 							octl.transparent_only = 0.0;
 							octl.studio_hits = 0.0;
+							octl.skip_emissive = true;
+							octl.emissive_stop = false;
 							ts = 0.0;
 
 							if (prof_ray) ts = I_FloatTime ();
@@ -3984,6 +4063,11 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 								continue;
 							}
 							if (prof_ray) ao_local.time_opaquebrush += I_FloatTime () - ts;
+							if (octl.emissive_stop)
+							{
+								ao_local.hits_emissive_opaquebrush++;
+								continue;
+							}
 							ao_local.time_studio += sctl.time_trace;
 
 							if (sctl.hit_model >= 0) //Mesh touched but transparent texel rejected the hit
@@ -4011,8 +4095,14 @@ void CalcLightmap (lightinfo_t *l, byte *styles)
 					{
 						for (int x = 0; x < 3; x++)
 						{
-							sampled[j][x] = sampled[j][x] * (1.0 - alpha) + g_ao_color[x] * alpha; //Interpolate the AO color with the sampled light based on occlusion
-			
+							vec_t e = emitterlight[j][x];
+
+							if (e > sampled[j][x]) //Exempt occluding texlights
+							{
+								e = sampled[j][x];
+							}
+							sampled[j][x] = (sampled[j][x] - e) * (1.0 - alpha) + e + g_ao_color_linear[x] * alpha; //Interpolate the prepared AO color with the sampled light based on occlusion
+
 							if (sampled[j][x] < 0.0)
 							{
 								sampled[j][x] = 0.0;
@@ -4418,12 +4508,14 @@ void            BuildFacelights(const int facenum)
 				, 1
 				, l.miptex
 				, facenum
+				, NULL
 				);
 			GatherSampleLight (spot2, pvs2, normal2, backsampled, 
 				patch->totalstyle_all
 				, 1
 				, l.miptex
 				, facenum
+				, NULL
 				);
 			for (j = 0; j < ALLSTYLES && patch->totalstyle_all[j] != 255; j++)
 			{
@@ -4441,6 +4533,7 @@ void            BuildFacelights(const int facenum)
 				, 1
 				, l.miptex
 				, facenum
+				, NULL
 				);
 		}
 	}

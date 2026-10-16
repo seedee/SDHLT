@@ -147,17 +147,18 @@ extern unsigned g_portalleafs;
 extern unsigned int g_maxdistance;
 //extern bool		g_postcompile;
 
-// This allows the current leaf to have portal to selected leaf.
-// TODO: vector for target so it can do a lot. Though doing the entity won't be as simple.
-// That means we need to parse string and what not. 
-// For the time being, ONE target is good enough.
+// This allows the current leaf to have portal to selected leaves.
 #define MAX_ROOM_NEIGHBOR 16
+#define MAX_ENT_LEAFS 48 //Max BSP leaves stored per-entity for PVS tests, beyond which the engine discards the leaf list, falling back to a headnode (node-subtree PVS) test
+
 typedef struct
 {
     int visleafnum;
-    int target_visleafnum;
-    // Traversal of neighbors being affected.
     int neighbor;
+    int targetneighbor;
+    int reverse;
+    int oneway;
+    std::vector<int> target_visleafnums;
 }
 room_t;
 extern const int g_room_max;
@@ -178,11 +179,21 @@ extern int g_overview_count;
 
 typedef struct
 {
+    int leaf;
+    int neighbor;
+    int target_neighbor;
+    bool reverse;
+    bool oneway;
+}
+roomlink_t;
+
+typedef struct
+{
 	bool isoverviewpoint;
 	bool isskyboxpoint;
     // For info_portal
-    std::vector<int> additional_leaves;
-    int neighbor;
+    std::vector<roomlink_t> links;
+    std::vector<int> removed_leaves;
 }
 leafinfo_t;
 extern leafinfo_t *g_leafinfos;

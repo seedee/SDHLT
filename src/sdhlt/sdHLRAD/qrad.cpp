@@ -132,6 +132,7 @@ vec_t           g_texchop = DEFAULT_TEXCHOP;
 opaqueList_t*   g_opaque_face_list = NULL;
 unsigned        g_opaque_face_count = 0;
 unsigned        g_max_opaque_face_count = 0;               // Current array maximum (used for reallocs)
+bool			*g_face_emissive = NULL;
 vec_t			g_corings[ALLSTYLES];
 vec3_t*			g_translucenttextures = NULL;
 vec_t			g_translucentdepth = DEFAULT_TRANSLUCENTDEPTH;
@@ -148,9 +149,11 @@ vec_t			g_ao_scale = DEFAULT_AO_SCALE;
 vec_t			g_ao_opacity = DEFAULT_AO_OPACITY;
 vec_t			g_ao_gain = DEFAULT_AO_GAIN;
 vec3_t			g_ao_color = { DEFAULT_AO_COLOR_RED, DEFAULT_AO_COLOR_GREEN, DEFAULT_AO_COLOR_BLUE };
+vec3_t			g_ao_color_linear = { DEFAULT_AO_COLOR_RED, DEFAULT_AO_COLOR_GREEN, DEFAULT_AO_COLOR_BLUE };
 int				g_ao_level = DEFAULT_AO_LEVEL;
 vec_t			g_ao_minweight = DEFAULT_AO_MINWEIGHT;
 int				g_ao_studiomode = AO_STUDIOMODE_INHERIT;
+int				g_ao_mode = DEFAULT_AO_MODE;
 
 // Misc
 int             leafparents[MAX_MAP_LEAFS];
@@ -1705,6 +1708,10 @@ static void		LoadOpaqueEntities()
 		}
 		Log("%i opaque faces\n", facecount);
 	}
+	{
+		g_face_emissive = (bool *)calloc (g_numfaces, sizeof (bool));
+		hlassume (g_face_emissive != NULL, assume_NoMemory);
+	}
 }
 
 // =====================================================================================
@@ -2565,6 +2572,66 @@ static void ExtendLightmapBuffer ()
 }
 
 // =====================================================================================
+//  FinalizeAOColor																//seedee
+//      Inverts lightscale and gamma transfer FinalLightFace applies to samples that
+//      CalcLightmap blends g_ao_color_linear into, matching aocolor to displayed color.
+//      Additive mode keeps aocolor as raw linear light.
+// =====================================================================================
+static void FinalizeAOColor()
+{
+	vec3_t displayed;
+
+	for (int x = 0; x < 3; x++)
+	{
+		vec_t gamma = g_colour_qgamma[x];
+		vec_t scale = g_colour_lightscale[x] * g_direct_scale; //Direct light is scaled by dscale before FinalLightFace gamma correction
+
+		if (g_ao_mode == AO_MODE_ADDITIVE)
+		{
+			g_ao_color_linear[x] = g_ao_color[x];
+		}
+		else if (gamma > 0.0 && scale > 0.0) //Inverse of FinalLightFace lightscale and gamma transform
+		{
+			g_ao_color_linear[x] = (vec_t)(256.0 * pow (qmin (g_ao_color[x], 255.0f) / 256.0, 1.0 / gamma) / scale);
+		}
+		else //Keep the same value if the forward transfer cannot be inverted
+		{
+			g_ao_color_linear[x] = g_ao_color[x];
+		}
+		if (gamma > 0.0 && scale > 0.0) //What saturated occlusion shows in the lightmap
+		{
+			displayed[x] = (vec_t)(256.0 * pow (g_ao_color_linear[x] * scale / 256.0, gamma));
+		}
+		else
+		{
+			displayed[x] = g_ao_color_linear[x] * scale;
+		}
+	}
+	if (g_limitthreshold >= 0.0 && g_limitthreshold < 255.0)
+	{
+		for (int x = 0; x < 3; x++)
+		{
+			if (displayed[x] > g_limitthreshold)
+			{
+				Warning ("ao color %g %g %g exceeds light limit threshold %g and will be capped.\n", (double)displayed[0], (double)displayed[1], (double)displayed[2], (double)g_limitthreshold);
+				break;
+			}
+		}
+	}
+	if (g_minlight > 0)
+	{
+		for (int x = 0; x < 3; x++)
+		{
+			if (displayed[x] > 0.0 && displayed[x] < g_minlight)
+			{
+				Warning ("ao color %g %g %g is below minimum final light %d and will be raised.\n", (double)displayed[0], (double)displayed[1], (double)displayed[2], (int)g_minlight);
+				break;
+			}
+		}
+	}
+}
+
+// =====================================================================================
 //  RadWorld
 // =====================================================================================
 static void     RadWorld()
@@ -2742,10 +2809,11 @@ static void     Usage(const char* paramWarning = 0, bool mapfileWarning = false)
 	Log("    -aoscale #      : Set ray length (larger values = thicker, wider bands)\n");
 	Log("    -aogain #       : Set falloff exponent (larger values = sharper corners, smaller = softer spread)\n");
 	Log("    -aolevel #      : Set hemisphere sampling level (1 to %d, lower values = fast compile at same quality)\n", SKYLEVELMAX);
-	Log("    -aominweight #  : Skip rays below this weight fraction (0.0 to 0.1)\n", (double)DEFAULT_AO_MINWEIGHT);
-	Log("    -aostudiomode v : Global zhlt_shadowmode override for AO only (fast, normal, slow, inherit)\n");
-	Log("    -aoopacity #    : Set opacity (0.0 to 1.0)\n");
+	Log("    -aominweight #  : Skip rays weighing below this fraction of the mean ray weight (0.0 to %0.3f, default %0.3f)\n", (double)MAX_AO_MINWEIGHT, (double)DEFAULT_AO_MINWEIGHT);
+	Log("    -aostudio #     : Global zhlt_shadowmode override for AO only (0 = inherit, 1 = fast, 2 = normal, 3 = slow)\n");
+	Log("    -aoopacity #    : Set opacity (0.0 to %0.3f, default %0.3f)\n", (double)MAX_AO_OPACITY, (double)DEFAULT_AO_OPACITY);
 	Log("    -aocolor r g b  : Set tint color (0 to 255, r g b)\n");
+	Log("    -aomode #       : Set tint blend mode (0 = normal, displayed RGB, 1 = additive, raw linear light)\n");
 	Log("    -aostats        : Print ray/stage statistics after BuildFaceLights\n");
     Log("    -limiter #      : Set light clipping threshold (-1 = none)\n");
     Log("    -circus         : Enable 'circus' mode for locating unlit lightmaps\n");
@@ -2823,7 +2891,7 @@ static void     Usage(const char* paramWarning = 0, bool mapfileWarning = false)
 	Log("   -blurclamp #   : Limit blured light bleeding into shadow edges (0 = off, %f to %f)\n", (double)MIN_BLURCLAMP_STRENGTH, (double)MAX_BLURCLAMP_STRENGTH);
 	Log("   -nobleedfix    : Don't fix wall bleeding problem for large blur value.\n");
 	Log("   -noemitterrange: Don't fix pointy texlights.\n");
-	Log("   -pcf #         : PCF taps per axis for softer shadow edges (1 = off, 1 to %d, cost scales with #^2.\n", (int)MAX_PCF);
+	Log("   -pcf #         : PCF taps per axis for softer shadow edges (1 = off, 1 to %d, cost scales with #^2)\n", (int)MAX_PCF);
 	Log("   -drawpatch     : Export light patch positions to file 'mapname_patch.pts'.\n");
 	Log("   -drawsample x y z r    : Export light sample positions in an area to file 'mapname_sample.pts'.\n");
 	Log("   -drawedge      : Export smooth edge positions to file 'mapname_edge.pts'.\n");
@@ -2931,6 +2999,13 @@ static void     Settings()
 	safe_snprintf(buf1, sizeof(buf1), "%3.1f %3.1f %3.1f", g_ao_color[0], g_ao_color[1], g_ao_color[2]);
 	safe_snprintf(buf2, sizeof(buf2), "%3.1f %3.1f %3.1f", DEFAULT_AO_COLOR_RED, DEFAULT_AO_COLOR_GREEN, DEFAULT_AO_COLOR_BLUE);
 	Log("ao color             [ %17s ] [ %17s ]\n", buf1, buf2);
+
+	switch (g_ao_mode)
+	{
+	case AO_MODE_ADDITIVE:     safe_snprintf(buf1, sizeof(buf1), "additive"); break;
+	default:                   safe_snprintf(buf1, sizeof(buf1), "normal");  break;
+	}
+	Log("ao blend mode        [ %17s ] [ %17s ]\n", buf1, "normal");
 	Log("ao stats             [ %17s ] [ %17s ]\n", g_ao_stats ? "on" : "off", DEFAULT_AO_STATS ? "on" : "off");
 
     safe_snprintf(buf1, sizeof(buf1), "%3.3f", g_limitthreshold);
@@ -3149,9 +3224,30 @@ void            ReadInfoTexAndMinlights()
 		}
     }
 }
-
 const char* lights_rad = "lights.rad";
 const char* ext_rad = ".rad";
+
+// =====================================================================================
+//  TryReadLightFile
+// =====================================================================================
+static bool TryReadLightFile(const char* const dir, const char* const filename, const bool defaultextension)
+{
+    char path[_MAX_PATH];
+    safe_strncpy(path, dir, _MAX_PATH);
+    safe_strncat(path, filename, _MAX_PATH);
+
+    if (defaultextension)
+    {
+        DefaultExtension(path, ext_rad);
+    }
+    if (q_exists(path))
+    {
+        ReadLightFile(path);
+        return true;
+    }
+    return false;
+}
+
 // =====================================================================================
 //  LoadRadFiles
 // =====================================================================================
@@ -3163,6 +3259,8 @@ void            LoadRadFiles(const char* const mapname, const char* const user_r
     char mapfile[_MAX_PATH];
     char mapdir[_MAX_PATH];
     char appdir[_MAX_PATH];
+    char appdir_parent[_MAX_PATH];
+    bool found;
 
     // Get application directory (only an approximation on posix systems)
     // try looking in the directory we were run from
@@ -3176,101 +3274,68 @@ void            LoadRadFiles(const char* const mapname, const char* const user_r
 #endif
         ExtractFilePath(tmp, appdir);
     }
+    // Get app's parent dir
+    ExtractFilePath(appdir, appdir_parent);
 
     // Get map directory
     ExtractFilePath(mapname, mapdir);
 	ExtractFile(mapname, mapfile);
 
-    // Look for lights.rad in mapdir
-    safe_strncpy(global_lights, mapdir, _MAX_PATH);
-    safe_strncat(global_lights, lights_rad, _MAX_PATH);
-    if (q_exists(global_lights))
+    // Look for lights.rad in mapdir, then app's parent dir, then appdir
+    found = TryReadLightFile(mapdir, lights_rad, false);
+    
+    if (!found && appdir_parent[0])
     {
-        ReadLightFile(global_lights);
+        found = TryReadLightFile(appdir_parent, lights_rad, false);
     }
-    else
+    if (!found)
     {
-        // Look for lights.rad in appdir
-        safe_strncpy(global_lights, appdir, _MAX_PATH);
-        safe_strncat(global_lights, lights_rad, _MAX_PATH);
+        found = TryReadLightFile(appdir, lights_rad, false);
+    }
+    if (!found)
+    {
+        // Look for lights.rad in current working directory
+        safe_strncpy(global_lights, lights_rad, _MAX_PATH);
         if (q_exists(global_lights))
         {
             ReadLightFile(global_lights);
         }
-        else
-        {
-            // Look for lights.rad in current working directory
-            safe_strncpy(global_lights, lights_rad, _MAX_PATH);
-            if (q_exists(global_lights))
-            {
-                ReadLightFile(global_lights);
-            }
-        }
     }
-   
     // Look for mapname.rad in mapdir
     safe_strncpy(mapname_lights, mapdir, _MAX_PATH);
     safe_strncat(mapname_lights, mapfile, _MAX_PATH);
 	safe_strncat(mapname_lights, ext_rad, _MAX_PATH);
+
     if (q_exists(mapname_lights))
     {
         ReadLightFile(mapname_lights);
     }
-
-
     if (user_rad)
     {
-        char user_lights[_MAX_PATH];
         char userfile[_MAX_PATH];
-
         ExtractFile(user_rad, userfile);
-
+        
         // Look for user.rad from command line (raw)
-        safe_strncpy(user_lights, user_rad, _MAX_PATH);
-        if (q_exists(user_lights))
+        found = TryReadLightFile("", user_rad, false);
+        if (!found) // Try again with .rad enforced as extension
         {
-            ReadLightFile(user_lights);
+        	found = TryReadLightFile("", user_rad, true);
         }
-        else
+        if (!found) // Look for user.rad in mapdir
         {
-            // Try again with .rad enforced as extension
-            DefaultExtension(user_lights, ext_rad);
-            if (q_exists(user_lights))
-            {
-                ReadLightFile(user_lights);
-            }
-            else
-            {
-                // Look for user.rad in mapdir
-                safe_strncpy(user_lights, mapdir, _MAX_PATH);
-                safe_strncat(user_lights, userfile, _MAX_PATH);
-                DefaultExtension(user_lights, ext_rad);
-                if (q_exists(user_lights))
-                {
-                    ReadLightFile(user_lights);
-                }
-                else
-                {
-                    // Look for user.rad in appdir
-                    safe_strncpy(user_lights, appdir, _MAX_PATH);
-                    safe_strncat(user_lights, userfile, _MAX_PATH);
-                    DefaultExtension(user_lights, ext_rad);
-                    if (q_exists(user_lights))
-                    {
-                        ReadLightFile(user_lights);
-                    }
-                    else
-                    {
-                        // Look for user.rad in current working directory
-                        safe_strncpy(user_lights, userfile, _MAX_PATH);
-                        DefaultExtension(user_lights, ext_rad);
-                        if (q_exists(user_lights))
-                        {
-                            ReadLightFile(user_lights);
-                        }
-                    }
-                }
-            }
+        	found = TryReadLightFile(mapdir, userfile, true);
+        }
+        if (!found && appdir_parent[0]) // Look for user.rad in the app's parent directory
+        {
+        	found = TryReadLightFile(appdir_parent, userfile, true);
+        }
+        if (!found) // Look for user.rad in appdir
+        {
+        	found = TryReadLightFile(appdir, userfile, true);
+        }
+        if (!found) // Look for user.rad in current working directory
+        {
+        	TryReadLightFile("", userfile, true);
         }
     }
 	ReadInfoTexAndMinlights(); // AJM + seedee
@@ -4089,13 +4154,18 @@ int             main(const int argc, char** argv)
 				Usage();
 			}
 		}
-		else if (!strcasecmp(argv[i], "-aostudiomode") || !strcasecmp(argv[i], "-aostudioshadowmode") || !strcasecmp(argv[i], "-aoshadowmode"))
+		else if (!strcasecmp(argv[i], "-aostudio") || !strcasecmp(argv[i], "-aostudiomode") || !strcasecmp(argv[i], "-aostudioshadowmode") || !strcasecmp(argv[i], "-aoshadowmode"))
 		{
 			if (i + 1 < argc)
 			{
 				const char *value = argv[++i];
+				int mode;
 
-				if (!strcasecmp(value, "fast"))
+				if (!strcasecmp(value, "inherit"))
+				{
+					g_ao_studiomode = AO_STUDIOMODE_INHERIT;
+				}
+				else if (!strcasecmp(value, "fast"))
 				{
 					g_ao_studiomode = AO_STUDIOMODE_FAST;
 				}
@@ -4107,9 +4177,18 @@ int             main(const int argc, char** argv)
 				{
 					g_ao_studiomode = AO_STUDIOMODE_SLOW;
 				}
-				else if (!strcasecmp(value, "inherit"))
+				else if (ParseIntArg(value, mode))
 				{
-					g_ao_studiomode = AO_STUDIOMODE_INHERIT;
+					static const int argmap[] = { AO_STUDIOMODE_INHERIT, AO_STUDIOMODE_FAST, AO_STUDIOMODE_NORMAL, AO_STUDIOMODE_SLOW };
+					int max = (int)(sizeof(argmap) / sizeof(argmap[0])) - 1;
+
+					if (mode < 0 || mode > max)
+					{
+						int clamped = mode < 0 ? 0 : max;
+						Log("-%s %s out of range (Min %d, Max %d), clamped to %d\n", argv[i - 1], value, 0, max, clamped);
+						mode = clamped;
+					}
+					g_ao_studiomode = argmap[mode];
 				}
 				else
 				{
@@ -4161,6 +4240,41 @@ int             main(const int argc, char** argv)
 			else
 			{
 				Error("expected three color values after '-aocolor'\n");
+			}
+		}
+		else if (!strcasecmp(argv[i], "-aomode") || !strcasecmp(argv[i], "-aoblendmode"))
+		{
+			if (i + 1 < argc)
+			{
+				const char *value = argv[++i];
+				int mode;
+
+				if (!strcasecmp(value, "normal"))
+				{
+					g_ao_mode = AO_MODE_NORMAL;
+				}
+				else if (!strcasecmp(value, "additive"))
+				{
+					g_ao_mode = AO_MODE_ADDITIVE;
+				}
+				else if (ParseIntArg (value, mode))
+				{
+					if (mode < MIN_AO_MODE || mode > MAX_AO_MODE)
+					{
+						int clamped = mode < MIN_AO_MODE ? MIN_AO_MODE : MAX_AO_MODE;
+						Log("-%s %s out of range (Min %d, Max %d), clamped to %d\n", argv[i - 1], value, MIN_AO_MODE, MAX_AO_MODE, clamped);
+						mode = clamped;
+					}
+					g_ao_mode = mode;
+				}
+				else
+				{
+					Error("Unknown ao blend mode '%s'\n", value);
+				}
+			}
+			else
+			{
+				Usage();
 			}
 		}
 		else if (!strcasecmp(argv[i], "-aostats") || !strcasecmp(argv[i], "-aochart"))
@@ -4309,6 +4423,10 @@ int             main(const int argc, char** argv)
 	if (g_blur < 1.0)
 	{
 		g_blur = 1.0;
+	}
+	if (g_ao_enable)
+	{
+		FinalizeAOColor();
 	}
     RadWorld();
 	FreeStudioModels(); //seedee

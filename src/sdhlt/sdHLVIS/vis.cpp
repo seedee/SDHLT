@@ -29,9 +29,10 @@
 #include "zlib.h"
 #endif
 #include <string>
-#include <fstream> //FixPrt
-#include <vector> //FixPrt
-#include <iostream> //FixPrt
+#include <algorithm>
+#include <fstream>
+#include <vector>
+#include <iostream>
 
 /*
 
@@ -521,32 +522,87 @@ static void     LeafThread(int unused)
 #pragma warning(pop)
 #endif
 
-// Recursively add `add` to `current` visibility leaf.
 std::unordered_map<int, bool> leaf_flow_add_exclude = {};
-static void LeafFlowNeighborAddLeaf(const int current, const int add, const int neighbor)
-{
-    auto outbuffer = g_uncompressed + current * g_bitbytes;
 
-    outbuffer[add >> 3] |= (1 << (add & 7));
+//Recursively collect the leaves within neighbor portal jumps of current
+static void LeafFlowNeighborCollect(const int current, const int neighbor, std::vector<int> &cluster)
+{
+    cluster.push_back(current);
     leaf_flow_add_exclude[current] = true;
-    
+
     if (neighbor == 0)
     {
         return;
     }
-
     auto leaf = &g_leafs[current];
 
     for (int i = 0; i < leaf->numportals; i++)
     {
         auto p = leaf->portals[i];
 
-        if (leaf_flow_add_exclude[p->leaf]) {
-            // Log("leaf %d neighbor %d is excluded\n", current, p->leaf);
+        if (leaf_flow_add_exclude[p->leaf])
+        {
             continue;
         }
+        LeafFlowNeighborCollect (p->leaf, neighbor - 1, cluster);
+    }
+}
 
-        LeafFlowNeighborAddLeaf(p->leaf, add, neighbor - 1);
+//Links the leaf clusters grown around each end of every info_portal
+static void ApplyRoomLinks()
+{
+    unsigned i;
+
+    for (i = 0; i < g_portalleafs; i++)
+    {
+        for (roomlink_t &link : g_leafinfos[i].links)
+        {
+            std::vector<int> source;
+            std::vector<int> target;
+            LeafFlowNeighborCollect (i, link.neighbor, source);
+            leaf_flow_add_exclude.clear();
+            LeafFlowNeighborCollect (link.leaf, link.target_neighbor, target);
+            leaf_flow_add_exclude.clear();
+            Verbose("info_portal leaf %i links %i leaves to %i leaves at neighbor %i and %i\n", (int)i, (int)source.size(), (int)target.size(), link.neighbor, link.target_neighbor);
+
+            if ((long long)source.size() * (long long)target.size() > 262144)
+            {
+                Warning("info_portal at leaf %i links too many leaves, lower the neighbor values", (int)i);
+            }
+            if (link.reverse)
+            {
+                for (int from : source)
+                {
+                    for (int to : target)
+                    {
+                        if (from != to)
+                        {
+                            g_leafinfos[from].removed_leaves.push_back(to);
+
+                            if (!link.oneway)
+                            {
+                                g_leafinfos[to].removed_leaves.push_back(from);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int from : source)
+                {
+                    for (int to : target)
+                    {
+                        g_uncompressed[from * g_bitbytes + (to >> 3)] |= (1 << (to & 7));
+
+                        if (!link.oneway)
+                        {
+                            g_uncompressed[to * g_bitbytes + (from >> 3)] |= (1 << (from & 7));
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -624,8 +680,15 @@ static void     LeafFlow(const int leafnum)
 			outbuffer[i >> 3] |= (1 << (i & 7));
 		}
 	}
-
+	for (int r : g_leafinfos[leafnum].removed_leaves) //Reversed info_portal must clear bits after portal flow
+	{
+		if (r != leafnum)
+		{
+			outbuffer[r >> 3] &= ~(1 << (r & 7));
+		}
+	}
     numvis = 0;
+
     for (i = 0; i < g_portalleafs; i++)
     {
         if (outbuffer[i >> 3] & (1 << (i & 7)))
@@ -843,18 +906,7 @@ static void     CalcVis()
 
 		CalcPortalVis();
 
-        // Add additional leaves to the uncompressed vis.
-        for (i = 0; i < g_portalleafs; i++)
-        {
-            if (!g_leafinfos[i].additional_leaves.empty())
-            {
-                for (int leaf : g_leafinfos[i].additional_leaves)
-                {
-                    LeafFlowNeighborAddLeaf(i, leaf, g_leafinfos[i].neighbor);
-                    leaf_flow_add_exclude.clear();
-                }
-            }
-        }
+        ApplyRoomLinks(); //Seal leaf links requested by info_portals
 
 		//
 		// assemble the leaf vis lists by oring and compressing the portal lists
@@ -876,6 +928,9 @@ static void     CalcVis()
 			// We need to reset the uncompressed variable and portal visbits
 			free(g_uncompressed);
 			g_uncompressed = (byte*)calloc(g_portalleafs, g_bitbytes);
+
+			//Reapply the links, the reset buffer lost them.
+			ApplyRoomLinks();
 
 			vismap_p = g_dvisdata;
 
@@ -949,7 +1004,7 @@ static void     LoadPortals(char* portal_image)
     // each file portal is split into two memory portals
     g_portals = (portal_t*)calloc(2 * g_numportals, sizeof(portal_t));
     g_leafs = (leaf_t*)calloc(g_portalleafs, sizeof(leaf_t));
-	g_leafinfos = (leafinfo_t*)calloc(g_portalleafs, sizeof(leafinfo_t));
+	g_leafinfos = new leafinfo_t[g_portalleafs]();
 	g_leafcounts = (int*)calloc(g_portalleafs, sizeof(int));
 	g_leafstarts = (int*)calloc(g_portalleafs, sizeof(int));
 
@@ -1004,14 +1059,28 @@ static void     LoadPortals(char* portal_image)
 
             if (0 <= d1 && d1 < g_leafcounts[i])
             {
-                for (int k = 0; k < g_portalleafs; k++)
-                {
-                    int d2 = g_room[j].target_visleafnum - g_leafstarts[k];
+                int lastk = -1;
 
-                    if (0 <= d2 && d2 < g_leafcounts[k])
+                for (int t = 0; t < (int)g_room[j].target_visleafnums.size(); t++)
+                {
+                    for (int k = 0; k < g_portalleafs; k++)
                     {
-                        g_leafinfos[i].additional_leaves.push_back(k);
-                        g_leafinfos[i].neighbor = g_room[j].neighbor;
+                        int d2 = g_room[j].target_visleafnums[t] - g_leafstarts[k];
+
+                        if (0 <= d2 && d2 < g_leafcounts[k])
+                        {
+                            if (k != lastk)
+                            {
+                                roomlink_t link;
+                                link.leaf = k;
+                                link.neighbor = g_room[j].neighbor;
+                                link.target_neighbor = g_room[j].targetneighbor;
+                                link.reverse = g_room[j].reverse != 0;
+                                link.oneway = g_room[j].oneway != 0;
+                                g_leafinfos[i].links.push_back(link);
+                                lastk = k;
+                            }
+                        }
                     }
                 }
             }
@@ -1323,7 +1392,92 @@ int        VisLeafnumForPoint(const vec3_t point)
 
     return -nodenum - 2;
 }
-// seedee
+
+// =====================================================================================
+//  ModelLeafSet
+//      Collects the empty dleafs indices touched by the faces of a brush model
+// =====================================================================================
+static void ModelLeafSet (const int modelnum, std::vector<int> &leaves)
+{
+    const dmodel_t* model = &g_dmodels[modelnum];
+
+    for (int f = model->firstface; f < model->firstface + model->numfaces; f++)
+    {
+        const dface_t* face = &g_dfaces[f];
+        const dplane_t* plane = &g_dplanes[face->planenum];
+        vec3_t centroid = { 0.0, 0.0, 0.0 };
+
+        for (int e = 0; e < face->numedges; e++)
+        {
+            const int edge = g_dsurfedges[face->firstedge + e];
+            const int vert = edge >= 0 ? g_dedges[edge].v[0] : g_dedges[-edge].v[1];
+            const dvertex_t* vertex = &g_dvertexes[vert];
+
+            for (int side = -1; side <= 1; side += 2)
+            {
+                vec3_t sample;
+                VectorMA (vertex->point, side * 2.0, plane->normal, sample); //Sample both sides to leave solid leafs
+                int leafnum = VisLeafnumForPoint (sample);
+
+                if (leafnum >= 0 && leafnum + 1 < g_numleafs && g_dleafs[leafnum + 1].contents != CONTENTS_SOLID)
+                {
+                    leaves.push_back (leafnum);
+                }
+            }
+            VectorAdd (centroid, vertex->point, centroid);
+        }
+        VectorScale (centroid, 1.0 / face->numedges, centroid);
+
+        for (int side = -1; side <= 1; side += 2)
+        {
+            vec3_t sample;
+            VectorMA (centroid, side * 2.0, plane->normal, sample);
+            int leafnum = VisLeafnumForPoint (sample);
+
+            if (leafnum >= 0 && leafnum + 1 < g_numleafs && g_dleafs[leafnum + 1].contents != CONTENTS_SOLID)
+            {
+                leaves.push_back (leafnum);
+            }
+        }
+    }
+}
+
+// =====================================================================================
+//  BoxLeafnums_r
+//      Counts empty dleafs a bounding box overlaps
+// =====================================================================================
+static void BoxLeafnums_r (const int nodenum, const vec3_t mins, const vec3_t maxs, int &leafcount)
+{
+    if (nodenum < 0)
+    {
+        const dleaf_t* leaf = &g_dleafs[-nodenum - 1];
+
+        if (leaf->contents != CONTENTS_SOLID)
+        {
+            leafcount++;
+        }
+        return;
+    }
+    const dnode_t* node = &g_dnodes[nodenum];
+    const dplane_t* plane = &g_dplanes[node->planenum];
+    const vec_t mindist = DotProduct (mins, plane->normal) - plane->dist;
+    const vec_t maxdist = DotProduct (maxs, plane->normal) - plane->dist;
+
+    if (mindist >= 0.0)
+    {
+        BoxLeafnums_r (node->children[0], mins, maxs, leafcount);
+    }
+    else if (maxdist < 0.0)
+    {
+        BoxLeafnums_r (node->children[1], mins, maxs, leafcount);
+    }
+    else
+    {
+        BoxLeafnums_r (node->children[0], mins, maxs, leafcount);
+        BoxLeafnums_r (node->children[1], mins, maxs, leafcount);
+    }
+}
+
 // =====================================================================================
 //  FixPrt
 //      Imports portal file to vector, erases vis cache lines, overwrites portal file
@@ -1739,7 +1893,9 @@ int             main(const int argc, char** argv)
     OpenLog(g_clientid);
     atexit(CloseLog);
     ThreadSetDefault();
+#ifdef ZHLT_NETVIS
     ThreadSetPriority(g_threadpriority);
+#endif
     LogStart(argcold, argvold);
 	{
 		int			 i;
@@ -1854,11 +2010,31 @@ int             main(const int argc, char** argv)
 
     LoadBSPFile(source);
     ParseEntities();
+    ThreadSetPriority(g_threadpriority);
+    Settings();
 	{
 		int i;
 		for (i = 0; i < g_numentities; i++)
 		{
             const char* current_entity_classname = ValueForKey (&g_entities[i], "classname");
+
+            const char* entmodel = ValueForKey (&g_entities[i], "model");
+
+            if (entmodel[0] == '*')
+            {
+                int modelnum = atoi (entmodel + 1);
+
+                if (0 < modelnum && modelnum < g_nummodels)
+                {
+                    int leafcount = 0;
+                    BoxLeafnums_r (0, g_dmodels[modelnum].mins, g_dmodels[modelnum].maxs, leafcount);
+
+                    if (leafcount > MAX_ENT_LEAFS)
+                    {
+                        Warning("Entity %d (%s) bbox overlaps %d leaves (max %d), engine will use a simpler headnode vis check. Use a custom bounding box or split the entity.", i, current_entity_classname, leafcount, MAX_ENT_LEAFS);
+                    }
+                }
+            }
 
 			if (!strcmp (current_entity_classname, "info_overview_point")
                 )
@@ -1882,41 +2058,101 @@ int             main(const int argc, char** argv)
 
                     GetVectorForKey (&g_entities[i], "origin", room_origin);
                     g_room[g_room_count].visleafnum = VisLeafnumForPoint (room_origin);
-                    g_room[g_room_count].neighbor = CLAMP(IntForKey (&g_entities[i], "neighbor"), 0, MAX_ROOM_NEIGHBOR);
+                    int portalneighbor = IntForKey (&g_entities[i], "neighbor");
+                    int portaltargetneighbor = IntForKey (&g_entities[i], "targetneighbor");
 
+                    if (portalneighbor < 0 || portalneighbor > MAX_ROOM_NEIGHBOR)
+                    {
+                        Warning("Entity %d (info_portal) neighbor %d out of range (Min 0, Max %d), clamped to %d.", i, portalneighbor, MAX_ROOM_NEIGHBOR, CLAMP(portalneighbor, 0, MAX_ROOM_NEIGHBOR));
+                    }
+                    if (portaltargetneighbor < 0 || portaltargetneighbor > MAX_ROOM_NEIGHBOR)
+                    {
+                        Warning("Entity %d (info_portal) targetneighbor %d out of range (Min 0, Max %d), clamped to %d.", i, portaltargetneighbor, MAX_ROOM_NEIGHBOR, CLAMP(portaltargetneighbor, 0, MAX_ROOM_NEIGHBOR));
+                    }
+                    g_room[g_room_count].neighbor = CLAMP(portalneighbor, 0, MAX_ROOM_NEIGHBOR);
+                    g_room[g_room_count].targetneighbor = CLAMP(portaltargetneighbor, 0, MAX_ROOM_NEIGHBOR);
+                    g_room[g_room_count].reverse = IntForKey (&g_entities[i], "reverse");
+                    g_room[g_room_count].oneway = IntForKey (&g_entities[i], "oneway");
                     const char* target = ValueForKey (&g_entities[i], "target");
 
                     if (strlen(target) == 0)
                     {
                         continue;
                     }
+                    char targetbuffer[MAX_VAL];
+                    safe_snprintf(targetbuffer, sizeof(targetbuffer), "%s", target);
+                    char* name = strtok(targetbuffer, ";");
 
-                    bool has_target = false;
-
-                    // Find the target entity.
-                    // Rewalk yes, very sad.
-                    for (int j = 0; j < g_numentities; j++)
+                    while (name != NULL)
                     {
-                        const char* current_entity_classname_nested = ValueForKey (&g_entities[j], "classname");
-
-                        // Find a `info_leaf` and check if its targetname matches our target
-                        if (!strcmp (current_entity_classname_nested, "info_leaf")
-                            && !strcmp(ValueForKey (&g_entities[j], "targetname"), target))
+                        while (*name == ' ' || *name == '\t')
                         {
-                            vec3_t room_target_origin;
-
-                            GetVectorForKey (&g_entities[j], "origin", room_target_origin);
-                            g_room[g_room_count].target_visleafnum = VisLeafnumForPoint (room_target_origin);
-
-                            has_target = true;
+                            name++;
                         }
-                    }
+                        char* nameend = name + strlen (name);
 
-                    if (!has_target)
+                        while (nameend > name && (nameend[-1] == ' ' || nameend[-1] == '\t'))
+                        {
+                            nameend--;
+                        }
+                        *nameend = '\0';
+                        if (name[0] != '\0')
+                        {
+                            bool has_entity = false;
+
+                            // Find the target entity.
+                            // Rewalk yes, very sad.
+                            for (int j = 0; j < g_numentities; j++)
+                            {
+                                const char* current_entity_classname_nested = ValueForKey (&g_entities[j], "classname");
+
+                                if (!strcmp (current_entity_classname_nested, "worldspawn"))
+                                {
+                                    continue;
+                                }
+                                if (strcmp (ValueForKey (&g_entities[j], "targetname"), name))
+                                {
+                                    continue;
+                                }
+                                has_entity = true;
+                                const char* targetmodel = ValueForKey (&g_entities[j], "model");
+
+                                if (targetmodel[0] == '*')
+                                {
+                                    int modelnum = atoi (targetmodel + 1); //Contribute every leaf brush ent faces touch
+
+                                    if (0 < modelnum && modelnum < g_nummodels)
+                                    {
+                                        ModelLeafSet (modelnum, g_room[g_room_count].target_visleafnums);
+                                    }
+                                    else
+                                    {
+                                        Warning("Entity %d (info_portal) target '%s' has an invalid brush model.", i, name);
+                                    }
+                                }
+                                else
+                                {
+                                    vec3_t room_target_origin;
+
+                                    GetVectorForKey (&g_entities[j], "origin", room_target_origin);
+                                    g_room[g_room_count].target_visleafnums.push_back (VisLeafnumForPoint (room_target_origin));
+                                }
+                                break; //Duplicated targetnames resolve to a single entity
+                            }
+                            if (!has_entity)
+                            {
+                                Warning("Entity %d (info_portal) target '%s' does not have a matching entity.", i, name);
+                            }
+                        }
+                        name = strtok(NULL, ";");
+                    }
+                    if (g_room[g_room_count].target_visleafnums.empty())
                     {
-                        Warning("Entity %d (info_portal) does not have a target leaf.", i);
+                        continue;
                     }
-
+                    //A brush entity contributes many leafs, keep the set unique
+                    std::sort (g_room[g_room_count].target_visleafnums.begin(), g_room[g_room_count].target_visleafnums.end());
+                    g_room[g_room_count].target_visleafnums.erase (std::unique (g_room[g_room_count].target_visleafnums.begin(), g_room[g_room_count].target_visleafnums.end()), g_room[g_room_count].target_visleafnums.end());
                     g_room_count++;
                 }
             }
@@ -1931,7 +2167,9 @@ int             main(const int argc, char** argv)
 
 #endif
 
+#ifdef ZHLT_NETVIS
     Settings();
+#endif
     g_uncompressed = (byte*)calloc(g_portalleafs, g_bitbytes);
 
     CalcVis();
