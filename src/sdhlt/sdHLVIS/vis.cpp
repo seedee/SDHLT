@@ -1004,7 +1004,7 @@ static void     LoadPortals(char* portal_image)
     // each file portal is split into two memory portals
     g_portals = (portal_t*)calloc(2 * g_numportals, sizeof(portal_t));
     g_leafs = (leaf_t*)calloc(g_portalleafs, sizeof(leaf_t));
-	g_leafinfos = (leafinfo_t*)calloc(g_portalleafs, sizeof(leafinfo_t));
+	g_leafinfos = new leafinfo_t[g_portalleafs]();
 	g_leafcounts = (int*)calloc(g_portalleafs, sizeof(int));
 	g_leafstarts = (int*)calloc(g_portalleafs, sizeof(int));
 
@@ -1419,7 +1419,7 @@ static void ModelLeafSet (const int modelnum, std::vector<int> &leaves)
                 VectorMA (vertex->point, side * 2.0, plane->normal, sample); //Sample both sides to leave solid leafs
                 int leafnum = VisLeafnumForPoint (sample);
 
-                if (leafnum >= 0 && leafnum < g_numleafs && g_dleafs[leafnum].contents != CONTENTS_SOLID)
+                if (leafnum >= 0 && leafnum + 1 < g_numleafs && g_dleafs[leafnum + 1].contents != CONTENTS_SOLID)
                 {
                     leaves.push_back (leafnum);
                 }
@@ -1434,7 +1434,7 @@ static void ModelLeafSet (const int modelnum, std::vector<int> &leaves)
             VectorMA (centroid, side * 2.0, plane->normal, sample);
             int leafnum = VisLeafnumForPoint (sample);
 
-            if (leafnum >= 0 && leafnum < g_numleafs && g_dleafs[leafnum].contents != CONTENTS_SOLID)
+            if (leafnum >= 0 && leafnum + 1 < g_numleafs && g_dleafs[leafnum + 1].contents != CONTENTS_SOLID)
             {
                 leaves.push_back (leafnum);
             }
