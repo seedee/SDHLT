@@ -44,7 +44,7 @@
 #define RVIS_LEVEL_1
 #define RVIS_LEVEL_2
 
-#define PORTALFILE      "PRT1" // WTF?
+#define PORTALFILE      "PRT1" // Quake portal file header, required for TrenchBroom prt file
 
 #define	MAX_POINTS_ON_FIXED_WINDING	32
 
